@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsJson", "FsJson\FsJson.fsproj", "{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsLogging", "FsLogging\FsLogging.fsproj", "{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsStorm", "FsStorm\FsStorm.fsproj", "{BE537B3C-1636-46A5-8FA4-635D0842BAB1}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FstExtensions", "FstExtensions\FstExtensions.fsproj", "{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FstSimpleTest", "FstSimpleTest\FstSimpleTest.fsproj", "{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Refs", "Refs", "{84AC8A39-60F9-4E77-93B2-184FE1276A55}"
+	ProjectSection(SolutionItems) = preProject
+		Refs\StormThrift.dll = Refs\StormThrift.dll
+		Refs\Thrift.dll = Refs\Thrift.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B77C3AD-21BC-4545-9C30-B6B94136EA65}"
+	ProjectSection(SolutionItems) = preProject
+		Read.me = Read.me
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
