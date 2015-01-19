@@ -46,11 +46,10 @@ let private stormOut =
         async {
             while true do
                 let! (str:string) = inbox.Receive()
-                Console.Out.Write(str)
-                Console.Out.Write("\n") 
-                Console.Out.Write("end\n")
+                Console.Out.WriteLine(str)
+                Console.Out.WriteLine("end")
                 Console.Out.Flush()
-                Logging.log "out" str
+//                Logging.log "out" str
             })
     mb.Post
 
@@ -76,7 +75,7 @@ let private stormIn()=
         let! msg  = Console.In.ReadLineAsync() |> Async.AwaitTask
         let! term = Console.In.ReadLineAsync() |> Async.AwaitTask
         if term = "end" then
-            Logging.log "in" msg
+//            Logging.log "in" msg
             return msg
         elif msg="" || term ="" then
             Logging.log "stormIn" "empty input, exiting..."

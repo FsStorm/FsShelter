@@ -72,9 +72,4 @@
       <Name>FstExtensions</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="App.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>

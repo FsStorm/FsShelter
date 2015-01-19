@@ -37,7 +37,7 @@ let topology =
                     Bolt        = Local 
                                     {
                                         Name = "SimpleBolt"
-                                        Func = SimpleTestComponents.spout
+                                        Func = SimpleTestComponents.bolt
                                      }
                     Config      = jval [Storm.FSLOGDIR, baseLogDir] //directory for the logs of this component
                     Parallelism = 2

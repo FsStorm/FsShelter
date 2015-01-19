@@ -16,13 +16,11 @@ let spout cfg =
   
         let producer() = 
             async{ 
-                Logging.log "producer" ""
                 do fStormEmit (jval [Storm.TUPLE,[rnd.Next(0,100)]]) 
                 do Storm.stormSync()
                 }
         producer
       
-    Logging.log  "spout" "starting"
     //run the spout
     Storm.simpleSpoutRunner cfg fCreateEmitter
      

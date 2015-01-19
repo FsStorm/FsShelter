@@ -35,30 +35,35 @@ let sleep() =
             }
     sleep() |> Async.RunSynchronously
 
+let setupLogging (cfg:Storm.Configuration) =
+    let tag = "setupLogging"
+    let pid = Storm.pid().ToString() //used to differentiate logs from different instances of the same component
+    match cfg.Json?conf?(Storm.FSLOGDIR) with
+    | JsonString dir ->  
+        Logging.terminateLog(); 
+        let logPath = Path.Combine(dir,pid)
+        Logging.log_path <- logPath
+    | _ -> ()
+
 //run a specific component (spout or bolt).
 //the component to run is determined
 //from the configuration data passed in by storm
 //in the handshake
 let runComponent runMap =
     let tag = "runComponent"
-    let pid = Storm.pid().ToString() //used to differentiate logs from different instances of the same component
     async {
         try 
             let! cfg = Storm.readHandshake()
-            do! Storm.processPid cfg.PidDir
-            match cfg.Json?conf?(Storm.FSLOGDIR) with
-            | JsonString dir ->  
-                let logPath = Path.Combine(dir,pid)
-                Logging.terminateLog(); 
-                Logging.log_path <- logPath
-            | _ -> ()
+            setupLogging cfg
             Logging.log tag (sprintf "%A" cfg.Json)
+            do! Storm.processPid cfg.PidDir
             let scriptName = cfg.Json?conf?(Storm.FSCOMPONENT).Val
             Logging.log tag (sprintf "running %s" scriptName)
             let func = runMap |> Map.find scriptName
             (func cfg) |> Async.Start
         with ex ->
-            //better to exit process if something goes wrong at this point
+            //better to exit process if something goes wrong 
+            //at this point
             Logging.logex tag ex
             System.Console.WriteLine(tag)
             System.Console.WriteLine(ex.Message)
