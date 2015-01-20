@@ -4,9 +4,6 @@
 open StormDSL
 open FsJson
 
-//let baseLogDir = "/Users/Fai/Logs/"
-let baseLogDir = @"c:/ws/temp/fst/"
-
 //example of using FsStorm DSL for defining topologies
 let topology =
     {
@@ -17,12 +14,8 @@ let topology =
                 {
                     Id          = "SimpleSpout"
                     Outputs     = [Default ["number"]]
-                    Spout       = Local 
-                                    {
-                                        Name = "SimpleSpout"
-                                        Func = SimpleTestComponents.spout
-                                     }
-                    Config      = jval [Storm.FSLOGDIR, baseLogDir] //directory for the logs of this component
+                    Spout       = Local { Func = SimpleTestComponents.spout}
+                    Config      = JsonNull
                     Parallelism = 1
                 }
             ]
@@ -34,12 +27,8 @@ let topology =
                     Id          = "SimpleBolt"
                     Outputs     = []
                     Inputs      = [DefaultStream "SimpleSpout", Shuffle]
-                    Bolt        = Local 
-                                    {
-                                        Name = "SimpleBolt"
-                                        Func = SimpleTestComponents.bolt
-                                     }
-                    Config      = jval [Storm.FSLOGDIR, baseLogDir] //directory for the logs of this component
+                    Bolt        = Local { Func = SimpleTestComponents.bolt }
+                    Config      = JsonNull
                     Parallelism = 2
                     
                 }

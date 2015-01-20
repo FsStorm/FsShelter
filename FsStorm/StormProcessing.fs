@@ -19,11 +19,11 @@ let submit name (topology:StormThrift.StormTopology) host port uploadedJarLocati
 //maps script names to runner functions
 let runMap (topology:StormDSL.Topology) = 
         seq {
-            for b in topology.Bolts -> b.Bolt
-            for s in topology.Spouts -> s.Spout
+            for b in topology.Bolts -> b.Id,b.Bolt
+            for s in topology.Spouts -> s.Id,s.Spout
         }
-        |> Seq.choose (function | StormDSL.Local ref -> Some ref | _ -> None)
-        |> Seq.map (fun {Name=n; Func=f} -> n,f)
+        |> Seq.choose (function | id,StormDSL.Local ref -> Some (id,ref) | _ -> None)
+        |> Seq.map (fun (n,{Func=f}) -> n,f)
         |> Map.ofSeq
 
 //hangs the main thread to keep the process alive
@@ -35,15 +35,10 @@ let sleep() =
             }
     sleep() |> Async.RunSynchronously
 
-let setupLogging (cfg:Storm.Configuration) =
-    let tag = "setupLogging"
-    let pid = Storm.pid().ToString() //used to differentiate logs from different instances of the same component
-    match cfg.Json?conf?(Storm.FSLOGDIR) with
-    | JsonString dir ->  
-        Logging.terminateLog(); 
-        let logPath = Path.Combine(dir,pid)
-        Logging.log_path <- logPath
-    | _ -> ()
+let findComponent (cfg:Storm.Configuration) =
+    let taskMap = cfg.Json?context?``task->component``
+    let taskName = taskMap.Named cfg.TaskId
+    taskName.Val
 
 //run a specific component (spout or bolt).
 //the component to run is determined
@@ -54,10 +49,9 @@ let runComponent runMap =
     async {
         try 
             let! cfg = Storm.readHandshake()
-            setupLogging cfg
-            Logging.log tag (sprintf "%A" cfg.Json)
+            Logging.log tag (sprintf "%s" (FsJson.serialize cfg.Json))
             do! Storm.processPid cfg.PidDir
-            let scriptName = cfg.Json?conf?(Storm.FSCOMPONENT).Val
+            let scriptName = findComponent cfg
             Logging.log tag (sprintf "running %s" scriptName)
             let func = runMap |> Map.find scriptName
             (func cfg) |> Async.Start

@@ -6,7 +6,7 @@ open System
 
 ///References the function that will run when
 ///Strom invokes the program. The 'Name' is passed in the configuration
-type ScriptRef = {Name:string; Func:Storm.Configuration->Async<unit>}
+type ScriptRef = {Func:Storm.Configuration->Async<unit>}
 
 type Component = 
     | Shell of command:string * args:string

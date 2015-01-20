@@ -57,16 +57,6 @@ let makeStreamInfo stream =
         si.Output_fields <- new List<string>(fields)
         name,si
 
-let makeConfig topologyConfig comp =
-    match comp with
-    | StormDSL.Local scriptRef ->
-        match topologyConfig with
-        | FsJson.JsonNull -> jval [Storm.FSCOMPONENT,scriptRef.Name]
-        | FsJson.JsonObject map ->  map |> Map.add Storm.FSCOMPONENT (JsonString scriptRef.Name) |> JsonObject
-        | _ -> failwithf "the custom configuration specified in a topology must be either JsonObject or JsonNull when using a Local component"
-    | _ -> topologyConfig
-    |> FsJson.serialize
-
 let translate exeName optionalArgs  (topology:StormDSL.Topology) : StormThrift.StormTopology =
     StormDSLValidate.validate topology
     let tp = new StormTopology()
@@ -86,7 +76,7 @@ let translate exeName optionalArgs  (topology:StormDSL.Topology) : StormThrift.S
         cmn.Parallelism_hint <- b.Parallelism
         cmn.Inputs <- dinputs
         cmn.Streams <- doutstrms
-        cmn.Json_conf <- makeConfig b.Config b.Bolt
+        cmn.Json_conf <- FsJson.serialize b.Config
         //bolt properties
         blt.Common <- cmn
         b.Id,blt
@@ -103,7 +93,7 @@ let translate exeName optionalArgs  (topology:StormDSL.Topology) : StormThrift.S
         cmn.Parallelism_hint <- s.Parallelism
         cmn.Inputs <- new Dictionary<GlobalStreamId,Grouping>()
         cmn.Streams <- doutstrms
-        cmn.Json_conf <- makeConfig s.Config s.Spout
+        cmn.Json_conf <- FsJson.serialize s.Config
         //spout properties
         spt.Common <- cmn
         s.Id,spt)

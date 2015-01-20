@@ -8,6 +8,7 @@ let isMono() = System.Type.GetType("Mono.Runtime") <> null
 
 [<EntryPoint>]
 let main argv = 
+    Logging.log_path <- @"c:/ws/temp/fst/" + Logging.pid
     if isMono() then
         let exeName = System.IO.Path.GetFileName(exePath)
         StormProcessing.run "mono" [exeName] SimpleTestTopology.topology argv

@@ -19,10 +19,6 @@ let NEXT = "next"
 let EMIT = "emit"
 [<Literal>]
 let TUPLE = "tuple"
-[<Literal>]
-let FSCOMPONENT = "FSComponent"
-[<Literal>]
-let FSLOGDIR = "FSLogDir"
 
 
 let mutable private _currentId = 0L
@@ -126,7 +122,7 @@ let readHandshake()=
             return
                 {
                     PidDir = s
-                    TaskId = jmsg?taskid.Val
+                    TaskId = jmsg?context?taskid.Val
                     Json = jmsg
                 }
         | _ -> return! stormLogAndThrow "expected handshake but pidDir not found" {PidDir=""; TaskId=""; Json=JsonNull}

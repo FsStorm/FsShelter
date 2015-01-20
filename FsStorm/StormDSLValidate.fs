@@ -55,25 +55,6 @@ let private ensureCorrectBoltRefs (topology:StormDSL.Topology) =
         | _, _       -> failwithf "*** at least one reference for Bolt %s is not correct" boltId
     allBoltInputs |> Seq.iter (fun (boltId,streamRef,grouping) -> getGroupingFields (streamRef,grouping) |> fieldMatch boltId)
 
-let validateLocalRefs (topology:StormDSL.Topology) =
-    let localRefs = 
-        seq {
-            for s in topology.Spouts do
-                match s.Spout with
-                | StormDSL.Local f -> yield f
-                | _ -> ()
-            for b in topology.Bolts do
-                match b.Bolt with
-                | StormDSL.Local f -> yield f
-                | _ -> ()
-        }
-    let scriptNames = localRefs |> Seq.map (fun {Name=n} -> n)
-    //ScriptNames  should be unique
-    let name,count =
-        scriptNames
-            |> Seq.countBy (fun n->n)
-            |> Seq.maxBy snd
-    if count > 1 then failwithf "*** repeated script name attribute %s" name
 
 let validateConfigs (topology:StormDSL.Topology) =
     let configs =
@@ -91,5 +72,4 @@ let validate (topology:StormDSL.Topology) =
     ensureUniqueComponentIds topology
     ensureUniqueBoltInputIds topology
     ensureCorrectBoltRefs    topology
-    validateLocalRefs        topology
     validateConfigs          topology
