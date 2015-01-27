@@ -30,10 +30,18 @@ let componentShuttingDown() =
         Async.CancelDefaultToken()
    }
 
+let isMono() = System.Type.GetType("Mono.Runtime") <> null
+
 /// use utf8 only - this is called at initialization
-let initIO() =
-    Console.InputEncoding <- Encoding.UTF8
-    Console.OutputEncoding <- Encoding.UTF8
+let initIO() = 
+    if isMono() then
+        () 
+        //on osx, setting encoding causes a problem as storm cannot parse output
+        //not sure what is the best way of enabling utf8 on osx / unix
+        //TODO: for now ignoring this on mono
+    else
+        Console.InputEncoding <- Encoding.UTF8
+        Console.OutputEncoding <- Encoding.UTF8
 
 ///send to storm via stdout. Note: data cannot have new lines as these
 ///are as delimiters

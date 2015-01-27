@@ -1,7 +1,7 @@
-﻿#load "../FsStorm/StormSubmit.fsx"
+﻿#load "../Refs/StormSubmit.fsx"
 
-//let binDir = "/Users/Fai/Projects/FsStorm/FstSimpleTest/bin/Release"
-let binDir = @"C:\Users\Faisal\Downloads\FsStorm\FstSimpleTest\bin\Release"
+let binDir = "/Users/Fai/Projects/fwaris/FsStorm/FstSimpleTest/bin/Release"
+//let binDir = @"C:\Users\Faisal\Downloads\FsStorm\FstSimpleTest\bin\Release"
 
 //StormSubmit.makeJar binDir
 

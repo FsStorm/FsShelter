@@ -4,12 +4,11 @@
 
 let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 
-let isMono() = System.Type.GetType("Mono.Runtime") <> null
-
 [<EntryPoint>]
 let main argv = 
-    Logging.log_path <- @"c:/ws/temp/fst/" + Logging.pid
-    if isMono() then
+    let logBase = if Storm.isMono() then "/Users/Fai/Logs/" else @"c:/ws/temp/fst/"
+    Logging.log_path <- logBase + Logging.pid
+    if Storm.isMono() then
         let exeName = System.IO.Path.GetFileName(exePath)
         StormProcessing.run "mono" [exeName] SimpleTestTopology.topology argv
     else

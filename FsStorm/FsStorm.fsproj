@@ -41,7 +41,6 @@
     <Compile Include="StormDSLValidate.fs" />
     <Compile Include="StormDSLTranslate.fs" />
     <Compile Include="StormProcessing.fs" />
-    <None Include="StormSubmit.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
