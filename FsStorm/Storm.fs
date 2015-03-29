@@ -68,10 +68,20 @@ let stormLog (msg:string) = jval ["command","log"; "msg",msg] |> FsJson.serializ
 let stormLogAndThrow<'a> msg (r:'a) =
     async {
         do stormLog msg
-        Logging.log "stormfail" msg
         do failwith msg
         return r
     }
+
+let nestedExceptionTrace (ex:Exception) =
+    let sb = new System.Text.StringBuilder()
+    let rec loop (ex:Exception) =
+        sb.AppendLine(ex.Message).AppendLine(ex.StackTrace) |> ignore
+        if ex.InnerException <> null then
+            sb.AppendLine("========") |> ignore
+            loop ex.InnerException
+        else
+            sb.ToString()
+    loop ex
 
 ///read a message from storm via stdin
 let private stormIn()=
@@ -82,7 +92,7 @@ let private stormIn()=
 //            Logging.log "in" msg
             return msg
         elif msg="" || term ="" then
-            Logging.log "stormIn" "empty input, exiting..."
+            stormLog "empty input on stdin - component shutting down"
             do! componentShuttingDown()
             Environment.Exit(0)
             return ""
@@ -108,7 +118,6 @@ let pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 let createPid pidDir =
     let pid = pid().ToString()
     let path = pidDir + "/" + pid
-    Logging.log "pidpath" path
     use fs = File.CreateText(path)
     fs.Close()
 
@@ -160,7 +169,7 @@ let reliableSpoutRunner cfg fCreateHousekeeper fCreateEmitter =
                 | ACK | FAIL | "" -> housekeeper jmsg      //empty is task list ids?
                 | _ -> failwithf "invalid cmd %s" cmd
         with ex ->
-            Logging.logex "spoutAgent" ex
+            return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
 
 ///runner loop for simple spouts
@@ -178,7 +187,7 @@ let simpleSpoutRunner cfg fCreateEmitter =
                 | ACK | FAIL | "" -> ()     //ignore other commands
                 | _ -> failwithf "invalid cmd %s" cmd
         with ex ->
-            Logging.logex "spoutAgent" ex
+            return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
 
 ///bolt runner that auto acks received msgs
@@ -202,7 +211,7 @@ let autoAckBoltRunner cfg fReaderCreator =
                     | JsonString str -> do stormAck str
                     | _ -> ()
          with ex ->
-            Logging.logex "boltMaster" ex
+            return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
 
 let msgId (j:Json) = match j?id with JsonString s -> s | _ -> failwith (sprintf "Msg id not found in %A" j)
@@ -235,10 +244,10 @@ let housekeeper  (inbox:MailboxProcessor<Json>) =
                     let id = pendingIds.Dequeue()
                     let prevMsg = ids.[id]
                     ids.[id] <- (prevMsg?__taskids <- msg)
-                | other -> Logging.log tag (sprintf "invalid command for msg %A" msg)
+                | other -> failwithf "invalid command for msg %A" msg
         with ex ->
-            do stormLog ex.Message
-            Logging.logex tag ex
+            do stormLog tag
+            do stormLog (nestedExceptionTrace ex)
             }
 
 //creates the default housekeeper for reliable spouts
