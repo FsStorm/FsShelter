@@ -49,16 +49,14 @@ let runComponent runMap =
     async {
         try 
             let! cfg = Storm.readHandshake()
-            Logging.log tag (sprintf "%s" (FsJson.serialize cfg.Json))
             do! Storm.processPid cfg.PidDir
             let scriptName = findComponent cfg
-            Logging.log tag (sprintf "running %s" scriptName)
             let func = runMap |> Map.find scriptName
             (func cfg) |> Async.Start
         with ex ->
             //better to exit process if something goes wrong 
             //at this point
-            Logging.logex tag ex
+            Storm.stormLog (Storm.nestedExceptionTrace ex)
             System.Console.WriteLine(tag)
             System.Console.WriteLine(ex.Message)
             System.Console.WriteLine(ex.StackTrace)
@@ -84,6 +82,6 @@ let run exeName optionalArgs topology commandLineArgs =
             sleep()
             0
     with ex ->
-        Logging.logex "run" ex
+        Storm.stormLog (Storm.nestedExceptionTrace ex)
         printfn "%s" ex.Message
         1
