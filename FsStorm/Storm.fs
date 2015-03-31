@@ -217,40 +217,47 @@ let autoAckBoltRunner cfg fReaderCreator =
 let msgId (j:Json) = match j?id with JsonString s -> s | _ -> failwith (sprintf "Msg id not found in %A" j)
 
 ///a simple helper that can be used with reliable spouts
-let housekeeper  (inbox:MailboxProcessor<Json>) =
+let getHousekeeper onEmit onAck onFail onTasks = 
     let tag = "housekeeper"
-    let ids = new System.Collections.Generic.Dictionary<string,Json>()
-    let pendingIds = new System.Collections.Generic.Queue<string>()
-    async {
-        try
-            while true do
-                let! msg = inbox.Receive()
-                let cmd = msg?command.Val
-                match cmd with
-                | EMIT -> 
-                    let mid = msgId msg
-                    ids.[mid] <- msg
-                    pendingIds.Enqueue mid
-                | ACK -> ids.Remove (msgId msg) |> ignore
-                | FAIL -> 
-                    let mid = msgId msg
-                    let msg = ids.[mid]
-                    let taskIds = msg?__taskids.Array //assuming taskids are received before fail msg
-                    let msg = msg.Remove "__taskids"
-                    for t in taskIds do
-                        let m = msg?taskid <- t
-                        do stormOut (FsJson.serialize m)
-                | "" when isArray msg -> //assume task ids
-                    let id = pendingIds.Dequeue()
-                    let prevMsg = ids.[id]
-                    ids.[id] <- (prevMsg?__taskids <- msg)
-                | other -> failwithf "invalid command for msg %A" msg
-        with ex ->
+    fun  (inbox : MailboxProcessor<Json>) ->
+        async { 
+            try 
+                while true do
+                    let! msg = inbox.Receive()
+                    let cmd = msg?command.Val
+                    match cmd with
+                    | EMIT -> onEmit msg
+                    | ACK -> onAck msg
+                    | FAIL -> onFail msg
+                    | "" when isArray msg -> onTasks msg //assume task ids
+                    | other -> failwithf "invalid command for msg %A" msg
+            with ex ->
             do stormLog tag
             do stormLog (nestedExceptionTrace ex)
-            }
+        }
 
 //creates the default housekeeper for reliable spouts
 let createDefaultHousekeeper cfg = 
-    let mb = MailboxProcessor.Start housekeeper
+    let ids = new System.Collections.Generic.Dictionary<string, Json>()
+    let pendingIds = new System.Collections.Generic.Queue<string>()
+    let onEmit msg =
+        let mid = msgId msg
+        ids.[mid] <- msg
+        pendingIds.Enqueue mid
+    let onAck msg = 
+        ids.Remove(msgId msg) |> ignore
+    let onFail msg =
+        let mid = msgId msg
+        let msg = ids.[mid]
+        let taskIds = msg?__taskids.Array //assuming taskids are received before fail msg
+        let msg = msg.Remove "__taskids"
+        for t in taskIds do
+            let m = msg?taskid <- t
+            do stormOut (FsJson.serialize m)
+    let onTasks msg =
+        let id = pendingIds.Dequeue()
+        let prevMsg = ids.[id]
+        ids.[id] <- (prevMsg?__taskids <- msg)
+
+    let mb = MailboxProcessor.Start (getHousekeeper onEmit onAck onFail onTasks)
     mb.Post
