@@ -62,7 +62,7 @@ let stormSync() = stormOut """{"command":"sync"}"""
 let stormSendPid (pid:int) = stormOut (String.Format("""{{"pid":{0}}}""",pid))
 let stormFail (id:string) = stormOut (String.Format("""{{"command":"fail","id":"{0}"}}""", id))
 let stormAck  (id:string) = stormOut (String.Format("""{{"command":"ack","id":"{0}"}}""", id))
-let stormLog (msg:string) = jval ["command","log"; "msg",msg] |> FsJson.serialize |> stormOut
+let stormLog (msg:string) = jval ["command","log"; "msg",msg; "level","4"] |> FsJson.serialize |> stormOut
 
 ///log to storm and throw exception 
 let stormLogAndThrow<'a> msg (r:'a) =
