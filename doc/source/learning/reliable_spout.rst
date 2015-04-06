@@ -1,5 +1,0 @@
-Reliable spout
-============
-
-
-TODO

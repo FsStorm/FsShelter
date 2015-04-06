@@ -1,4 +1,0 @@
-Simple emitting bolt
-============
-
-TODO

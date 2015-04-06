@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BE537B3C-1636-46A5-8FA4-635D0842BAB1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FsStorm</RootNamespace>
+    <AssemblyName>FsStorm</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>false</Tailcalls>
+    <PlatformTarget>
+    </PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>
+    </PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Storm.fs" />
+    <Compile Include="StormDSL.fs" />
+    <Compile Include="StormDSLValidate.fs" />
+    <Compile Include="StormDSLTranslate.fs" />
+    <Compile Include="StormProcessing.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="StormThrift">
+      <HintPath>..\..\Refs\StormThrift.dll</HintPath>
+    </Reference>
+    <Reference Include="Thrift">
+      <HintPath>..\..\Refs\Thrift.dll</HintPath>
+    </Reference>
+    <ProjectReference Include="..\FsJson\FsJson.fsproj">
+      <Project>{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}</Project>
+      <Name>FsJson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FstExtensions\FstExtensions.fsproj">
+      <Project>{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}</Project>
+      <Name>FstExtensions</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

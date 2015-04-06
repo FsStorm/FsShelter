@@ -1,4 +1,0 @@
-Interop
-===========================
-
-Java components interop
