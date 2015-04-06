@@ -138,8 +138,11 @@ paket-files
 *.orig
 .paket/paket.exe
 .paket/paket.targets
+
+# docs
 docs/content/LICENSE.md
 docs/content/RELEASE-NOTES.md
+docs/output
 
 # Enable "build/" folder in the NuGet Packages folder since
 # NuGet packages use it for MSBuild targets.
