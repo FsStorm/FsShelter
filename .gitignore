@@ -134,6 +134,12 @@ packages/*
 ## TODO: If the tool you use requires repositories.config
 ## uncomment the next line
 #!packages/repositories.config
+paket-files
+*.orig
+.paket/paket.exe
+.paket/paket.targets
+docs/content/LICENSE.md
+docs/content/RELEASE-NOTES.md
 
 # Enable "build/" folder in the NuGet Packages folder since
 # NuGet packages use it for MSBuild targets.
