@@ -57,17 +57,25 @@ let private stormOut =
             })
     mb.Post
 
+/// Storm log levels
+type LogLevel =
+    | Trace = 0
+    | Debug = 1
+    | Info = 2
+    | Warn = 3
+    | Error = 4
+
 //utility storm output functions
 let stormSync() = stormOut """{"command":"sync"}"""
 let stormSendPid (pid:int) = stormOut (String.Format("""{{"pid":{0}}}""",pid))
 let stormFail (id:string) = stormOut (String.Format("""{{"command":"fail","id":"{0}"}}""", id))
 let stormAck  (id:string) = stormOut (String.Format("""{{"command":"ack","id":"{0}"}}""", id))
-let stormLog (msg:string) = jval ["command","log"; "msg",msg; "level","4"] |> FsJson.serialize |> stormOut
+let stormLog (msg:string) (lvl:LogLevel) = jval ["command","log"; "msg",msg; "level",(int lvl).ToString()] |> FsJson.serialize |> stormOut
 
 ///log to storm and throw exception 
 let stormLogAndThrow<'a> msg (r:'a) =
     async {
-        do stormLog msg
+        do stormLog msg LogLevel.Error
         do failwith msg
         return r
     }
@@ -92,12 +100,12 @@ let private stormIn()=
 //            Logging.log "in" msg
             return msg
         elif msg="" || term ="" then
-            stormLog "empty input on stdin - component shutting down"
+            stormLog "empty input on stdin - component shutting down" LogLevel.Error
             do! componentShuttingDown()
             Environment.Exit(0)
             return ""
         else
-            return! stormLogAndThrow "invalid input msg" ""
+            return! stormLogAndThrow "invalid input msg" msg
      }
 
  //message emitter for reliable spouts
@@ -230,10 +238,9 @@ let getHousekeeper onEmit onAck onFail onTasks =
                     | ACK -> onAck msg
                     | FAIL -> onFail msg
                     | "" when isArray msg -> onTasks msg //assume task ids
-                    | other -> failwithf "invalid command for msg %A" msg
+                    | other -> failwithf "invalid command %A for msg %A" other msg
             with ex ->
-            do stormLog tag
-            do stormLog (nestedExceptionTrace ex)
+                do stormLog (tag + ": " + (nestedExceptionTrace ex)) LogLevel.Error
         }
 
 //creates the default housekeeper for reliable spouts

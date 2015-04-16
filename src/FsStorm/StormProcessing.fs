@@ -52,11 +52,12 @@ let runComponent runMap =
             do! Storm.processPid cfg.PidDir
             let scriptName = findComponent cfg
             let func = runMap |> Map.find scriptName
+            Storm.stormLog (sprintf "PID %A: running %A" (Storm.pid()) scriptName) Storm.LogLevel.Info
             (func cfg) |> Async.Start
         with ex ->
             //better to exit process if something goes wrong 
             //at this point
-            Storm.stormLog (Storm.nestedExceptionTrace ex)
+            Storm.stormLog (Storm.nestedExceptionTrace ex) Storm.LogLevel.Error
             System.Console.WriteLine(tag)
             System.Console.WriteLine(ex.Message)
             System.Console.WriteLine(ex.StackTrace)
@@ -82,6 +83,6 @@ let run exeName optionalArgs topology commandLineArgs =
             sleep()
             0
     with ex ->
-        Storm.stormLog (Storm.nestedExceptionTrace ex)
+        Storm.stormLog (Storm.nestedExceptionTrace ex) Storm.LogLevel.Error
         printfn "%s" ex.Message
         1
