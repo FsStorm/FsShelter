@@ -52,7 +52,7 @@ let runComponent runMap =
             do! Storm.processPid cfg.PidDir
             let scriptName = findComponent cfg
             let func = runMap |> Map.find scriptName
-            Storm.stormLog (sprintf "PID %A: running %A" (Storm.pid()) scriptName) Storm.LogLevel.Info
+            Storm.stormLog "running..." Storm.LogLevel.Info
             (func cfg) |> Async.Start
         with ex ->
             //better to exit process if something goes wrong 

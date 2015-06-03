@@ -57,6 +57,10 @@ type Json =
         | JsonInt n -> n
         | JsonFloat n -> Convert.ToInt32(n)
         | _ -> failwith "not a numeric value"
+    member x.ValGuid =
+        match x with
+        | JsonString s -> Guid.Parse s
+        | _ -> failwith "not a numeric value"
     member x.Item
         with get(index) =
             match x with
@@ -332,6 +336,7 @@ let rec jval (o:obj) =
     | :? DateTime as d      -> JsonString (d.ToString("s"))
     | :? bool as b          -> JsonBool b
     | :? Json as j          -> j
+    | :? Guid as g          -> JsonString (g.ToString())
     | :? unit               -> JsonNull
     | :? (int seq) as os    -> JsonArray [| for j in os -> JsonInt j|]
     | :? (string seq) as os -> JsonArray [| for j in os -> JsonString j|]

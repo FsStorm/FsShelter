@@ -7,6 +7,7 @@ open FsJson
 open System.IO
 open System.Threading
 open FstExtensions
+open System.Collections.Generic
 
 //some literals used in pattern matching
 [<Literal>]
@@ -19,6 +20,8 @@ let NEXT = "next"
 let EMIT = "emit"
 [<Literal>]
 let TUPLE = "tuple"
+[<Literal>]
+let STREAM = "stream"
 
 
 let mutable private _currentId = 0L
@@ -119,6 +122,15 @@ let reliableEmit housekeeper (id:Int64) (json:Json)  =
 let emit (json:Json) =
     let json = json?command <- JsonString EMIT
     stormOut (FsJson.serialize json)
+
+//produce a storm tuple json
+let tuple (fields:IEnumerable<obj>) = jval [ TUPLE, [for f in fields -> jval f] ]
+
+//anchor to original messages
+let anchor (omsgs:Json list) (msg:Json) = msg?anchors <- jval (omsgs |> List.map(fun orig -> orig?id))
+
+//specify stream
+let namedStream name (msg:Json) = msg?stream <- jval name
 
 let pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 
@@ -223,6 +235,7 @@ let autoAckBoltRunner cfg fReaderCreator =
     }
 
 let msgId (j:Json) = match j?id with JsonString s -> s | _ -> failwith (sprintf "Msg id not found in %A" j)
+let msgSource (j:Json) = match j?comp with JsonString s -> s | _ -> failwith (sprintf "Msg source not found in %A" j)
 
 ///a simple helper that can be used with reliable spouts
 let getHousekeeper onEmit onAck onFail onTasks = 
@@ -243,7 +256,7 @@ let getHousekeeper onEmit onAck onFail onTasks =
                 do stormLog (tag + ": " + (nestedExceptionTrace ex)) LogLevel.Error
         }
 
-//creates the default housekeeper for reliable spouts
+///creates the default housekeeper for reliable spouts
 let createDefaultHousekeeper cfg = 
     let ids = new System.Collections.Generic.Dictionary<string, Json>()
     let pendingIds = new System.Collections.Generic.Queue<string>()
