@@ -1,7 +1,7 @@
 ﻿namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("FstSimpleTest")>]
+[<assembly: AssemblyTitleAttribute("FstSample")>]
 [<assembly: AssemblyProductAttribute("FsStorm")>]
 [<assembly: AssemblyDescriptionAttribute("F# DSL and runtime for Storm topologies")>]
 [<assembly: AssemblyVersionAttribute("1.0")>]

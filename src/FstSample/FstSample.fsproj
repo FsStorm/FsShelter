@@ -6,9 +6,10 @@
     <ProjectGuid>{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>FstSimpleTest</RootNamespace>
-    <AssemblyName>FstSimpleTest</AssemblyName>
+    <AssemblyName>FstSample</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <Name>FstSample</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -66,10 +67,6 @@
     <ProjectReference Include="..\FsStorm\FsStorm.fsproj">
       <Project>{BE537B3C-1636-46A5-8FA4-635D0842BAB1}</Project>
       <Name>FsStorm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FstExtensions\FstExtensions.fsproj">
-      <Project>{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}</Project>
-      <Name>FstExtensions</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

@@ -6,7 +6,6 @@ open System.Text
 open FsJson
 open System.IO
 open System.Threading
-open FstExtensions
 open System.Collections.Generic
 
 //some literals used in pattern matching
@@ -111,23 +110,28 @@ let private stormIn()=
             return! stormLogAndThrow "invalid input msg" msg
      }
 
- //message emitter for reliable spouts
+ ///message emitter for reliable spouts
 let reliableEmit housekeeper (id:Int64) (json:Json)  =
     let json = json?id <-  JsonString (id.ToString())
     let json = json?command <- JsonString EMIT
     housekeeper json
     stormOut (FsJson.serialize json)
 
-//emitter for bolts and simple spouts
+///emitter for bolts and simple spouts
 let emit (json:Json) =
     let json = json?command <- JsonString EMIT
     stormOut (FsJson.serialize json)
 
-//produce a storm tuple json
+///produce a storm tuple json
 let tuple (fields:IEnumerable<obj>) = jval [ TUPLE, [for f in fields -> jval f] ]
 
-//anchor to original messages
-let anchor (omsgs:Json list) (msg:Json) = msg?anchors <- jval (omsgs |> List.map(fun orig -> orig?id))
+///anchor to original message(s)
+let anchor original (msg:Json) = 
+    match box original with
+    | :? (Json list) as omsgs -> msg?anchors <- jval (omsgs |> List.map(fun orig -> orig?id))
+    | :? Json as omsg -> msg?anchors <- jval omsg?id
+    | :? string as id ->msg?anchors <- jval id
+    | _ -> raise(ArgumentException(sprintf "Don't know how to anchor to: %A" original))
 
 //specify stream
 let namedStream name (msg:Json) = msg?stream <- jval name
@@ -188,6 +192,7 @@ let reliableSpoutRunner cfg fCreateHousekeeper fCreateEmitter =
                 | NEXT              -> do! next()
                 | ACK | FAIL | "" -> housekeeper jmsg      //empty is task list ids?
                 | _ -> failwithf "invalid cmd %s" cmd
+                stormSync()
         with ex ->
             return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
@@ -196,16 +201,16 @@ let reliableSpoutRunner cfg fCreateHousekeeper fCreateEmitter =
 let simpleSpoutRunner cfg fCreateEmitter =
     async {
         try 
-            let emitter = fCreateEmitter cfg
-            let next = emitter emit
+            let emitter = fCreateEmitter cfg emit
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
                 let cmd  = jmsg?command.Val
                 match cmd with
-                | NEXT              -> do! next()
+                | NEXT              -> do! emitter()
                 | ACK | FAIL | "" -> ()     //ignore other commands
                 | _ -> failwithf "invalid cmd %s" cmd
+                stormSync()
         with ex ->
             return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }

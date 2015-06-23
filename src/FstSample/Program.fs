@@ -1,4 +1,4 @@
-﻿module FstSimpleTest
+﻿module FstSample
 //1: submits the topology to storm
 //2: runs the spout or the bolt depending on how called
 
@@ -10,7 +10,7 @@ let main argv =
     Logging.log_path <- logBase + Logging.pid
     if Storm.isMono() then
         let exeName = System.IO.Path.GetFileName(exePath)
-        StormProcessing.run "mono" [exeName] SimpleTestTopology.topology argv
+        StormProcessing.run "mono" [exeName] SampleTopology.topology argv
     else
-        StormProcessing.run exePath [] SimpleTestTopology.topology argv
+        StormProcessing.run exePath [] SampleTopology.topology argv
 

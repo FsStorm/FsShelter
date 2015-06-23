@@ -41,6 +41,7 @@
     <Compile Include="StormDSLValidate.fs" />
     <Compile Include="StormDSLTranslate.fs" />
     <Compile Include="StormProcessing.fs" />
+    <Compile Include="StormTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -57,10 +58,6 @@
     <ProjectReference Include="..\FsJson\FsJson.fsproj">
       <Project>{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}</Project>
       <Name>FsJson</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FstExtensions\FstExtensions.fsproj">
-      <Project>{9D9F683D-339C-45C7-A309-BA5BFC1F6AF5}</Project>
-      <Name>FstExtensions</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
