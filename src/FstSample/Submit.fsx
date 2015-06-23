@@ -1,8 +1,6 @@
-﻿#load "../Refs/StormSubmit.fsx"
+﻿#I "../../Refs"
+#load "StormSubmit.fsx"
 
-let binDir = "/Users/Fai/Projects/fwaris/FsStorm/FstSample/bin/Release"
-//let binDir = @"C:\Users\Faisal\Downloads\FsStorm\FstSample\bin\Release"
-
-//StormSubmit.makeJar binDir
+let binDir = "build"
 
 StormSubmit.runTopology binDir "localhost" StormSubmit.default_nimbus_port

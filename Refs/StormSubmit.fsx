@@ -1,5 +1,5 @@
-#r @"../Refs/StormThrift.dll"
-#r @"../Refs/Thrift.dll"
+#r "StormThrift.dll"
+#r "Thrift.dll"
 open System.IO
 open StormThrift
 open System
