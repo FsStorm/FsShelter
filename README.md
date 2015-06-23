@@ -9,5 +9,7 @@ Seems to work on Windows, Linux and OSX.
 
 See [this blog post][fwaris blog post] for an overview.
 
+Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/et1975/FsStorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 
 [fwaris blog post]:https://fwaris.wordpress.com/2015/01/21/stormin-f/
