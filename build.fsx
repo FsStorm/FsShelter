@@ -37,7 +37,7 @@ let tags = "storm event-driven fsharp distributed"
 let solutionFile  = "src/FsStorm.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "build/tests/*Tests*.dll"
+let testAssemblies = "build/*Test*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -124,13 +124,12 @@ Target "Build" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-//    !! testAssemblies
-//    |> NUnit (fun p ->
-//        { p with
-//            DisableShadowCopy = true
-//            TimeOut = TimeSpan.FromMinutes 20.
-//            OutputFile = "TestResults.xml" })
-()
+    !! testAssemblies
+    |> NUnit (fun p ->
+        { p with
+            DisableShadowCopy = true
+            TimeOut = TimeSpan.FromMinutes 20.
+            OutputFile = "TestResults.xml" })
 )
 
 #if MONO
