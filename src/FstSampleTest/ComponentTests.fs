@@ -1,11 +1,9 @@
 ﻿module SampleComponentTests
 
-open FsUnit
 open NUnit.Framework
 open SampleComponents
 open Storm
 open FsJson
-open System.Threading
 open System
 
 let conf = {PidDir=""; TaskId=""; Json= jval ""}

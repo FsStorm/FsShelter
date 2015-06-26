@@ -6,39 +6,35 @@ open Storm
 
 let rnd = new System.Random() // used for generating random messages
 
-//spout - produces messages
+///spout - produces messages
+///cfg: the configution passed in by storm
 let spout runner cfg = 
     //define the function that will return the emitter function
-    //cfg: the configution passed in by storm
     //emit: a function that emits message to storm
-    let createEmitter (cfg : Configuration) emit = 
-        fun () ->
-            async { 
-                tuple [rnd.Next(0, 100) ] |> emit
-            }
-
+    let createEmitter emit = fun () -> async { tuple [ rnd.Next(0, 100) ] |> emit }
     //run the spout
-    runner cfg createEmitter
+    createEmitter |> runner
 
-//bolt - consumes and emits messages
-let addOneBolt runner log emit cfg  = 
+///bolt - consumes and emits messages
+///cfg: the configution passed in by storm
+let addOneBolt runner log emit cfg = 
     //define the function that will return the consumer function
-    let createAdder (cfg : Configuration) = 
+    let createAdder = 
         //accept messages function
-        fun (msg:Json) -> 
+        fun (msg : Json) -> 
             async { 
                 log "msg" (sprintf "%A" msg)
-                tuple [msg?tuple.[0].ValI + 1] |> emit
+                tuple [ msg?tuple.[0].ValI + 1 ] |> emit
             }
     //run spout
-    runner cfg createAdder
+    createAdder |> runner
 
-//bolt - consumes messages
+///bolt - consumes messages
+///cfg: the configution passed in by storm
 let resultBolt runner log cfg = 
     //define the function that will return the consumer function
-    let createReader (cfg : Configuration) = 
+    let createReader = 
         //accept messages function
-        fun (msg:Json) -> 
-            async { log "x" (sprintf "%A" msg?tuple.[0].ValI) }
+        fun (msg : Json) -> async { log "x" (sprintf "%A" msg?tuple.[0].ValI) }
     //run spout
-    runner cfg createReader
+    createReader |> runner

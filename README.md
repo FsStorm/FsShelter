@@ -22,7 +22,7 @@ Make sure F# interpreter is in the path and from the repository root run:
 ```
 fsi src\FstSample\Submit.fsx
 ```
-or, if Running on Mono:
+or, if running on Mono:
 ```
 fsharpi src/FstSample/Submit.fsx
 ```

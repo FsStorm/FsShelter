@@ -2,14 +2,13 @@
 
 open Storm
 open FsJson
-open System.Threading
 
 /// test runner for reliable spouts
-let reliableSpoutRunner reliableEmit (cmds:Json seq) cfg fCreateHousekeeper fCreateEmitter =
+let reliableSpoutRunner reliableEmit (cmds:Json seq) fCreateHousekeeper fCreateEmitter =
     async {
         try 
-            let housekeeper = fCreateHousekeeper cfg
-            let emitter = fCreateEmitter cfg
+            let housekeeper = fCreateHousekeeper
+            let emitter = fCreateEmitter 
             let next = emitter (reliableEmit housekeeper)
             for cmd in cmds do
                 match cmd?command.Val with
@@ -21,10 +20,10 @@ let reliableSpoutRunner reliableEmit (cmds:Json seq) cfg fCreateHousekeeper fCre
     }
 
 /// test runner loop for simple spouts
-let simpleSpoutRunner emit (cmds:Json seq) cfg fCreateEmitter =
+let simpleSpoutRunner emit (cmds:Json seq) fCreateEmitter =
     async {
         try 
-            let emitter = fCreateEmitter cfg emit
+            let emitter = fCreateEmitter emit
             for cmd in cmds do
                 match cmd?command.Val with
                 | NEXT            -> do! emitter()
@@ -35,10 +34,10 @@ let simpleSpoutRunner emit (cmds:Json seq) cfg fCreateEmitter =
     }
 
 /// test bolt runner that auto acks received msgs
-let autoAckBoltRunner testData stormAck cfg fReaderCreator =
+let autoAckBoltRunner testData stormAck fReaderCreator =
     async {
         try
-            let reader = fReaderCreator cfg
+            let reader = fReaderCreator 
             for jmsg in testData do
                 match jmsg,jmsg?stream with
                 | _, JsonString "__heartbeat" -> ()

@@ -178,18 +178,17 @@ let processPid pidDir =
 let isArray = function JsonArray _ -> true | _ -> false
 
 ///runner for reliable spouts
-let reliableSpoutRunner cfg fCreateHousekeeper fCreateEmitter =
+let reliableSpoutRunner fCreateHousekeeper fCreateEmitter =
     async {
         try 
-            let housekeeper = fCreateHousekeeper cfg
-            let emitter = fCreateEmitter cfg
-            let next = emitter (reliableEmit housekeeper)
+            let housekeeper = fCreateHousekeeper 
+            let emitter = fCreateEmitter (reliableEmit housekeeper)
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
                 let cmd  = jmsg?command.Val
                 match cmd with
-                | NEXT              -> do! next()
+                | NEXT            -> do! emitter()
                 | ACK | FAIL | "" -> housekeeper jmsg      //empty is task list ids?
                 | _ -> failwithf "invalid cmd %s" cmd
                 stormSync()
@@ -198,16 +197,16 @@ let reliableSpoutRunner cfg fCreateHousekeeper fCreateEmitter =
     }
 
 ///runner loop for simple spouts
-let simpleSpoutRunner cfg fCreateEmitter =
+let simpleSpoutRunner fCreateEmitter =
     async {
         try 
-            let emitter = fCreateEmitter cfg emit
+            let emitter = fCreateEmitter emit
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
                 let cmd  = jmsg?command.Val
                 match cmd with
-                | NEXT              -> do! emitter()
+                | NEXT            -> do! emitter()
                 | ACK | FAIL | "" -> ()     //ignore other commands
                 | _ -> failwithf "invalid cmd %s" cmd
                 stormSync()
@@ -220,10 +219,10 @@ let simpleSpoutRunner cfg fCreateEmitter =
 ///you may have to write your own runners
 ///See documentation on Storm concepts
 ///Note: Your implementation should handle "__hearbeat" messages (see code below)
-let autoAckBoltRunner cfg fReaderCreator =
+let autoAckBoltRunner fReaderCreator =
     async {
         try
-            let reader = fReaderCreator cfg
+            let reader = fReaderCreator 
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
@@ -262,7 +261,7 @@ let getHousekeeper onEmit onAck onFail onTasks =
         }
 
 ///creates the default housekeeper for reliable spouts
-let createDefaultHousekeeper cfg = 
+let createDefaultHousekeeper = 
     let ids = new System.Collections.Generic.Dictionary<string, Json>()
     let pendingIds = new System.Collections.Generic.Queue<string>()
     let onEmit msg =
