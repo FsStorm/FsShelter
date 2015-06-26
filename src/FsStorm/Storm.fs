@@ -123,7 +123,7 @@ let emit (json:Json) =
     stormOut (FsJson.serialize json)
 
 ///produce a storm tuple json
-let tuple (fields:IEnumerable<obj>) = jval [ TUPLE, [for f in fields -> jval f] ]
+let tuple (fields:obj seq) = jval [ TUPLE, [for f in fields -> jval f] ]
 
 ///anchor to original message(s)
 let anchor original (msg:Json) = 
@@ -133,8 +133,12 @@ let anchor original (msg:Json) =
     | :? string as id ->msg?anchors <- jval id
     | _ -> raise(ArgumentException(sprintf "Don't know how to anchor to: %A" original))
 
-//specify stream
+/// specify stream
 let namedStream name (msg:Json) = msg?stream <- jval name
+
+/// join two touples
+let tupleJoin (x:Json) (y:Json) =
+    Array.append x?tuple.Array y?tuple.Array |> Array.map box |> tuple
 
 let pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 
