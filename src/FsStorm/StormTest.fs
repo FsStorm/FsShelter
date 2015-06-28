@@ -7,9 +7,8 @@ open FsJson
 let reliableSpoutRunner reliableEmit (cmds:Json seq) fCreateHousekeeper fCreateEmitter =
     async {
         try 
-            let housekeeper = fCreateHousekeeper
-            let emitter = fCreateEmitter 
-            let next = emitter (reliableEmit housekeeper)
+            let housekeeper = fCreateHousekeeper()
+            let next = fCreateEmitter (reliableEmit housekeeper)
             for cmd in cmds do
                 match cmd?command.Val with
                 | NEXT            -> do! next()
@@ -23,10 +22,10 @@ let reliableSpoutRunner reliableEmit (cmds:Json seq) fCreateHousekeeper fCreateE
 let simpleSpoutRunner emit (cmds:Json seq) fCreateEmitter =
     async {
         try 
-            let emitter = fCreateEmitter emit
+            let next = fCreateEmitter emit
             for cmd in cmds do
                 match cmd?command.Val with
-                | NEXT            -> do! emitter()
+                | NEXT            -> do! next()
                 | ACK | FAIL | "" -> ()
                 | _ -> failwithf "invalid cmd %A" cmd
         with ex ->
