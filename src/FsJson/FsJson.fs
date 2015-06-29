@@ -329,10 +329,12 @@ let serialize (json:Json) =
     sb.ToString()
 
 let rec jval (o:obj) =
+    let safeFloat f = sprintf "%f" f |> float
     match o with
     | :? string as s        -> JsonString s
     | :? int as i           -> JsonInt i
     | :? float as f         -> JsonFloat f
+    | :? float32 as f       -> JsonFloat (safeFloat f)
     | :? DateTime as d      -> JsonString (d.ToString("s"))
     | :? bool as b          -> JsonBool b
     | :? Json as j          -> j
@@ -340,42 +342,56 @@ let rec jval (o:obj) =
     | :? unit               -> JsonNull
     | :? (int seq) as os    -> JsonArray [| for j in os -> JsonInt j|]
     | :? (string seq) as os -> JsonArray [| for j in os -> JsonString j|]
+    | :? (Guid seq) as os   -> JsonArray [| for j in os -> JsonString (j.ToString())|]
     | :? (Json seq) as os   -> JsonArray [| for j in os -> j|]
     | :? (float seq) as os  -> JsonArray [| for j in os -> JsonFloat j|]
+    | :? (float32 seq) as os-> JsonArray [| for j in os -> JsonFloat (safeFloat j)|]
     | :? (string*obj) as d  -> jval [d] 
     //convert 2-tuple with the value a seq, list, etc. to JsonObject
     | :? (string*string list) as d  -> jval [d] 
     | :? (string*string array) as d -> jval [d] 
     | :? (string*string seq) as d   -> jval [d] 
+    | :? (string*Guid seq) as d     -> jval [d] 
     | :? (string*int list) as d     -> jval [d] 
     | :? (string*int array) as d    -> jval [d] 
     | :? (string*int seq) as d      -> jval [d] 
     | :? (string*float list) as d   -> jval [d] 
     | :? (string*float array) as d  -> jval [d] 
     | :? (string*float seq) as d    -> jval [d] 
+    | :? (string*float32 list) as d -> jval [d] 
+    | :? (string*float32 array) as d-> jval [d] 
+    | :? (string*float32 seq) as d  -> jval [d] 
     | :? (string*Json list) as d    -> jval [d] 
     | :? (string*Json array) as d   -> jval [d] 
     | :? (string*Json seq) as d     -> jval [d] 
     //convert sequence of 2-tuples to JsonObject
     | :? ((string*int) seq) as d    -> d |> Seq.map (fun (k,v) -> k, JsonInt v) |> Map.ofSeq |> JsonObject
     | :? ((string*float) seq) as d -> d |> Seq.map (fun (k,v) -> k,JsonFloat v) |> Map.ofSeq |> JsonObject
+    | :? ((string*float32) seq) as d -> d |> Seq.map (fun (k,v) -> k,JsonFloat (safeFloat v)) |> Map.ofSeq |> JsonObject
     | :? ((string*string) seq) as d -> d |> Seq.map (fun (k,v) -> k,JsonString v) |> Map.ofSeq |> JsonObject
+    | :? ((string*Guid) seq) as d -> d |> Seq.map (fun (k,v) -> k,JsonString (v.ToString())) |> Map.ofSeq |> JsonObject
     | :? ((string*Json) seq) as d -> d |> Map.ofSeq |> JsonObject
     | :? ((string*obj) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     //object with seq value
     | :? ((string*int seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*string seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*Guid seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*float seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*float32 seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*Json seq) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     //object with list value
     | :? ((string*int list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*string list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*Guid list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*float list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*float32 list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*Json list) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     //object with array value
     | :? ((string*int array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*string array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*Guid array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*float array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
+    | :? ((string*float32 array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? ((string*Json array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? (obj seq) as os    -> JsonArray [| for j in os -> jval j|]
     | o -> failwithf "Cannot convert value %A to JSON - consider using an explict constructor such as JsonString, etc." o
