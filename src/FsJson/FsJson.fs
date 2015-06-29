@@ -83,6 +83,9 @@ type Json =
     member x.IsNotNull = match x with JsonNull -> false | _ -> true
     member x.Array = match x with JsonArray arr -> arr | _ -> failwith "json value is not a JsonArray"
     member x.Map = match x with JsonObject j ->  j | _ -> failwith "json value is not a JsonObject"
+    override x.ToString() =
+        sprintf "%A" x
+
 and JsonSlot = String * Json
 
 type Scanner = Scn of bool*(Char->Scanner)
