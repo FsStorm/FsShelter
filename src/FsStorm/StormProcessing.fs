@@ -53,7 +53,7 @@ let runComponent runMap =
             let scriptName = findComponent cfg
             let func = runMap |> Map.find scriptName
             Storm.stormLog "running..." Storm.LogLevel.Info
-            (func cfg) |> Async.Start
+            do! (func cfg)
         with ex ->
             //better to exit process if something goes wrong 
             //at this point
@@ -63,7 +63,7 @@ let runComponent runMap =
             System.Console.WriteLine(ex.StackTrace)
             System.Environment.Exit(1)
     }
-    |> Async.Start
+    |> Async.RunSynchronously
 
 
 ///meant to be invoked from the main function of the host exe
@@ -80,7 +80,6 @@ let run exeName optionalArgs topology commandLineArgs =
             0
         | _ ->
             runComponent runMap
-            sleep()
             0
     with ex ->
         Storm.stormLog (Storm.nestedExceptionTrace ex) Storm.LogLevel.Error
