@@ -4,10 +4,9 @@ open Storm
 open FsJson
 
 /// test runner for reliable spouts
-let reliableSpoutRunner reliableEmit (cmds:Json seq) fCreateHousekeeper fCreateEmitter =
+let reliableSpoutRunner reliableEmit (cmds:Json seq) housekeeper fCreateEmitter =
     async {
         try 
-            let housekeeper = fCreateHousekeeper()
             let next = fCreateEmitter (reliableEmit housekeeper)
             for cmd in cmds do
                 match cmd?command.Val with

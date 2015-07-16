@@ -22,7 +22,6 @@ let TUPLE = "tuple"
 [<Literal>]
 let STREAM = "stream"
 
-
 let mutable private _currentId = 0L
 let nextId() = Interlocked.Increment(&_currentId) //a spout may use this to generate ids (works for single instance spouts, only)
 
@@ -69,10 +68,10 @@ type LogLevel =
 
 //utility storm output functions
 let stormSync() = stormOut """{"command":"sync"}"""
-let stormSendPid (pid:int) = stormOut (String.Format("""{{"pid":{0}}}""",pid))
-let stormFail (id:string) = stormOut (String.Format("""{{"command":"fail","id":"{0}"}}""", id))
-let stormAck  (id:string) = stormOut (String.Format("""{{"command":"ack","id":"{0}"}}""", id))
-let stormLog (msg:string) (lvl:LogLevel) = jval ["command","log"; "msg",msg; "level",(int lvl).ToString()] |> FsJson.serialize |> stormOut
+let stormSendPid (pid:int) = String.Format("""{{"pid":{0}}}""",pid) |> stormOut
+let stormFail (id:string) = String.Format("""{{"command":"fail","id":"{0}"}}""", id) |> stormOut
+let stormAck  (id:string) = String.Format("""{{"command":"ack","id":"{0}"}}""", id) |> stormOut
+let stormLog (msg:string) (lvl:LogLevel) = String.Format("""{{"command":"log","msg":"{0}", "level":{1}}}""", msg, (int lvl).ToString()) |> stormOut
 
 ///log to storm and throw exception 
 let stormLogAndThrow<'a> msg (r:'a) =
@@ -90,7 +89,7 @@ let nestedExceptionTrace (ex:Exception) =
             sb.AppendLine("========") |> ignore
             loop ex.InnerException
         else
-            sb.ToString()
+            sb.ToString().Replace(Environment.NewLine,"\\n")
     loop ex
 
 ///read a message from storm via stdin
@@ -123,7 +122,11 @@ let emit (json:Json) =
     stormOut (FsJson.serialize json)
 
 ///produce a storm tuple json
-let tuple (fields:obj seq) = jval [ TUPLE, [for f in fields -> jval f] ]
+let tuple (fields:obj seq) = 
+    jval [ 
+        TUPLE, jval [for f in fields -> jval f] 
+        "need_task_ids", jval false 
+    ]
 
 ///anchor to original message(s)
 let anchor original (msg:Json) = 
@@ -182,38 +185,41 @@ let processPid pidDir =
 let isArray = function JsonArray _ -> true | _ -> false
 
 ///runner for reliable spouts
-let reliableSpoutRunner fCreateHousekeeper fCreateEmitter =
+let reliableSpoutRunner housekeeper createEmitter =
     async {
         try 
-            let housekeeper = fCreateHousekeeper()
-            let next = fCreateEmitter (reliableEmit housekeeper)
+            let next = createEmitter (reliableEmit housekeeper)
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
                 let cmd  = jmsg?command.Val
-                match cmd with
-                | NEXT            -> do! next()
-                | ACK | FAIL | "" -> housekeeper jmsg      //empty is task list ids?
-                | _ -> failwithf "invalid cmd %s" cmd
-                stormSync()
+                do! async { 
+                    match cmd with
+                    | NEXT            -> do! next()
+                    | ACK | FAIL | "" -> housekeeper jmsg      //empty is task list ids?
+                    | _ -> failwithf "invalid cmd %s" cmd
+                    stormSync() 
+                }
         with ex ->
             return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
 
 ///runner loop for simple spouts
-let simpleSpoutRunner fCreateEmitter =
+let simpleSpoutRunner createEmitter =
     async {
         try 
-            let next = fCreateEmitter emit
+            let next = createEmitter emit
             while true do
                 let! msg = stormIn()
                 let jmsg = FsJson.parse msg
                 let cmd  = jmsg?command.Val
-                match cmd with
-                | NEXT            -> do! next()
-                | ACK | FAIL | "" -> ()     //ignore other commands
-                | _ -> failwithf "invalid cmd %s" cmd
-                stormSync()
+                do! async { 
+                    match cmd with
+                    | NEXT            -> do! next()
+                    | ACK | FAIL | "" -> ()     //ignore other commands
+                    | _ -> failwithf "invalid cmd %s" cmd
+                    stormSync()
+                }
         with ex ->
             return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
@@ -223,31 +229,29 @@ let simpleSpoutRunner fCreateEmitter =
 ///you may have to write your own runners
 ///See documentation on Storm concepts
 ///Note: Your implementation should handle "__hearbeat" messages (see code below)
-let autoAckBoltRunner fReaderCreator =
+let autoAckBoltRunner reader =
     async {
-        try
-            let reader = fReaderCreator 
-            while true do
-                let! msg = stormIn()
-                let jmsg = FsJson.parse msg
-                match jmsg,jmsg?stream with
-                | _, JsonString "__heartbeat" -> do stormSync()
-                | x, _ when isArray x -> () //ignore taskids for now
-                | m, _ -> 
-                    do! reader jmsg
-                    match jmsg?id with
-                    | JsonString str -> do stormAck str
-                    | _ -> ()
-         with ex ->
-            return! stormLogAndThrow (nestedExceptionTrace ex) ()
+        while true do
+            let! msg = stormIn()
+            let jmsg = FsJson.parse msg
+            match jmsg,jmsg?stream with
+            | _, JsonString "__heartbeat" -> do stormSync()
+            | x, _ when isArray x -> () //ignore taskids for now
+            | m, _ -> 
+                let! res = reader jmsg |> Async.Catch
+                match res,jmsg?id with
+                | Choice1Of2 _, JsonString str -> stormAck str
+                | Choice2Of2 ex, JsonString str -> stormFail str
+                                                   stormLog (sprintf "autoBoltRunner: "+ex.Message) LogLevel.Error
+                | _ -> ()
     }
 
 let msgId (j:Json) = match j?id with JsonString s -> s | _ -> failwith (sprintf "Msg id not found in %A" j)
 let msgSource (j:Json) = match j?comp with JsonString s -> s | _ -> failwith (sprintf "Msg source not found in %A" j)
 
-///a simple helper that can be used with reliable spouts
-let getHousekeeper onEmit onAck onFail onTasks = 
-    let tag = "housekeeper"
+/// InboxProcessor-based protocol handler that can be used with reliable spouts to provide processing guarantees
+let inboxMsgHandler onEmit onAck onFail onTasks = 
+    let tag = "inboxMsgHandler"
     fun  (inbox : MailboxProcessor<Json>) ->
         async { 
             try 
@@ -264,8 +268,8 @@ let getHousekeeper onEmit onAck onFail onTasks =
                 do stormLog (tag + ": " + (nestedExceptionTrace ex)) LogLevel.Error
         }
 
-///creates the default housekeeper for reliable spouts
-let createDefaultHousekeeper() = 
+/// In-memory helper for reliable spouts
+let defaultHousekeeper = 
     let ids = new System.Collections.Generic.Dictionary<string, Json>()
     let pendingIds = new System.Collections.Generic.Queue<string>()
     let onEmit msg =
@@ -287,5 +291,5 @@ let createDefaultHousekeeper() =
         let prevMsg = ids.[id]
         ids.[id] <- (prevMsg?__taskids <- msg)
 
-    let mb = MailboxProcessor.Start (getHousekeeper onEmit onAck onFail onTasks)
+    let mb = MailboxProcessor.Start (inboxMsgHandler onEmit onAck onFail onTasks)
     mb.Post
