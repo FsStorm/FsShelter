@@ -60,7 +60,7 @@ type Json =
     member x.ValGuid =
         match x with
         | JsonString s -> Guid.Parse s
-        | _ -> failwith "not a numeric value"
+        | _ -> failwith "not a string value"
     member x.Item
         with get(index) =
             match x with

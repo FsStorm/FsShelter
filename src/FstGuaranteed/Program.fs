@@ -6,8 +6,9 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 
 [<EntryPoint>]
 let main argv = 
-    let logBase = if Storm.isMono() then "/Users/Fai/Logs/" else @"c:/ws/temp/fst/"
+    let logBase = if Storm.isMono() then "~/Logs/" else @"c:/temp/fst/"
     Logging.log_path <- logBase + Logging.pid
+
     if Storm.isMono() then
         let exeName = System.IO.Path.GetFileName(exePath)
         StormProcessing.run "mono" [exeName] GuaranteedSampleTopology.topology argv
