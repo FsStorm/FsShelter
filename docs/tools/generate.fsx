@@ -6,12 +6,12 @@
 // Web site location for the generated documentation
 let website = "/FsStorm"
 
-let githubLink = "http://github.com/##GitHome##/##GitName##"
+let githubLink = "http://github.com/FsStorm/FsStorm"
 
 // Specify more information about your project
 let info =
   [ "project-name", "FsStorm"
-    "project-author", "Faisal Waris"
+    "project-author", "Faisal Waris, Eugene Tolmachev"
     "project-summary", "F# DSL and runtime for Storm topologies"
     "project-github", githubLink
     "project-nuget", "http://nuget.org/packages/FsStorm" ]

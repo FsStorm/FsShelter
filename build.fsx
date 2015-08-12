@@ -41,14 +41,14 @@ let testAssemblies = "build/*Test*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
-let gitOwner = "fwaris" 
+let gitOwner = "FsStorm" 
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
 let gitName = "FsStorm"
 
 // The url for the raw files hosted
-let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fwaris/FsStorm"
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/FsStorm/FsStorm"
 
 // build output folder
 let build_out = "build" 

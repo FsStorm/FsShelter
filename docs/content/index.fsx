@@ -20,7 +20,8 @@ FsStorm components
 
 FsStorm components are defined as functions that take at least one (last) argument: configuration passed in from Storm. In practice, you'll want to pass all your dependencies in, and that means at least one other: a runner, passed in from your topology. 
 Additionally you can pass as many arguments from the topology as needed.
-Think of the component function as "main" for your program. The "main" function will be called by FsStorm once per instance of every component and its purpose is to construct either "next" function for spouts or "consume" function for bolts and pass it to a runner.
+Think of the component function as "main" for your program. Storm will start (a copy of) the same EXE for all components in the topology, and will instruct each instance with the task it supposed to execute.
+The "main" function will be called by FsStorm once per instance of every component and its purpose is to construct either "next" function for spouts or "consume" function for bolts and pass it to a runner.
 FsStorm implements several runners that either talk to Storm or allow you to unit-test your components by recording outputs or playing back the inputs.
 
 
@@ -135,9 +136,9 @@ The library is available under MIT license, which allows modification and
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
 
-  [content]: https://github.com/et1975/FsStorm/tree/master/docs/content
-  [gh]: https://github.com/et1975/FsStorm
-  [issues]: https://github.com/et1975/FsStorm/issues
-  [readme]: https://github.com/et1975/FsStorm/blob/master/README.md
-  [license]: https://github.com/et1975/FsStorm/blob/master/LICENSE.txt
+  [content]: https://github.com/FsStorm/FsStorm/tree/master/docs/content
+  [gh]: https://github.com/FsStorm/FsStorm
+  [issues]: https://github.com/FsStorm/FsStorm/issues
+  [readme]: https://github.com/FsStorm/FsStorm/blob/master/README.md
+  [license]: https://github.com/FsStorm/FsStorm/blob/master/LICENSE.txt
 *)

@@ -1,4 +1,4 @@
-FsStorm [![Windows build](https://ci.appveyor.com/api/projects/status/7jl4q2tohrol89ih?svg=true)](https://ci.appveyor.com/project/et1975/FsStorm) [![Mono/OSX build](https://travis-ci.org/et1975/FsStorm.svg?branch=master)](https://travis-ci.org/et1975/FsStorm)
+FsStorm [![Windows build](https://ci.appveyor.com/api/projects/status/7jl4q2tohrol89ih?svg=true)](https://ci.appveyor.com/project/et1975/FsStorm) [![Mono/OSX build](https://travis-ci.org/FsStorm/FsStorm.svg?branch=master)](https://travis-ci.org/FsStorm/FsStorm)
 =======
 
 A project for defining and running Apache Storm topologies in F#
