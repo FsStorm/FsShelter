@@ -41,11 +41,25 @@
             <li class="divider"></li>
             <li><a href="@Properties["project-nuget"]">Get Library via NuGet</a></li>
             <li><a href="@Properties["project-github"]">Source Code on GitHub</a></li>
-            <li><a href="@Root/license.html">License</a></li>
-            <li><a href="@Root/release-notes.html">Release Notes</a></li>
+            <li><a href="@Root/LICENSE.html">License</a></li>
+            <li><a href="@Root/RELEASE_NOTES.html">Release Notes</a></li>
             
-            <li class="nav-header">Getting started</li>
-            <li><a href="@Root/tutorial.html">Sample tutorial</a></li>
+            <li class="nav-header">Getting started
+            <li><a href="@Root/sample.html">Basics</a>
+			<ul>
+			<li><a href="@Root/sample.html#Defining-unreliable-spouts">Spout</a></li>
+			<li><a href="@Root/sample.html#Defining-bolts">Bolt</a></li>
+			<li><a href="@Root/sample.html#Using-F-DSL-to-define-the-topology">Topology</a></li>
+			<li><a href="@Root/sample.html#Unit-testing-the-components">Unit-testing</a></li>
+			</ul>
+			</li>
+            <li><a href="@Root/guaranteed.html">Guaranteed processing</a>
+			<ul>
+			<li><a href="@Root/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+			<li><a href="@Root/guaranteed.html#Anchoring-and-named-streams">Anchoring and named streams</a></li>
+			<li><a href="@Root/guaranteed.html#Topology-with-named-streams-and-config-overrides">Parametrization</a></li>
+			</ul>
+			</li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="@Root/reference/index.html">API Reference</a></li>
