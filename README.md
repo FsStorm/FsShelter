@@ -3,7 +3,7 @@ FsStorm [![Windows build](https://ci.appveyor.com/api/projects/status/7jl4q2tohr
 
 A project for defining and running Apache Storm topologies in F#
 
-See [this blog post][fwaris blog post] for an overview.
+See [this blog post][fwaris blog post] for an intro and [docs][docs] for an overview.
 
 Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/et1975/FsStorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
@@ -32,3 +32,4 @@ Open [Storm UI](http://localhost:8080/) and see the Storm worker logs for runtim
 
 
 [fwaris blog post]:https://fwaris.wordpress.com/2015/01/21/stormin-f/
+[docs]:http://fsstorm.github.io/FsStorm/
