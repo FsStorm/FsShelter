@@ -5,7 +5,7 @@ A project for defining and running Apache Storm topologies in F#
 
 See [this blog post][fwaris blog post] for an intro and [docs][docs] for an overview.
 
-Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/et1975/FsStorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FsStorm/FsStorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # Building
 ```
