@@ -1,13 +1,10 @@
-language: objective-c
+language: csharp
 
-env:
- global:
-  - EnableNuGetPackageRestore=true 
- matrix:
-  - MONO_VERSION="4.0.1"
+sudo: false  # use the new container-based Travis infrastructure
 
-before_install:
- - wget "http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.44.macos10.xamarin.x86.pkg"
- - sudo installer -pkg "MonoFramework-MDK-4.0.1.44.macos10.xamarin.x86.pkg" -target /
+script: 
+  - ./build.sh
 
-script: ./build.sh
+branches:
+  except:
+    - gh-pages
