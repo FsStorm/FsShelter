@@ -1,7 +1,7 @@
 type file
 id FsStorm
 version 0.0
-authors "Faisal Waris", "Eugene Tolmachev"
+authors Faisal Waris, Eugene Tolmachev
 description
     Apache Storm components and topologies authoring with F#
 tags
@@ -9,7 +9,7 @@ tags
 projectUrl
 	http://www.github.com/FsStorm/FsStorm
 licenseUrl
-	http://www.github.com/FsStorm/FsStorm/LICENSE.md
+	http://fsstorm.github.io/FsStorm/LICENSE.html
 requireLicenseAcceptance false
 iconUrl
 	http://fsstorm.github.io/FsStorm/img/logo.png

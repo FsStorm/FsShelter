@@ -8,6 +8,8 @@
 *.sln.docstates
 
 # Build results
+.fake/
+temp/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

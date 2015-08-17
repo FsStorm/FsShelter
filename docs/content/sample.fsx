@@ -109,18 +109,17 @@ Several runners are implemented to facilitate unit-testing in StormTest module:
 
 open NUnit.Framework
 open System
+open StormTest
 
 let conf = 
     { PidDir = ""
       TaskId = ""
       Json = jval "" }
 
-let next = jval [ "command", NEXT ]
-
 [<Test>]
 let ``spout emits``() = 
     let results = ref []
-    let s = spout (StormTest.simpleSpoutRunner (fun x -> results := x :: results.Value) [ next; next ]) conf
+    let s = spout (simpleSpoutRunner (fun x -> results := x :: results.Value) [ next; next ]) conf
     Async.RunSynchronously s
     match results.Value with
     | x :: y :: [] -> ()
@@ -130,7 +129,7 @@ let ``spout emits``() =
 let ``bolt adds``() = 
     let results = ref []
     let b = 
-        addOneBolt (StormTest.autoAckBoltRunner [ tuple [ 123 ] ] Console.WriteLine) 
+        addOneBolt (autoAckBoltRunner [ tuple [ 123 ] ] Console.WriteLine) 
             (fun tag desc -> Console.WriteLine("{0}: {1}", tag, desc)) (fun t -> results := t :: results.Value) conf
     Async.RunSynchronously(b, 2000)
     match results.Value with
@@ -141,7 +140,7 @@ let ``bolt adds``() =
 let ``bolt consumes``() = 
     let results = ref []
     let b = 
-        resultBolt (StormTest.autoAckBoltRunner [ tuple [ 123 ] ] Console.WriteLine) 
+        resultBolt (autoAckBoltRunner [ tuple [ 123 ] ] Console.WriteLine) 
             (fun tag desc -> results := (tag, desc) :: results.Value) conf
     Async.RunSynchronously(b, 2000)
     match results.Value with
