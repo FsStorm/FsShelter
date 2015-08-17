@@ -1,0 +1,22 @@
+type file
+id FsStorm
+version 0.0
+authors "Faisal Waris", "Eugene Tolmachev"
+description
+    Apache Storm components and topologies authoring with F#
+tags
+	Storm F# event-driven real-time distributed analytics
+projectUrl
+	http://www.github.com/FsStorm/FsStorm
+licenseUrl
+	http://www.github.com/FsStorm/FsStorm/LICENSE.md
+requireLicenseAcceptance false
+iconUrl
+	http://fsstorm.github.io/FsStorm/img/logo.png
+files
+    build/FsJson.* ==> lib
+	build/FsStorm.* ==> lib
+	build/FsLogging.* ==> lib
+	build/StormThrift.* ==> lib
+	build/Thrift.* ==> lib
+	Refs/StormSubmit.* ==> tools

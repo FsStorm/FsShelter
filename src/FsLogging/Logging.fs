@@ -1,4 +1,5 @@
-﻿module Logging
+﻿/// Custom file-based logging that writes to a pid-identified file.
+module Logging
 open System
 open System.IO
 open System.Web

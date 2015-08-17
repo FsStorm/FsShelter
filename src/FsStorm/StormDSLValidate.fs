@@ -1,4 +1,5 @@
-﻿module StormDSLValidate
+﻿/// Topology validation (prior to submission)
+module StormDSLValidate
 open FsJson
 //validation of storm topologies built 
 //with StormDSL

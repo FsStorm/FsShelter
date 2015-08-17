@@ -1,10 +1,12 @@
-﻿module FsJson
+﻿/// Json serialization
+module FsJson
 open System
 open System.Text.RegularExpressions
 open System.Text
 open System.IO
 open System.Globalization
 
+/// VARIANT-like type with dynamic accessor (?) to fields
 type Json = 
     | JsonObject of Map<string,Json>
     | JsonString of String
@@ -27,36 +29,43 @@ type Json =
         match x with
         | JsonObject m -> m |> Map.remove name |> JsonObject
         | _ -> failwith  (sprintf "Remove error: json value is not a JsonObject: %A" name)
+    /// get a string value
     member x.Val =
         match x with
         | JsonString s -> s 
         | JsonFloat n -> n.ToString()
         | JsonInt n -> n.ToString()
         | _ -> ""
+    /// get a DateTime value
     member x.ValD =
         match x with
         | JsonString s -> DateTime.Parse(s)
         | JsonFloat n -> DateTime.FromFileTime(Convert.ToInt64(n))
         | JsonInt n -> DateTime.FromFileTime(Convert.ToInt64(n))
         | x -> failwith (sprintf "cannot convert value to date: %A" x)
+    /// get a get a DateTime using specific format value
     member x.ValDF format =
         match x with
         | JsonString s -> DateTime.ParseExact(s, format, CultureInfo.InvariantCulture)
         | x -> failwith (sprintf "cannot convert value to date: %A" x)
+    /// get a float value
     member x.ValF =
         match x with
         | JsonFloat n -> n
         | JsonInt n -> (float)n
         | _ -> failwith "not a numeric value"
+    /// get a boolean value
     member x.ValB =
         match x with
         | JsonBool n -> n
         | _ -> failwith "not a boolean value"
+    /// get a int32 value
     member x.ValI =
         match x with
         | JsonInt n -> n
         | JsonFloat n -> Convert.ToInt32(n)
         | _ -> failwith "not a numeric value"
+    /// get a Guid value
     member x.ValGuid =
         match x with
         | JsonString s -> Guid.Parse s
@@ -66,6 +75,7 @@ type Json =
             match x with
             | JsonArray arr -> arr.[index]
             | _ -> failwith "Json object is not an array"
+    /// get a field by name
     member x.Named
         with get(index) =
             match x with
@@ -81,7 +91,9 @@ type Json =
         | JsonObject map -> map.ContainsKey k
         | _ -> false
     member x.IsNotNull = match x with JsonNull -> false | _ -> true
+    /// get a Array value
     member x.Array = match x with JsonArray arr -> arr | _ -> failwith "json value is not a JsonArray"
+    /// get a Json class/object/map value
     member x.Map = match x with JsonObject j ->  j | _ -> failwith "json value is not a JsonObject"
     override x.ToString() =
         sprintf "%A" x
@@ -273,6 +285,7 @@ and (|PPSlotValue|_|) inp =
         | _                  -> errorOut "Expecting a ',' or '}'" rest
     | _ -> None
 
+/// parse a string into a Json object hiererchy
 let parse (s:String) =
     match (0,s) with
     | PJsonValue (json,_) -> json
@@ -291,6 +304,7 @@ let choose (f:String*Json->'a option) (j:Json)  =
             | _ -> ()}
     preorder ("",j) |> Seq.choose(fun x -> x)
 
+/// serialize Json object into string
 let serialize (json:Json) =
     let sb = StringBuilder()
     let (!>) (s:string) = sb.Append(s) |> ignore
@@ -331,6 +345,7 @@ let serialize (json:Json) =
     loop json
     sb.ToString()
 
+/// build Json object tree recursively from passed F# object
 let rec jval (o:obj) =
     let safeFloat f = sprintf "%f" f |> float
     match o with
@@ -398,3 +413,6 @@ let rec jval (o:obj) =
     | :? ((string*Json array) seq) as d -> d |> Seq.map (fun (k,v) -> k,jval v) |> Map.ofSeq |> JsonObject
     | :? (obj seq) as os    -> JsonArray [| for j in os -> jval j|]
     | o -> failwithf "Cannot convert value %A to JSON - consider using an explict constructor such as JsonString, etc." o
+
+/// shortcut test to see if the Json object is an array
+let isArray = function JsonArray _ -> true | _ -> false

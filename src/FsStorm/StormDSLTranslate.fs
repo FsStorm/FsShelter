@@ -1,4 +1,5 @@
-﻿module StormDSLTranslate
+﻿/// Translation of Storm DSL into Thrift structures (for submission to Nimbus)
+module StormDSLTranslate
 open StormThrift
 open System.Collections.Generic
 open System

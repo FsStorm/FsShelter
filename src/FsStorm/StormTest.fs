@@ -1,4 +1,5 @@
-﻿module StormTest
+﻿///Support for unit-testing of components
+module StormTest
 
 open Storm
 open FsJson
@@ -48,3 +49,10 @@ let autoAckBoltRunner testData stormAck fReaderCreator =
          with ex ->
             return! stormLogAndThrow (nestedExceptionTrace ex) ()
     }
+
+/// source the touple - set the comp propery
+let src name (msg : Json) = msg?comp <- jval name
+/// multilang empty tuple for __heartbeat stream
+let heartbeat = tuple [] |> namedStream "__heartbeat"
+/// multilang next command
+let next = jval [ "command", NEXT ]

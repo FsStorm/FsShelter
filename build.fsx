@@ -91,7 +91,7 @@ Target "AssemblyInfo" (fun _ ->
         )
 )
 
-// Copies binaries from default VS location to exepcted bin folder
+// Copies binaries from default VS location to expected bin folder
 // But keeps a subdirectory structure for each project in the 
 // src folder to support multiple project outputs
 Target "CopyBinaries" (fun _ ->
@@ -170,6 +170,7 @@ Target "NuGet" (fun _ ->
     Paket.Pack(fun p -> 
         { p with
             OutputPath = build_out
+            TemplateFile = "paket.template"
             Version = release.NugetVersion
             ReleaseNotes = toLines release.Notes})
 )

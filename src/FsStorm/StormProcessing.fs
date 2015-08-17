@@ -1,4 +1,5 @@
-﻿module StormProcessing
+﻿/// Runtime support
+module StormProcessing
 open StormThrift
 open FsJson
 open System.IO

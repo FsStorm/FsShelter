@@ -1,7 +1,7 @@
 NUGET
   remote: https://nuget.org/api/v2
   specs:
-    FAKE (3.17.12)
+    FAKE (4.1.1)
     FSharp.Compiler.Service (0.0.82)
     FSharp.Formatting (2.7.4)
       FSharp.Compiler.Service (>= 0.0.82)
@@ -18,8 +18,6 @@ NUGET
       Microsoft.Bcl.Build (>= 1.0.14)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    Octokit (0.7.1)
-      Microsoft.Net.Http
     SourceLink.Fake (0.4.2)
 GITHUB
   remote: fsharp/FAKE
