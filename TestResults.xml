@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="c:\sources\FsStorm\build\FstSampleTest.dll" total="3" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2015-08-17" time="13:32:22">
+  <environment nunit-version="2.6.4.14350" clr-version="2.0.50727.8662" os-version="Microsoft Windows NT 6.2.9200.0" platform="Win32NT" cwd="c:\sources\FsStorm" machine-name="EUGENET-WIN" user="eugene" user-domain="EUGENET-WIN" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Assembly" name="c:\sources\FsStorm\build\FstSampleTest.dll" executed="True" result="Success" success="True" time="0.217" asserts="0">
+    <results>
+      <test-suite type="TestFixture" name="SampleComponentTests" executed="True" result="Success" success="True" time="0.209" asserts="0">
+        <results>
+          <test-case name="SampleComponentTests.bolt adds" executed="True" result="Success" success="True" time="0.100" asserts="1" />
+          <test-case name="SampleComponentTests.bolt consumes" executed="True" result="Success" success="True" time="0.082" asserts="1" />
+          <test-case name="SampleComponentTests.spout emits" executed="True" result="Success" success="True" time="0.015" asserts="0" />
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>
