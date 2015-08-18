@@ -53,9 +53,6 @@
     <Reference Include="StormThrift">
       <HintPath>..\..\Refs\StormThrift.dll</HintPath>
     </Reference>
-    <Reference Include="Thrift">
-      <HintPath>..\..\Refs\Thrift.dll</HintPath>
-    </Reference>
     <ProjectReference Include="..\FsJson\FsJson.fsproj">
       <Project>{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}</Project>
       <Name>FsJson</Name>
@@ -69,4 +66,15 @@
       <Name>FsStorm</Name>
     </ProjectReference>
   </ItemGroup>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v3.5' Or $(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="Thrift">
+          <HintPath>..\..\packages\Thrift\lib\net35\Thrift.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
