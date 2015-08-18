@@ -67,20 +67,13 @@ let uploadJar jarFile nimbus_host nimbus_port =
 //check if running on mono
 let isMono() = Type.GetType("Mono.Runtime") <> null
 
-//get the exe file path from the binDir
-let executable binDir =
-    let exeFile = Directory.GetFiles(binDir) |> Seq.find (fun f-> Path.GetExtension(f)=".exe")
-    printfn "exe is %s" exeFile
-    exeFile
-
 //submit topology to run in storm
 //this is done indirectly by executing the built exe
 //the exe is run with args: 'submit', nimbus_host, nimbus_port and uploadedJarLocation
 //the exe should then build the topology from the DSL spec,
 //substitute in some runtime parameters and submit to nimbus
 //using the supplied args
-let submitTopology binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
-    let exe = executable binDir
+let submitTopology exe binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
     let sargs = ["submit"; nimbus_host; nimbus_port.ToString(); uploadedJarLocation]
     let pgm,args = 
         if isMono() then
@@ -88,8 +81,14 @@ let submitTopology binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
         else
             exe,sargs
     let args = String.Join(" ", args)
-    printfn "args %A" args
+    printfn "submitting: %s" exe
+    printfn "with args: %A" args
     shell pgm args (Some binDir)
+
+let submitTopologies binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
+    Directory.GetFiles (binDir)
+    |> Seq.filter (fun f -> let e = Path.GetExtension(f) in e = ".exe" )
+    |> Seq.iter (fun exe -> submitTopology exe binDir uploadedJarLocation nimbus_host nimbus_port |> ignore )
 
  //packages the jar with topology runtime components
  //uploads the jar to nimbus
@@ -97,4 +96,4 @@ let submitTopology binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
 let runTopology binDir  nimbus_host nimbus_port =  
     let jar = makeJar binDir
     let uploadedJarLocation = uploadJar jar nimbus_host nimbus_port
-    submitTopology binDir uploadedJarLocation nimbus_host nimbus_port
+    submitTopologies binDir uploadedJarLocation nimbus_host nimbus_port
