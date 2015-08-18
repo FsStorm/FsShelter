@@ -43,14 +43,14 @@ open Storm
 let rnd = new System.Random() // used for generating random messages
 
 ///spout - produces messages
-///cfg: the configuration passed in by storm
+///cfg: the configuration passed in by Storm
 ///runner: a spout runner function (passed in from topology)
 let spout runner cfg = 
-    //define the function that will return the emitter function
+    //define the function that will produce the tuples
     //emit: a function that emits message to storm (passed in by the runner)
-    let createEmitter emit = fun () -> async { tuple [ rnd.Next(0, 100) ] |> emit } //the "next" function
+    let next emit = fun () -> async { tuple [ rnd.Next(0, 100) ] |> emit } //the "next" function
     //run the spout
-    createEmitter |> runner
+    next |> runner
 
 (**
 Topology DSL in F#
@@ -92,6 +92,7 @@ Submitting the topology using F# scripts
 *)
 
 #I "../../Refs"
+#I "../../packages/Thrift/lib/net35"
 #load "StormSubmit.fsx"
 
 let binDir = "build"
