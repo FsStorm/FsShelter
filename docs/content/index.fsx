@@ -141,5 +141,5 @@ redistribution for both commercial and non-commercial purposes. For more informa
   [gh]: https://github.com/FsStorm/FsStorm
   [issues]: https://github.com/FsStorm/FsStorm/issues
   [readme]: https://github.com/FsStorm/FsStorm/blob/master/README.md
-  [license]: https://github.com/FsStorm/FsStorm/blob/master/LICENSE.txt
+  [license]: https://github.com/FsStorm/FsStorm/blob/master/LICENSE.md
 *)

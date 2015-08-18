@@ -1,3 +1,6 @@
+#### 0.0.3 - August 2015
+* Releasing
+
 #### 0.0.3-beta - August 2015
 * Reverting FSharp.Core as a dependency
 
