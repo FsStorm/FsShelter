@@ -14,7 +14,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Refs", "Refs", "{84AC8A39-60F9-4E77-93B2-184FE1276A55}"
 	ProjectSection(SolutionItems) = preProject
 		..\Refs\StormSubmit.fsx = ..\Refs\StormSubmit.fsx
-		..\Refs\StormThrift.dll = ..\Refs\StormThrift.dll
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B77C3AD-21BC-4545-9C30-B6B94136EA65}"
@@ -30,6 +29,12 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FstGuaranteed", "FstGuaranteed\FstGuaranteed.fsproj", "{02FD3F86-F30B-4F55-81FC-C397C0997261}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{4874E5DF-290B-49B9-86AA-A6496F059505}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ext", "Ext", "{C2DEF051-4E7A-48A8-9206-BAE19765E3BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoShell", "..\ext\ProtoShell\ProtoShell.csproj", "{024D6019-43E0-4374-B831-3333CFC3D416}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StormThrift", "..\ext\StormThrift\StormThrift.csproj", "{5492E92D-0763-4703-BF34-38DCE77A5B44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +66,14 @@ Global
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{024D6019-43E0-4374-B831-3333CFC3D416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{024D6019-43E0-4374-B831-3333CFC3D416}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{024D6019-43E0-4374-B831-3333CFC3D416}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{024D6019-43E0-4374-B831-3333CFC3D416}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,5 +82,7 @@ Global
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF} = {4874E5DF-290B-49B9-86AA-A6496F059505}
 		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348} = {4874E5DF-290B-49B9-86AA-A6496F059505}
 		{02FD3F86-F30B-4F55-81FC-C397C0997261} = {4874E5DF-290B-49B9-86AA-A6496F059505}
+		{024D6019-43E0-4374-B831-3333CFC3D416} = {C2DEF051-4E7A-48A8-9206-BAE19765E3BB}
+		{5492E92D-0763-4703-BF34-38DCE77A5B44} = {C2DEF051-4E7A-48A8-9206-BAE19765E3BB}
 	EndGlobalSection
 EndGlobal

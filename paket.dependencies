@@ -7,6 +7,10 @@ nuget FAKE
 nuget Octokit
 nuget SourceLink.Fake
 nuget fsunit
+nuget protobuf-net
+nuget protogen-net
 nuget thrift
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx
+github et1975/protoshell src/main/java/com/github/jsgilmore/protoshell/messages.proto
+github apache/storm storm-core/src/storm.thrift

@@ -53,9 +53,16 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="StormThrift">
-      <HintPath>..\..\Refs\StormThrift.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj">
+      <Name>ProtoShell</Name>
+      <Project>{024d6019-43e0-4374-b831-3333cfc3d416}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj">
+      <Name>StormThrift</Name>
+      <Project>{5492e92d-0763-4703-bf34-38dce77a5b44}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FsJson\FsJson.fsproj">
       <Project>{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}</Project>
       <Name>FsJson</Name>

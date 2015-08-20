@@ -82,7 +82,8 @@ Target "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
-    !! "src/**/*.??proj"
+    !! "src/**/*.??proj" 
+    ++ "ext/**/*.??proj"
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
@@ -130,7 +131,7 @@ Target "RunTests" (fun _ ->
         { p with
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+            OutputFile = build_out @@ "TestResults.xml" })
 )
 
 #if MONO
@@ -140,25 +141,11 @@ Target "RunTests" (fun _ ->
 // the ability to step through the source code of external libraries https://github.com/ctaggart/SourceLink
 
 Target "SourceLink" (fun _ ->
-    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw (project.ToLower())
-    use repo = new GitRepo(__SOURCE_DIRECTORY__)
-    
-    let addAssemblyInfo (projFileName:String) = 
-        match projFileName with
-        | Fsproj -> (projFileName, "**/AssemblyInfo.fs")
-        | Csproj -> (projFileName, "**/AssemblyInfo.cs")
-        | Vbproj -> (projFileName, "**/AssemblyInfo.vb")
-        
+    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
     !! "src/**/*.??proj"
-    |> Seq.map addAssemblyInfo
-    |> Seq.iter (fun (projFile, assemblyInfo) ->
+    |> Seq.iter (fun projFile ->
         let proj = VsProj.LoadRelease projFile 
-        logfn "source linking %s" proj.OutputFilePdb
-        let files = proj.Compiles -- assemblyInfo
-        repo.VerifyChecksums files
-        proj.VerifyPdbChecksums files
-        proj.CreateSrcSrv baseUrl repo.Revision (repo.Paths files)
-        Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
+        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
     )
 )
 
@@ -322,6 +309,44 @@ Target "Release" (fun _ ->
 Target "BuildPackage" DoNothing
 
 // --------------------------------------------------------------------------------------
+// code-gen tasks
+
+Target "ProtoShell" (fun _ ->
+    let generated = "ext" @@ "ProtoShell" @@ "generated" 
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "protogen-net" @@ "tools" @@ "protogen.exe", 
+            "-o:" + generated @@ "protoshell.pb.cs" 
+            + " -p:fixCase" 
+            + " -i:paket-files" @@ "et1975" @@ "protoshell" @@ "src" @@ "main" @@ "java" @@ "com" @@ "github" @@ "jsgilmore" @@ "protoshell" @@ "messages.proto")
+    |> ignore
+)
+
+Target "StormThriftNamespace" (fun _ ->
+    "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift"
+    |> RegexReplaceInFileWithEncoding "namespace java backtype.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+)
+
+Target "StormThrift" (fun _ ->
+    let generated = "ext" @@ "StormThrift" @@ "generated"
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe", 
+            "-out " + generated
+            + " --gen csharp"
+            + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift")
+    |> ignore
+)
+
+Target "ProcessIDLs" DoNothing
+
+"ProtoShell"
+  ==> "ProcessIDLs"
+"StormThriftNamespace"
+  ==> "StormThrift"
+  ==> "ProcessIDLs"
+
+// --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
 Target "All" DoNothing
@@ -339,6 +364,7 @@ Target "All" DoNothing
 "All" 
 #if MONO
 #else
+  ==> "ProcessIDLs"
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
   ==> "NuGet"

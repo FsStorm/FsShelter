@@ -21,10 +21,18 @@ NUGET
     NUnit.Runners (2.6.4)
     Octokit (0.14.0)
       Microsoft.Net.Http
-    SourceLink.Fake (0.4.2)
+    protobuf-net (2.0.0.668)
+    protogen-net (0.0.1)
+    SourceLink.Fake (1.0.0)
     Thrift (0.9.1.3)
 GITHUB
   remote: fsharp/FAKE
   specs:
     modules/Octokit/Octokit.fsx (9e7e08aefa306360b3194a6c6961dea7b790b9b2)
       Octokit
+  remote: et1975/protoshell
+  specs:
+    src/main/java/com/github/jsgilmore/protoshell/messages.proto (83de5217db78504812edd042ac48280cb10449fb)
+  remote: apache/storm
+  specs:
+    storm-core/src/storm.thrift (cc276087bb542b92c849f099b5b636e3afddd915)
