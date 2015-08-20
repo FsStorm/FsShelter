@@ -111,6 +111,8 @@ Samples & documentation
  * [API Reference](reference/index.html) contains automatically generated documentation for public types, modules
    and functions in the library. 
  
+ * [WordCount](https://github.com/FsStorm/FsStorm.WordCount) contains a simple example showing a spout with two bolts.
+
 Getting FsStorm
 ----------------
 
