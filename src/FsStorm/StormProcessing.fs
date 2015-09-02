@@ -4,6 +4,13 @@ open StormThrift
 open FsJson
 open System.IO
 
+let mutable private componentName = ""
+
+let getComponentName() = componentName
+
+let private setComponentName newName = 
+         componentName <- newName
+
 //sumit the topology using nimbus thrift protocol
 let submit name (topology:StormThrift.StormTopology) host port uploadedJarLocation =
     use tx = new Thrift.Transport.TSocket(host,port)
@@ -53,6 +60,7 @@ let runComponent runMap =
             do! Storm.processPid cfg.PidDir
             let scriptName = findComponent cfg
             let func = runMap |> Map.find scriptName
+            setComponentName scriptName
             Storm.stormLog "running..." Storm.LogLevel.Info
             do! (func cfg)
         with ex ->
