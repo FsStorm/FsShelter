@@ -1,3 +1,6 @@
+#### 0.0.4 - September 2015
+* Making component name available at runtime
+
 #### 0.0.3 - August 2015
 * Releasing
 
