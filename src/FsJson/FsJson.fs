@@ -353,7 +353,7 @@ let rec jval (o:obj) =
     | :? int as i           -> JsonInt i
     | :? float as f         -> JsonFloat f
     | :? float32 as f       -> JsonFloat (safeFloat f)
-    | :? DateTime as d      -> JsonString (d.ToString("s"))
+    | :? DateTime as d      -> JsonString (d.ToString("o"))
     | :? bool as b          -> JsonBool b
     | :? Json as j          -> j
     | :? Guid as g          -> JsonString (g.ToString())
