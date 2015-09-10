@@ -43,11 +43,18 @@ type Json =
         | JsonFloat n -> DateTime.FromFileTime(Convert.ToInt64(n))
         | JsonInt n -> DateTime.FromFileTime(Convert.ToInt64(n))
         | x -> failwith (sprintf "cannot convert value to date: %A" x)
-    /// get a get a DateTime using specific format value
+    /// get a DateTime using specific format value
     member x.ValDF format =
         match x with
         | JsonString s -> DateTime.ParseExact(s, format, CultureInfo.InvariantCulture)
         | x -> failwith (sprintf "cannot convert value to date: %A" x)
+    /// get a DateTimeOffset value
+    member x.ValDO =
+        match x with
+        | JsonString s -> DateTimeOffset.Parse(s)
+        | JsonFloat n -> DateTimeOffset.FromFileTime(Convert.ToInt64(n))
+        | JsonInt n -> DateTimeOffset.FromFileTime(Convert.ToInt64(n))
+        | x -> failwith (sprintf "cannot convert value to DateTimeOffset: %A" x)
     /// get a float value
     member x.ValF =
         match x with
@@ -349,22 +356,23 @@ let serialize (json:Json) =
 let rec jval (o:obj) =
     let safeFloat f = sprintf "%f" f |> float
     match o with
-    | :? string as s        -> JsonString s
-    | :? int as i           -> JsonInt i
-    | :? float as f         -> JsonFloat f
-    | :? float32 as f       -> JsonFloat (safeFloat f)
-    | :? DateTime as d      -> JsonString (d.ToString("o"))
-    | :? bool as b          -> JsonBool b
-    | :? Json as j          -> j
-    | :? Guid as g          -> JsonString (g.ToString())
-    | :? unit               -> JsonNull
-    | :? (int seq) as os    -> JsonArray [| for j in os -> JsonInt j|]
-    | :? (string seq) as os -> JsonArray [| for j in os -> JsonString j|]
-    | :? (Guid seq) as os   -> JsonArray [| for j in os -> JsonString (j.ToString())|]
-    | :? (Json seq) as os   -> JsonArray [| for j in os -> j|]
-    | :? (float seq) as os  -> JsonArray [| for j in os -> JsonFloat j|]
-    | :? (float32 seq) as os-> JsonArray [| for j in os -> JsonFloat (safeFloat j)|]
-    | :? (string*obj) as d  -> jval [d] 
+    | :? string as s         -> JsonString s
+    | :? int as i            -> JsonInt i
+    | :? float as f          -> JsonFloat f
+    | :? float32 as f        -> JsonFloat (safeFloat f)
+    | :? DateTime as d       -> JsonString (d.ToString("o"))
+    | :? DateTimeOffset as d -> JsonString (d.ToString("o"))
+    | :? bool as b           -> JsonBool b
+    | :? Json as j           -> j
+    | :? Guid as g           -> JsonString (g.ToString())
+    | :? unit                -> JsonNull
+    | :? (int seq) as os     -> JsonArray [| for j in os -> JsonInt j|]
+    | :? (string seq) as os  -> JsonArray [| for j in os -> JsonString j|]
+    | :? (Guid seq) as os    -> JsonArray [| for j in os -> JsonString (j.ToString())|]
+    | :? (Json seq) as os    -> JsonArray [| for j in os -> j|]
+    | :? (float seq) as os   -> JsonArray [| for j in os -> JsonFloat j|]
+    | :? (float32 seq) as os -> JsonArray [| for j in os -> JsonFloat (safeFloat j)|]
+    | :? (string*obj) as d   -> jval [d] 
     //convert 2-tuple with the value a seq, list, etc. to JsonObject
     | :? (string*string list) as d  -> jval [d] 
     | :? (string*string array) as d -> jval [d] 
