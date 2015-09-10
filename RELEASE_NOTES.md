@@ -1,3 +1,6 @@
+#### 0.0.6 - September 2015
+* jval serialization of datetimeoffset
+
 #### 0.0.5 - September 2015
 * jval serialization of datetime changed to ISO format to preserve offset and milliseconds
 
