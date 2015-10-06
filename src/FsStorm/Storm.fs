@@ -34,7 +34,7 @@ let internal componentShuttingDown() =
    }
 
 /// test if running on mono runtime
-let isMono() = System.Type.GetType("Mono.Runtime") <> null
+let isMono() = System.Type.GetType("Mono.Runtime") |> isNull 
 
 // use utf8 only - this is called at initialization
 let initIO() = 
@@ -92,11 +92,11 @@ let internal nestedExceptionTrace (ex:Exception) =
     let sb = new System.Text.StringBuilder()
     let rec loop (ex:Exception) =
         sb.AppendLine(ex.Message).AppendLine(ex.StackTrace) |> ignore
-        if ex.InnerException <> null then
+        if isNull ex.InnerException then
+            sb.ToString().Replace(Environment.NewLine,"\\n")
+        else
             sb.AppendLine("========") |> ignore
             loop ex.InnerException
-        else
-            sb.ToString().Replace(Environment.NewLine,"\\n")
     loop ex
 
 ///read a message from storm via stdin

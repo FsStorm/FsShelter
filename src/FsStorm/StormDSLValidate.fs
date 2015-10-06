@@ -8,7 +8,7 @@ let ensureUniqueBoltInputIds (topology:StormDSL.Topology) =
     //bolt input stream references should be unique
     for b in topology.Bolts do
         let iids = b.Inputs |> List.map fst
-        let id,count = iids |> Seq.countBy (fun x -> x) |> Seq.maxBy snd
+        let id,count = iids |> Seq.countBy id |> Seq.maxBy snd
         if count > 1 then failwithf "*** repeated id %A in inputs for bolt id %s" id b.Id
 
 let private ensureUniqueComponentIds (topology:StormDSL.Topology) =
@@ -17,7 +17,7 @@ let private ensureUniqueComponentIds (topology:StormDSL.Topology) =
             for s in topology.Spouts -> s.Id.Trim()
             for b in topology.Bolts  -> b.Id.Trim()
          }
-    let (id,max) = ids |> Seq.countBy (fun x -> x) |> Seq.maxBy snd
+    let (id,max) = ids |> Seq.countBy id |> Seq.maxBy snd
     if max > 1 then failwithf "*** duplicate component id %s" id
 
 let private ensureCorrectBoltRefs (topology:StormDSL.Topology) =
