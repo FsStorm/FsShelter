@@ -88,7 +88,7 @@ let submitTopology exe binDir uploadedJarLocation nimbus_host (nimbus_port:int) 
 let submitTopologies binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
     Directory.GetFiles (binDir)
     |> Seq.filter (fun f -> let e = Path.GetExtension(f) in e = ".exe" )
-    |> Seq.iter (fun exe -> submitTopology exe binDir uploadedJarLocation nimbus_host nimbus_port |> ignore )
+    |> Seq.iter (fun exe -> submitTopology exe "." uploadedJarLocation nimbus_host nimbus_port |> ignore )
 
  //packages the jar with topology runtime components
  //uploads the jar to nimbus

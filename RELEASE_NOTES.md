@@ -1,3 +1,6 @@
+#### 0.0.7 - October 2015
+* Targeting F# 4.0
+
 #### 0.0.6 - September 2015
 * jval serialization of datetimeoffset
 

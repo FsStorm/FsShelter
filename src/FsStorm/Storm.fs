@@ -34,7 +34,7 @@ let internal componentShuttingDown() =
    }
 
 /// test if running on mono runtime
-let isMono() = System.Type.GetType("Mono.Runtime") |> isNull 
+let isMono() = System.Type.GetType("Mono.Runtime") |> (isNull >> not) // thanks FsLint, but I don't think this is cleaner
 
 // use utf8 only - this is called at initialization
 let initIO() = 
