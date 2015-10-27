@@ -1,6 +1,9 @@
+#r "System.IO.Compression.dll"
+#r "System.IO.Compression.FileSystem.dll"
 #r "StormThrift.dll"
 #r "Thrift.dll"
 open System.IO
+open System.IO.Compression
 open StormThrift
 open System
 
@@ -32,37 +35,41 @@ let makeJar binDir =
     |> Seq.filter (fun f -> let e = Path.GetExtension(f) in e = ".exe" || e=".dll" || e=".config" || e=".sh")
     |> Seq.map (fun f -> f, jarDir + "/" + (Path.GetFileName(f)))
     |> Seq.iter File.Copy
-    let jarFn = binDir + "/st.jar"
+    let jarFn = Path.Combine(binDir,Path.GetFileName(binDir)+".jar")
     if File.Exists jarFn then File.Delete jarFn
-    let r = shell "jar" "cf st.jar resources/" (Some binDir) //jar is in java bin dir
-    //let r = shell "7z" ("a st.jar " + jarDir)      // 7-zip commmand line
-    if r then
-        jarFn
-    else
-        failwith "unable to make jar"
+    ZipFile.CreateFromDirectory(jarDir,jarFn,CompressionLevel.Optimal,true)
+    jarFn
 
-//upload the packaged jar to nimbus (a storm service)
-//using thrift protocol
-let uploadJar jarFile nimbus_host nimbus_port =
+// stablish nimbus client connection and execute the passed action with it
+let withNimbus nimbus_host nimbus_port f =
     use tx = new Thrift.Transport.TSocket(nimbus_host,nimbus_port)
     use txf = new Thrift.Transport.TFramedTransport(tx)
     txf.Open()
     try
         use tp = new Thrift.Protocol.TBinaryProtocol(txf)
         use c = new Nimbus.Client(tp)
-        let file = c.beginFileUpload()
-        use inStr = File.OpenRead(jarFile)
-        let chunkSz = 307200
-        let buffer = Array.zeroCreate(chunkSz)
-        let mutable read = inStr.Read(buffer,0,buffer.Length)
-        while read > 0 do
-            c.uploadChunk(file,buffer.[0..read-1])
-            printfn "uploaded %d bytes" read
-            read <- inStr.Read(buffer,0,buffer.Length)
-        c.finishFileUpload(file)
-        file
+        f c
     finally
         txf.Close()
+
+//upload the packaged jar to nimbus (a storm service)
+//using thrift protocol
+let uploadJar jarFile (nimbus:Nimbus.Client) =
+    let file = nimbus.beginFileUpload()
+    use inStr = File.OpenRead(jarFile)
+    let chunkSz = 307200
+    let buffer = Array.zeroCreate(chunkSz)
+    let mutable read = inStr.Read(buffer,0,buffer.Length)
+    while read > 0 do
+        nimbus.uploadChunk(file,buffer.[0..read-1])
+        printfn "uploaded %d bytes" read
+        read <- inStr.Read(buffer,0,buffer.Length)
+    nimbus.finishFileUpload(file)
+    file
+
+// kill running topology
+let killTopology name nimbus_host nimbus_port =
+    withNimbus nimbus_host nimbus_port (fun nimbus -> nimbus.killTopology name)
 
 //check if running on mono
 let isMono() = Type.GetType("Mono.Runtime") <> null
@@ -95,5 +102,5 @@ let submitTopologies binDir uploadedJarLocation nimbus_host (nimbus_port:int) =
  //submits the topology to storm
 let runTopology binDir  nimbus_host nimbus_port =  
     let jar = makeJar binDir
-    let uploadedJarLocation = uploadJar jar nimbus_host nimbus_port
+    let uploadedJarLocation = withNimbus nimbus_host nimbus_port (uploadJar jar)
     submitTopologies binDir uploadedJarLocation nimbus_host nimbus_port

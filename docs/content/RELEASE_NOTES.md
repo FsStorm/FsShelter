@@ -1,3 +1,7 @@
+#### 0.0.8 - October 2015
+* JAR without JDK
+* expose Kill topology operation
+
 #### 0.0.7 - October 2015
 * Targeting F# 4.0
 

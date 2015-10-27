@@ -60,10 +60,10 @@
       <Name>FsJson</Name>
     </ProjectReference>
   </ItemGroup>
-  <UsingTask AssemblyFile="..\..\packages\FSharpLint\FSharpLint.MSBuildIntegration.dll" TaskName="FSharpLintTask" />
-  <Target Name="AfterBuild">
-    <FSharpLintTask Project="$(MSBuildProjectFullPath)" />
-  </Target>
+  <UsingTask AssemblyFile="..\..\packages\FSharpLint\FSharpLint.MSBuildIntegration.dll" TaskName="FSharpLintTask" />     
+  <Target Name="AfterBuild" Condition="'$(LINT)' == 'True'">
+    <FSharpLintTask Project="$(MSBuildProjectFullPath)" />                                                               
+  </Target>                                                                                                              
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v3.5' Or $(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
       <ItemGroup>

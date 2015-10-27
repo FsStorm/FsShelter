@@ -3,6 +3,7 @@
 // --------------------------------------------------------------------------------------
 
 #r @"packages/FAKE/tools/FakeLib.dll"
+
 open Fake
 open Fake.Git
 open Fake.AssemblyInfoFile
@@ -116,7 +117,7 @@ Target "CleanDocs" (fun _ ->
 
 Target "Build" (fun _ ->
     !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuildReleaseExt "" ["LINT","True"] "Rebuild"
     |> ignore
 )
 
