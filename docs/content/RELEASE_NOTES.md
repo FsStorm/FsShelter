@@ -1,3 +1,6 @@
+#### 0.0.9 - December 2015
+* GraphViz topology export
+
 #### 0.0.8 - October 2015
 * JAR without JDK
 * expose Kill topology operation
