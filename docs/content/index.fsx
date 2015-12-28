@@ -99,6 +99,17 @@ let binDir = "build"
 
 StormSubmit.runTopology binDir "localhost" StormSubmit.default_nimbus_port
 
+(**
+Exporting the topology graph in DOT format (GraphViz) using F# scripts
+-----------------------
+*)
+
+#r "../../src/FstSample/bin/Release/FstSample.exe"
+
+open StormDotGraph
+open System
+
+writeToConsole SampleTopology.topology
 
 (**
 Samples & documentation

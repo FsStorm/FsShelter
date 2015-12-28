@@ -41,6 +41,7 @@
     <Compile Include="Topology.fs" />
     <Compile Include="Program.fs" />
     <None Include="Submit.fsx" />
+    <None Include="ExportGraph.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
