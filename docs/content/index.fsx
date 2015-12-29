@@ -131,7 +131,7 @@ Getting FsStorm
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The FsStorm library can be <a href="https://nuget.org/packages/FsStorm">installed from NuGet</a>:
+      The FsStorm library can be installed from <a href="https://nuget.org/packages/FsStorm">NuGet</a> source or <a href="https://www.myget.org/F/fsstorm/">MyGet</a>:
       <pre>PM> Install-Package FsStorm</pre>
     </div>
   </div>
