@@ -3,13 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{02FD3F86-F30B-4F55-81FC-C397C0997261}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>FstSimpleTest</RootNamespace>
-    <AssemblyName>FstGuaranteed</AssemblyName>
+    <ProjectGuid>{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FsStorm.Tests</RootNamespace>
+    <AssemblyName>FsStorm.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
-    <Name>FstGuaranteed</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -18,7 +17,7 @@
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
     <Tailcalls>false</Tailcalls>
     <PlatformTarget>
     </PlatformTarget>
@@ -31,29 +30,38 @@
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>
     </PlatformTarget>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
     <Tailcalls>true</Tailcalls>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.0\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Topology.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="TestTopology.fs" />
+    <Compile Include="DSLTests.fs" />
+    <Compile Include="SchemaTests.fs" />
+    <Compile Include="TranslationTests.fs" />
+    <Compile Include="TaskTests.fs" />
+    <Compile Include="IO\JsonIOTests.fs" />
+    <None Include="App.config" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="System.Core" />
-    <Reference Include="System" />
     <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="System.Numerics" />
+    <Reference Include="System" />
+    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj">
+      <Name>ProtoShell</Name>
+      <Project>{024d6019-43e0-4374-b831-3333cfc3d416}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj">
       <Name>StormThrift</Name>
       <Project>{5492e92d-0763-4703-bf34-38dce77a5b44}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\FsStorm\FsStorm.fsproj">
-      <Project>{BE537B3C-1636-46A5-8FA4-635D0842BAB1}</Project>
       <Name>FsStorm</Name>
+      <Project>{be537b3c-1636-46a5-8fa4-635d0842bab1}</Project>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Choose>
@@ -117,6 +125,42 @@
       <ItemGroup>
         <Reference Include="Thrift">
           <HintPath>..\..\packages\Thrift\lib\net35\Thrift.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\tests\NUnit\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0')">
+      <ItemGroup>
+        <Reference Include="Unquote">
+          <HintPath>..\..\packages\tests\Unquote\lib\net40\Unquote.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
+      <ItemGroup>
+        <Reference Include="Unquote">
+          <HintPath>..\..\packages\tests\Unquote\lib\net45\Unquote.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
+      <ItemGroup>
+        <Reference Include="Unquote">
+          <HintPath>..\..\packages\tests\Unquote\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Unquote.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

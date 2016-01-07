@@ -2,12 +2,9 @@
 #r "System.IO.Compression.FileSystem.dll"
 #r "StormThrift.dll"
 #r "Thrift.dll"
-open System.IO
-open System.IO.Compression
 open StormThrift
 open System
 
-let default_nimbus_port = 6627
 
 //run a shell command
 let shell cmd args workingDir =
@@ -24,55 +21,6 @@ let shell cmd args workingDir =
         printfn "%s" (p.StandardOutput.ReadLine())
     r
 
-//package the appropriate files from the 'binDir'
-//into a jar
-let makeJar binDir =
-    let jarDir = Path.Combine(binDir,"resources")
-    printfn "%A" jarDir
-    if Directory.Exists(jarDir) |> not then Directory.CreateDirectory(jarDir) |> ignore
-    Directory.GetFiles(jarDir) |> Seq.iter (File.Delete)
-    Directory.GetFiles (binDir)
-    |> Seq.filter (fun f -> let e = Path.GetExtension(f) in e = ".exe" || e=".dll" || e=".config" || e=".sh")
-    |> Seq.map (fun f -> f, jarDir + "/" + (Path.GetFileName(f)))
-    |> Seq.iter File.Copy
-    let jarFn = Path.Combine(binDir,Path.GetFileName(binDir)+".jar")
-    if File.Exists jarFn then File.Delete jarFn
-    ZipFile.CreateFromDirectory(jarDir,jarFn,CompressionLevel.Optimal,true)
-    jarFn
-
-// stablish nimbus client connection and execute the passed action with it
-let withNimbus nimbus_host nimbus_port f =
-    use tx = new Thrift.Transport.TSocket(nimbus_host,nimbus_port)
-    use txf = new Thrift.Transport.TFramedTransport(tx)
-    txf.Open()
-    try
-        use tp = new Thrift.Protocol.TBinaryProtocol(txf)
-        use c = new Nimbus.Client(tp)
-        f c
-    finally
-        txf.Close()
-
-//upload the packaged jar to nimbus (a storm service)
-//using thrift protocol
-let uploadJar jarFile (nimbus:Nimbus.Client) =
-    let file = nimbus.beginFileUpload()
-    use inStr = File.OpenRead(jarFile)
-    let chunkSz = 307200
-    let buffer = Array.zeroCreate(chunkSz)
-    let mutable read = inStr.Read(buffer,0,buffer.Length)
-    while read > 0 do
-        nimbus.uploadChunk(file,buffer.[0..read-1])
-        printfn "uploaded %d bytes" read
-        read <- inStr.Read(buffer,0,buffer.Length)
-    nimbus.finishFileUpload(file)
-    file
-
-// kill running topology
-let killTopology name nimbus_host nimbus_port =
-    withNimbus nimbus_host nimbus_port (fun nimbus -> nimbus.killTopology name)
-
-//check if running on mono
-let isMono() = Type.GetType("Mono.Runtime") <> null
 
 //submit topology to run in storm
 //this is done indirectly by executing the built exe

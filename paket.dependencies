@@ -1,16 +1,25 @@
-source https://nuget.org/api/v2
+group Build
+	source https://nuget.org/api/v2
+	nuget FAKE
+	nuget SourceLink.Fake
+	nuget Octokit
+	nuget FSharp.Formatting
+	nuget fsharplint
+	
+	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
-nuget FSharp.Formatting
-nuget fsharplint
-nuget NUnit.Runners
-nuget FAKE
-nuget Octokit
-nuget SourceLink.Fake
-nuget fsunit
-nuget protobuf-net
-nuget protogen-net
-nuget thrift
+group Main
+	source https://nuget.org/api/v2
+	nuget newtonsoft.json
+	nuget protobuf-net
+	nuget protogen-net
+	nuget thrift
+	
+	github et1975/protoshell src/main/java/com/github/jsgilmore/protoshell/messages.proto
+	github apache/storm storm-core/src/storm.thrift
 
-github fsharp/FAKE modules/Octokit/Octokit.fsx
-github et1975/protoshell src/main/java/com/github/jsgilmore/protoshell/messages.proto
-github apache/storm storm-core/src/storm.thrift
+group Tests
+	source https://nuget.org/api/v2
+	nuget nunit 2.6.4
+	nuget thrift
+	nuget unquote

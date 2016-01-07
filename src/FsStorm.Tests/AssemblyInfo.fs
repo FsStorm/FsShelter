@@ -1,7 +1,7 @@
 ﻿namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("FsJson")>]
+[<assembly: AssemblyTitleAttribute("FsStorm.Tests")>]
 [<assembly: AssemblyProductAttribute("FsStorm")>]
 [<assembly: AssemblyDescriptionAttribute("F# DSL and runtime for Storm topologies")>]
 [<assembly: AssemblyVersionAttribute("0.0.9")>]

@@ -1,30 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsJson", "FsJson\FsJson.fsproj", "{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLogging", "FsLogging\FsLogging.fsproj", "{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsStorm", "FsStorm\FsStorm.fsproj", "{BE537B3C-1636-46A5-8FA4-635D0842BAB1}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FstSample", "FstSample\FstSample.fsproj", "{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Refs", "Refs", "{84AC8A39-60F9-4E77-93B2-184FE1276A55}"
-	ProjectSection(SolutionItems) = preProject
-		..\Refs\StormSubmit.fsx = ..\Refs\StormSubmit.fsx
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B77C3AD-21BC-4545-9C30-B6B94136EA65}"
 	ProjectSection(SolutionItems) = preProject
 		..\build.fsx = ..\build.fsx
 		..\LICENSE.md = ..\LICENSE.md
+		..\paket.dependencies = ..\paket.dependencies
+		..\paket.lock = ..\paket.lock
 		..\paket.template = ..\paket.template
+		Performance1.psess = Performance1.psess
 		..\README.md = ..\README.md
 	EndProjectSection
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FstSampleTest", "FstSampleTest\FstSampleTest.fsproj", "{F05577FD-C8CB-4EC2-BAFC-10862B2C7348}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FstGuaranteed", "FstGuaranteed\FstGuaranteed.fsproj", "{02FD3F86-F30B-4F55-81FC-C397C0997261}"
 EndProject
@@ -36,20 +28,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoShell", "..\ext\ProtoS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StormThrift", "..\ext\StormThrift\StormThrift.csproj", "{5492E92D-0763-4703-BF34-38DCE77A5B44}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsStorm.Tests", "FsStorm.Tests\FsStorm.Tests.fsproj", "{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}"
+EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1087FA7B-4411-44A0-BB4C-3FDC7C895DEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A06DA03-BF6C-4AF0-9035-B4DEA6A162F8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,10 +47,6 @@ Global
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348}.Release|Any CPU.Build.0 = Release|Any CPU
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02FD3F86-F30B-4F55-81FC-C397C0997261}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,13 +59,16 @@ Global
 		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5492E92D-0763-4703-BF34-38DCE77A5B44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF3DCBD8-8A3B-468E-93EF-89D3866A6165}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF} = {4874E5DF-290B-49B9-86AA-A6496F059505}
-		{F05577FD-C8CB-4EC2-BAFC-10862B2C7348} = {4874E5DF-290B-49B9-86AA-A6496F059505}
 		{02FD3F86-F30B-4F55-81FC-C397C0997261} = {4874E5DF-290B-49B9-86AA-A6496F059505}
 		{024D6019-43E0-4374-B831-3333CFC3D416} = {C2DEF051-4E7A-48A8-9206-BAE19765E3BB}
 		{5492E92D-0763-4703-BF34-38DCE77A5B44} = {C2DEF051-4E7A-48A8-9206-BAE19765E3BB}
