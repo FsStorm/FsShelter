@@ -82,10 +82,10 @@ module TupleSchema =
                         (fun prefix (p:PropertyInfo) -> prefix |> formatName p.Name)
             |> Array.toList
 
-    let toStreamName<'t> = 
+    let toStreamName<'t> :'t->string = 
         let reader = FSharpValue.PreComputeUnionTagReader typeof<'t>
         let names = FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> case.Name)
-        reader >> names.GetValue >> string
+        reader >> names.GetValue >> unbox
 
     type FieldReader = System.Type->obj
     type FieldWriter = obj->unit

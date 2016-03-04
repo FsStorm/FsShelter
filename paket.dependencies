@@ -1,6 +1,7 @@
 group Build
 	source https://nuget.org/api/v2
 	nuget FAKE
+nuget nunit.runners 2.6.4
 	nuget SourceLink.Fake
 	nuget Octokit
 	nuget FSharp.Formatting

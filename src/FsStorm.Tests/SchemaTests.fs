@@ -17,6 +17,10 @@ let ``schema unfolds``() =
 let ``schema unfolds only a level deep``() = 
     t2.Streams.["Nested"].Schema =! ["Item.nested"]
 
+[<Test>]
+let ``schema unfolds wide case``() = 
+    t2.Streams.["JustFields"].Schema =! ["Item1";"Item2";"Item3";"Item4";"Item5";"Item6";"Item7";"Item8";"Item9";"Item10"]
+
 let (constr,deconst) = TupleSchema.mapSchema<Schema>() |> Map.ofArray |> Map.find "Even"
 
 [<Test>]

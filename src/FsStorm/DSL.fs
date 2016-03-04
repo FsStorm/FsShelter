@@ -5,30 +5,33 @@ module private Parsers =
     open TupleSchema
     open FSharp.Quotations
     open FSharp.Quotations.Patterns
+    open Microsoft.FSharp.Reflection
 
     let inline raiseUnsupportedExpression expr = failwithf "Unsupported expression: %A" expr
 
     let (|PipeRight|_|) = function
-        | Call (None,op_PipeRight,[Call (None,_,[ValueWithName src;ValueWithName dst]); Call call]) -> Some (src,dst,call)
+        | Call (None,op_PipeRight,[Call (None,_,[ValueWithName src;ValueWithName dst]); call]) -> Some (src,dst,call)
         | _ -> None
     
     let (|PipeLeft|_|) = function
-        | Call (None,op_PipeLeft,[Call call; Call (None,_,[ValueWithName src;ValueWithName dst])]) -> Some (src,dst,call)
+        | Call (None,op_PipeLeft,[call; Call (None,_,[ValueWithName src;ValueWithName dst])]) -> Some (src,dst,call)
         | _ -> None
         
-    let (|UnionCase|_|) = function
-        | Call (_,_,[Lambda(_, NewUnionCase (case,_));_]) -> Some case
-        | Call (_,_,[Lambda(_, IfThenElse (UnionCaseTest(_,case),_,_));_]) -> Some case
+    let rec (|UnionCase|_|) = function
+        | Call (_,_,[UnionCase case]) -> Some case
+        | Call (_,_,[UnionCase case;_]) -> Some case
+        | Lambda(_, UnionCase case) -> Some case
+        | Let (_,_,UnionCase case) -> Some case
+        | NewUnionCase (case,_) -> Some case
+        | IfThenElse (UnionCaseTest(_,case),_,_) -> Some case
         | _ -> None
         
     let (|StreamDef|_|) = function
-        | PipeRight ((src,srcT,srcId),(dst,_,dstId),call)
-        | PipeLeft ((src,srcT,srcId),(dst,_,dstId),call) -> 
+        | PipeRight ((src,srcT,srcId),(dst,_,dstId),UnionCase case)
+        | PipeLeft ((src,srcT,srcId),(dst,_,dstId),UnionCase case) -> 
             let spouts = if srcT.GetGenericTypeDefinition() = typedefof<Spout<_>> then [srcId,unbox<Spout<'t>> src] else []
             let bolts = if srcT.GetGenericTypeDefinition() = typedefof<Bolt<_>> then [srcId,unbox<Bolt<'t>> src] else []
-            match call with
-            | (_,_,[UnionCase case]) -> Some (spouts,(dstId, unbox<Bolt<'t>> dst)::bolts,case.Name,srcId,dstId)
-            | _ -> None
+            Some (spouts,(dstId, unbox<Bolt<'t>> dst)::bolts,case.Name,srcId,dstId)
         | _ -> None
 
     let toTopology name = function
@@ -63,10 +66,8 @@ module private Parsers =
         Fields (parseProjection select) //(unbox<'t->'p> v) >> box
 
     let rec findCase = function
-        | WithValue (v,ty,exp) -> findCase exp
-        | Lambda (_,exp) -> findCase exp 
-        | NewUnionCase (case, _) -> case
-        | IfThenElse (UnionCaseTest (_, case),_,_) -> case
+        | WithValue (_,_,exp) -> findCase exp
+        | UnionCase case -> case
         | exp -> raiseUnsupportedExpression exp
 
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "TypeNamesMustBePascalCase")>]

@@ -2,7 +2,7 @@
 // FAKE build script
 // --------------------------------------------------------------------------------------
 
-#r @"packages/FAKE/tools/FakeLib.dll"
+#r @"packages/build/FAKE/tools/FakeLib.dll"
 
 open Fake
 open Fake.Git
@@ -12,7 +12,7 @@ open System
 open System.IO
 #if MONO
 #else
-#load "packages/SourceLink.Fake/tools/Fake.fsx"
+#load "packages/build/SourceLink.Fake/tools/Fake.fsx"
 open SourceLink
 #endif
 

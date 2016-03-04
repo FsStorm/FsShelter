@@ -71,10 +71,6 @@
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
-  <UsingTask AssemblyFile="..\..\packages\FSharpLint\FSharpLint.MSBuildIntegration.dll" TaskName="FSharpLintTask" />
-  <Target Name="AfterBuild" Condition="'$(LINT)' == 'True'">
-    <FSharpLintTask Project="$(MSBuildProjectFullPath)" />
-  </Target>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
       <ItemGroup>

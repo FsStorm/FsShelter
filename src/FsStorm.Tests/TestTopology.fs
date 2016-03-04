@@ -19,6 +19,7 @@ type Schema =
     | Odd of Number*string
     | MaybeString of string option
     | Nested of Nested
+    | JustFields of int * float * Guid * Guid * string * string * string * DateTime * DateTimeOffset * DateTimeOffset
 
 type World = 
     { rnd : Random
@@ -75,4 +76,5 @@ let t2 = topology "test2" {
              |> asBolt<Schema>
              |> withConf []
     yield s2 --> b3 |> all.on Nested
+    yield s2 --> b3 |> all.on JustFields
 }
