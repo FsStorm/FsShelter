@@ -1,202 +1,176 @@
 ﻿module Storm.ProtoIO
-//
-//open Multilang
-//open System
-//open System.Text
-//open System.IO
-//open ProtoShell
-//open TupleSchema
-//
-//let private write (text:string) (_,textWriter:TextWriter) =
-//    textWriter.WriteLine(text)
-//    textWriter.WriteLine("end")
-//    textWriter.Flush()
-//
-//let private toAnchors = function
-//    | [] -> "[]"
-//    | anchors -> anchors |> JsonConvert.SerializeObject
-//
-//let private toId = function
-//    | Some tid -> tid
-//    | _ -> ""
-//
-//let private toTaskIdsNeed = function
-//    | Some need -> string need
-//    | _ -> "false"
-//
-//let private toTuple (deconstr:FieldWriter->obj->unit) tuple =
-//    use sw = new StringWriter()
-//    use w = new JsonTextWriter(sw)
-//    w.WriteStartArray()
-//    deconstr (fun v -> w.WriteValue(v)) tuple
-//    w.WriteEndArray()
-//    w.Close()
-//    sw.ToString()
-//
-//let private readProp (r:JsonTextReader) name proj =
-//    match r.TokenType,(string r.Value) with
-//    | JsonToken.PropertyName,n when name = n -> 
-//        let v = Some (proj r)
-//        r.Read() |> ignore
-//        v
-//    | _ -> None
-//
-//let private readObjEnd (r:JsonTextReader) v = 
-//    while JsonToken.EndObject <> r.TokenType && r.Read() do () // skip to the end
-//    r.Read() |> ignore
-//    v
-//
-//let private readString (r:JsonTextReader) = 
-//    r.ReadAsString()
-//    
-//let private (|Init|_|) (r:JsonTextReader) =
-//    let readConf() = 
-//        match r.Read(),r.TokenType with
-//        | true, JsonToken.StartObject ->
-//            seq {
-//                while r.Read() && JsonToken.EndObject <> r.TokenType do
-//                    let name = (string r.Value)
-//                    r.Read() |> ignore
-//                    yield name,r.Value
-//            } |> Map.ofSeq |> Some
-//        | _ -> None
-//        
-//    let readPid() = readProp r "pidDir" readString
-//        
-//    let readTaskMap() =
-//        match r.Read(), r.TokenType, (string r.Value) with
-//        | true, JsonToken.PropertyName, "task->component" ->
-//            match r.Read(),r.TokenType with
-//            | true, JsonToken.StartObject ->
-//                seq {
-//                    while r.Read() && JsonToken.EndObject <> r.TokenType do
-//                        let taskId= r.Value |> (string >> Int64.Parse)
-//                        yield taskId,r.ReadAsString()
-//                } |> Map.ofSeq |> Some
-//            | _ -> None
-//        | _ -> None
-//
-//    let readContext() = 
-//        match r.Read(), r.TokenType, (string r.Value) with
-//        | true, JsonToken.PropertyName, "context" ->
-//            match r.Read(),r.TokenType with
-//            | true, JsonToken.StartObject ->
-//                let taskMap = readTaskMap() |> Option.map (readObjEnd r) |> Option.get
-//                let taskId = readProp r "taskid" (fun r -> r.ReadAsDouble().Value |> int64) |> Option.get
-//                Some {
-//                    ComponentId= taskMap |> Map.find taskId
-//                    TaskId=taskId
-//                    Components=taskMap
-//                }
-//            | _ -> None
-//        | _ -> None
-//        
-//    match r.TokenType,(string r.Value) with
-//    | JsonToken.PropertyName, "pidDir" ->
-//        let pidDir = readPid() |> Option.get
-//        let ctx = readContext() |> Option.map (readObjEnd r) |> Option.get
-//        let conf = readConf() |> Option.get
-//        Some (Handshake(conf, pidDir, ctx))
-//    | _ -> None
-//
-//let private (|Command|_|) (r:JsonTextReader) =
-//    let tupleId = readProp r "id" readString
-//    
-//    let cmd tupleId =
-//        match r.TokenType,(string r.Value) with
-//        | JsonToken.PropertyName,"command" -> 
-//            match r.ReadAsString() with
-//            | "next" -> Some (Next)
-//            | "ack" -> Some (Ack tupleId)
-//            | "fail" -> Some (Nack tupleId)
-//            | _ -> None
-//        | _ -> None
-//    tupleId |> Option.bind cmd
-//
-//let private (|StreamIn|_|) findConstructor (r:JsonTextReader) =
-//    let comp = readProp r "comp" readString
-//    
-//    let tuple = function
-//        | Choice1Of2 h -> Some h
-//        | Choice2Of2(tupleId,comp,streamId,task) -> 
-//            match r.Read(),r.TokenType,(string r.Value) with
-//            | true,JsonToken.PropertyName, "tuple" ->
-//                match r.Read(),r.TokenType with
-//                | true,JsonToken.StartArray ->
-//                    let t = findConstructor streamId <| (fun _ -> r.Read() |> ignore; r.Value)
-//                    Some (InCommand.Tuple(t(),tupleId,comp,streamId,task))
-//                | _ -> None
-//            | _ -> None
-//    
-//    let tupleId comp = readProp r "id" (fun r -> Choice2Of2 (comp,r.ReadAsString()))
-//
-//    let stream = function
-//        | Choice1Of2 cmd -> Some (Choice1Of2 cmd)
-//        | Choice2Of2 (tupleId,comp) -> readProp r "stream" (fun r -> Choice2Of2 (tupleId,comp,r.ReadAsString()))
-//
-//    let maybeHeartbeat = function
-//        | Choice1Of2 cmd -> Some (Choice1Of2 cmd)
-//        | Choice2Of2 (tupleId,comp,str) ->
-//            match str with
-//            | "__heartbeat" -> Some (Choice1Of2 Heartbeat)
-//            | _ -> Some (Choice2Of2(tupleId,comp,str))
-//    
-//    let task = function
-//        | Choice1Of2 cmd -> Some (Choice1Of2 cmd)
-//        | Choice2Of2(tupleId,comp,streamId) -> 
-//            readProp r "task" (fun r -> Choice2Of2(tupleId,comp,streamId,r.ReadAsInt32().Value))
-//    
-//    comp 
-//    |> Option.bind tupleId
-//    |> Option.bind stream 
-//    |> Option.bind maybeHeartbeat 
-//    |> Option.bind task 
-//    |> Option.bind tuple
-//
-//let private toCommand (findConstructor:string->FieldReader->unit->'t) str : InCommand<'t> =
-//    use sr = new StringReader(str)
-//    use r = new JsonTextReader(sr)
-//    match r.Read(),r.TokenType with
-//    | true,JsonToken.StartObject -> 
-//        match r.Read(),r with 
-//        | true, Init h -> h
-//        | true, StreamIn findConstructor data -> data
-//        | _ -> failwithf "Unexpected token: %A:%A" r.TokenType r.Value
-//    | _ -> failwithf "Not a Json object or unexpected end: %A:%A" r.TokenType r.Value
-//
-//let start tag :Topology.IO<'t> =
-//    if isMono() then
-//        () //on osx/linux under mono, set env LANG=en_US.UTF-8
-//    else
-//        try
-//            Console.InputEncoding <- Encoding.UTF8
-//            Console.OutputEncoding <- Encoding.UTF8
-//        with _ -> ()
-//
-//    let streamRW = TupleSchema.mapSchema<'t>() |> Map.ofArray
-//   
-//    let out' cmd = 
-//        match cmd with
-//        | Sync -> """{"command":"sync"}"""
-//        | Pid pid -> sprintf """{{"pid":%d}}""" pid
-//        | Fail tid -> sprintf """{{"command":"fail","id":"%s"}}""" tid
-//        | Ok tid -> sprintf """{{"command":"ack","id":"%s"}}""" tid
-//        | Log (msg,lvl) -> sprintf """{{"command":"log","msg":"%s:%s", "level":%d}}""" tag msg (int lvl)
-//        | Emit (t,tid,anchors,stream,needTaskIds) -> 
-//            let (_,d) = streamRW |> Map.find stream
-//            sprintf 
-//                """{{"command":"emit","id":"%s","tuple":"%s","anchors":"%s","stream":"%s","need_task_ids":%s}}""" 
-//                (toId tid) (toTuple d t) (toAnchors anchors) stream (toTaskIdsNeed needTaskIds)
-//        |> write |> IO.Common.sync_out
-//
-//    let in' ():Async<InCommand<'t>> =
-//        let findConstructor stream = streamRW |> Map.find stream |> fst
-//        async {
-//            let! msg  = Console.In.ReadLineAsync() |> Async.AwaitTask
-//            let! term = Console.In.ReadLineAsync() |> Async.AwaitTask
-//            return match msg,term with
-//                   | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg
-//                   | _ -> failwithf "Unexpected input msg/term: %s/%s" msg term
-//         }
-//
-//    (in',out')
+
+open Multilang
+open System
+open Google.Protobuf
+open Google.Protobuf.WellKnownTypes
+open Newtonsoft.Json
+open Newtonsoft.Json.Bson
+open Prolucid.ProtoShell
+open TupleSchema
+open System.IO
+
+type V = Messages.Variant
+type VL = WellKnownTypes.Value
+type VLKind = VL.KindOneofCase
+type VKind = V.KindOneofCase
+let vNone = V(NoneVal = WellKnownTypes.NullValue.NULL_VALUE)
+
+let private blobSerializer = new JsonSerializer();
+let private blobSerialize o = 
+    use ms = new MemoryStream()
+    use writer = new BsonWriter(ms)
+    blobSerializer.Serialize(writer, o)
+    ByteString.CopyFrom(ms.GetBuffer()) // TODO: avoid copy
+
+let private blobDeserialize (bytes:ByteString) = 
+    use ms = new MemoryStream(bytes.ToByteArray()) // TODO: optimize
+    use reader = new BsonReader(ms)
+    blobSerializer.Deserialize(reader)
+
+let private typeMap = 
+    [
+        typeof<string>, 
+            ((fun (v:obj) -> V(StrVal = (unbox v))), fun (v:V) -> box v.StrVal)
+        typeof<int>, 
+            ((fun (v:obj) -> V(Int32Val = (unbox v))), fun (v:V) -> box v.Int32Val)
+        typeof<int64>, 
+            ((fun (v:obj) -> V(Int64Val = (unbox v))), fun (v:V) -> box v.Int64Val)
+        typeof<int16>, 
+            ((fun (v:obj) -> V(Int32Val = (unbox v))), fun (v:V) -> box (int16 v.Int32Val))
+        typeof<bool>, 
+            ((fun (v:obj) -> V(BoolVal = (unbox v))), fun (v:V) -> box v.BoolVal)
+        typeof<byte>, 
+            ((fun (v:obj) -> V(Int32Val = int (unbox<byte> v))), fun (v:V) -> box (byte v.Int32Val))
+        typeof<Guid>, 
+            ((fun (v:obj) -> V(BytesVal = (unbox<Guid> v).ToByteString())), fun (v:V) -> box (v.BytesVal.ToGuid()))
+        typeof<double>, 
+            ((fun (v:obj) -> V(DoubleVal = (unbox v))), fun (v:V) -> box v.DoubleVal)
+        typeof<single>, 
+            ((fun (v:obj) -> V(DoubleVal = (float (unbox<single> v)))), fun (v:V) -> box (single v.DoubleVal))
+        typeof<DateTime>, 
+            ((fun (v:obj) -> V(TimestampVal = Timestamp.FromDateTime((unbox<DateTime> v).ToUniversalTime()))), fun (v:V) -> box (v.TimestampVal.ToDateTime()))
+        typeof<DateTimeOffset>, 
+            ((fun (v:obj) -> V(TimestampVal = Timestamp.FromDateTimeOffset(unbox<DateTimeOffset> v))), fun (v:V) -> box (v.TimestampVal.ToDateTimeOffset()))
+
+        typeof<string option>, 
+            ((fun (o:obj) -> match unbox o with | Some v -> V(StrVal = v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.StrVal -> Some v.StrVal | _ -> None)
+        typeof<int option>, 
+            ((fun (o:obj) -> match unbox o with | Some v -> V(Int32Val = v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Some v.Int32Val | _ -> None)
+        typeof<int64 option>, 
+            ((fun (o:obj) -> match unbox o with | Some v -> V(Int64Val = v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int64Val -> Some v.Int64Val | _ -> None)
+        typeof<int16 option>, 
+            ((fun (o:obj) -> match unbox<int16 option> o with | Some v -> V(Int32Val = int v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Some (int16 v.Int32Val) | _ -> None)
+        typeof<bool option>, 
+            ((fun (o:obj) -> match unbox o with | Some v -> V(BoolVal = v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.BoolVal -> Some v.BoolVal | _ -> None)
+        typeof<byte option>, 
+            ((fun (o:obj) -> match unbox<byte option> o with | Some v -> V(Int32Val = (int v)) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Some (byte v.Int32Val) | _ -> None)
+        typeof<Guid option>, 
+            ((fun (o:obj) -> match unbox<Guid option> o with | Some v -> V(BytesVal = v.ToByteString()) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.BytesVal -> Some (v.BytesVal.ToGuid()) | _ -> None)
+        typeof<double option>, 
+            ((fun (o:obj) -> match unbox o with | Some v -> V(DoubleVal = v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.DoubleVal -> Some v.DoubleVal | _ -> None)
+        typeof<single option>, 
+            ((fun (o:obj) -> match unbox<single option> o with | Some v -> V(DoubleVal = (double v)) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.DoubleVal -> Some (single v.DoubleVal) | _ -> None)
+        typeof<DateTime option>, 
+            ((fun (o:obj) -> match unbox<DateTime option> o with | Some v -> V(TimestampVal = Timestamp.FromDateTime (v.ToUniversalTime())) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.TimestampVal -> Some (v.TimestampVal.ToDateTime()) | _ -> None)
+        typeof<DateTimeOffset option>, 
+            ((fun (o:obj) -> match unbox<DateTimeOffset option> o with | Some v -> V(TimestampVal = Timestamp.FromDateTimeOffset v) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.TimestampVal -> Some (v.TimestampVal.ToDateTimeOffset()) | _ -> None)
+    ] |> dict
+    
+let private toVariant = function
+    | null -> vNone
+    | v -> let t = v.GetType()
+           match typeMap.TryGetValue t with 
+           | true, (f,_) -> f v
+           | _ -> V(BytesVal = blobSerialize v)
+    
+let private ofVariant t (v:V) =
+    match typeMap.TryGetValue t with 
+    | true, (_,f) -> f v
+    | _ when v.KindCase = VKind.BytesVal -> blobDeserialize v.BytesVal
+    | _ -> null
+
+let rec private ofValue = function
+    | (v:VL) when v.KindCase = VLKind.BoolValue -> box v.BoolValue
+    | (v:VL) when v.KindCase = VLKind.NumberValue -> box v.NumberValue
+    | (v:VL) when v.KindCase = VLKind.StringValue -> box v.StringValue
+    | (v:VL) when v.KindCase = VLKind.ListValue -> box (v.ListValue.Values |> Seq.map ofValue |> Seq.toList)
+    | _ -> null
+
+let private toFields (deconstr:FieldWriter->obj->unit) tuple =
+    let fields = Collections.Generic.List<V>()
+    deconstr (toVariant >> fields.Add) tuple
+    fields
+    
+let private ofFields (constr:FieldReader->unit->'t) (fields:V seq) =
+    let xs = fields.GetEnumerator()
+    constr (fun t -> xs.MoveNext() |> ignore; ofVariant t xs.Current)
+        
+let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:Messages.StormMsg) : InCommand<'t> =
+    let toConf conf = conf |> Seq.map (fun (x:Collections.Generic.KeyValuePair<string,VL>) -> x.Key, ofValue x.Value) |> Map
+    let toContext (ctx:Messages.Context) = { ComponentId = ctx.ComponentId; TaskId = ctx.TaskId; Components = ctx.TaskComponents |> Seq.map (|KeyValue|) |> Map }
+    match msg.MsgCase with
+    | Messages.StormMsg.MsgOneofCase.AckCmd -> Ack msg.AckCmd.Id
+    | Messages.StormMsg.MsgOneofCase.Handshake -> Handshake (toConf msg.Handshake.Config, msg.Handshake.PidDir, (toContext msg.Handshake.Context))
+    | Messages.StormMsg.MsgOneofCase.Hearbeat -> Heartbeat
+    | Messages.StormMsg.MsgOneofCase.NackCmd -> Nack msg.NackCmd.Id
+    | Messages.StormMsg.MsgOneofCase.NextCmd -> Next
+    | Messages.StormMsg.MsgOneofCase.TaskIds -> TaskIds (msg.TaskIds.TaskIds |> List.ofSeq)
+    | Messages.StormMsg.MsgOneofCase.StreamIn ->
+        log (fun _ -> sprintf "Constructing a tuple: %s %A" msg.StreamIn.Stream (msg.StreamIn.Tuple |> List.ofSeq))
+        let constr = findConstructor msg.StreamIn.Stream
+        InCommand.Tuple ((ofFields constr msg.StreamIn.Tuple)(), msg.StreamIn.Id, msg.StreamIn.Comp, msg.StreamIn.Stream, msg.StreamIn.Task)
+    | _ -> failwithf "Unexpected command: %A" msg
+
+let startWith (stdin:#Stream,stdout:#Stream) (log:Task.Log) :Topology.IO<'t> =
+    let write =
+        let sync = IO.Common.syncOut stdout
+        fun (msg:Messages.ShellMsg) ->
+            log (fun _ -> sprintf "> %A" msg)
+            sync (fun out -> msg.WriteDelimitedTo out
+                             out.Flush())
+    let streamRW = TupleSchema.mapSchema<'t>() |> Map.ofArray
+   
+    let out' (cmd:OutCommand<'t>) = 
+        match cmd with
+        | Sync -> Messages.ShellMsg(Sync = Messages.SyncReply())
+        | Pid pid -> Messages.ShellMsg(Pid = Messages.PidReply(Pid = pid))
+        | Fail tid -> Messages.ShellMsg(Fail = Messages.FailReply(Id = tid))
+        | Ok tid -> Messages.ShellMsg(Ok = Messages.OkReply(Id = tid))
+        | Log (msg,lvl) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = msg, Level = enum (int lvl)))
+        | Error (msg,ex) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = (sprintf "%s: %s" msg (Task.traceException ex)), Level = Messages.LogCommand.Types.LogLevel.Error))
+        | Emit (t,tid,anchors,stream,needTaskIds) -> 
+            let (_,d) = streamRW |> Map.find stream
+            let cmd = Messages.EmitCommand(Stream = stream)
+            cmd.Tuple.Add (toFields d t)
+            if Option.isSome tid then cmd.Id <- tid.Value
+            if Option.isSome needTaskIds && needTaskIds.Value then cmd.NeedTaskIds <- needTaskIds.Value
+            if not (List.isEmpty anchors) then cmd.Anchors.Add (anchors)
+            Messages.ShellMsg(Emit = cmd)
+        |> write
+
+    let in' ():Async<InCommand<'t>> =
+        let findConstructor stream = 
+            streamRW |> Map.find stream |> fst
+        async {
+            let! msg = async {
+                return Messages.StormMsg.Parser.ParseDelimitedFrom stdin
+            }
+            log (fun _ -> sprintf "< %A" msg)
+            return toCommand log findConstructor msg
+        }
+
+    (in',out')
+
+let start log = startWith (Console.OpenStandardInput(),Console.OpenStandardOutput()) log

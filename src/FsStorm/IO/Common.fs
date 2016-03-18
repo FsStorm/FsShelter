@@ -1,17 +1,13 @@
 ﻿namespace Storm.IO
 
 module internal Common =
-    open System
-    open System.IO
-    open Storm.TupleSchema
-
-    let sync_out = 
+    
+    let syncOut (out:'o) = 
         let mb = MailboxProcessor.Start (fun inbox ->
             async {
-                let out = Console.OpenStandardOutput()
                 while true do
-                    let! (writer:Stream*TextWriter->unit) = inbox.Receive()
-                    writer (out,Console.Out)
+                    let! (writer:'o->unit) = inbox.Receive()
+                    writer out
             })
         mb.Post
-        
+    

@@ -5,22 +5,23 @@ open Swensen.Unquote
 open Storm.TestTopology
 open Storm.Multilang
 open System
+open JsonIO
 
 [<Test>]
 let ``reads handshake``() = 
-    let (in',_) = JsonIO.start "test"
-    
     new System.IO.StringReader(
             """{"pidDir":"C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
                 "context":{"task->component":{"1":"AddOneBolt","2":"AddOneBolt","3":"ResultBolt","4":"ResultBolt","5":"SimpleSpout","6":"__acker"},"taskid":5},
                 "conf":{"storm.id":"FstSample-2-1456522507","dev.zookeeper.path":"\/tmp\/dev-storm-zookeeper","topology.tick.tuple.freq.secs":30,"topology.classpath":null}}"""
-                .Replace("\r\n","")+"\nend\n")
+                .Replace("\r\n","")+END)
     |> Console.SetIn
 
+    let (in',_) = JsonIO.start ignore
+    
     let expected = InCommand<Schema>.Handshake(
                     Conf ["storm.id",box "FstSample-2-1456522507"; "dev.zookeeper.path", box "/tmp/dev-storm-zookeeper"; "topology.tick.tuple.freq.secs", box 30L; "topology.classpath", null],
                     "C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
-                    {TaskId=5L;ComponentId="SimpleSpout";Components=Map [1L,"AddOneBolt"; 2L,"AddOneBolt"; 3L,"ResultBolt"; 4L, "ResultBolt"; 5L,"SimpleSpout"; 6L,"__acker"]})
+                    {TaskId=5;ComponentId="SimpleSpout";Components=Map [1,"AddOneBolt"; 2,"AddOneBolt"; 3,"ResultBolt"; 4, "ResultBolt"; 5,"SimpleSpout"; 6,"__acker"]})
     async {
         return! in'()
     } |> Async.RunSynchronously =! expected
@@ -28,11 +29,11 @@ let ``reads handshake``() =
 
 [<Test>]
 let ``reads next``() = 
-    let (in',_) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"id":"","command":"next"}"""+"\nend\n")
+    new System.IO.StringReader("""{"id":"","command":"next"}"""+END)
     |> Console.SetIn
 
+    let (in',_) = JsonIO.start ignore
+    
     async {
         return! in'()
     } |> Async.RunSynchronously =! InCommand<Schema>.Next
@@ -40,11 +41,11 @@ let ``reads next``() =
 
 [<Test>]
 let ``reads ack``() = 
-    let (in',_) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"id":"zzz","command":"ack"}"""+"\nend\n")
+    new System.IO.StringReader("""{"id":"zzz","command":"ack"}"""+END)
     |> Console.SetIn
 
+    let (in',_) = JsonIO.start ignore
+    
     async {
         return! in'()
     } |> Async.RunSynchronously =! InCommand<Schema>.Ack "zzz"
@@ -52,11 +53,11 @@ let ``reads ack``() =
 
 [<Test>]
 let ``reads nack``() = 
-    let (in',_) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"id":"zzz","command":"fail"}"""+"\nend\n")
+    new System.IO.StringReader("""{"id":"zzz","command":"fail"}"""+END)
     |> Console.SetIn
 
+    let (in',_) = JsonIO.start ignore
+    
     async {
         return! in'()
     } |> Async.RunSynchronously =! InCommand<Schema>.Nack "zzz"
@@ -64,35 +65,35 @@ let ``reads nack``() =
 
 [<Test>]
 let ``reads tuple``() = 
-    let (in',_) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Original","id":"2651792242051038370"}"""+"\nend\n")
+    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Original","id":"2651792242051038370"}"""+END)
     |> Console.SetIn
 
+    let (in',_) = JsonIO.start ignore
+    
     async {
         return! in'()
-    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1L)
+    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
 
 [<Test>]
 let ``writes tuple``() = 
-    let (_,out) = JsonIO.start "test"
-    
     let sw = new System.IO.StringWriter()
     sw |> Console.SetOut
 
+    let (_,out) = JsonIO.start ignore
+    
     out(Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None))
     Threading.Thread.Sleep(10)
-    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Original","need_task_ids":false}"""+Environment.NewLine+"end"+Environment.NewLine
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Original","need_task_ids":false}"""+END
 
 [<Test>]
 let ``rw complex tuple``() = 
-    let (in',out) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+"\nend\n")
+    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END)
     |> Console.SetIn
     let sw = new System.IO.StringWriter()
     sw |> Console.SetOut
+    
+    let (in',out) = JsonIO.start ignore
     
     let even = Even({x=62},{str="a"})
     
@@ -100,19 +101,19 @@ let ``rw complex tuple``() =
     async {
         return! in'()
     } 
-    |> Async.RunSynchronously =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1L)
-    Threading.Thread.Sleep 10
-    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62,"a"],"anchors":[],"stream":"Even","need_task_ids":false}"""+Environment.NewLine+"end"+Environment.NewLine
+    |> Async.RunSynchronously =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
+    Threading.Thread.Sleep 100
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62,"a"],"stream":"Even","need_task_ids":false}"""+END
 
 
 [<Test>]
 let ``rw option tuple``() = 
-    let (in',out) = JsonIO.start "test"
-    
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Some","Fields":["zzz"]}],"task":1,"stream":"MaybeString","id":"2651792242051038370"}"""+"\nend\n")
+    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Some","Fields":["zzz"]}],"task":1,"stream":"MaybeString","id":"2651792242051038370"}"""+END)
     |> Console.SetIn
     let sw = new System.IO.StringWriter()
     sw |> Console.SetOut
+    
+    let (in',out) = JsonIO.start ignore
     
     let t = MaybeString(Some "zzz")
     
@@ -120,5 +121,28 @@ let ``rw option tuple``() =
     async {
         return! in'()
     } 
-    |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1L)
-    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Some","Fields":["zzz"]}],"anchors":[],"stream":"MaybeString","need_task_ids":false}"""+Environment.NewLine+"end"+Environment.NewLine
+    |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Some","Fields":["zzz"]}],"stream":"MaybeString","need_task_ids":false}"""+END
+
+[<Test>]
+[<Category("performance")>]
+let ``rw throughput``() =
+    let count = 10000 
+    new System.IO.StringReader(
+            """{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END
+            |> String.replicate count)
+    |> Console.SetIn
+    new System.IO.StringWriter()
+    |> Console.SetOut
+    
+    let (in',out) = JsonIO.start ignore
+    
+    let even = Even({x=62},{str="a"})
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+    async {
+        for i in {1..count} do
+            Emit(even,Some "2651792242051038370",[],"Even",None) |> out
+            let! msg = in'()
+            msg |> ignore
+    } |> Async.RunSynchronously
+    System.Diagnostics.Debug.WriteLine( sprintf "Ellapsed: %dms, %d/ms" sw.ElapsedMilliseconds (10000L/sw.ElapsedMilliseconds))

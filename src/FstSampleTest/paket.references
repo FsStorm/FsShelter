@@ -1,5 +1,0 @@
-thrift
-newtonsoft.json
-
-group Tests
-	NUnit

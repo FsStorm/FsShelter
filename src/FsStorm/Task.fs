@@ -3,16 +3,33 @@
 open System.IO
 open Storm.Multilang
 open Storm.Topology
+open System
+    
+type Log = (unit -> string) -> unit
+type Task<'t> = ComponentId -> Runnable<'t>
 
 /// diagnostics pid shortcut
-let internal pid() = System.Diagnostics.Process.GetCurrentProcess().Id
+let private pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 
-///creates an empty file with current pid as the file name
-let internal createPid pidDir pid = 
+/// produce the nested exception's stack trace 
+let internal traceException (ex:Exception) =
+    let sb = new System.Text.StringBuilder()
+    let rec loop (ex:Exception) =
+        sb.AppendLine(ex.Message).AppendLine(ex.StackTrace) |> ignore
+        if isNull ex.InnerException then
+            sb.ToString()
+        else
+            sb.AppendLine("========") |> ignore
+            loop ex.InnerException
+    loop ex
+
+/// creates an empty file with current pid as the file name
+let private createPid pidDir pid = 
     let path = Path.Combine(pidDir, pid.ToString())
     use fs = File.CreateText(path)
     fs.Close()
 
+/// converts topology to a runnable task
 let ofTopology (t : Topology<'t>) compId = 
     let anchor = fun sid -> t.Anchors.[sid]
     seq { 
@@ -29,11 +46,14 @@ let ofTopology (t : Topology<'t>) compId =
     | FuncRef r -> r
     | _ -> failwithf "Not a runnable component: %s" compId
 
-let run (io : string -> IO<'t>) (task : ComponentId -> Runnable<'t>) = 
+/// runs the task with a logger
+let runWith (startLog:int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
     async { 
         let pid = pid()
-        let (in', out') = io (string pid)
+        let log = startLog pid
+        let (in', out') = io log
         try 
+            log(fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
             let! msg = in'()
             let (cfg, compId) = 
                 match msg with
@@ -42,12 +62,30 @@ let run (io : string -> IO<'t>) (task : ComponentId -> Runnable<'t>) =
                     Pid pid |> out'
                     (cfg, context.ComponentId)
                 | _ -> failwithf "Expected handshake, got: %A" msg
-            Log((sprintf "running %s..." compId), LogLevel.Info) |> out'
-            return! task compId (io compId) cfg
+            log(fun _ -> sprintf "running %s..." compId)
+            return! task compId (in', out') cfg
         with ex -> 
-            //better to exit process if something goes wrong 
-            //at this point
-            logOfException ex |> out'
-            System.Environment.Exit(1)
+            let msg = traceException ex
+            log (fun _ -> msg)
+            Log(msg, LogLevel.Error) |> out'
+            Threading.Thread.Sleep 1000
+            Environment.Exit 1
     }
     |> Async.RunSynchronously
+
+/// runs the task over the specified IO
+let run (io : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) io task
+
+/// start simple file logger that writes into a pid-identified file in ~/logs
+let startProcessLog pid =
+    let logFile = Path.Combine((Environment.GetFolderPath Environment.SpecialFolder.UserProfile), sprintf "logs/%d.log" pid)
+    Directory.CreateDirectory(Path.GetDirectoryName logFile) |> ignore
+    let writer = new StreamWriter(new FileStream(logFile,FileMode.Create,FileAccess.Write, FileShare.Read))
+    let mb = MailboxProcessor.Start( fun inbox -> 
+        async {
+            while true do
+                let! text = inbox.Receive()
+                text |> (sprintf "%s %s" (DateTime.Now.ToString("HH:mm:ss.ff"))) |> writer.WriteLine
+                writer.Flush()
+        })
+    fun mkEntry -> mkEntry() |> mb.Post

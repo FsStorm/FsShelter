@@ -8,12 +8,8 @@ open Newtonsoft.Json
 open TupleSchema
 open Newtonsoft.Json.Linq
 
-let private isMono() = not <| isNull (System.Type.GetType("Mono.Runtime"))
-
-let private write (text:string) (_,textWriter:TextWriter) =
-    textWriter.WriteLine(text.Replace("\n","\\n"))
-    textWriter.WriteLine("end")
-    textWriter.Flush()
+[<Literal>]
+let END = "\nend\n"
 
 let toLog (msg:string) (lvl:int) =
     use sw = new StringWriter()
@@ -31,10 +27,11 @@ let toLog (msg:string) (lvl:int) =
 
 let private toEmit streamRW t (tid:string option) (anchors:string list) (stream:string) (needTaskIds:bool option) =
     let writeAnchors (w:JsonTextWriter) = 
-        w.WritePropertyName("anchors")
-        w.WriteStartArray()
-        anchors |> List.iter w.WriteValue
-        w.WriteEndArray()
+        if not (List.isEmpty anchors) then
+            w.WritePropertyName("anchors")
+            w.WriteStartArray()
+            anchors |> List.iter w.WriteValue
+            w.WriteEndArray()
 
     let writeId (w:JsonTextWriter) =
         match tid with
@@ -85,7 +82,7 @@ let private (|Init|_|) (o:JObject) =
         r.Read() |> ignore
         seq {
             while r.Read() && JsonToken.EndObject <> r.TokenType do
-                let taskId= r.Value |> (string >> Int64.Parse)
+                let taskId= r.Value |> (string >> Int32.Parse)
                 yield taskId,r.ReadAsString()
         } |> Map.ofSeq
 
@@ -135,7 +132,17 @@ let private toCommand (findConstructor:string->FieldReader->unit->'t) str : InCo
     | Stream findConstructor cmd -> cmd
     | _ -> failwithf "Unable to parse: %s" str
 
-let start tag :Topology.IO<'t> =
+let private isMono() = not <| isNull (System.Type.GetType("Mono.Runtime"))
+
+let startWith (stdin:TextReader,stdout:TextWriter) (log:Task.Log) :Topology.IO<'t> =
+    let write =
+        let sync = IO.Common.syncOut stdout
+        fun (text:string) ->
+            log (fun _ -> "> "+text)
+            sync (fun out -> out.Write(text.Replace("\n","\\n"))
+                             out.Write(END)
+                             out.Flush())
+
     if isMono() then
         () //on osx/linux under mono, set env LANG=en_US.UTF-8
     else
@@ -153,17 +160,21 @@ let start tag :Topology.IO<'t> =
         | Fail tid -> sprintf """{"command":"fail","id":"%s"}""" tid
         | Ok tid -> sprintf """{"command":"ack","id":"%s"}""" tid
         | Log (msg,lvl) -> toLog msg (int lvl)
+        | Error (msg,ex) -> toLog (sprintf "%s: %s" msg (Task.traceException ex)) (int LogLevel.Error)
         | Emit (t,tid,anchors,stream,needTaskIds) -> toEmit streamRW t tid anchors stream needTaskIds
-        |> write |> IO.Common.sync_out
+        |> write
 
     let in' ():Async<InCommand<'t>> =
         let findConstructor stream = streamRW |> Map.find stream |> fst
         async {
-            let! msg  = Console.In.ReadLineAsync() |> Async.AwaitTask
-            let! term = Console.In.ReadLineAsync() |> Async.AwaitTask
+            let! msg  = stdin.ReadLineAsync() |> Async.AwaitTask
+            let! term = stdin.ReadLineAsync() |> Async.AwaitTask
+            log (fun _ -> "< "+msg+term)
             return match msg,term with
                    | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg
                    | _ -> failwithf "Unexpected input msg/term: %s/%s" msg term
          }
 
     (in',out')
+
+let start log :Topology.IO<'t> = startWith (Console.In,Console.Out) log

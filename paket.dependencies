@@ -1,22 +1,23 @@
 group Build
 	source https://nuget.org/api/v2
 	nuget FAKE
-nuget nunit.runners 2.6.4
+	nuget nunit.runners 2.6.4
 	nuget SourceLink.Fake
 	nuget Octokit
 	nuget FSharp.Formatting
 	nuget fsharplint
+	nuget protogen-net
 	
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
 	source https://nuget.org/api/v2
-	nuget newtonsoft.json
-	nuget protobuf-net
-	nuget protogen-net
+nuget Google.Protobuf
 	nuget thrift
+	nuget newtonsoft.json
 	
-	github et1975/protoshell src/main/java/com/github/jsgilmore/protoshell/messages.proto
+	github prolucid/protoshell src/main/proto/multilang.proto
+	github prolucid/thriftshell src/main/multilang.thrift
 	github apache/storm storm-core/src/storm.thrift
 
 group Tests

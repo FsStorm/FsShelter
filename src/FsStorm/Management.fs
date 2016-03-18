@@ -22,7 +22,7 @@ module Package =
     /// into a JAR and return its name
     let makeJar filter binDir = 
         let jarDir = Path.Combine(binDir, "resources")
-        if not <| Directory.Exists(jarDir) then Directory.CreateDirectory(jarDir) |> ignore
+        if not (Directory.Exists jarDir) then Directory.CreateDirectory(jarDir) |> ignore
         Directory.GetFiles(jarDir) |> Seq.iter (File.Delete)
         Directory.GetFiles(binDir)
         |> Seq.filter filter

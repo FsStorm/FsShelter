@@ -18,12 +18,12 @@ let reliableSpoutLoop mkArgs mkAcker next getStream (in', out') conf =
                     | Next -> 
                         let! v = next args
                         match v with
-                        | Some(tid, tuple) -> out' (Emit(tuple, Some tid, [], (getStream tuple), None))
+                        | Some(tid, tuple) -> Emit(tuple, Some tid, [], (getStream tuple), None) |> out'
                         | _ -> ()
                     | Ack tid -> ack tid
                     | Nack tid -> nack tid
                     | _ -> failwithf "Unexpected command: %A" msg
-                    out' Sync
+                    Sync |> out'
                 }
     }
 
@@ -38,12 +38,12 @@ let unreliableSpoutLoop mkArgs next getStream (in', out') conf =
                     | Next -> 
                         let! v = next args
                         match v with
-                        | Some(tuple) -> out' (Emit(tuple, None, [], (getStream tuple), None))
+                        | Some(tuple) -> Emit(tuple, None, [], (getStream tuple), None) |> out'
                         | _ -> ()
                     | Ack _
                     | Nack _ -> ()
                     | _ -> failwithf "Unexpected command: %A" msg
-                    out' Sync
+                    Sync |> out'
                 }
     }
 
@@ -56,13 +56,13 @@ let autoAckBoltLoop mkArgs consume getAnchors getStream (in', out') conf =
             match msg with
             | Heartbeat -> Sync |> out'
             | Tuple(tuple, id, src, stream, task) -> 
-                let emit t = out' (Emit(t, None, getAnchors stream id, (getStream t), None))
+                let emit t = Emit(t, None, getAnchors stream id, (getStream t), None) |> out'
                 let! res = consume (args tuple emit) |> Async.Catch
                 match res with
                 | Choice1Of2 _ -> Ok id
                 | Choice2Of2 ex -> 
                     Fail id |> out'
-                    Log((sprintf "autoBoltRunner: " + ex.Message), LogLevel.Error)
+                    Error("autoBoltRunner: ", ex)
                 |> out'
             | _ -> failwithf "Unexpected command: %A" msg
     }

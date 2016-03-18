@@ -310,41 +310,50 @@ Target "BuildPackage" DoNothing
 
 // --------------------------------------------------------------------------------------
 // code-gen tasks
-
 Target "ProtoShell" (fun _ ->
     let generated = "ext" @@ "ProtoShell" @@ "generated" 
     CleanDir generated
     Shell.Exec(
-            "packages" @@ "protogen-net" @@ "tools" @@ "protogen.exe", 
-            "-o:" + generated @@ "protoshell.pb.cs" 
-            + " -p:fixCase" 
-            + " -i:paket-files" @@ "et1975" @@ "protoshell" @@ "src" @@ "main" @@ "java" @@ "com" @@ "github" @@ "jsgilmore" @@ "protoshell" @@ "messages.proto")
+            "packages" @@ "Google.Protobuf" @@ "tools" @@ "protoc.exe", 
+            "--csharp_out=" + generated 
+            + " paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto" @@ "multilang.proto")
     |> ignore
 )
 
 Target "StormThriftNamespace" (fun _ ->
     "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift"
-    |> RegexReplaceInFileWithEncoding "namespace java backtype.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+    |> RegexReplaceInFileWithEncoding "namespace java org.apache.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
 )
 
 Target "StormThrift" (fun _ ->
-    let generated = "ext" @@ "StormThrift" @@ "generated"
+    let generated = "ext" @@ "StormThrift" @@ "StormThrift"
     CleanDir generated
     Shell.Exec(
-            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe", 
+            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
             "-out " + generated
             + " --gen csharp"
             + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift")
     |> ignore
 )
 
-Target "ProcessIDLs" DoNothing
+Target "ThriftShell" (fun _ ->
+    let generated = "ext" @@ "StormThrift" @@ "ThriftShell"
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
+            "-out " + generated
+            + " --gen csharp"
+            + " paket-files" @@ "prolucid" @@ "thriftshell" @@ "src" @@ "main" @@ "multilang.thrift")
+    |> ignore
+)
 
-"ProtoShell"
-  ==> "ProcessIDLs"
+Target "GenerateSources" DoNothing
+
+"ThriftShell"
+  ==> "GenerateSources"
 "StormThriftNamespace"
   ==> "StormThrift"
-  ==> "ProcessIDLs"
+  ==> "GenerateSources"
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
@@ -364,7 +373,7 @@ Target "All" DoNothing
 "All" 
 #if MONO
 #else
-  ==> "ProcessIDLs"
+  ==> "GenerateSources"
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
   ==> "NuGet"

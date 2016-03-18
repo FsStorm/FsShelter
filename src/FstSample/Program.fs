@@ -3,6 +3,7 @@
 open Storm
 open FstSample.Topology
 open System.IO
+open System
 
 let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 
@@ -11,6 +12,8 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     match argv |> List.ofArray with
     | "submit"::address::port::args ->
+        let cfg = ["topology.multilang.serializer",box "com.prolucid.protoshell.ProtoSerializer"
+                   "topology.debug",box false] |> dict
         Nimbus.withClient address (int port) 
             (fun client ->
                 let uploadedFile =
@@ -19,7 +22,7 @@ let main argv =
                     |> Nimbus.uploadJar client
                 sampleTopology
                 |> ThriftModel.ofTopology args (Path.GetFileName exePath)
-                |> Nimbus.submit client None uploadedFile) //(Some (dict ["topology.debug",true]))
+                |> Nimbus.submit client (Some cfg) uploadedFile) //(Some cfg)
     | "kill"::address::[port] ->
         Nimbus.withClient address (int port) 
             (fun client -> Nimbus.kill client sampleTopology.Name)
@@ -29,5 +32,5 @@ let main argv =
     | _ -> 
         sampleTopology
         |> Task.ofTopology
-        |> Task.run JsonIO.start
+        |> Task.run ProtoIO.start
     0

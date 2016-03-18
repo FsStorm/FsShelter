@@ -11,6 +11,9 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     match argv |> List.ofArray with
     | "submit"::address::port::args ->
+        let cfg = ["topology.multilang.serializer",box "com.prolucid.protoshell.ProtoSerializer"
+                   "topology.max.spout.pending", box 123
+                   "topology.debug",box false] |> dict
         Nimbus.withClient address (int port) 
             (fun client ->
                 let uploadedFile =
@@ -19,7 +22,7 @@ let main argv =
                     |> Nimbus.uploadJar client
                 sampleTopology
                 |> ThriftModel.ofTopology args (Path.GetFileName exePath)
-                |> Nimbus.submit client (Some (dict ["topology.debug",true])) uploadedFile)
+                |> Nimbus.submit client (Some cfg) uploadedFile)
     | "kill"::address::[port] ->
         Nimbus.withClient address (int port) 
             (fun client -> Nimbus.kill client sampleTopology.Name)
@@ -29,6 +32,7 @@ let main argv =
     | _ -> 
         sampleTopology
         |> Task.ofTopology
-        |> Task.run JsonIO.start
+        |> Task.runWith Task.startProcessLog ProtoIO.start
+//        |> Task.runWith Task.startProcessLog ThriftIO.start
     0
 
