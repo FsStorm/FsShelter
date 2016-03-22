@@ -18,7 +18,7 @@ open SourceLink
 
 // The name of the project
 // (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "FsStorm"
+let project = "FsShelter"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -29,27 +29,27 @@ let summary = "F# DSL and runtime for Storm topologies"
 let description = "F# DSL and runtime for Storm topologies"
 
 // List of author names (for NuGet package)
-let authors = [ "Faisal Waris", "Eugene Tolmachev" ]
+let authors = [ "Eugene Tolmachev" ]
 
 // Tags for your project (for NuGet package)
 let tags = "storm event-driven fsharp distributed"
 
 // File system information 
-let solutionFile  = "src/FsStorm.sln"
+let solutionFile  = "src/FsShelter.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "build/*Test*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
-let gitOwner = "FsStorm" 
+let gitOwner = "Prolucid" 
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
-let gitName = "FsStorm"
+let gitName = "FsShelter"
 
 // The url for the raw files hosted
-let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/FsStorm/FsStorm"
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/"+gitOwner+"/"+gitName
 
 // build output folder
 let build_out = "build" 
@@ -240,7 +240,7 @@ let createIndexFsx lang =
 #I build_out
 
 (**
-FsStorm ({0})
+FsShelter ({0})
 =========================
 *)
 """
@@ -321,8 +321,8 @@ Target "ProtoShell" (fun _ ->
 )
 
 Target "StormThriftNamespace" (fun _ ->
-    "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift"
-    |> RegexReplaceInFileWithEncoding "namespace java org.apache.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+    "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift"
+    |> RegexReplaceInFileWithEncoding "namespace java org.apache.FsShelter.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
 )
 
 Target "StormThrift" (fun _ ->
@@ -332,7 +332,7 @@ Target "StormThrift" (fun _ ->
             "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
             "-out " + generated
             + " --gen csharp"
-            + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift")
+            + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift")
     |> ignore
 )
 
@@ -349,6 +349,8 @@ Target "ThriftShell" (fun _ ->
 
 Target "GenerateSources" DoNothing
 
+"ProtoShell"
+  ==> "GenerateSources"
 "ThriftShell"
   ==> "GenerateSources"
 "StormThriftNamespace"

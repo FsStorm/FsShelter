@@ -9,19 +9,19 @@
 // for binaries output to root bin folder please add the filename only to the 
 // referenceBinaries list below in order to generate documentation for the binaries.
 // (This is the original behaviour of ProjectScaffold prior to multi project support)
-let referenceBinaries = ["FsStorm.dll"; "FsJson.dll"; "FsLogging.dll"]
+let referenceBinaries = ["FsShelter.dll"; "FsJson.dll"; "FsLogging.dll"]
 // Web site location for the generated documentation
-let website = "/FsStorm"
+let website = "/FsShelter"
 
-let githubLink = "http://github.com/FsStorm/FsStorm"
+let githubLink = "http://github.com/FsShelter/FsShelter"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "FsStorm"
+  [ "project-name", "FsShelter"
     "project-author", "Faisal Waris, Eugene Tolmachev"
     "project-summary", "F# DSL and runtime for Storm topologies"
     "project-github", githubLink
-    "project-nuget", "http://nuget.org/packages/FsStorm" ]
+    "project-nuget", "http://nuget.org/packages/FsShelter" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below

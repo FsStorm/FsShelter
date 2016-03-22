@@ -6,13 +6,14 @@ group Build
 	nuget Octokit
 	nuget FSharp.Formatting
 	nuget fsharplint
-	nuget protogen-net
+	nuget Google.Protobuf
 	
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
 	source https://nuget.org/api/v2
-nuget Google.Protobuf
+	nuget FsPickler
+	nuget Google.Protobuf
 	nuget thrift
 	nuget newtonsoft.json
 	
@@ -23,5 +24,4 @@ nuget Google.Protobuf
 group Tests
 	source https://nuget.org/api/v2
 	nuget nunit 2.6.4
-	nuget thrift
 	nuget unquote

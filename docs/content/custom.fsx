@@ -2,20 +2,17 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FsStorm.dll"
-#r "FsJson.dll"
-#r "FsLogging.dll"
-
-open FsJson
-open Storm
+#r "FsShelter.dll"
 
 (**
 Implementing custom reliability semantics
 ========================
-The reliable spout implementation for a custom source, like a queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks to the source, which could be accomplished in FsStorm with:
+The reliable spout implementation for a custom source, like a queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks to the source, which could be accomplished in FsShelter with:
 
  a housekeeper
 *)
+
+open FsShelter
 
 /// Maintains reliability semantics of a queueSpout.
 /// ack: thread-safe method to ack a message by id.
