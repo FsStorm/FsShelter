@@ -4,7 +4,7 @@ FsShelter [![Windows build](TBD)](TBD) [![Mono/OSX build](https://travis-ci.org/
 A library for defining and running Apache Storm topologies in F# using statically typed streams.
 
 Based on and a complete rewrite of [FsStorm](https://github.com/FsStorm) with the goals of static typing, modularity and pluggable serialization.
-Comes bundled with Json serialization, Thrift and Protobuf (Thrift and Protobuf require corresponding Storm implementations [Thriftshell](https://github.com/prolucid/thriftshell) or [Protoshell](https://github.com/prolucid/protoshell)). 
+Comes bundled with Json serialization, Thrift and Protobuf (Thrift and Protobuf require corresponding Storm multilang serializer implementations [Thriftshell](https://github.com/prolucid/thriftshell) or [Protoshell](https://github.com/prolucid/protoshell)). 
 
 See [docs][docs] for for an intro and an overview.
 
