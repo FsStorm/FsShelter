@@ -1,0 +1,6 @@
+newtonsoft.json
+thrift
+Google.Protobuf
+group Tests
+unquote
+nunit

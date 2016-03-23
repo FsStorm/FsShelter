@@ -10,6 +10,7 @@
 # Build results
 .fake/
 temp/
+ext/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

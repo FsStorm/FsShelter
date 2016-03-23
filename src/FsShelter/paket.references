@@ -1,0 +1,4 @@
+newtonsoft.json
+thrift
+Google.Protobuf
+FsPickler

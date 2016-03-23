@@ -1,138 +1,161 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin"
-#r "FsJson.dll"
-#r "Storm.dll"
+#I "../../build"
+#r "FsShelter.dll"
 
+open System
 (**
-FsStorm
+FsShelter
 ======================
 
 Overview
 -------
-FsStorm is a library for implementation of [Apache Storm](https://storm.apache.org/) components, definition of topologies in F# DSL and submission via F# scripts for execution.
+FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components, definition of topologies in F# DSL and submission via embedded Thrift client for execution.
+It is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split off into itsown project.
 The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
-Accompanying FsJson library is used for dealing with Json structures passed in and out of Storm.
+Corresponding [ProtoShell](https://github.com/prolucid/protoshell) and [ThriftShell](https://github.com/prolucid/thriftshell) libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter components as compared to standard JSON.
 
-FsStorm components
+FsShelter topology schema
 -----------------------
-
-FsStorm components are defined as functions that take at least one (last) argument: configuration passed in from Storm. In practice, you'll want to pass all your dependencies in, and that means at least one other: a runner, passed in from your topology. 
-Additionally you can pass as many arguments from the topology as needed.
-Think of the component function as "main" for your program. Storm will start (a copy of) the same EXE for all components in the topology, and will instruct each instance with the task it supposed to execute.
-The "main" function will be called by FsStorm once per instance of every component and its purpose is to construct either "next" function for spouts or "consume" function for bolts and pass it to a runner.
-FsStorm implements several runners that either talk to Storm or allow you to unit-test your components by recording outputs or playing back the inputs.
-
-
-FsStorm tuples
------------------------
-
-Storm components communicate by passing tuples to each other over streams. The tuples are emmited into streams and have schema defined by the spout topology Output element.
-Storm multilang is wrapped and accessible via included FsJson.
-In addition to raw json access, FsStorm defines several helpers: tuple, namedStream, anchor, etc. that help to abstract the specifics of underlying multilang.
-
-
-Example of a spout
------------------------
-
-*)
-open FsJson
-open Storm
-
-let rnd = new System.Random() // used for generating random messages
-
-///spout - produces messages
-///cfg: the configuration passed in by Storm
-///runner: a spout runner function (passed in from topology)
-let spout runner cfg = 
-    //define the function that will produce the tuples
-    //emit: a function that emits message to storm (passed in by the runner)
-    let next emit = fun () -> async { tuple [ rnd.Next(0, 100) ] |> emit } //the "next" function
-    //run the spout
-    next |> runner
-
-(**
-Topology DSL in F#
------------------------
+While Storm tuples are dynamically typed and to large extend the types are transparent to Storm itself, they are not types-less. 
+Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test for, detect and fix.
+FsShelter introduces concept of topology schema, defined as F# discriminated union:
 *)
 
-//define the storm topology
-open StormDSL
-open FsJson
-
-//example of using FsStorm DSL for defining topologies
-let topology = 
-    { TopologyName = "FstSample"
-      Spouts = 
-          [ { Id = "SimpleSpout" // unique Id
-              Outputs = [ Default [ "number" ] ] // default stream schema
-              Spout = Local { Func = spout Storm.simpleSpoutRunner }
-              // configuration Storm will use with each instance of the component 
-              Config = JsonNull 
-              Parallelism = 1 } ] // one instance
-      Bolts = 
-          [ { Id = "AddOneBolt"
-              Outputs = [ Default [ "number" ] ]
-              // default stream of SimpleSpout, no grouping/affinity 
-              Inputs = [ DefaultStream "SimpleSpout", Shuffle ]
-              Bolt = Local { Func = addOneBolt Storm.autoAckBoltRunner Logging.log Storm.emit}
-              Config = JsonNull
-              Parallelism = 2 } // two instances of the process/component
-            { Id = "ResultBolt"
-              Outputs = [] // no output
-              Inputs = [ DefaultStream "AddOneBolt", Shuffle ]
-              Bolt = Local { Func = resultBolt Storm.autoAckBoltRunner Logging.log }
-              Config = JsonNull
-              Parallelism = 2 } ] }
+type BasicSchema = 
+    | Original of int
+    | Incremented of int
 
 (**
-Submitting the topology using F# scripts
------------------------
+where every DU case becomes a distinct stream in the topology. 
+It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:
 *)
 
-#I "../../Refs"
-#I "../../packages/Thrift/lib/net35"
-#load "StormSubmit.fsx"
+type Number = { X:int; Desc:string }
 
-let binDir = "build"
-
-StormSubmit.runTopology binDir "localhost" StormSubmit.default_nimbus_port
+type RecordSchema = 
+    | Original of int
+    | Described of Number
+    | Translated of Number
 
 (**
+It is also common to join/zip tuples from multiple streams and FsShelter supports defining cases with records adjoined:
+*)
+
+type RecordsSchema = 
+    | Original of Number
+    | Doubled of Number*Number
+
+(**
+Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
+FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.
+
+FsShelter components
+-----------------------
+
+FsShelter components are defined as simple functions:
+*)
+
+// numbers spout - produces messages
+let numbers source = async { return Some(Original(source())) }
+
+(**
+the async body is expected to return an option if there's a tuple to emit.
+
+Bolts can get a touple on any number of streams, and so we pattern match:
+*)
+
+// add 1 bolt - consumes and emits messages to Incremented stream
+let addOne (input, emit) = 
+    async { 
+        match input with
+        | BasicSchema.Original(x) -> Incremented(x + 1)
+        | _ -> failwithf "unexpected input: %A" input
+        |> emit
+    }
+
+(**
+The bolt can also emit at any time, and can hold on to the passed emit function.
+The can be as many arguments for the component functions as needed:
+*)
+
+// terminating bolt - consumes messages
+let logResult (info, input) = 
+    async { 
+        match input with
+        | BasicSchema.Incremented(x) -> info (sprintf "%A" x)
+        | _ -> failwithf "unexpected input: %A" input
+    }
+
+(**
+the specifics will be determined when the components are put together in a topology:
+*)
+
+// define our source dependency
+let source = 
+    let rnd = Random()
+    fun () -> rnd.Next(0, 100)
+
+open FsShelter.DSL
+open FsShelter.Multilang
+
+//define the Storm topology
+let sampleTopology = 
+    topology "Sample" { 
+        let s1 = numbers |> runUnreliably (fun log cfg -> source) // ignoring available Storm logging and cfg and passing our source function
+        
+        let b1 = 
+            addOne
+            |> runBolt (fun log cfg tuple emit -> (tuple, emit)) // pass incoming tuple and emit function
+            |> withParallelism 2 // override default parallelism of 1
+        
+        let b2 = 
+            logResult
+            |> runBolt (fun log cfg tuple emit -> ((log LogLevel.Info), tuple)) // example of passing Info-level Storm logger into the bolt
+            |> withParallelism 2
+        
+        yield s1 --> b1 |> shuffle.on BasicSchema.Original // emit from s1 to b1 on Original stream
+        yield b1 --> b2 |> shuffle.on Incremented // emit from b1 to b2 on Incremented stream
+    }
+
+(**
+Storm will start (a copy of) the same EXE for every component instance in the topology and will instruct each instance with the task it supposed to execute.
+
+The compiled topology can be submitted using embedded Thrift client, see the examples for details.
+
 Exporting the topology graph in DOT format (GraphViz) using F# scripts
 -----------------------
 *)
 
-#r "../../src/FstSample/bin/Release/FstSample.exe"
+#r "../../build/Simple.exe"
 
-open StormDotGraph
-open System
+open FsShelter
 
-writeToConsole SampleTopology.topology
+sampleTopology |> DotGraph.writeToConsole
 
 (**
 Samples & documentation
 -----------------------
 
- * [FstSample](sample.html) contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.
+ * [Simple](simple.html) contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.
 
- * [FstGuaranteedSample](guaranteed.html) contains a "reliable" spout example - emitted tuples have unique ID and require ack.
+ * [Guaranteed](guaranteed.html) contains a "reliable" spout example - emitted tuples have unique ID and require ack.
 
  * [API Reference](reference/index.html) contains automatically generated documentation for public types, modules
    and functions in the library. 
  
- * [WordCount](https://github.com/FsStorm/FsStorm.WordCount) contains a simple example showing a spout with two bolts.
+ * [WordCount](https://github.com/FsShelter/FsShelter.WordCount) contains a simple example showing a spout with two bolts.
 
-Getting FsStorm
+Getting FsShelter
 ----------------
 
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The FsStorm library can be installed from <a href="https://nuget.org/packages/FsStorm">NuGet</a> source or <a href="https://www.myget.org/F/fsstorm/">MyGet</a>:
-      <pre>PM> Install-Package FsStorm</pre>
+      The FsShelter library can be installed from <a href="https://nuget.org/packages/FsShelter">NuGet</a> source or <a href="https://www.myget.org/F/FsShelter/">MyGet</a>:
+      <pre>PM> Install-Package FsShelter</pre>
     </div>
   </div>
   <div class="span1"></div>
@@ -146,13 +169,13 @@ the project and submit pull requests. If you're adding a new public API, please 
 consider adding [samples][content] that can be turned into a documentation. You might
 also want to read the [library design notes][readme] to understand how it works.
 
-The library is available under MIT license, which allows modification and 
+The library is available under Apache 2.0 license, which allows modification and 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
 
-  [content]: https://github.com/FsStorm/FsStorm/tree/master/docs/content
-  [gh]: https://github.com/FsStorm/FsStorm
-  [issues]: https://github.com/FsStorm/FsStorm/issues
-  [readme]: https://github.com/FsStorm/FsStorm/blob/master/README.md
-  [license]: https://github.com/FsStorm/FsStorm/blob/master/LICENSE.md
+  [content]: https://github.com/Prolucid/FsShelter/tree/master/docs/content
+  [gh]: https://github.com/Prolucid/FsShelter
+  [issues]: https://github.com/Prolucid/FsShelter/issues
+  [readme]: https://github.com/Prolucid/FsShelter/blob/master/README.md
+  [license]: https://github.com/Prolucid/FsShelter/blob/master/LICENSE.md
 *)

@@ -1,12 +1,27 @@
-source https://nuget.org/api/v2
+group Build
+	source https://nuget.org/api/v2
+	nuget FAKE
+	nuget nunit.runners 2.6.4
+	nuget SourceLink.Fake
+	nuget Octokit
+	nuget FSharp.Formatting
+	nuget fsharplint
+	nuget Google.Protobuf
+	
+	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
-nuget FSharp.Formatting
-nuget fsharplint
-nuget NUnit.Runners
-nuget FAKE
-nuget Octokit
-nuget SourceLink.Fake
-nuget fsunit
-nuget thrift
+group Main
+	source https://nuget.org/api/v2
+	nuget FsPickler
+	nuget Google.Protobuf
+	nuget thrift
+	nuget newtonsoft.json
+	
+	github prolucid/protoshell src/main/proto/multilang.proto
+	github prolucid/thriftshell src/main/multilang.thrift
+	github apache/storm storm-core/src/storm.thrift
 
-github fsharp/FAKE modules/Octokit/Octokit.fsx
+group Tests
+	source https://nuget.org/api/v2
+	nuget nunit 2.6.4
+	nuget unquote

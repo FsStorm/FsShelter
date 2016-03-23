@@ -2,7 +2,7 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FsStorm.dll"
+#r "FsShelter.dll"
 #r "FsJson.dll"
 #r "FsLogging.dll"
 
@@ -13,7 +13,7 @@ open Storm
 Defining reliable spouts
 ========================
 [Processing guarantees](https://storm.apache.org/documentation/Guaranteeing-message-processing.html) are the biggest selling point of Storm, please see the official docs for the details.
-FsStorm implements reliability semantics with "housekeeper" functions: defaultHousekeeper can be used as is for transient sources or as an inspiration for reliability over external/persistent sources. 
+FsShelter implements reliability semantics with "housekeeper" functions: defaultHousekeeper can be used as is for transient sources or as an inspiration for reliability over external/persistent sources. 
 The spout implementation is fairly similar to the "unreliable" version, with the addition of unique (int64) tuple ID:
 
 *)
@@ -37,7 +37,7 @@ let spout runner (cfg:Configuration) =
 Anchoring and named streams
 ========================
 
-FsStorm has helper functions to emit to a named stream or to anchor a tuple:
+FsShelter has helper functions to emit to a named stream or to anchor a tuple:
 
 *)
 ///cfg: the configuration passed in from Storm

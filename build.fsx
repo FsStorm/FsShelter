@@ -2,7 +2,7 @@
 // FAKE build script
 // --------------------------------------------------------------------------------------
 
-#r @"packages/FAKE/tools/FakeLib.dll"
+#r @"packages/build/FAKE/tools/FakeLib.dll"
 
 open Fake
 open Fake.Git
@@ -12,13 +12,13 @@ open System
 open System.IO
 #if MONO
 #else
-#load "packages/SourceLink.Fake/tools/Fake.fsx"
+#load "packages/build/SourceLink.Fake/tools/Fake.fsx"
 open SourceLink
 #endif
 
 // The name of the project
 // (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "FsStorm"
+let project = "FsShelter"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -29,27 +29,27 @@ let summary = "F# DSL and runtime for Storm topologies"
 let description = "F# DSL and runtime for Storm topologies"
 
 // List of author names (for NuGet package)
-let authors = [ "Faisal Waris", "Eugene Tolmachev" ]
+let authors = [ "Eugene Tolmachev" ]
 
 // Tags for your project (for NuGet package)
 let tags = "storm event-driven fsharp distributed"
 
 // File system information 
-let solutionFile  = "src/FsStorm.sln"
+let solutionFile  = "src/FsShelter.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "build/*Test*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
-let gitOwner = "FsStorm" 
+let gitOwner = "Prolucid" 
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
-let gitName = "FsStorm"
+let gitName = "FsShelter"
 
 // The url for the raw files hosted
-let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/FsStorm/FsStorm"
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/"+gitOwner+"/"+gitName
 
 // build output folder
 let build_out = "build" 
@@ -82,7 +82,8 @@ Target "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
-    !! "src/**/*.??proj"
+    !! "src/**/*.??proj" 
+    ++ "ext/**/*.??proj"
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
@@ -130,7 +131,7 @@ Target "RunTests" (fun _ ->
         { p with
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+            OutputFile = build_out @@ "TestResults.xml" })
 )
 
 #if MONO
@@ -140,25 +141,11 @@ Target "RunTests" (fun _ ->
 // the ability to step through the source code of external libraries https://github.com/ctaggart/SourceLink
 
 Target "SourceLink" (fun _ ->
-    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw (project.ToLower())
-    use repo = new GitRepo(__SOURCE_DIRECTORY__)
-    
-    let addAssemblyInfo (projFileName:String) = 
-        match projFileName with
-        | Fsproj -> (projFileName, "**/AssemblyInfo.fs")
-        | Csproj -> (projFileName, "**/AssemblyInfo.cs")
-        | Vbproj -> (projFileName, "**/AssemblyInfo.vb")
-        
+    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
     !! "src/**/*.??proj"
-    |> Seq.map addAssemblyInfo
-    |> Seq.iter (fun (projFile, assemblyInfo) ->
+    |> Seq.iter (fun projFile ->
         let proj = VsProj.LoadRelease projFile 
-        logfn "source linking %s" proj.OutputFilePdb
-        let files = proj.Compiles -- assemblyInfo
-        repo.VerifyChecksums files
-        proj.VerifyPdbChecksums files
-        proj.CreateSrcSrv baseUrl repo.Revision (repo.Paths files)
-        Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
+        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
     )
 )
 
@@ -253,7 +240,7 @@ let createIndexFsx lang =
 #I build_out
 
 (**
-FsStorm ({0})
+FsShelter ({0})
 =========================
 *)
 """
@@ -300,7 +287,7 @@ Target "ReleaseDocs" (fun _ ->
     Branches.push tempDocsDir
 )
 
-#load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
 Target "Release" (fun _ ->
@@ -322,6 +309,55 @@ Target "Release" (fun _ ->
 Target "BuildPackage" DoNothing
 
 // --------------------------------------------------------------------------------------
+// code-gen tasks
+Target "ProtoShell" (fun _ ->
+    let generated = "ext" @@ "ProtoShell" @@ "generated" 
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "Google.Protobuf" @@ "tools" @@ "protoc.exe", 
+            "--csharp_out=" + generated 
+            + " paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto" @@ "multilang.proto")
+    |> ignore
+)
+
+Target "StormThriftNamespace" (fun _ ->
+    "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift"
+    |> RegexReplaceInFileWithEncoding "namespace java org.apache.FsShelter.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+)
+
+Target "StormThrift" (fun _ ->
+    let generated = "ext" @@ "StormThrift" @@ "StormThrift"
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
+            "-out " + generated
+            + " --gen csharp"
+            + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift")
+    |> ignore
+)
+
+Target "ThriftShell" (fun _ ->
+    let generated = "ext" @@ "StormThrift" @@ "ThriftShell"
+    CleanDir generated
+    Shell.Exec(
+            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
+            "-out " + generated
+            + " --gen csharp"
+            + " paket-files" @@ "prolucid" @@ "thriftshell" @@ "src" @@ "main" @@ "multilang.thrift")
+    |> ignore
+)
+
+Target "GenerateSources" DoNothing
+
+"ProtoShell"
+  ==> "GenerateSources"
+"ThriftShell"
+  ==> "GenerateSources"
+"StormThriftNamespace"
+  ==> "StormThrift"
+  ==> "GenerateSources"
+
+// --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
 Target "All" DoNothing
@@ -339,6 +375,7 @@ Target "All" DoNothing
 "All" 
 #if MONO
 #else
+  ==> "GenerateSources"
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
   ==> "NuGet"
