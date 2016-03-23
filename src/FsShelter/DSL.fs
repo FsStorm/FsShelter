@@ -5,7 +5,6 @@ module private Parsers =
     open TupleSchema
     open FSharp.Quotations
     open FSharp.Quotations.Patterns
-    open Microsoft.FSharp.Reflection
 
     let inline raiseUnsupportedExpression expr = failwithf "Unsupported expression: %A" expr
 
@@ -70,6 +69,7 @@ module private Parsers =
         | UnionCase case -> case
         | exp -> raiseUnsupportedExpression exp
 
+/// Embedded DSL for defining the topologies
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "TypeNamesMustBePascalCase")>]
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "MemberNamesMustBePascalCase")>]
 module DSL =
@@ -78,36 +78,59 @@ module DSL =
     open Dispatch
     open FSharp.Quotations
 
+    /// spout function signature
+    type Next<'a,'t> = 'a->Async<'t option> 
+    /// bolt function signature
+    type Consume<'a> = 'a->Async<unit>
+    /// emit signature
+    type Emit<'t> = 't->unit
+    /// ack signature
+    type Ack = TupleId->unit
+    /// nack signature
+    type Nack = TupleId->unit
+    /// ack/nack tuple
+    type Acker = Ack*Nack
+
+    /// wrap (external) shell component definition
     let shell (command : string) (args : string) = Shell(command,args)
+    /// wrap (Storm native) java component definition
     let java (className : string) (args : string list) = Java (className, args)
 
-    let runReliably mkArgs mkAcker next :Spout<'t> =
+    /// define a reliable spout
+    let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
         {MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
          Conf = None}
 
-    let runUnreliably mkArgs (next:Next<'a,'t>):Spout<'t> =
+    /// define spout with no processing guarantees
+    let runSpout mkArgs (next:Next<_,'t>):Spout<'t> =
         {MkComp = fun () -> FuncRef (unreliableSpoutLoop mkArgs next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
          Conf = None}
 
-    let runBolt mkArgs (consume:Consume<'a>):Bolt<'t> =
+    /// define a bolt
+    let runBolt mkArgs (consume:Consume<_>):Bolt<'t> =
         {MkComp = fun toAnchors -> FuncRef (autoAckBoltLoop mkArgs consume toAnchors TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
          Conf = None}
-     
+
+    /// define a spout for a (external) shell or java component
     let asSpout<'t> comp:Spout<'t> =
         {Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None}
 
+    /// define a bolt for a (external) shell or java component
     let asBolt<'t> comp:Bolt<'t> =
         {Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None}
 
+    /// override default parallelism
     let inline withParallelism parallelism (spec:^s) =
         (^s : (static member WithParallelism : ^s*uint32 -> 's) (spec, uint32 parallelism))
 
+    /// supply component configuration/overrides
     let inline withConf conf (spec:^s) =
         (^s : (static member WithConf : ^s*Conf -> 's) (spec, conf |> Seq.map (fun (k,v)->(k,box v)) |> Map.ofSeq))
 
+    /// define shuffle grouping
     type shuffle =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
@@ -117,6 +140,7 @@ module DSL =
                  Anchoring = anchor
                  Schema = Parsers.findCase case |> TupleSchema.toNames}
 
+    /// define all grouping
     type all =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
@@ -126,6 +150,7 @@ module DSL =
                  Anchoring = anchor
                  Schema = Parsers.findCase case |> TupleSchema.toNames}
 
+    /// define direct grouping
     type direct =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
@@ -135,6 +160,7 @@ module DSL =
                  Anchoring = anchor
                  Schema = Parsers.findCase case |> TupleSchema.toNames}
 
+    /// define fields grouping
     type group =
         static member by ([<ReflectedDefinition(true)>] select:Expr<'t->'p>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
@@ -158,6 +184,7 @@ module DSL =
     let internal mapJoin map1 map2 =
         Map.fold (fun acc key value -> Map.add key value acc) map1 map2
 
+    /// TopologyBuilder computation expression
     type TopologyBuilder(name) =
         member __.Combine(t:Topology<'t>, t2:Topology<'t>) = 
             {Name=t.Name;
@@ -178,6 +205,7 @@ module DSL =
              Bolts = Map.empty<ComponentId,Bolt<'t>>
              Anchors = Map.empty}
 
+    /// topology builder instance
     let topology name = 
         TopologyBuilder name
 

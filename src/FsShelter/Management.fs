@@ -77,6 +77,7 @@ module Nimbus =
         finally
             txf.Close()
 
+/// Converters into Nimbus (Thrift) model
 module ThriftModel = 
     open Topology
     open StormThrift
@@ -143,10 +144,11 @@ module ThriftModel =
                       Spouts = (spouts |> toDict),
                       State_spouts = Dictionary())
 
+/// Executable startup helpers
 module Startup =
     /// make arguments suitable for running shell components on Windows
     let mkWindowsArgs args exe = 
-        (exe, args)
+        ("cmd", "/c"::(Path.GetFileName exe)::args)
 
     /// make arguments suitable for running shell components under Mono
     let mkMonoArgs args exe = 

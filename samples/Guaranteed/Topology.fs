@@ -78,8 +78,8 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let sampleTopology = topology "Guaranteed" {
     let s1 = numbers
-             |> runReliably (fun log cfg () -> source.PostAndAsyncReply Get)  // ignoring logging and cfg available
-                            (fun _ -> Ack >> source.Post, Nack >> source.Post)
+             |> runReliableSpout (fun log cfg () -> source.PostAndAsyncReply Get)  // ignoring logging and cfg available
+                                 (fun _ -> Ack >> source.Post, Nack >> source.Post)
     let b1 = addOne
              |> runBolt (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
              |> withParallelism 2
@@ -87,13 +87,13 @@ let sampleTopology = topology "Guaranteed" {
     let b2 = logResult
              |> runBolt (fun log cfg ->
                             let mylog = Common.Logging.asyncLog ("odd.log")
-                            fun tuple emit -> (mylog,tuple)) // example of passing Info-level logger into the bolt
+                            fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     let b3 = logResult
              |> runBolt (fun log cfg -> 
                             let mylog = Common.Logging.asyncLog ("even.log") 
-                            fun tuple emit -> (mylog,tuple)) // example of passing Info-level logger into the bolt
+                            fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     yield s1 ==> b1 |> shuffle.on Original // emit from s1 to b1 on Original stream and anchor immediately following emits to this tree

@@ -128,7 +128,7 @@ Exporting the topology graph in DOT format (GraphViz) using F# scripts
 -----------------------
 *)
 
-#r "../../build/Simple.exe"
+#r "../../build/WordCount.exe"
 
 open FsShelter
 

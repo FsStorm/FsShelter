@@ -143,6 +143,7 @@ let private toCommand (findConstructor:string->FieldReader->unit->'t) str : InCo
 
 let private isMono() = not <| isNull (System.Type.GetType("Mono.Runtime"))
 
+/// Start IO parsers given specified TextReaders, output sychrnonization and logger
 let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topology.IO<'t> =
     let write (text:string) =
         log (fun _ -> "> "+text)
@@ -185,4 +186,5 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
 
     (in',out')
 
+/// Start IO over STDIN/STDOUT and serialized sychrnonization using specifed logger
 let start log :Topology.IO<'t> = startWith (Console.In,Console.Out) IO.Common.serialOut log

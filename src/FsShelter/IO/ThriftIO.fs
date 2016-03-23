@@ -1,4 +1,5 @@
-﻿module FsShelter.ThriftIO
+﻿/// Thrift IO implementation
+module FsShelter.ThriftIO
 
 open Multilang
 open System
@@ -159,4 +160,5 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
 
     (in',out')
 
+/// Start IO over STDIN/STDOUT and serialized sychrnonization using specifed logger
 let start log = startWith (Console.OpenStandardInput(),Console.OpenStandardOutput()) IO.Common.serialOut log

@@ -13,11 +13,13 @@ type LogLevel =
     | Warn = 3
     | Error = 4
 
+/// Storm runtime context
 type Context = 
     { ComponentId : string
       TaskId : int
       Components : Map<int, string> }
 
+/// Storm messages
 type InCommand<'t> = 
     | Handshake of conf : Conf * pidDir : string * context : Context
     | Ack of string
@@ -27,6 +29,7 @@ type InCommand<'t> =
     | TaskIds of int list
     | Heartbeat
 
+/// Shell messages
 type OutCommand<'t> = 
     | Pid of int
     | Ok of string

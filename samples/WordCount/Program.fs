@@ -9,8 +9,8 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 // management CLI and task execution entry point
 [<EntryPoint>]
 let main argv = 
-    let cfg = ["topology.multilang.serializer",box "com.prolucid.protoshell.ProtoSerializer"
-               "topology.debug",box false] |> dict
+    let cfg = ["topology.multilang.serializer", box "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
+               "topology.debug", box false] |> dict // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 
@@ -30,7 +30,7 @@ let main argv =
     | _ -> 
         sampleTopology
         |> Task.ofTopology
-        |> Task.run ProtoIO.start
-//        |> Task.runWith (string >> Logging.callbackLog)  ThriftIO.start
+        |> Task.run ProtoIO.start // JsonIO.start | ProtoIO.start | ThriftIO.start
+//        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // log the traffic on this side of IPC
     0
 

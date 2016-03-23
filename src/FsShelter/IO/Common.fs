@@ -9,7 +9,6 @@ do()
 
 module internal Common =
     open System.IO
-    open Nessos.FsPickler
     
     let serialOut = 
         let mb = MailboxProcessor.Start (fun inbox ->
@@ -19,6 +18,8 @@ module internal Common =
                     write()
             })
         mb.Post
+
+    open Nessos.FsPickler
 
     let private blobSerializer = FsPickler.CreateBinarySerializer()
     let blobSerialize o = 

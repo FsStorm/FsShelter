@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsShelter", "FsShelter\FsShelter.fsproj", "{BE537B3C-1636-46A5-8FA4-635D0842BAB1}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Simple", "..\samples\Simple\Simple.fsproj", "{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WordCount", "..\samples\WordCount\WordCount.fsproj", "{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B77C3AD-21BC-4545-9C30-B6B94136EA65}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\paket.dependencies = ..\paket.dependencies
 		..\paket.lock = ..\paket.lock
 		..\paket.template = ..\paket.template
+		Performance1.psess = Performance1.psess
 		..\README.md = ..\README.md
 		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
 	EndProjectSection
@@ -37,10 +38,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{295576BD-0CF
 		..\docs\content\custom.fsx = ..\docs\content\custom.fsx
 		..\docs\content\guaranteed.fsx = ..\docs\content\guaranteed.fsx
 		..\docs\content\index.fsx = ..\docs\content\index.fsx
-		..\docs\content\simple.fsx = ..\docs\content\simple.fsx
+		..\docs\content\wordcount.fsx = ..\docs\content\wordcount.fsx
 	EndProjectSection
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

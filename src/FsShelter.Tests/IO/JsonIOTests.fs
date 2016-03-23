@@ -14,7 +14,7 @@ let ``reads handshake``() =
             """{"pidDir":"C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
                 "context":{"task->component":{"1":"AddOneBolt","2":"AddOneBolt","3":"ResultBolt","4":"ResultBolt","5":"SimpleSpout","6":"__acker"},"taskid":5},
                 "conf":{"FsShelter.id":"Simple-2-1456522507","dev.zookeeper.path":"\/tmp\/dev-storm-zookeeper","topology.tick.tuple.freq.secs":30,"topology.classpath":null}}"""
-                .Replace("\r\n","")+END)
+                .Replace("\r","").Replace("\n","")+END)
     |> Console.SetIn
 
     let (in',_) = JsonIO.start ignore

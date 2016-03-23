@@ -1,4 +1,5 @@
-﻿module FsShelter.DotGraph
+﻿/// Converters into GraphViz
+module FsShelter.DotGraph
 
 open Topology
 

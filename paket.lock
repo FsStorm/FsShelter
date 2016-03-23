@@ -142,7 +142,7 @@ GITHUB
     src/main/multilang.thrift (14fc2e16212035f73989632dd845369b21cb0369)
   remote: apache/storm
   specs:
-    storm-core/src/storm.thrift (e675f771c0b601e6ffdde1ecc20a3699c42d754a)
+    storm-core/src/storm.thrift (a91abdb4e6cec53746afe8b3c1ef7b2b9c6fb764)
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2

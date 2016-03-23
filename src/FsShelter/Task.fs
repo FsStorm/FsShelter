@@ -1,4 +1,5 @@
-﻿module FsShelter.Task
+﻿/// Task execution
+module FsShelter.Task
 
 open System.IO
 open FsShelter.Multilang
@@ -8,10 +9,10 @@ open System
 type Log = (unit -> string) -> unit
 type Task<'t> = ComponentId -> Runnable<'t>
 
-/// diagnostics pid shortcut
+// diagnostics pid shortcut
 let private pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 
-/// produce the nested exception's stack trace 
+// produce the nested exception's stack trace 
 let internal traceException (ex:Exception) =
     let sb = new System.Text.StringBuilder()
     let rec loop (ex:Exception) =
@@ -23,7 +24,7 @@ let internal traceException (ex:Exception) =
             loop ex.InnerException
     loop ex
 
-/// creates an empty file with current pid as the file name
+// creates an empty file with current pid as the file name
 let private createPid pidDir pid = 
     let path = Path.Combine(pidDir, pid.ToString())
     use fs = File.CreateText(path)
@@ -46,7 +47,7 @@ let ofTopology (t : Topology<'t>) compId =
     | FuncRef r -> r
     | _ -> failwithf "Not a runnable component: %s" compId
 
-/// runs the task with a logger
+/// Reads the handshake and runs the specified task with a logger
 let runWith (startLog:int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
     async { 
         let pid = pid()
@@ -73,6 +74,6 @@ let runWith (startLog:int->Log) (io : Log -> IO<'t>) (task : Task<'t>) =
     }
     |> Async.RunSynchronously
 
-/// runs the task over the specified IO
+/// Reads the handshake and runs the specified task
 let run (io : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) io task
 

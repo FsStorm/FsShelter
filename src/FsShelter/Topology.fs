@@ -1,16 +1,12 @@
 ﻿namespace FsShelter
 
+/// Topology data model
 module Topology =
     open Multilang
 
-    type Next<'a,'t> = 'a->Async<'t option>
-    type Consume<'a> = 'a->Async<unit>
-    type Emit<'t> = 't->unit
     type TupleId = string
     type StreamId = string
     type ComponentId = string
-    type Ack = TupleId->unit
-    type Nack = TupleId->unit
     type ToAnchors = TupleId->TupleId list
     type IO<'t> = (unit->Async<InCommand<'t>>)*(OutCommand<'t>->unit)
     type Runnable<'t> = IO<'t>->Conf->Async<unit>
@@ -56,7 +52,7 @@ module Topology =
         Anchors:Map<StreamId,ToAnchors>
     }
 
-
+/// DU/Stream schema functions
 module TupleSchema =
     open System.Reflection
     open FSharp.Reflection

@@ -26,7 +26,7 @@ let summary = "F# DSL and runtime for Storm topologies"
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = "F# DSL and runtime for Storm topologies"
+let description = "F# DSL and runtime for Apache Storm topologies"
 
 // List of author names (for NuGet package)
 let authors = [ "Eugene Tolmachev" ]
@@ -58,11 +58,10 @@ let build_out = "build"
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
 // Helper active pattern for project types
-let (|Fsproj|Csproj|Vbproj|) (projFileName:string) = 
+let (|Fsproj|Csproj|) (projFileName:string) = 
     match projFileName with
     | f when f.EndsWith("fsproj") -> Fsproj
     | f when f.EndsWith("csproj") -> Csproj
-    | f when f.EndsWith("vbproj") -> Vbproj
     | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
 
 // Generate assembly info files with the right version & up-to-date information
@@ -89,7 +88,6 @@ Target "AssemblyInfo" (fun _ ->
         match projFileName with
         | Fsproj -> CreateFSharpAssemblyInfo (folderName @@ "AssemblyInfo.fs") attributes
         | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
         )
 )
 
@@ -235,8 +233,6 @@ Target "GenerateDocs" DoNothing
 
 let createIndexFsx lang =
     let content = """(*** hide ***)
-// This block of code is omitted in the generated HTML documentation. Use 
-// it to define helpers that you do not want to show in the documentation.
 #I build_out
 
 (**
@@ -356,6 +352,23 @@ Target "GenerateSources" DoNothing
 "StormThriftNamespace"
   ==> "StormThrift"
   ==> "GenerateSources"
+
+// --------------------------------------------------------------------------------------
+// graph gen tasks
+// GraphViz has to be installed and "dot" be in the path
+Target "WordCountSvg" (fun _ ->
+    Shell.Exec(
+#if MONO
+            "mono",
+            ""+
+#else
+            Environment.GetEnvironmentVariable("ComSpec"),
+            "/c "+
+#endif
+            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "WordCount.exe") +
+            " graph | dot -Tsvg -o " + build_out + "/WordCount.svg")
+    |> ignore
+)
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
