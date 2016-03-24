@@ -3,6 +3,7 @@
 #r "FsShelter.dll"
 
 open System
+open FsShelter
 
 (**
 Defining the schema
@@ -112,7 +113,7 @@ let increment =
 Using F# DSL to define the topology
 --------------------
 
-Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows mix and match of native java, external shell and FsShell components:
+Storm topology is a graph of spouts and bolts connected via streams that can be defined via `topology` computation expression:
 *)
 
 open FsShelter.DSL
@@ -155,7 +156,7 @@ The lambda arguments for the "run" methods privde the opportunity to carry out c
 * emit is the function to emit another tuple
 
 "log" and "cfg" are fixed once (curried) and as demonstrated in logBolt mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before "tuple" and "emit" arguments.
-This initialization will not be triggered unless the task execution is actually requsted by Storm for this specific instance of the process.
+This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.
 
 
 Exporting the topology graph 
@@ -166,13 +167,13 @@ FsShelter includes a completely customizable GraphViz (dot) export functionality
 ![SVG](svg/WordCount.svg "WordCount (SVG)")
 
 The dotted lines represent "unanchored" streams and the number inside the `[]` shows the parallelism hint.
-Which was achived by a simple export to console:
+This was achived by a simple export to console:
 *)
 
 sampleTopology |> DotGraph.writeToConsole
 
 (**
-Followed by a convertion into into SVG:
+Followed by further conversion into a desired format by piping the markup into GrapViz:
 
 ```bash
 mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg

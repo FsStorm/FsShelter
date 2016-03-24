@@ -5,22 +5,34 @@
 #r "FsShelter.dll"
 
 open System
+open FsShelter
 (**
-FsShelter
-======================
-
 Overview
 -------
-FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components and definition of topologies in F# DSL.
-The Management module also provides wrappers for Nimbus Thrift API, allowing to bundle and submit a topology for execution.
-FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split off into itsown project.
+FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components and topologies in F#.
+FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split into itsown project.
+
+Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:
+
+- bundle and submit a topology for execution w/o needing JDK or Storm CLI
+- include Storm-side serializer along
+- kill a running topology
+- generate a topology graph as part of your build
+
 The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
-Corresponding [ProtoShell](https://github.com/prolucid/protoshell) and [ThriftShell](https://github.com/prolucid/thriftshell) libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter components as compared to standard JSON.
+Corresponding [ProtoShell](https://github.com/prolucid/protoshell) and [ThriftShell](https://github.com/prolucid/thriftshell) libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
+See samples to learn how to bundle the assemblies and a serializer for upload to Storm.
+
+Bring your own, if you need it:
+
+- command line parser
+- logging
+- custom serializer
 
 FsShelter topology schema
 -----------------------
-While Storm tuples are dynamically typed and to large extend the types are transparent to Storm itself, they are not types-less. 
-Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test for, detect and fix.
+While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less. 
+Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test, detect and fix.
 FsShelter introduces concept of topology schema, defined as F# discriminated union:
 *)
 
@@ -29,7 +41,8 @@ type BasicSchema =
     | Incremented of int
 
 (**
-where every DU case becomes a distinct stream in the topology. 
+where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm.
+
 It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:
 *)
 
@@ -54,17 +67,17 @@ FsShelter "flattens" the first immediate "layer" of the DU case so that all the 
 
 FsShelter components
 -----------------------
-
-FsShelter components are defined as simple functions:
+Some of the flexibility of Storm has been hidden to provide simple developer experience for authoring event-driven solutions.
+For exmple, FsShelter components are implemeted as simple functions:
 *)
 
 // numbers spout - produces messages
 let numbers source = async { return Some(Original(source())) }
 
 (**
-the async body is expected to return an option if there's a tuple to emit.
+The async body of a spout is expected to return an option if there's a tuple to emit or None if there's nothing to emit at this time.
 
-Bolts can get a touple on any number of streams, and so we pattern match:
+Bolts can get a tuple on any number of streams, and so we pattern match:
 *)
 
 // add 1 bolt - consumes and emits messages to Incremented stream
@@ -77,8 +90,8 @@ let addOne (input, emit) =
     }
 
 (**
-The bolt can also emit at any time, and can hold on to the passed emit function.
-The can be as many arguments for the component functions as needed:
+The bolt can also emit at any time, and we can hold on to the passed emit function (with caveates).
+Also, there can be as many arguments for the component functions as needed, the specifics will be determined when the components are put together in a topology.
 *)
 
 // terminating bolt - consumes messages
@@ -90,7 +103,11 @@ let logResult (info, input) =
     }
 
 (**
-the specifics will be determined when the components are put together in a topology:
+
+Using F# DSL to define the topology
+--------------------
+
+Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows for mix and match of native Java, external shell and FsShell components:
 *)
 
 // define our source dependency
@@ -121,21 +138,20 @@ let sampleTopology =
     }
 
 (**
-Storm will start (a copy of) the same EXE for every component instance in the topology and will instruct each instance with the task it supposed to execute.
+Storm will start (a copy of) the same EXE for every component instance in the topology and will assign each instance a task it supposed to execute.
 
-The compiled topology can be submitted using embedded Thrift client, see the examples for details.
+The topology can be packaged with all its dependecies and submitted using embedded Nimbus client, see the examples for details.
 
 Exporting the topology graph in DOT format (GraphViz) using F# scripts
 -----------------------
+Once the number of components grows beyond handful it is often handy to be able to visualize them and FsStrom includes a simple way to export the topology into a graph:
 *)
-
-#r "../../build/WordCount.exe"
-
-open FsShelter
 
 sampleTopology |> DotGraph.writeToConsole
 
 (**
+See the samples included for further details.
+
 Samples & documentation
 -----------------------
 

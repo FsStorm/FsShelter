@@ -5,8 +5,10 @@ open System.IO
 open FsShelter.Multilang
 open FsShelter.Topology
 open System
-    
+
+/// Logger signature    
 type Log = (unit -> string) -> unit
+/// Task signature
 type Task<'t> = ComponentId -> Runnable<'t>
 
 // diagnostics pid shortcut
