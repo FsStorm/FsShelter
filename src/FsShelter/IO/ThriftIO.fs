@@ -9,8 +9,8 @@ open Prolucid.ThriftShell
 open TupleSchema
 open System.IO
 
-type V = Messages.Variant
-let vNone = V(None = Messages.NoneStruct())
+type internal V = Messages.Variant
+let internal vNone = V(None = Messages.NoneStruct())
 
 let private typeMap = 
     [

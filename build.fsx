@@ -370,6 +370,24 @@ Target "WordCountSvg" (fun _ ->
     |> ignore
 )
 
+Target "GuaranteedSvg" (fun _ ->
+    Shell.Exec(
+#if MONO
+            "mono",
+            ""+
+#else
+            Environment.GetEnvironmentVariable("ComSpec"),
+            "/c "+
+#endif
+            ("samples" @@ "Guaranteed" @@ "bin" @@ "Release" @@ "Guaranteed.exe") +
+            " graph | dot -Tsvg -o " + build_out + "/Guaranteed.svg")
+    |> ignore
+)
+
+Target "ExportGraphs" DoNothing
+"ExportGraphs"
+    <== ["Build";"WordCountSvg";"GuaranteedSvg"]
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -388,7 +406,6 @@ Target "All" DoNothing
 "All" 
 #if MONO
 #else
-  ==> "GenerateSources"
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
   ==> "NuGet"

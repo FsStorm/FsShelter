@@ -9,11 +9,11 @@ open Prolucid.ProtoShell
 open TupleSchema
 open System.IO
 
-type V = Messages.Variant
-type VL = WellKnownTypes.Value
-type VLKind = VL.KindOneofCase
-type VKind = V.KindOneofCase
-let vNone = V(NoneVal = WellKnownTypes.NullValue.NULL_VALUE)
+type internal V = Messages.Variant
+type internal VL = WellKnownTypes.Value
+type internal VLKind = VL.KindOneofCase
+type internal VKind = V.KindOneofCase
+let internal vNone = V(NoneVal = WellKnownTypes.NullValue.NULL_VALUE)
 
 let private typeMap = 
     [

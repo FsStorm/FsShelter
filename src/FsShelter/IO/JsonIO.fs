@@ -1,4 +1,5 @@
-﻿module FsShelter.JsonIO
+﻿/// Json multilang IO
+module FsShelter.JsonIO
 
 open Multilang
 open System
@@ -9,9 +10,9 @@ open TupleSchema
 open Newtonsoft.Json.Linq
 
 [<Literal>]
-let END = "\nend\n"
+let internal END = "\nend\n"
 
-let toLog (msg:string) (lvl:int) =
+let private toLog (msg:string) (lvl:int) =
     use sw = new StringWriter()
     use w = new JsonTextWriter(sw)
     w.WriteStartObject()

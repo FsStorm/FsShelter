@@ -6,7 +6,7 @@ open System
 
 (**
 Defining the schema
-========================
+--------------------
 
 FsShelter uses F# discriminated unions to statically type streams:
 
@@ -20,7 +20,7 @@ type Schema =
 
 (**
 Defining unreliable spouts
-========================
+--------------------
 
 FsShelter spouts can be implemented as "reliable" or "unreliable". 
 Either implementation is a single function, returning async Option, where None indicates there's nothing to emit from this spout at this moment:
@@ -32,7 +32,7 @@ let sentences source = async { return source() |> Sentence |> Some }
 
 (**
 Defining bolts
-========================
+--------------------
 
 Example of a FsShelter bolt that reads a tuple and emits another one:
 
@@ -73,7 +73,7 @@ let logResult (log, input) =
 
 
 (**
-And given these helper methods:
+We will pass these implementations into the component funcions when we put things together in a topology definition.
 
 *)
 let source = 
@@ -108,13 +108,11 @@ let increment =
 
 (**
 
-We are ready to define the topology.
-
 
 Using F# DSL to define the topology
-========================
+--------------------
 
-Topologies are defined using an embedded DSL:
+Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows mix and match of native java, external shell and FsShell components:
 *)
 
 open FsShelter.DSL
@@ -149,8 +147,8 @@ let sampleTopology =
     }
 
 (**
-Here we define a graph by declaring the components and connecting them with arrows. 
-The lambdas following the "run" methods privdes the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
+Here we define the graph by declaring the components and connecting them with arrows. 
+The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
 * log is the Storm log factory
 * cfg is the runtime configuration passed in from Storm 
 * tuple is the instance of the schema DU coming in
@@ -158,6 +156,27 @@ The lambdas following the "run" methods privdes the opportunity to carry out con
 
 "log" and "cfg" are fixed once (curried) and as demonstrated in logBolt mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before "tuple" and "emit" arguments.
 This initialization will not be triggered unless the task execution is actually requsted by Storm for this specific instance of the process.
+
+
+Exporting the topology graph 
+--------------
+
+FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like:
+
+![SVG](svg/WordCount.svg "WordCount (SVG)")
+
+The dotted lines represent "unanchored" streams and the number inside the `[]` shows the parallelism hint.
+Which was achived by a simple export to console:
+*)
+
+sampleTopology |> DotGraph.writeToConsole
+
+(**
+Followed by a convertion into into SVG:
+
+```bash
+mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
+```
 *)
 
 

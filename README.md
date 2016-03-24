@@ -1,11 +1,10 @@
-FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter)
- [![Mono/OSX build](https://travis-ci.org/Prolucid/FsShelter.svg?branch=master)](https://travis-ci.org/Prolucid/FsShelter)
+FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter) [![Mono/OSX build](https://travis-ci.org/Prolucid/FsShelter.svg?branch=master)](https://travis-ci.org/Prolucid/FsShelter)
 =======
 
 A library for defining and running Apache Storm topologies in F# using statically typed streams.
 
 Based on and a complete rewrite of [FsStorm](https://github.com/FsStorm) with the goals of static typing, modularity and pluggable serialization.
-Comes bundled with Json serialization, Thrift and Protobuf (Thrift and Protobuf require corresponding Storm multilang serializer implementations [Thriftshell](https://github.com/prolucid/thriftshell) or [Protoshell](https://github.com/prolucid/protoshell)). 
+Comes bundled with Json serialization, Thrift and Protobuf (Thrift and Protobuf require corresponding Storm multilang serializer implementation [Thriftshell](https://github.com/prolucid/thriftshell) or [Protoshell](https://github.com/prolucid/protoshell)). 
 
 See [docs][docs] for for an intro and an overview.
 
@@ -13,7 +12,7 @@ Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](TBD
 
 # Limitations
 * At the moment FsShelter doesn't support direct emits.
-* [STORM-1644](https://issues.apache.org/jira/browse/STORM-1644): Currently, when running on Windows, the process will run under cmd.exe incurring slight memory overhead.
+* [STORM-1644](https://issues.apache.org/jira/browse/STORM-1644): Currently, when running on Windows, the process will run under cmd.exe incurring slight overhead.
 
 # Building
 On Windows, from the cloned root:
@@ -33,11 +32,11 @@ IDE: Install NUnit plugin for VS or MonoDevelop to see the unit-tests in Test Ex
 # Submitting the topology
 Have a local [Storm](https://storm.apache.org/downloads.html) installed and running.
 ```
-samples\Simple\bin\Release\Simple submit-local
+samples\WordCount\bin\Release\WordCount submit-local
 ```
 or, if running on Mono:
 ```
-mono samples/Simple/bin/Release/Simple.exe submit-local
+mono samples/WordCount/bin/Release/WordCount.exe submit-local
 ```
 
 # Seeing the topology in action

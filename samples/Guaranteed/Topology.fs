@@ -96,7 +96,7 @@ let sampleTopology = topology "Guaranteed" {
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
-    yield s1 ==> b1 |> shuffle.on Original // emit from s1 to b1 on Original stream and anchor immediately following emits to this tree
-    yield b1 --> b2 |> shuffle.on Odd //(function Odd n -> n) // emit from b1 to b2 on Odd stream and group tuples by n
-    yield b1 --> b3 |> shuffle.on Even //(function Even n -> n) // emit from b1 to b2 on Even stream and group tuples by n
+    yield s1 ==> b1 |> shuffle.on Original // emit from s1 to b1 on Original stream and anchor immediately following emits to this tuple
+    yield b1 --> b2 |> shuffle.on Odd // anchored emit from b1 to b2 on Odd stream 
+    yield b1 --> b3 |> shuffle.on Even // anchored emit from b1 to b2 on Even stream 
 }

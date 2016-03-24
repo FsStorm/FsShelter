@@ -11,8 +11,9 @@ FsShelter
 
 Overview
 -------
-FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components, definition of topologies in F# DSL and submission via embedded Thrift client for execution.
-It is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split off into itsown project.
+FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components and definition of topologies in F# DSL.
+The Management module also provides wrappers for Nimbus Thrift API, allowing to bundle and submit a topology for execution.
+FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split off into itsown project.
 The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
 Corresponding [ProtoShell](https://github.com/prolucid/protoshell) and [ThriftShell](https://github.com/prolucid/thriftshell) libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter components as compared to standard JSON.
 
@@ -138,15 +139,13 @@ sampleTopology |> DotGraph.writeToConsole
 Samples & documentation
 -----------------------
 
- * [Simple](simple.html) contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.
+ * [WordCount](wordcount.html) contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.
 
  * [Guaranteed](guaranteed.html) contains a "reliable" spout example - emitted tuples have unique ID and require ack.
 
  * [API Reference](reference/index.html) contains automatically generated documentation for public types, modules
    and functions in the library. 
  
- * [WordCount](https://github.com/FsShelter/FsShelter.WordCount) contains a simple example showing a spout with two bolts.
-
 Getting FsShelter
 ----------------
 
