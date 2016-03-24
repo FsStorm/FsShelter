@@ -35,16 +35,20 @@
 <h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
 <p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and topologies in F#.
 FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.</p>
-<p>Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packging and exporting:
-<em> bundle and submit a topology for execution w/o needing JDK
-</em> kill a running topology
-* generate a topology graph as part of your build</p>
+<p>Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packging and exporting:</p>
+<ul>
+<li>bundle and submit a topology for execution w/o needing JDK</li>
+<li>kill a running topology</li>
+<li>generate a topology graph as part of your build</li>
+</ul>
 <p>The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
 Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> and <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter topologies as compared to standard JSON.</p>
-<p>Bring your own, but only if you need it:
-<em> command line parser
-</em> logging
-* custom serializer</p>
+<p>Bring your own, but only if you need it:</p>
+<ul>
+<li>command line parser</li>
+<li>logging</li>
+<li>custom serializer</li>
+</ul>
 <h2><a name="FsShelter-topology-schema" class="anchor" href="#FsShelter-topology-schema">FsShelter topology schema</a></h2>
 <p>While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less.
 Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test, detect and fix.
