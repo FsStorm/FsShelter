@@ -261,7 +261,7 @@ The lambda arguments for the "run" methods privde the opportunity to carry out c
 This initialization will not be triggered unless the task execution is actually requsted by Storm for this specific instance of the process.</p>
 <h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
 <p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like:</p>
-<p><img src="images/wordcount.svg" alt="SVG" title="WordCount (SVG)" /></p>
+<p><img src="svg/wordcount.svg" alt="SVG" title="WordCount (SVG)" /></p>
 <p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.
 Which was achived by a simple export to console:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -270,14 +270,11 @@ Which was achived by a simple export to console:</p>
 </code></pre></td>
 </tr>
 </table>
-<p>sh
-Followed by a convertion into into SVG:</p>
+<p>Followed by a convertion into into SVG:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">mono</span> <span class="i">samples</span><span class="o">/</span><span class="i">WordCount</span><span class="o">/</span><span class="i">bin</span><span class="o">/</span><span class="i">Release</span><span class="o">/</span><span class="i">WordCount</span> <span class="i">graph</span> | <span class="i">dot</span> <span class="o">-</span><span class="i">Tsvg</span> <span class="o">-</span><span class="i">o</span> <span class="i">build</span><span class="o">/</span><span class="i">WordCount</span><span class="o">.</span><span class="i">svg</span>
-</code></pre></td>
-</tr>
-</table>
+<td class="snippet"><pre class="fssnip"><code lang="bash">mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
+</code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">type Schema =<br />&#160;&#160;| Sentence of string<br />&#160;&#160;| Word of string<br />&#160;&#160;| WordCount of string * int64<br /><br />Full name: Wordcount.Schema</div>

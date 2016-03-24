@@ -35,8 +35,9 @@
           
 <h1><a name="FsShelter" class="anchor" href="#FsShelter">FsShelter</a></h1>
 <h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
-<p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components, definition of topologies in F# DSL and submission via embedded Thrift client for execution.
-It is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.
+<p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and definition of topologies in F# DSL.
+The Management module also provides wrappers for Nimbus Thrift API, allowing to bundle and submit a topology for execution.
+FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.
 The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
 Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> and <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter components as compared to standard JSON.</p>
 <h2><a name="FsShelter-topology-schema" class="anchor" href="#FsShelter-topology-schema">FsShelter topology schema</a></h2>
