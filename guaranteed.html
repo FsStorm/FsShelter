@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>guaranteed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="F# DSL and runtime for Storm topologies"/>
+    <meta name="author" content="Faisal Waris, Eugene Tolmachev"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/FsShelter/FsShelter">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FsShelter/index.html">FsShelter</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h2><a name="Defining-reliable-spouts" class="anchor" href="#Defining-reliable-spouts">Defining reliable spouts</a></h2>
+<p><a href="https://storm.apache.org/documentation/Guaranteeing-message-processing.html">Processing guarantees</a> are the biggest selling point of Storm, please see the official docs for the details.
+The reliable spout implementation for a source like peristent a queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks back to the source.
+The obtained Id has to be passed along with the tuple from the spout function:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// data schema for the topology, every case is a unqiue stream</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="t">Schema</span> <span class="o">=</span> 
+    | <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="p">Even</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="p">Odd</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="t">int</span>
+
+<span class="c">// numbers spout - produces messages</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="f">numbers</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="f">source</span> <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="i">async</span> { 
+        <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="i">tupleId</span>,<span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="i">number</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs11', 18)" onmouseover="showTip(event, 'fs11', 18)" class="f">source</span>()
+        <span class="k">return</span> <span onmouseout="hideTip(event, 'fs15', 19)" onmouseover="showTip(event, 'fs15', 19)" class="p">Some</span>(<span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="i">tupleId</span>, <span onmouseout="hideTip(event, 'fs6', 21)" onmouseover="showTip(event, 'fs6', 21)" class="p">Original</span> (<span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="i">number</span>)) 
+    }
+
+<span class="c">// add 1 bolt - consumes and emits messages to either Even or Odd stream</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="f">addOne</span> (<span onmouseout="hideTip(event, 'fs17', 24)" onmouseover="showTip(event, 'fs17', 24)" class="i">input</span>,<span onmouseout="hideTip(event, 'fs18', 25)" onmouseover="showTip(event, 'fs18', 25)" class="f">emit</span>) <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs12', 26)" onmouseover="showTip(event, 'fs12', 26)" class="i">async</span> { 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs17', 27)" onmouseover="showTip(event, 'fs17', 27)" class="i">input</span> <span class="k">with</span>
+        | <span onmouseout="hideTip(event, 'fs6', 28)" onmouseover="showTip(event, 'fs6', 28)" class="p">Original</span> <span onmouseout="hideTip(event, 'fs19', 29)" onmouseover="showTip(event, 'fs19', 29)" class="i">x</span> <span class="k">-&gt;</span> 
+            <span class="k">match</span> <span onmouseout="hideTip(event, 'fs19', 30)" onmouseover="showTip(event, 'fs19', 30)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="k">with</span>
+            | <span class="n">1</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 31)" onmouseover="showTip(event, 'fs8', 31)" class="p">Even</span> (<span onmouseout="hideTip(event, 'fs19', 32)" onmouseover="showTip(event, 'fs19', 32)" class="i">x</span><span class="o">+</span><span class="n">1</span>)
+            | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs9', 33)" onmouseover="showTip(event, 'fs9', 33)" class="p">Odd</span> (<span onmouseout="hideTip(event, 'fs19', 34)" onmouseover="showTip(event, 'fs19', 34)" class="i">x</span><span class="o">+</span><span class="n">1</span>)
+        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs20', 35)" onmouseover="showTip(event, 'fs20', 35)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs17', 36)" onmouseover="showTip(event, 'fs17', 36)" class="i">input</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 37)" onmouseover="showTip(event, 'fs18', 37)" class="f">emit</span>
+    }
+
+<span class="c">// terminating bolt - consumes messages</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 38)" onmouseover="showTip(event, 'fs21', 38)" class="f">logResult</span> (<span onmouseout="hideTip(event, 'fs22', 39)" onmouseover="showTip(event, 'fs22', 39)" class="f">info</span>,<span onmouseout="hideTip(event, 'fs17', 40)" onmouseover="showTip(event, 'fs17', 40)" class="i">input</span>) <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs12', 41)" onmouseover="showTip(event, 'fs12', 41)" class="i">async</span> { 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs17', 42)" onmouseover="showTip(event, 'fs17', 42)" class="i">input</span> <span class="k">with</span>
+        | <span onmouseout="hideTip(event, 'fs8', 43)" onmouseover="showTip(event, 'fs8', 43)" class="p">Even</span> <span onmouseout="hideTip(event, 'fs19', 44)" onmouseover="showTip(event, 'fs19', 44)" class="i">x</span>
+        | <span onmouseout="hideTip(event, 'fs9', 45)" onmouseover="showTip(event, 'fs9', 45)" class="p">Odd</span> <span onmouseout="hideTip(event, 'fs19', 46)" onmouseover="showTip(event, 'fs19', 46)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 47)" onmouseover="showTip(event, 'fs22', 47)" class="f">info</span> (<span onmouseout="hideTip(event, 'fs23', 48)" onmouseover="showTip(event, 'fs23', 48)" class="f">sprintf</span> <span class="s">&quot;Got: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs17', 49)" onmouseover="showTip(event, 'fs17', 49)" class="i">input</span>)
+        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs20', 50)" onmouseover="showTip(event, 'fs20', 50)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs17', 51)" onmouseover="showTip(event, 'fs17', 51)" class="i">input</span>
+    }
+</code></pre></td>
+</tr>
+</table>
+<p>Here we mimic an external source and implement all three possible cases: produce a new message, retry a failed one (indefinetely) and ack a successfully processed.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 52)" onmouseover="showTip(event, 'fs1', 52)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 53)" onmouseover="showTip(event, 'fs24', 53)" class="i">Topology</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs25', 54)" onmouseover="showTip(event, 'fs25', 54)" class="t">QueueCmd</span> <span class="o">=</span>
+    | <span onmouseout="hideTip(event, 'fs26', 55)" onmouseover="showTip(event, 'fs26', 55)" class="p">Get</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs27', 56)" onmouseover="showTip(event, 'fs27', 56)" class="t">AsyncReplyChannel</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs28', 57)" onmouseover="showTip(event, 'fs28', 57)" class="t">TupleId</span><span class="o">*</span><span onmouseout="hideTip(event, 'fs7', 58)" onmouseover="showTip(event, 'fs7', 58)" class="t">int</span><span class="o">&gt;</span>
+    | <span onmouseout="hideTip(event, 'fs29', 59)" onmouseover="showTip(event, 'fs29', 59)" class="p">Ack</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs28', 60)" onmouseover="showTip(event, 'fs28', 60)" class="t">TupleId</span>
+    | <span onmouseout="hideTip(event, 'fs30', 61)" onmouseover="showTip(event, 'fs30', 61)" class="p">Nack</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs28', 62)" onmouseover="showTip(event, 'fs28', 62)" class="t">TupleId</span>
+
+<span class="c">// faking an external source here</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">source</span> <span class="o">=</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 64)" onmouseover="showTip(event, 'fs32', 64)" class="i">rnd</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 65)" onmouseover="showTip(event, 'fs33', 65)" class="t">Random</span>()
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 66)" onmouseover="showTip(event, 'fs34', 66)" class="v">count</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs35', 67)" onmouseover="showTip(event, 'fs35', 67)" class="f">ref</span> <span class="n">0L</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 68)" onmouseover="showTip(event, 'fs36', 68)" class="i">pending</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs37', 69)" onmouseover="showTip(event, 'fs37', 69)" class="t">Dictionary</span>()
+
+    <span onmouseout="hideTip(event, 'fs38', 70)" onmouseover="showTip(event, 'fs38', 70)" class="t">MailboxProcessor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 71)" onmouseover="showTip(event, 'fs39', 71)" class="f">Start</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs40', 72)" onmouseover="showTip(event, 'fs40', 72)" class="i">inbox</span> <span class="k">-&gt;</span> 
+        <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs41', 73)" onmouseover="showTip(event, 'fs41', 73)" class="f">loop</span> <span onmouseout="hideTip(event, 'fs42', 74)" onmouseover="showTip(event, 'fs42', 74)" class="i">nacked</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs12', 75)" onmouseover="showTip(event, 'fs12', 75)" class="i">async</span> { 
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs43', 76)" onmouseover="showTip(event, 'fs43', 76)" class="i">cmd</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs40', 77)" onmouseover="showTip(event, 'fs40', 77)" class="i">inbox</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 78)" onmouseover="showTip(event, 'fs44', 78)" class="f">Receive</span>()
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs41', 79)" onmouseover="showTip(event, 'fs41', 79)" class="f">loop</span> <span class="o">&lt;|</span> <span class="k">match</span> <span onmouseout="hideTip(event, 'fs43', 80)" onmouseover="showTip(event, 'fs43', 80)" class="i">cmd</span>, <span onmouseout="hideTip(event, 'fs42', 81)" onmouseover="showTip(event, 'fs42', 81)" class="i">nacked</span> <span class="k">with</span>
+                                | <span onmouseout="hideTip(event, 'fs26', 82)" onmouseover="showTip(event, 'fs26', 82)" class="p">Get</span> <span onmouseout="hideTip(event, 'fs45', 83)" onmouseover="showTip(event, 'fs45', 83)" class="i">rc</span>, [] <span class="k">-&gt;</span>
+                                    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs46', 84)" onmouseover="showTip(event, 'fs46', 84)" class="i">tupleId</span>,<span onmouseout="hideTip(event, 'fs14', 85)" onmouseover="showTip(event, 'fs14', 85)" class="i">number</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs47', 86)" onmouseover="showTip(event, 'fs47', 86)" class="f">string</span>(<span onmouseout="hideTip(event, 'fs48', 87)" onmouseover="showTip(event, 'fs48', 87)" class="i">Threading</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 88)" onmouseover="showTip(event, 'fs49', 88)" class="t">Interlocked</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 89)" onmouseover="showTip(event, 'fs50', 89)" class="f">Increment</span> <span class="o">&amp;</span><span onmouseout="hideTip(event, 'fs34', 90)" onmouseover="showTip(event, 'fs34', 90)" class="v">count</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs51', 91)" onmouseover="showTip(event, 'fs51', 91)" class="v">contents</span>), <span onmouseout="hideTip(event, 'fs32', 92)" onmouseover="showTip(event, 'fs32', 92)" class="i">rnd</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 93)" onmouseover="showTip(event, 'fs52', 93)" class="f">Next</span>(<span class="n">0</span>, <span class="n">100</span>)
+                                    <span onmouseout="hideTip(event, 'fs36', 94)" onmouseover="showTip(event, 'fs36', 94)" class="i">pending</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 95)" onmouseover="showTip(event, 'fs53', 95)" class="f">Add</span>(<span onmouseout="hideTip(event, 'fs46', 96)" onmouseover="showTip(event, 'fs46', 96)" class="i">tupleId</span>,<span onmouseout="hideTip(event, 'fs14', 97)" onmouseover="showTip(event, 'fs14', 97)" class="i">number</span>)
+                                    <span onmouseout="hideTip(event, 'fs45', 98)" onmouseover="showTip(event, 'fs45', 98)" class="i">rc</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 99)" onmouseover="showTip(event, 'fs54', 99)" class="f">Reply</span>(<span onmouseout="hideTip(event, 'fs46', 100)" onmouseover="showTip(event, 'fs46', 100)" class="i">tupleId</span>,<span onmouseout="hideTip(event, 'fs14', 101)" onmouseover="showTip(event, 'fs14', 101)" class="i">number</span>)
+                                    []
+                                | <span onmouseout="hideTip(event, 'fs26', 102)" onmouseover="showTip(event, 'fs26', 102)" class="p">Get</span> <span onmouseout="hideTip(event, 'fs45', 103)" onmouseover="showTip(event, 'fs45', 103)" class="i">rc</span>,(<span onmouseout="hideTip(event, 'fs46', 104)" onmouseover="showTip(event, 'fs46', 104)" class="i">tupleId</span>,<span onmouseout="hideTip(event, 'fs14', 105)" onmouseover="showTip(event, 'fs14', 105)" class="i">number</span>)<span class="o">::</span><span onmouseout="hideTip(event, 'fs55', 106)" onmouseover="showTip(event, 'fs55', 106)" class="i">xs</span> <span class="k">-&gt;</span>
+                                    <span onmouseout="hideTip(event, 'fs36', 107)" onmouseover="showTip(event, 'fs36', 107)" class="i">pending</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 108)" onmouseover="showTip(event, 'fs53', 108)" class="f">Add</span>(<span class="i">tupleId</span>,<span class="i">number</span>)
+                                    <span class="i">rc</span><span class="o">.</span><span class="f">Reply</span> (<span class="i">tupleId</span>,<span class="i">number</span>)
+                                    <span onmouseout="hideTip(event, 'fs55', 109)" onmouseover="showTip(event, 'fs55', 109)" class="i">xs</span>
+                                | <span onmouseout="hideTip(event, 'fs29', 110)" onmouseover="showTip(event, 'fs29', 110)" class="p">Ack</span> <span onmouseout="hideTip(event, 'fs56', 111)" onmouseover="showTip(event, 'fs56', 111)" class="i">id</span>, _ <span class="k">-&gt;</span> 
+                                    <span onmouseout="hideTip(event, 'fs36', 112)" onmouseover="showTip(event, 'fs36', 112)" class="i">pending</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs57', 113)" onmouseover="showTip(event, 'fs57', 113)" class="f">Remove</span> <span onmouseout="hideTip(event, 'fs56', 114)" onmouseover="showTip(event, 'fs56', 114)" class="i">id</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs58', 115)" onmouseover="showTip(event, 'fs58', 115)" class="f">ignore</span>
+                                    <span onmouseout="hideTip(event, 'fs42', 116)" onmouseover="showTip(event, 'fs42', 116)" class="i">nacked</span>
+                                | <span onmouseout="hideTip(event, 'fs30', 117)" onmouseover="showTip(event, 'fs30', 117)" class="p">Nack</span> <span onmouseout="hideTip(event, 'fs56', 118)" onmouseover="showTip(event, 'fs56', 118)" class="i">id</span>, _ <span class="k">-&gt;</span> 
+                                    (<span onmouseout="hideTip(event, 'fs56', 119)" onmouseover="showTip(event, 'fs56', 119)" class="i">id</span>,<span onmouseout="hideTip(event, 'fs36', 120)" onmouseover="showTip(event, 'fs36', 120)" class="i">pending</span><span class="o">.</span>[<span onmouseout="hideTip(event, 'fs56', 121)" onmouseover="showTip(event, 'fs56', 121)" class="i">id</span>])<span class="o">::</span><span onmouseout="hideTip(event, 'fs42', 122)" onmouseover="showTip(event, 'fs42', 122)" class="i">nacked</span>
+            }
+        <span onmouseout="hideTip(event, 'fs41', 123)" onmouseover="showTip(event, 'fs41', 123)" class="f">loop</span> [])
+
+	
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Anchoring" class="anchor" href="#Anchoring">Anchoring</a></h2>
+<p>In order to provide processing guarantees Storm needs to construct and track the state of entire "tuple tree", which is built out by emitting "anchored" tuples.
+FsShelter implements anchoring statically: instead of ad-hoc, as determined by a component, it is a property of the stream <em>leading to</em> an emit.
+Consequently the implementation of emit (anchored/unanchored) is determined by the topology graph and completely transparent to the bolt that processes a tuple that will be used as an anchor.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">//define the storm topology</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 124)" onmouseover="showTip(event, 'fs1', 124)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 125)" onmouseover="showTip(event, 'fs59', 125)" class="i">DSL</span>
+
+<span class="prep">#nowarn</span> <span class="s">&quot;25&quot;</span> <span class="c">// for stream matching expressions</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs60', 126)" onmouseover="showTip(event, 'fs60', 126)" class="i">sampleTopology</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs61', 127)" onmouseover="showTip(event, 'fs61', 127)" class="f">topology</span> <span class="s">&quot;Guaranteed&quot;</span> {
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs62', 128)" onmouseover="showTip(event, 'fs62', 128)" class="i">s1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 129)" onmouseover="showTip(event, 'fs10', 129)" class="f">numbers</span>
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs63', 130)" onmouseover="showTip(event, 'fs63', 130)" class="f">runReliableSpout</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs64', 131)" onmouseover="showTip(event, 'fs64', 131)" class="f">log</span> <span onmouseout="hideTip(event, 'fs65', 132)" onmouseover="showTip(event, 'fs65', 132)" class="i">cfg</span> () <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 133)" onmouseover="showTip(event, 'fs31', 133)" class="i">source</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs66', 134)" onmouseover="showTip(event, 'fs66', 134)" class="f">PostAndAsyncReply</span> <span onmouseout="hideTip(event, 'fs26', 135)" onmouseover="showTip(event, 'fs26', 135)" class="p">Get</span>)  <span class="c">// ignoring logging and cfg available</span>
+                                 (<span class="k">fun</span> _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs67', 136)" onmouseover="showTip(event, 'fs67', 136)" class="p">Ack</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs31', 137)" onmouseover="showTip(event, 'fs31', 137)" class="i">source</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 138)" onmouseover="showTip(event, 'fs68', 138)" class="f">Post</span>, <span onmouseout="hideTip(event, 'fs69', 139)" onmouseover="showTip(event, 'fs69', 139)" class="p">Nack</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs31', 140)" onmouseover="showTip(event, 'fs31', 140)" class="i">source</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 141)" onmouseover="showTip(event, 'fs68', 141)" class="f">Post</span>)
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs70', 142)" onmouseover="showTip(event, 'fs70', 142)" class="i">b1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 143)" onmouseover="showTip(event, 'fs16', 143)" class="f">addOne</span>
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs71', 144)" onmouseover="showTip(event, 'fs71', 144)" class="f">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs64', 145)" onmouseover="showTip(event, 'fs64', 145)" class="f">log</span> <span onmouseout="hideTip(event, 'fs65', 146)" onmouseover="showTip(event, 'fs65', 146)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs72', 147)" onmouseover="showTip(event, 'fs72', 147)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs18', 148)" onmouseover="showTip(event, 'fs18', 148)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs72', 149)" onmouseover="showTip(event, 'fs72', 149)" class="i">tuple</span>,<span onmouseout="hideTip(event, 'fs18', 150)" onmouseover="showTip(event, 'fs18', 150)" class="f">emit</span>)) <span class="c">// pass incoming tuple and emit function</span>
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs73', 151)" onmouseover="showTip(event, 'fs73', 151)" class="f">withParallelism</span> <span class="n">2</span>
+    
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs74', 152)" onmouseover="showTip(event, 'fs74', 152)" class="i">b2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 153)" onmouseover="showTip(event, 'fs21', 153)" class="f">logResult</span>
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs71', 154)" onmouseover="showTip(event, 'fs71', 154)" class="f">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs64', 155)" onmouseover="showTip(event, 'fs64', 155)" class="f">log</span> <span onmouseout="hideTip(event, 'fs65', 156)" onmouseover="showTip(event, 'fs65', 156)" class="i">cfg</span> <span class="k">-&gt;</span>
+                            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs75', 157)" onmouseover="showTip(event, 'fs75', 157)" class="f">mylog</span> <span class="o">=</span> <span class="i">Common</span><span class="o">.</span><span class="i">Logging</span><span class="o">.</span><span class="i">asyncLog</span> (<span class="s">&quot;odd.log&quot;</span>)
+                            <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs72', 158)" onmouseover="showTip(event, 'fs72', 158)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs18', 159)" onmouseover="showTip(event, 'fs18', 159)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs75', 160)" onmouseover="showTip(event, 'fs75', 160)" class="f">mylog</span>,<span onmouseout="hideTip(event, 'fs72', 161)" onmouseover="showTip(event, 'fs72', 161)" class="i">tuple</span>))
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs73', 162)" onmouseover="showTip(event, 'fs73', 162)" class="f">withParallelism</span> <span class="n">1</span>
+
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs76', 163)" onmouseover="showTip(event, 'fs76', 163)" class="i">b3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 164)" onmouseover="showTip(event, 'fs21', 164)" class="f">logResult</span>
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs71', 165)" onmouseover="showTip(event, 'fs71', 165)" class="f">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs64', 166)" onmouseover="showTip(event, 'fs64', 166)" class="f">log</span> <span onmouseout="hideTip(event, 'fs65', 167)" onmouseover="showTip(event, 'fs65', 167)" class="i">cfg</span> <span class="k">-&gt;</span> 
+                            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs75', 168)" onmouseover="showTip(event, 'fs75', 168)" class="f">mylog</span> <span class="o">=</span> <span class="i">Common</span><span class="o">.</span><span class="i">Logging</span><span class="o">.</span><span class="i">asyncLog</span> (<span class="s">&quot;even.log&quot;</span>) 
+                            <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs72', 169)" onmouseover="showTip(event, 'fs72', 169)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs18', 170)" onmouseover="showTip(event, 'fs18', 170)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs75', 171)" onmouseover="showTip(event, 'fs75', 171)" class="f">mylog</span>,<span onmouseout="hideTip(event, 'fs72', 172)" onmouseover="showTip(event, 'fs72', 172)" class="i">tuple</span>))
+             <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs73', 173)" onmouseover="showTip(event, 'fs73', 173)" class="f">withParallelism</span> <span class="n">1</span>
+
+    <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs62', 174)" onmouseover="showTip(event, 'fs62', 174)" class="i">s1</span> <span class="o">==&gt;</span> <span onmouseout="hideTip(event, 'fs70', 175)" onmouseover="showTip(event, 'fs70', 175)" class="i">b1</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs77', 176)" onmouseover="showTip(event, 'fs77', 176)" class="t">shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 177)" onmouseover="showTip(event, 'fs78', 177)" class="f">on</span> <span onmouseout="hideTip(event, 'fs6', 178)" onmouseover="showTip(event, 'fs6', 178)" class="p">Original</span>  <span class="c">// emit from s1 to b1 on Original stream and anchor immediately following emits to this tuple</span>
+    <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs70', 179)" onmouseover="showTip(event, 'fs70', 179)" class="i">b1</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs74', 180)" onmouseover="showTip(event, 'fs74', 180)" class="i">b2</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs77', 181)" onmouseover="showTip(event, 'fs77', 181)" class="t">shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 182)" onmouseover="showTip(event, 'fs78', 182)" class="f">on</span> <span onmouseout="hideTip(event, 'fs9', 183)" onmouseover="showTip(event, 'fs9', 183)" class="p">Odd</span>       <span class="c">// anchored emit from b1 to b2 on Odd stream </span>
+    <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs70', 184)" onmouseover="showTip(event, 'fs70', 184)" class="i">b1</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs76', 185)" onmouseover="showTip(event, 'fs76', 185)" class="i">b3</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs77', 186)" onmouseover="showTip(event, 'fs77', 186)" class="t">shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 187)" onmouseover="showTip(event, 'fs78', 187)" class="f">on</span> <span onmouseout="hideTip(event, 'fs8', 188)" onmouseover="showTip(event, 'fs8', 188)" class="p">Even</span>      <span class="c">// anchored emit from b1 to b2 on Even stream </span>
+}
+</code></pre></td>
+</tr>
+</table>
+<p>Resulting topology graph:</p>
+<p><img src="images/Guaranteed.svg" alt="SVG" title="Guaranteed (SVG)" /></p>
+<p>The solid lines represent "anchoring" streams and the dotted lines indicate the outer limits of the processing guarantees: a tuple emitted along a dotted line is only anchored if the line leading to it is solid.</p>
+
+<div class="tip" id="fs1">namespace FsShelter</div>
+<div class="tip" id="fs2">namespace System</div>
+<div class="tip" id="fs3">namespace System.Collections</div>
+<div class="tip" id="fs4">namespace System.Collections.Generic</div>
+<div class="tip" id="fs5">type Schema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Even of int<br />&#160;&#160;| Odd of int<br /><br />Full name: Guaranteed.Schema</div>
+<div class="tip" id="fs6">union case Schema.Original: int -&gt; Schema</div>
+<div class="tip" id="fs7">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs8">union case Schema.Even: int -&gt; Schema</div>
+<div class="tip" id="fs9">union case Schema.Odd: int -&gt; Schema</div>
+<div class="tip" id="fs10">val numbers : source:(unit -&gt; Async&lt;&#39;a * int&gt;) -&gt; Async&lt;(&#39;a * Schema) option&gt;<br /><br />Full name: Guaranteed.numbers</div>
+<div class="tip" id="fs11">val source : (unit -&gt; Async&lt;&#39;a * int&gt;)</div>
+<div class="tip" id="fs12">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
+<div class="tip" id="fs13">val tupleId : &#39;a</div>
+<div class="tip" id="fs14">val number : int</div>
+<div class="tip" id="fs15">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs16">val addOne : input:Schema * emit:(Schema -&gt; unit) -&gt; Async&lt;unit&gt;<br /><br />Full name: Guaranteed.addOne</div>
+<div class="tip" id="fs17">val input : Schema</div>
+<div class="tip" id="fs18">val emit : (Schema -&gt; unit)</div>
+<div class="tip" id="fs19">val x : int</div>
+<div class="tip" id="fs20">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs21">val logResult : info:(string -&gt; unit) * input:Schema -&gt; Async&lt;unit&gt;<br /><br />Full name: Guaranteed.logResult</div>
+<div class="tip" id="fs22">val info : (string -&gt; unit)</div>
+<div class="tip" id="fs23">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs24">module Topology<br /><br />from FsShelter</div>
+<div class="tip" id="fs25">type QueueCmd =<br />&#160;&#160;| Get of AsyncReplyChannel&lt;TupleId * int&gt;<br />&#160;&#160;| Ack of TupleId<br />&#160;&#160;| Nack of TupleId<br /><br />Full name: Guaranteed.QueueCmd</div>
+<div class="tip" id="fs26">union case QueueCmd.Get: AsyncReplyChannel&lt;TupleId * int&gt; -&gt; QueueCmd</div>
+<div class="tip" id="fs27">type AsyncReplyChannel&lt;&#39;Reply&gt;<br />member Reply : value:&#39;Reply -&gt; unit<br /><br />Full name: Microsoft.FSharp.Control.AsyncReplyChannel&lt;_&gt;</div>
+<div class="tip" id="fs28">type TupleId = string<br /><br />Full name: FsShelter.Topology.TupleId</div>
+<div class="tip" id="fs29">union case QueueCmd.Ack: TupleId -&gt; QueueCmd</div>
+<div class="tip" id="fs30">union case QueueCmd.Nack: TupleId -&gt; QueueCmd</div>
+<div class="tip" id="fs31">val source : MailboxProcessor&lt;QueueCmd&gt;<br /><br />Full name: Guaranteed.source</div>
+<div class="tip" id="fs32">val rnd : Random</div>
+<div class="tip" id="fs33">Multiple items<br />type Random =<br />&#160;&#160;new : unit -&gt; Random + 1 overload<br />&#160;&#160;member Next : unit -&gt; int + 2 overloads<br />&#160;&#160;member NextBytes : buffer:byte[] -&gt; unit<br />&#160;&#160;member NextDouble : unit -&gt; float<br /><br />Full name: System.Random<br /><br />--------------------<br />Random() : unit<br />Random(Seed: int) : unit</div>
+<div class="tip" id="fs34">val count : int64 ref</div>
+<div class="tip" id="fs35">Multiple items<br />val ref : value:&#39;T -&gt; &#39;T ref<br /><br />Full name: Microsoft.FSharp.Core.Operators.ref<br /><br />--------------------<br />type &#39;T ref = Ref&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Core.ref&lt;_&gt;</div>
+<div class="tip" id="fs36">val pending : Dictionary&lt;string,int&gt;</div>
+<div class="tip" id="fs37">Multiple items<br />type Dictionary&lt;&#39;TKey,&#39;TValue&gt; =<br />&#160;&#160;new : unit -&gt; Dictionary&lt;&#39;TKey, &#39;TValue&gt; + 5 overloads<br />&#160;&#160;member Add : key:&#39;TKey * value:&#39;TValue -&gt; unit<br />&#160;&#160;member Clear : unit -&gt; unit<br />&#160;&#160;member Comparer : IEqualityComparer&lt;&#39;TKey&gt;<br />&#160;&#160;member ContainsKey : key:&#39;TKey -&gt; bool<br />&#160;&#160;member ContainsValue : value:&#39;TValue -&gt; bool<br />&#160;&#160;member Count : int<br />&#160;&#160;member GetEnumerator : unit -&gt; Enumerator&lt;&#39;TKey, &#39;TValue&gt;<br />&#160;&#160;member GetObjectData : info:SerializationInfo * context:StreamingContext -&gt; unit<br />&#160;&#160;member Item : &#39;TKey -&gt; &#39;TValue with get, set<br />&#160;&#160;...<br />&#160;&#160;nested type Enumerator<br />&#160;&#160;nested type KeyCollection<br />&#160;&#160;nested type ValueCollection<br /><br />Full name: System.Collections.Generic.Dictionary&lt;_,_&gt;<br /><br />--------------------<br />Dictionary() : unit<br />Dictionary(capacity: int) : unit<br />Dictionary(comparer: IEqualityComparer&lt;&#39;TKey&gt;) : unit<br />Dictionary(dictionary: IDictionary&lt;&#39;TKey,&#39;TValue&gt;) : unit<br />Dictionary(capacity: int, comparer: IEqualityComparer&lt;&#39;TKey&gt;) : unit<br />Dictionary(dictionary: IDictionary&lt;&#39;TKey,&#39;TValue&gt;, comparer: IEqualityComparer&lt;&#39;TKey&gt;) : unit</div>
+<div class="tip" id="fs38">Multiple items<br />type MailboxProcessor&lt;&#39;Msg&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;new : body:(MailboxProcessor&lt;&#39;Msg&gt; -&gt; Async&lt;unit&gt;) * ?cancellationToken:CancellationToken -&gt; MailboxProcessor&lt;&#39;Msg&gt;<br />&#160;&#160;member Post : message:&#39;Msg -&gt; unit<br />&#160;&#160;member PostAndAsyncReply : buildMessage:(AsyncReplyChannel&lt;&#39;Reply&gt; -&gt; &#39;Msg) * ?timeout:int -&gt; Async&lt;&#39;Reply&gt;<br />&#160;&#160;member PostAndReply : buildMessage:(AsyncReplyChannel&lt;&#39;Reply&gt; -&gt; &#39;Msg) * ?timeout:int -&gt; &#39;Reply<br />&#160;&#160;member PostAndTryAsyncReply : buildMessage:(AsyncReplyChannel&lt;&#39;Reply&gt; -&gt; &#39;Msg) * ?timeout:int -&gt; Async&lt;&#39;Reply option&gt;<br />&#160;&#160;member Receive : ?timeout:int -&gt; Async&lt;&#39;Msg&gt;<br />&#160;&#160;member Scan : scanner:(&#39;Msg -&gt; Async&lt;&#39;T&gt; option) * ?timeout:int -&gt; Async&lt;&#39;T&gt;<br />&#160;&#160;member Start : unit -&gt; unit<br />&#160;&#160;member TryPostAndReply : buildMessage:(AsyncReplyChannel&lt;&#39;Reply&gt; -&gt; &#39;Msg) * ?timeout:int -&gt; &#39;Reply option<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Control.MailboxProcessor&lt;_&gt;<br /><br />--------------------<br />new : body:(MailboxProcessor&lt;&#39;Msg&gt; -&gt; Async&lt;unit&gt;) * ?cancellationToken:Threading.CancellationToken -&gt; MailboxProcessor&lt;&#39;Msg&gt;</div>
+<div class="tip" id="fs39">static member MailboxProcessor.Start : body:(MailboxProcessor&lt;&#39;Msg&gt; -&gt; Async&lt;unit&gt;) * ?cancellationToken:Threading.CancellationToken -&gt; MailboxProcessor&lt;&#39;Msg&gt;</div>
+<div class="tip" id="fs40">val inbox : MailboxProcessor&lt;QueueCmd&gt;</div>
+<div class="tip" id="fs41">val loop : ((string * int) list -&gt; Async&lt;&#39;a&gt;)</div>
+<div class="tip" id="fs42">val nacked : (string * int) list</div>
+<div class="tip" id="fs43">val cmd : QueueCmd</div>
+<div class="tip" id="fs44">member MailboxProcessor.Receive : ?timeout:int -&gt; Async&lt;&#39;Msg&gt;</div>
+<div class="tip" id="fs45">val rc : AsyncReplyChannel&lt;TupleId * int&gt;</div>
+<div class="tip" id="fs46">val tupleId : string</div>
+<div class="tip" id="fs47">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs48">namespace System.Threading</div>
+<div class="tip" id="fs49">type Interlocked =<br />&#160;&#160;static member Add : location1:int * value:int -&gt; int + 1 overload<br />&#160;&#160;static member CompareExchange : location1:int * value:int * comparand:int -&gt; int + 6 overloads<br />&#160;&#160;static member Decrement : location:int -&gt; int + 1 overload<br />&#160;&#160;static member Exchange : location1:int * value:int -&gt; int + 6 overloads<br />&#160;&#160;static member Increment : location:int -&gt; int + 1 overload<br />&#160;&#160;static member Read : location:int64 -&gt; int64<br /><br />Full name: System.Threading.Interlocked</div>
+<div class="tip" id="fs50">Threading.Interlocked.Increment(location: byref&lt;int64&gt;) : int64<br />Threading.Interlocked.Increment(location: byref&lt;int&gt;) : int</div>
+<div class="tip" id="fs51">Ref.contents: int64</div>
+<div class="tip" id="fs52">Random.Next() : int<br />Random.Next(maxValue: int) : int<br />Random.Next(minValue: int, maxValue: int) : int</div>
+<div class="tip" id="fs53">Dictionary.Add(key: string, value: int) : unit</div>
+<div class="tip" id="fs54">member AsyncReplyChannel.Reply : value:&#39;Reply -&gt; unit</div>
+<div class="tip" id="fs55">val xs : (string * int) list</div>
+<div class="tip" id="fs56">val id : TupleId</div>
+<div class="tip" id="fs57">Dictionary.Remove(key: string) : bool</div>
+<div class="tip" id="fs58">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
+<div class="tip" id="fs59">module DSL<br /><br />from FsShelter</div>
+<div class="tip" id="fs60">val sampleTopology : Topology&lt;Schema&gt;<br /><br />Full name: Guaranteed.sampleTopology</div>
+<div class="tip" id="fs61">val topology : name:string -&gt; TopologyBuilder<br /><br />Full name: FsShelter.DSL.topology</div>
+<div class="tip" id="fs62">val s1 : Spout&lt;Schema&gt;</div>
+<div class="tip" id="fs63">val runReliableSpout : mkArgs:((Multilang.LogLevel -&gt; string -&gt; unit) -&gt; Multilang.Conf -&gt; &#39;a) -&gt; mkAcker:(&#39;a -&gt; Acker) -&gt; next:Next&lt;&#39;a,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br /><br />Full name: FsShelter.DSL.runReliableSpout</div>
+<div class="tip" id="fs64">val log : (Multilang.LogLevel -&gt; string -&gt; unit)</div>
+<div class="tip" id="fs65">val cfg : Multilang.Conf</div>
+<div class="tip" id="fs66">member MailboxProcessor.PostAndAsyncReply : buildMessage:(AsyncReplyChannel&lt;&#39;Reply&gt; -&gt; &#39;Msg) * ?timeout:int -&gt; Async&lt;&#39;Reply&gt;</div>
+<div class="tip" id="fs67">Multiple items<br />union case QueueCmd.Ack: TupleId -&gt; QueueCmd<br /><br />--------------------<br />type Ack = TupleId -&gt; unit<br /><br />Full name: FsShelter.DSL.Ack</div>
+<div class="tip" id="fs68">member MailboxProcessor.Post : message:&#39;Msg -&gt; unit</div>
+<div class="tip" id="fs69">Multiple items<br />union case QueueCmd.Nack: TupleId -&gt; QueueCmd<br /><br />--------------------<br />type Nack = TupleId -&gt; unit<br /><br />Full name: FsShelter.DSL.Nack</div>
+<div class="tip" id="fs70">val b1 : Bolt&lt;Schema&gt;</div>
+<div class="tip" id="fs71">val runBolt : mkArgs:((Multilang.LogLevel -&gt; string -&gt; unit) -&gt; Multilang.Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;a) -&gt; consume:Consume&lt;&#39;a&gt; -&gt; Bolt&lt;&#39;t&gt;<br /><br />Full name: FsShelter.DSL.runBolt</div>
+<div class="tip" id="fs72">val tuple : Schema</div>
+<div class="tip" id="fs73">val withParallelism : parallelism:&#39;a -&gt; spec:&#39;s -&gt; &#39;s (requires member op_Explicit and member WithParallelism)<br /><br />Full name: FsShelter.DSL.withParallelism</div>
+<div class="tip" id="fs74">val b2 : Bolt&lt;Schema&gt;</div>
+<div class="tip" id="fs75">val mylog : (string -&gt; unit)</div>
+<div class="tip" id="fs76">val b3 : Bolt&lt;Schema&gt;</div>
+<div class="tip" id="fs77">type shuffle =<br />&#160;&#160;static member on : case:Expr&lt;(&#39;a0 -&gt; &#39;t)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)<br /><br />Full name: FsShelter.DSL.shuffle</div>
+<div class="tip" id="fs78">static member shuffle.on : case:Quotations.Expr&lt;(&#39;a0 -&gt; &#39;t)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)</div>
+
+        </div>
+        <div class="span3">
+          <img src="/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FsShelter</li>
+            <li><a href="/FsShelter/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FsShelter">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/FsShelter/FsShelter">Source Code on GitHub</a></li>
+            <li><a href="/FsShelter/LICENSE.html">License</a></li>
+            <li><a href="/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started
+            <li><a href="/FsShelter/wordcount.html">WordCount topology</a>
+			<ul>
+			<li><a href="/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
+            <li><a href="/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
+			<li><a href="/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
+			<li><a href="/FsShelter/wordcount.html#Using-F-DSL-to-define-the-topology">Topology</a></li>
+			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
+			</ul>
+			</li>
+            <li><a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+			<ul>
+			<li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+			<li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+			</ul>
+			</li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/FsShelter/FsShelter"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
