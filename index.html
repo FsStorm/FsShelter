@@ -33,11 +33,18 @@
         <div class="span9" id="main">
           
 <h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
-<p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and definition of topologies in F# DSL.
-The Management module also provides wrappers for Nimbus Thrift API, allowing to bundle and submit a topology for execution.
-FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.
-The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
-Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> and <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter components as compared to standard JSON.</p>
+<p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and topologies in F#.
+FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.</p>
+<p>Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packging and exporting:
+- bundle and submit a topology for execution w/o needing JDK
+- kill a running topology
+- generate a topology graph as part of your build</p>
+<p>The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
+Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> and <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter topologies as compared to standard JSON.</p>
+<p>Bring your own, but only if you need it:
+- command line parser
+- logging
+- custom serializer</p>
 <h2><a name="FsShelter-topology-schema" class="anchor" href="#FsShelter-topology-schema">FsShelter topology schema</a></h2>
 <p>While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less.
 Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test, detect and fix.
@@ -52,8 +59,8 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 </code></pre></td>
 </tr>
 </table>
-<p>where every DU case becomes a distinct stream in the topology.
-It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:</p>
+<p>where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm.</p>
+<p>It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -84,7 +91,8 @@ It is often handy to define a type that's shared across streams and FsShelter su
 <p>Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
 FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.</p>
 <h2><a name="FsShelter-components" class="anchor" href="#FsShelter-components">FsShelter components</a></h2>
-<p>FsShelter components are defined as simple functions:</p>
+<p>Some of the flexibility of Storm has been hidden to provide simple developer experience for authoring event-driven solutions.
+For exmple, FsShelter components are implemeted as simple functions:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -115,8 +123,8 @@ FsShelter "flattens" the first immediate "layer" of the DU case so that all the 
 </code></pre></td>
 </tr>
 </table>
-<p>The bolt can also emit at any time, and can hold on to the passed emit function.
-The can be as many arguments for the component functions as needed:</p>
+<p>The bolt can also emit at any time, and we can hold on to the passed emit function (with caveates).
+Also, there can be as many arguments for the component functions as needed, the specifics will be determined when the components are put together in a topology.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -135,9 +143,8 @@ The can be as many arguments for the component functions as needed:</p>
 </code></pre></td>
 </tr>
 </table>
-<p>the specifics will be determined when the components are put together in a topology.</p>
 <h2><a name="Using-F-DSL-to-define-the-topology" class="anchor" href="#Using-F-DSL-to-define-the-topology">Using F# DSL to define the topology</a></h2>
-<p>Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows for mix and match of native java, external shell and FsShell components:</p>
+<p>Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows for mix and match of native Java, external shell and FsShell components:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -194,15 +201,17 @@ The can be as many arguments for the component functions as needed:</p>
 </code></pre></td>
 </tr>
 </table>
-<p>Storm will start (a copy of) the same EXE for every component instance in the topology and will instruct each instance with the task it supposed to execute.</p>
-<p>The compiled topology can be submitted using embedded Thrift client, see the examples for details.</p>
+<p>Storm will start (a copy of) the same EXE for every component instance in the topology and will assign each instance a task it supposed to execute.</p>
+<p>The topology can be packaged with all its dependecies and submitted using embedded Nimbus client, see the examples for details.</p>
 <h2><a name="Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts" class="anchor" href="#Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts">Exporting the topology graph in DOT format (GraphViz) using F# scripts</a></h2>
+<p>Once the number of components grows beyond handful it is often handy to be able to visualize them and FsStrom includes a simple way to export the topology into a graph:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs36', 106)" onmouseover="showTip(event, 'fs36', 106)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 107)" onmouseover="showTip(event, 'fs51', 107)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 108)" onmouseover="showTip(event, 'fs52', 108)" class="f">writeToConsole</span>
 </code></pre></td>
 </tr>
 </table>
+<p>See the samples included for further details.</p>
 <h2><a name="Samples-amp-documentation" class="anchor" href="#Samples-amp-documentation">Samples &amp; documentation</a></h2>
 <ul>
 <li><p><a href="wordcount.html">WordCount</a> contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.</p></li>
