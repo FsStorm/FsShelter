@@ -35,7 +35,7 @@
 <h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
 <p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and topologies in F#.
 FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStrom in significant ways and therefore has been split off into itsown project.</p>
-<p>Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packging and exporting:</p>
+<p>Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:</p>
 <ul>
 <li>bundle and submit a topology for execution w/o needing JDK</li>
 <li>kill a running topology</li>
@@ -208,7 +208,7 @@ Also, there can be as many arguments for the component functions as needed, the 
 <p>Storm will start (a copy of) the same EXE for every component instance in the topology and will assign each instance a task it supposed to execute.</p>
 <p>The topology can be packaged with all its dependecies and submitted using embedded Nimbus client, see the examples for details.</p>
 <h2><a name="Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts" class="anchor" href="#Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts">Exporting the topology graph in DOT format (GraphViz) using F# scripts</a></h2>
-<p>Once the number of components grows beyond handful it is often handy to be able to visualize them and FsStrom includes a simple way to export the topology into a graph:</p>
+<p>Once the number of components grows beyond trivial it is often handy to be able to visualize them and FsShelter includes a simple way to export the topology into a graph:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs36', 106)" onmouseover="showTip(event, 'fs36', 106)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 107)" onmouseover="showTip(event, 'fs51', 107)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 108)" onmouseover="showTip(event, 'fs52', 108)" class="f">writeToConsole</span>

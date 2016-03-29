@@ -158,11 +158,11 @@
             ( ==&gt; ) arg1 arg2
           </code>
           <div class="tip" id="1">
-            <strong>Signature:</strong> &#39;?7542 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?7542, 't          </div>
+            <strong>Signature:</strong> &#39;?7549 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?7549, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L181-181" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L188-188" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -179,11 +179,11 @@
             ( --&gt; ) arg1 arg2
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> &#39;?7539 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?7539, 't          </div>
+            <strong>Signature:</strong> &#39;?7546 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?7546, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L177-177" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L184-184" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -204,7 +204,7 @@
                           <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L122-122" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L129-129" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -224,7 +224,7 @@
                           <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L118-118" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L125-125" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -240,8 +240,8 @@
             java className args
           </code>
           <div class="tip" id="5">
-            <strong>Signature:</strong> className:string -&gt; args:string list -&gt; Component&lt;&#39;?7506&gt;<br />
-                          <strong>Type parameters:</strong> '?7506          </div>
+            <strong>Signature:</strong> className:string -&gt; args:string list -&gt; Component&lt;&#39;?7513&gt;<br />
+                          <strong>Type parameters:</strong> '?7513          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L97-97" class="github-link">
@@ -260,15 +260,17 @@
             runBolt mkArgs consume
           </code>
           <div class="tip" id="6">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;?7515) -&gt; consume:Consume&lt;&#39;?7515&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> 't, '?7515          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;?7522) -&gt; consume:Consume&lt;&#39;?7522&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 't, '?7522          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L112-112" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L119-119" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>define a bolt</p>
+          <p>define a bolt
+mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
+consume: bolt function that will receive incoming tuples.</p>
 
 
         </td>
@@ -280,15 +282,18 @@
             runReliableSpout mkArgs mkAcker next
           </code>
           <div class="tip" id="7">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?7508) -&gt; mkAcker:(&#39;?7508 -&gt; Acker) -&gt; next:Next&lt;&#39;?7508,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> '?7508, 't          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?7515) -&gt; mkAcker:(&#39;?7515 -&gt; Acker) -&gt; next:Next&lt;&#39;?7515,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> '?7515, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L100-100" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L103-103" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>define a reliable spout</p>
+          <p>define a reliable spout</>
+mkArgs: one-time construction of arguments that will be passed into each next() call.
+mkAcker: one time construction of Ack<em>Nack handlers (using the args).
+next: spout function that returns an id</em>tuple option.</p>
 
 
         </td>
@@ -300,15 +305,17 @@
             runSpout mkArgs next
           </code>
           <div class="tip" id="8">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?7511) -&gt; next:Next&lt;&#39;?7511,&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> '?7511, 't          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?7518) -&gt; next:Next&lt;&#39;?7518,&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> '?7518, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L106-106" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L111-111" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>define spout with no processing guarantees</p>
+          <p>define spout with no processing guarantees
+mkArgs: one-time construction of arguments that will be passed into each next() call.
+next: spout function that returns a tuple option.</p>
 
 
         </td>
@@ -320,8 +327,8 @@
             shell command args
           </code>
           <div class="tip" id="9">
-            <strong>Signature:</strong> command:string -&gt; args:string -&gt; Component&lt;&#39;?7504&gt;<br />
-                          <strong>Type parameters:</strong> '?7504          </div>
+            <strong>Signature:</strong> command:string -&gt; args:string -&gt; Component&lt;&#39;?7511&gt;<br />
+                          <strong>Type parameters:</strong> '?7511          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L95-95" class="github-link">
@@ -344,7 +351,7 @@
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L209-209" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L216-216" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -360,11 +367,11 @@
             withConf conf spec
           </code>
           <div class="tip" id="11">
-            <strong>Signature:</strong> conf:seq&lt;string * &#39;?7524&gt; -&gt; spec:^s -&gt; ^s<br />
-                          <strong>Type parameters:</strong> '?7524, ^s          </div>
+            <strong>Signature:</strong> conf:seq&lt;string * &#39;?7531&gt; -&gt; spec:^s -&gt; ^s<br />
+                          <strong>Type parameters:</strong> '?7531, ^s          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L130-130" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L137-137" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -380,11 +387,11 @@
             withParallelism parallelism spec
           </code>
           <div class="tip" id="12">
-            <strong>Signature:</strong> parallelism:^?7521 -&gt; spec:^s -&gt; ^s<br />
-                          <strong>Type parameters:</strong> ^?7521, ^s          </div>
+            <strong>Signature:</strong> parallelism:^?7528 -&gt; spec:^s -&gt; ^s<br />
+                          <strong>Type parameters:</strong> ^?7528, ^s          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L126-126" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L133-133" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

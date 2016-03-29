@@ -60,7 +60,7 @@ Either implementation is a single function, returning async Option, where None i
 </tr>
 </table>
 <h2><a name="Defining-bolts" class="anchor" href="#Defining-bolts">Defining bolts</a></h2>
-<p>Example of a FsShelter bolt that reads a tuple and emits another one:</p>
+<p>A couple of examples of a FsShelter bolts that reads a tuple and emits another one:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -122,7 +122,7 @@ Either implementation is a single function, returning async Option, where None i
 </code></pre></td>
 </tr>
 </table>
-<p>We will pass these implementations into the component funcions when we put things together in a topology definition.</p>
+<p>We will pass these implementations into the component functions when we put things together in a topology definition.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -185,8 +185,8 @@ Either implementation is a single function, returning async Option, where None i
 </code></pre></td>
 </tr>
 </table>
-<h2><a name="Using-F-DSL-to-define-the-topology" class="anchor" href="#Using-F-DSL-to-define-the-topology">Using F# DSL to define the topology</a></h2>
-<p>Storm topology is a graph of spouts and bolts connected via streams that can be defined via <code>topology</code> computation expression:</p>
+<h2><a name="Using-F-DSL-to-define-a-topology" class="anchor" href="#Using-F-DSL-to-define-a-topology">Using F# DSL to define a topology</a></h2>
+<p>A typical (event-streaming) Storm topology is a graph of spouts and bolts connected via streams that can be defined via <code>topology</code> computation expression:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -253,23 +253,45 @@ Either implementation is a single function, returning async Option, where None i
 </table>
 <p>Here we define the graph by declaring the components and connecting them with arrows.
 The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
-<em> log is the Storm log factory
-</em> cfg is the runtime configuration passed in from Storm
-<em> tuple is the instance of the schema DU coming in
-</em> emit is the function to emit another tuple</p>
-<p>"log" and "cfg" are fixed once (curried) and as demonstrated in logBolt mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before "tuple" and "emit" arguments.
+<em> <code>log</code> is the Storm log factory
+</em> <code>cfg</code> is the runtime configuration passed in from Storm
+<em> <code>tuple</code> is the instance of the schema DU coming in
+</em> <code>emit</code> is the function to emit another tuple</p>
+<p><code>log</code> and <code>cfg</code> are fixed once (curried) and as demonstrated in the logBolt's mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before <code>tuple</code> and <code>emit</code> arguments.
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.</p>
-<h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
-<p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like:</p>
-<p><img src="svg/WordCount.svg" alt="SVG" title="WordCount (SVG)" /></p>
-<p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.</p>
+<h2><a name="Submitting-the-topology-for-execution" class="anchor" href="#Submitting-the-topology-for-execution">Submitting the topology for execution</a></h2>
+<p>Storm accepts JARs for code distribution and FsShelter provides functions to package our assemblies and upload them to Nimbus.
+Once the code is uploaded, Storm needs to be told how to run it and FsShelter has functions that convert the above representation into that of Nimbus API.
+Storm then starts the supervising processes across the cluster and spins up a copy of our executable for each task instance in our topology.
+FsShelter's <code>Task</code> will perform the handshake that will determine which component a given process instance has been assigned to execute:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs62', 190)" onmouseover="showTip(event, 'fs62', 190)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs84', 191)" onmouseover="showTip(event, 'fs84', 191)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 192)" onmouseover="showTip(event, 'fs85', 192)" class="f">writeToConsole</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs62', 190)" onmouseover="showTip(event, 'fs62', 190)" class="i">sampleTopology</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs84', 191)" onmouseover="showTip(event, 'fs84', 191)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 192)" onmouseover="showTip(event, 'fs85', 192)" class="f">ofTopology</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs84', 193)" onmouseover="showTip(event, 'fs84', 193)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs86', 194)" onmouseover="showTip(event, 'fs86', 194)" class="f">run</span> <span onmouseout="hideTip(event, 'fs87', 195)" onmouseover="showTip(event, 'fs87', 195)" class="t">ProtoIO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs88', 196)" onmouseover="showTip(event, 'fs88', 196)" class="f">start</span> <span class="c">// here we specify which serializer to use when talking to Storm</span>
 </code></pre></td>
 </tr>
 </table>
-<p>DOT markup produced can be piped into GrapViz for further conversion into a desired format:</p>
+<p>Then the execution will be handed over to one of the corresponding "dispatchers", which will handle the subsequent interaction between Storm and the component function.</p>
+<p>Keep in mind that:</p>
+<ul>
+<li>STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).</li>
+<li>out of the box Storm only supports JSON multilang, for faster IO <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> JAR has to be in Storm's classpath.</li>
+</ul>
+<h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
+<p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:</p>
+<p><img src="svg/WordCount.svg" alt="SVG" title="WordCount (SVG)" /></p>
+<p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.
+This how we produce DOT markup for the topology:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs62', 197)" onmouseover="showTip(event, 'fs62', 197)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs89', 198)" onmouseover="showTip(event, 'fs89', 198)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs90', 199)" onmouseover="showTip(event, 'fs90', 199)" class="f">writeToConsole</span>
+</code></pre></td>
+</tr>
+</table>
+<p>and the result can be piped into GraphViz for further conversion into a desired format, SVG for example:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="bash">mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
@@ -358,8 +380,13 @@ This initialization will not be triggered unless the task execution is actually 
 <div class="tip" id="fs81">static member group.by : select:Quotations.Expr&lt;(&#39;t -&gt; &#39;p)&gt; -&gt; (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;&#39;t&gt;)</div>
 <div class="tip" id="fs82">val w : string</div>
 <div class="tip" id="fs83">val c : int64</div>
-<div class="tip" id="fs84">module DotGraph<br /><br />from FsShelter</div>
-<div class="tip" id="fs85">val writeToConsole : t:Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: FsShelter.DotGraph.writeToConsole</div>
+<div class="tip" id="fs84">module Task<br /><br />from FsShelter</div>
+<div class="tip" id="fs85">val ofTopology : t:Topology.Topology&lt;&#39;t&gt; -&gt; compId:Topology.ComponentId -&gt; Topology.Runnable&lt;&#39;t&gt;<br /><br />Full name: FsShelter.Task.ofTopology</div>
+<div class="tip" id="fs86">val run : io:(Task.Log -&gt; Topology.IO&lt;&#39;t&gt;) -&gt; task:Task.Task&lt;&#39;t&gt; -&gt; unit<br /><br />Full name: FsShelter.Task.run</div>
+<div class="tip" id="fs87">module ProtoIO<br /><br />from FsShelter</div>
+<div class="tip" id="fs88">val start : log:Task.Log -&gt; Topology.IO&lt;&#39;a&gt;<br /><br />Full name: FsShelter.ProtoIO.start</div>
+<div class="tip" id="fs89">module DotGraph<br /><br />from FsShelter</div>
+<div class="tip" id="fs90">val writeToConsole : t:Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: FsShelter.DotGraph.writeToConsole</div>
 
         </div>
         <div class="span3">

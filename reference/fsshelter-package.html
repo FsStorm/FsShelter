@@ -40,7 +40,7 @@
   <span>Namespace: FsShelter</span><br />
 </p>
 <div class="xmldoc">
-<p>File system utilities</p>
+<p>JAR package creation</p>
 
 </div>
 
@@ -55,40 +55,21 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
-            defaultExtensions fileName
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            makeJar includes binDir jarPathname
           </code>
-          <div class="tip" id="30">
-            <strong>Signature:</strong> fileName:string -&gt; bool<br />
+          <div class="tip" id="34">
+            <strong>Signature:</strong> includes:(string -&gt; seq&lt;string * string&gt;) -&gt; binDir:string -&gt; jarPathname:string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L19-19" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L57-57" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>filter: include most commmon .NET files only</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
-            makeJar filter binDir jarPathname
-          </code>
-          <div class="tip" id="31">
-            <strong>Signature:</strong> filter:(string -&gt; bool) -&gt; binDir:string -&gt; jarPathname:string -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L24-24" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>package the appropriate files from the 'binDir'
-into a JAR and return its name</p>
+          <p>Package the included files into a JAR and return its name</>
+includes: get list of files (src*dst) to include given the specified <code>binDir</code>.
+binDir: binaries (assemblies) folder.</p>
 
 
         </td>

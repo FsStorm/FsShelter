@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Bolt<'t> - FsShelter</title>
+    <title>Includes - FsShelter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eugene Tolmachev"/>
@@ -35,117 +35,103 @@
 
 
 
-<h1>Bolt<'t></h1>
+<h1>Includes</h1>
 <p>
   <span>Namespace: FsShelter</span><br />
-  <span>Parent Module: <a href="fsshelter-topology.html">Topology</a></span>
 </p>
 <div class="xmldoc">
-<p>Storm Bolt abstraction</p>
+<p>File system utilities</p>
 
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
-            Conf
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            aggregate includes binDir
           </code>
-          <div class="tip" id="84">
-            <strong>Signature:</strong> Conf option<br />
-                      </div>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> includes:seq&lt;(&#39;?7461 -&gt; &#39;?7462)&gt; -&gt; binDir:&#39;?7461 -&gt; seq&lt;&#39;?7463&gt;<br />
+                          <strong>Type parameters:</strong> '?7461, '?7462, '?7463          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L38-38" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L29-29" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>aggreate result of multiple includes</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
-            MkComp
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            buildOutput filter binDir
           </code>
-          <div class="tip" id="85">
-            <strong>Signature:</strong> (StreamId -&gt; ToAnchors) -&gt; Component&lt;&#39;t&gt;<br />
+          <div class="tip" id="24">
+            <strong>Signature:</strong> filter:(string -&gt; bool) -&gt; binDir:string -&gt; seq&lt;string * string&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L36-36" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L23-23" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>generate list of files (from*to) using the given filter and the typical build output folder</>
+filter: filename filter function (returns true to include).
+binDir: binaries (assemblies) folder.</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
-            Parallelism
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            defaultExtensions fileName
           </code>
-          <div class="tip" id="86">
-            <strong>Signature:</strong> uint32<br />
+          <div class="tip" id="25">
+            <strong>Signature:</strong> fileName:string -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L37-37" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L17-17" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
+          <p>filter: include most commmon .NET files only</p>
 
-          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
-            WithConf(s, conf)
-          </code>
-          <div class="tip" id="87">
-            <strong>Signature:</strong> (s:Bolt&lt;&#39;?7189&gt; * conf:Conf) -&gt; Bolt&lt;&#39;?7189&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L39-39" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
-            WithParallelism(s, p)
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+            jarContents pathname binDir
           </code>
-          <div class="tip" id="88">
-            <strong>Signature:</strong> (s:Bolt&lt;&#39;?7192&gt; * p:uint32) -&gt; Bolt&lt;&#39;?7192&gt;<br />
+          <div class="tip" id="26">
+            <strong>Signature:</strong> pathname:string -&gt; binDir:string -&gt; seq&lt;string * string&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L40-40" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Management.fs#L36-36" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>include a content of another JAR file with absolute pathname.</p>
+
+
         </td>
       </tr>
     </tbody>
