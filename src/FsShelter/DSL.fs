@@ -96,19 +96,26 @@ module DSL =
     /// wrap (Storm native) java component definition
     let java (className : string) (args : string list) = Java (className, args)
 
-    /// define a reliable spout
+    /// define a reliable spout</>
+    /// mkArgs: one-time construction of arguments that will be passed into each next() call.
+    /// mkAcker: one time construction of Ack*Nack handlers (using the args).
+    /// next: spout function that returns an id*tuple option.
     let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
         {MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
          Conf = None}
 
     /// define spout with no processing guarantees
+    /// mkArgs: one-time construction of arguments that will be passed into each next() call.
+    /// next: spout function that returns a tuple option.
     let runSpout mkArgs (next:Next<_,'t>):Spout<'t> =
         {MkComp = fun () -> FuncRef (unreliableSpoutLoop mkArgs next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
          Conf = None}
 
     /// define a bolt
+    /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
+    /// consume: bolt function that will receive incoming tuples.
     let runBolt mkArgs (consume:Consume<_>):Bolt<'t> =
         {MkComp = fun toAnchors -> FuncRef (autoAckBoltLoop mkArgs consume toAnchors TupleSchema.toStreamName<'t>)
          Parallelism=1u; 

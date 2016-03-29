@@ -32,6 +32,6 @@ let main argv =
         sampleTopology
         |> Task.ofTopology
         |> Task.run ProtoIO.start
-//        |> Task.runWith (string >> Logging.callbackLog)  ThriftIO.start
+//        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // start using a traffic logger 
     0
 

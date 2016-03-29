@@ -47,7 +47,7 @@ let unreliableSpoutLoop mkArgs next getStream (in', out') conf =
                 }
     }
 
-/// Dispatch bolt commands and auto acks/nack handled messages
+/// Dispatch bolt commands and auto ack/nack handled messages
 let autoAckBoltLoop mkArgs consume getAnchors getStream (in', out') conf = 
     async { 
         let args = mkArgs (log out') conf

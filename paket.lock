@@ -136,13 +136,13 @@ NUGET
 GITHUB
   remote: prolucid/protoshell
   specs:
-    src/main/proto/multilang.proto (3ca308241d36a4cc8e9e0e668ea29d555b0bf3e7)
+    src/main/proto/multilang.proto (f4adcff77208c2e4e752b7cc027e4cc890bffc43)
   remote: prolucid/thriftshell
   specs:
-    src/main/multilang.thrift (14fc2e16212035f73989632dd845369b21cb0369)
+    src/main/multilang.thrift (36ee407600ae850044d09e7699980060f2939469)
   remote: apache/storm
   specs:
-    storm-core/src/storm.thrift (a91abdb4e6cec53746afe8b3c1ef7b2b9c6fb764)
+    storm-core/src/storm.thrift (da7969ea946ca9baa633a59454cc9ab0de4542db)
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
@@ -297,8 +297,15 @@ NUGET
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (3c2f89312b7b5a2048cb8eab991c7d1708136cc8)
+    modules/Octokit/Octokit.fsx (7f465245a89a429cd000c468c607a2c47358c276)
       Octokit
+GROUP Run
+
+HTTP
+  remote: https://github.com
+  specs:
+    protoshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar (/Prolucid/protoshell/releases/download/v0.0.1/protoshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar)
+    thriftshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar (/Prolucid/thriftshell/releases/download/v0.0.1/thriftshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar)
 GROUP Tests
 NUGET
   remote: https://www.nuget.org/api/v2

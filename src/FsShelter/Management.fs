@@ -10,31 +10,57 @@ module private Json =
         | _ -> null
 
 /// File system utilities
-module Package = 
-    open System.IO.Compression
-
+module Includes = 
     let private extSet = [".exe";".dll";".config";".sh";".cmd"] |> Set.ofList
     
     /// filter: include most commmon .NET files only
     let defaultExtensions fileName =
-         extSet |> Set.contains (Path.GetExtension(fileName).ToLower())
-    
-    /// package the appropriate files from the 'binDir'
-    /// into a JAR and return its name
-    let makeJar filter binDir jarPathname = 
-        let jarDir = Path.Combine(binDir, "resources")
-        if not (Directory.Exists jarDir) then Directory.CreateDirectory(jarDir) |> ignore
-        
-        Directory.GetFiles jarDir 
-        |> Seq.iter (File.Delete)
-        
+            extSet |> Set.contains (Path.GetExtension(fileName).ToLower())
+
+    /// generate list of files (from*to) using the given filter and the typical build output folder</>
+    /// filter: filename filter function (returns true to include).
+    /// binDir: binaries (assemblies) folder.
+    let buildOutput filter binDir =
         Directory.GetFiles binDir
         |> Seq.filter filter
-        |> Seq.map (fun f -> f, Path.Combine(jarDir,Path.GetFileName f))
-        |> Seq.iter File.Copy
+        |> Seq.map (fun f -> f, Path.Combine("resources",Path.GetFileName f))
 
+    /// aggreate result of multiple includes
+    let aggregate includes binDir =
+        includes 
+        |> Seq.map (fun f -> f binDir)
+        |> Seq.collect id
+
+    open System.IO.Compression
+    /// include a content of another JAR file with absolute pathname.
+    let jarContents pathname binDir =
+        let jarDir = Path.Combine(binDir, "jar")
+        
+        use jar = ZipFile.OpenRead(pathname)
+        jar.Entries 
+        |> Seq.where (fun entry -> not <| System.String.IsNullOrEmpty entry.Name)
+        |> Seq.iter (fun entry -> 
+                        let dst = Path.Combine(jarDir, entry.FullName)
+                        Directory.CreateDirectory(Path.GetDirectoryName dst) |> ignore
+                        entry.ExtractToFile(dst, true))
+            
+        Directory.GetFiles(jarDir, "*.*", SearchOption.AllDirectories)
+        |> Seq.map (fun f -> f, (f.Replace(jarDir,"").Replace("\\","/").Substring(1)))
+    
+/// JAR package creation
+module Package = 
+    open System.IO.Compression
+
+    /// Package the included files into a JAR and return its name</>
+    /// includes: get list of files (src*dst) to include given the specified `binDir`.
+    /// binDir: binaries (assemblies) folder.
+    let makeJar (includes:string->seq<string*string>) binDir jarPathname = 
         if File.Exists jarPathname then File.Delete jarPathname 
-        ZipFile.CreateFromDirectory(jarDir, jarPathname , CompressionLevel.Optimal, true)
+        use jar = ZipFile.Open(jarPathname, ZipArchiveMode.Create)
+        
+        includes binDir
+        |> Seq.iter (jar.CreateEntryFromFile >> ignore)
+
         jarPathname
 
 /// Nimbus client module

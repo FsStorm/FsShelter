@@ -35,7 +35,7 @@ let sentences source = async { return source() |> Sentence |> Some }
 Defining bolts
 --------------------
 
-Example of a FsShelter bolt that reads a tuple and emits another one:
+A couple of examples of a FsShelter bolts that reads a tuple and emits another one:
 
 *)
 
@@ -74,7 +74,7 @@ let logResult (log, input) =
 
 
 (**
-We will pass these implementations into the component funcions when we put things together in a topology definition.
+We will pass these implementations into the component functions when we put things together in a topology definition.
 
 *)
 let source = 
@@ -110,10 +110,10 @@ let increment =
 (**
 
 
-Using F# DSL to define the topology
+Using F# DSL to define a topology
 --------------------
 
-Storm topology is a graph of spouts and bolts connected via streams that can be defined via `topology` computation expression:
+A typical (event-streaming) Storm topology is a graph of spouts and bolts connected via streams that can be defined via `topology` computation expression:
 *)
 
 open FsShelter.DSL
@@ -150,19 +150,40 @@ let sampleTopology =
 (**
 Here we define the graph by declaring the components and connecting them with arrows. 
 The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
-* log is the Storm log factory
-* cfg is the runtime configuration passed in from Storm 
-* tuple is the instance of the schema DU coming in
-* emit is the function to emit another tuple
+* `log` is the Storm log factory
+* `cfg` is the runtime configuration passed in from Storm 
+* `tuple` is the instance of the schema DU coming in
+* `emit` is the function to emit another tuple
 
-"log" and "cfg" are fixed once (curried) and as demonstrated in logBolt mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before "tuple" and "emit" arguments.
+`log` and `cfg` are fixed once (curried) and as demonstrated in the logBolt's mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before `tuple` and `emit` arguments.
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.
+
+
+Submitting the topology for execution 
+--------------
+Storm accepts JARs for code distribution and FsShelter provides functions to package our assemblies and upload them to Nimbus.
+Once the code is uploaded, Storm needs to be told how to run it and FsShelter has functions that convert the above representation into that of Nimbus API.
+Storm then starts the supervising processes across the cluster and spins up a copy of our executable for each task instance in our topology. 
+FsShelter's `Task` will perform the handshake that will determine which component a given process instance has been assigned to execute:
+*)
+sampleTopology
+        |> Task.ofTopology
+        |> Task.run ProtoIO.start // here we specify which serializer to use when talking to Storm
+
+(**
+
+Then the execution will be handed over to one of the corresponding "dispatchers", which will handle the subsequent interaction between Storm and the component function.
+
+Keep in mind that:
+
+* STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).
+* out of the box Storm only supports JSON multilang, for faster IO [ProtoShell](https://github.com/prolucid/protoshell) or [ThriftShell](https://github.com/prolucid/thriftshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
 
 
 Exporting the topology graph 
 --------------
 
-FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like:
+FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:
 
 ![SVG](svg/WordCount.svg "WordCount (SVG)")
 

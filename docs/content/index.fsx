@@ -29,6 +29,7 @@ Bring your own, if you need it:
 - logging
 - custom serializer
 
+
 FsShelter topology schema
 -----------------------
 While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less. 
@@ -64,6 +65,7 @@ type RecordsSchema =
 (**
 Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
 FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.
+
 
 FsShelter components
 -----------------------
@@ -104,6 +106,7 @@ let logResult (info, input) =
 
 (**
 
+
 Using F# DSL to define the topology
 --------------------
 
@@ -142,9 +145,10 @@ Storm will start (a copy of) the same EXE for every component instance in the to
 
 The topology can be packaged with all its dependecies and submitted using embedded Nimbus client, see the examples for details.
 
+
 Exporting the topology graph in DOT format (GraphViz) using F# scripts
 -----------------------
-Once the number of components grows beyond handful it is often handy to be able to visualize them and FsStrom includes a simple way to export the topology into a graph:
+Once the number of components grows beyond trivial it is often handy to be able to visualize them and FsShelter includes a simple way to export the topology into a graph:
 *)
 
 sampleTopology |> DotGraph.writeToConsole

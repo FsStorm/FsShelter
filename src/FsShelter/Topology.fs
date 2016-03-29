@@ -64,7 +64,7 @@ module Topology =
         Anchors:Map<StreamId,ToAnchors>
     }
 
-/// DU/Stream schema functions
+/// DU/Stream schema mapping functions
 module TupleSchema =
     open System.Reflection
     open FSharp.Reflection
@@ -72,10 +72,12 @@ module TupleSchema =
     let private forRecords = Option.Some >> Option.filter FSharpType.IsRecord 
     let private no _ = None
 
+    /// Format a field name
     let formatName name = function
         | None -> name
         | Some pref -> sprintf "%s.%s" pref name
 
+    /// Map a case to field names
     let toNames (case:UnionCaseInfo) =
         let rec mapNames recurse prefix f (props:PropertyInfo[]) =
             props
@@ -90,14 +92,18 @@ module TupleSchema =
                         (fun prefix (p:PropertyInfo) -> prefix |> formatName p.Name)
             |> Array.toList
 
+    /// Map a case to stream name
     let toStreamName<'t> :'t->string = 
         let reader = FSharpValue.PreComputeUnionTagReader typeof<'t>
         let names = FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> case.Name)
         reader >> names.GetValue >> unbox
 
+    /// Tuple field reader
     type FieldReader = System.Type->obj
+    /// Tuple field writer
     type FieldWriter = obj->unit
 
+    /// Map a union case to reader/writer functions
     let toTupleRW<'t> (case:UnionCaseInfo) =
         let rec mapRW recurse (constr:obj[]->obj,deconst:obj->obj[]) (props:PropertyInfo[]):(FieldReader->unit->obj)*(FieldWriter->obj->unit) =
             let mapSingle (p:PropertyInfo) = 
@@ -115,5 +121,6 @@ module TupleSchema =
         
         (fun r () -> read r () |> unbox<'t>),write
 
+    /// Map descriminated union cases to reader*writer functions
     let mapSchema<'t> () =
         FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> case.Name,(toTupleRW<'t> case))

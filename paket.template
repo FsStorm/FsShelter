@@ -14,9 +14,10 @@ requireLicenseAcceptance false
 iconUrl
 	http://prolucid.github.io/FsShelter/img/logo.png
 files
-	build/FsShelter.* ==> lib
-	build/StormThrift.* ==> lib
-	build/ProtoShell.* ==> lib
+	build/FsShelter.dll ==> lib/net45
+	build/FsShelter.XML ==> lib/net45
+	build/StormThrift.dll ==> lib/net45
+	build/Prolucid.ProtoShell.dll ==> lib/net45
 dependencies
 	Thrift >= 0.9.1.3
 	Google.Protobuf >= 3.0.0-beta2
