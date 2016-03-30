@@ -98,7 +98,7 @@ In summary:</p>
 <li>there's no way to address a value wrapped in an Option (or any other DU), only entire Option field can be used in a grouping</li>
 </ul>
 <h2><a name="Implementation-details-and-performance-considerations" class="anchor" href="#Implementation-details-and-performance-considerations">Implementation details and performance considerations</a></h2>
-<p>FsShelter will serialize most schemas exactly as you would imagine, but there are always "interesting" scenarios.
+<p>FsShelter will serialize most schemata exactly as you would imagine, but there are always "interesting" scenarios.
 Here are some of the implementation details to keep in mind:</p>
 <ul>
 <li>Json serialization is implemented with Newtonsoft.Json, F# types are mostly serializable, but might look odd on the wire (Option is a DU, think about that for a second).</li>
@@ -154,8 +154,9 @@ Here are some of the implementation details to keep in mind:</p>
 			<li><a href="/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
             <li><a href="/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
 			<li><a href="/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
-			<li><a href="/FsShelter/wordcount.html#Using-F-DSL-to-define-the-topology">Topology</a></li>
-			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
+			<li><a href="/FsShelter/wordcount.html#Using-F-DSL-to-define-a-topology">Topology</a></li>
+			<li><a href="/FsShelter/wordcount.html#Submitting-the-topology-for-execution">Submitting for execution</a></li>
+            <li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
               <li>
