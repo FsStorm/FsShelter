@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>schema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="F# DSL and runtime for Storm topologies"/>
+    <meta name="author" content="Eugene Tolmachev"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/Prolucid/FsShelter">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FsShelter/index.html">FsShelter</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h2><a name="More-about-topology-schema" class="anchor" href="#More-about-topology-schema">More about topology schema</a></h2>
+<p>FsShelter will serialize most data types you might want to use in the definition of the DU case for the topology streams. There are however several things to keep in mind...</p>
+<h2><a name="Grouping-expressions" class="anchor" href="#Grouping-expressions">Grouping expressions</a></h2>
+<p>FsShelter DSL uses F# lambdas to define grouping expressions. Since this has to be transformed into a list of fields Storm can understand, only a simple projection of properties is supported, so don't expect to be able to call any functions.
+Examples of structural nesting supported:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="t">Number</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">t</span><span class="o">&gt;</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">X</span><span class="o">:</span><span class="o">&#39;</span><span class="i">t</span>; <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">Desc</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">string</span> }
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="t">ComplexNumber</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">Re</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="t">float</span>; <span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">Im</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="t">float</span> }
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="t">RecordSchema</span> <span class="o">=</span> 
+    | <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs14', 15)" onmouseover="showTip(event, 'fs14', 15)" class="p">Described</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 16)" onmouseover="showTip(event, 'fs3', 16)" class="t">Number</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs13', 17)" onmouseover="showTip(event, 'fs13', 17)" class="t">int</span><span class="o">&gt;</span>
+    | <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="p">Translated</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 19)" onmouseover="showTip(event, 'fs3', 19)" class="t">Number</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="t">int</span><span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs16', 21)" onmouseover="showTip(event, 'fs16', 21)" class="t">option</span>
+    | <span onmouseout="hideTip(event, 'fs17', 22)" onmouseover="showTip(event, 'fs17', 22)" class="p">Complex</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 23)" onmouseover="showTip(event, 'fs3', 23)" class="t">Number</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs7', 24)" onmouseover="showTip(event, 'fs7', 24)" class="t">ComplexNumber</span><span class="o">&gt;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Here is how FsShelter will present the schema to Storm when declaring stream/outputs:</p>
+<ul>
+<li><code>Original</code>: [Item]</li>
+<li><code>Described</code>: [Item.X, Item.Desc]</li>
+<li><code>Translated</code>: [Item]</li>
+<li><code>Complex</code>: [Item.X, Item.Desc]</li>
+</ul>
+<p>And when you reference the fields in the grouping expressions, FsShelter will translate back to these names:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 25)" onmouseover="showTip(event, 'fs2', 25)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="i">DSL</span>
+<span class="c">// group tuples on Original stream</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="f">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs12', 30)" onmouseover="showTip(event, 'fs12', 30)" class="p">Original</span> <span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">x</span><span class="o">.</span><span class="i">Item</span>) <span class="c">// Item is implicit name used for the only `int` field on the case</span>
+<span class="c">// group tuples on Described stream</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="f">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 34)" onmouseover="showTip(event, 'fs20', 34)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="p">Described</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 38)" onmouseover="showTip(event, 'fs24', 38)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>) <span class="c">// flattened to [Item.X] for Storm</span>
+<span class="c">// group tuples on Translated stream</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="f">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 40)" onmouseover="showTip(event, 'fs20', 40)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 41)" onmouseover="showTip(event, 'fs21', 41)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs15', 42)" onmouseover="showTip(event, 'fs15', 42)" class="p">Translated</span> <span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 44)" onmouseover="showTip(event, 'fs26', 44)" class="i">x</span><span class="o">.</span><span class="i">Item</span>) <span class="c">// not flattened - the `X` and `Desc` fields will not be accessible to Storm</span>
+<span class="c">// group tuples on Complex stream</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 46)" onmouseover="showTip(event, 'fs20', 46)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 47)" onmouseover="showTip(event, 'fs21', 47)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="p">Complex</span> <span onmouseout="hideTip(event, 'fs28', 49)" onmouseover="showTip(event, 'fs28', 49)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs28', 50)" onmouseover="showTip(event, 'fs28', 50)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>) <span class="c">// flattened to [Item.X] for Storm, `Item.X.Re` is not accessible</span>
+</code></pre></td>
+</tr>
+</table>
+<p>As you can see this flattening of records is done only one layer deep. Also keep in mind that while use of collection types for fields is possible it doesn't provde any meaningful way to express that to Storm.
+In summary:</p>
+<ul>
+<li>there is no attempt to flattened types other than records</li>
+<li>fields not presented to Storm in the output declaration are transmitted as part of opaque (parent's type) blobs</li>
+<li>there's no way to address a field from an Option field (or any other DU), only entire option can be used</li>
+</ul>
+<h2><a name="Implementation-details-and-performance-considerations" class="anchor" href="#Implementation-details-and-performance-considerations">Implementation details and performance considerations</a></h2>
+<p>FsShelter will serialize most schemas exactly as you would imagine, but there are always "interesting" scenarios.
+Here are some of the implementation details to keep in mind:</p>
+<ul>
+<li>Json serialization is implemented with Newtonsoft.Json, F# types are mostly serializable, but might look odd on the wire (Option is a DU, think about that for a second).</li>
+<li>Binary serializers (Protobuf and Thrift) use <a href="https://github.com/nessos/FsPickler">FsPickler</a> and you might be able to optimize the payload via its APIs accordingly.</li>
+<li>All three serializers support different set of native representations, consequently performance and interopability with non-F# components will vary.</li>
+<li>All three will try to map the field values to Java types before passing the tuple on to Storm and will try to convert back before passing it to a component.</li>
+</ul>
+
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">namespace FsShelter</div>
+<div class="tip" id="fs3">type Number&lt;&#39;t&gt; =<br />&#160;&#160;{X: &#39;t;<br />&#160;&#160;&#160;Desc: string;}<br /><br />Full name: Schema.Number&lt;_&gt;</div>
+<div class="tip" id="fs4">Number.X: &#39;a</div>
+<div class="tip" id="fs5">Number.Desc: string</div>
+<div class="tip" id="fs6">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs7">type ComplexNumber =<br />&#160;&#160;{Re: float;<br />&#160;&#160;&#160;Im: float;}<br /><br />Full name: Schema.ComplexNumber</div>
+<div class="tip" id="fs8">ComplexNumber.Re: float</div>
+<div class="tip" id="fs9">Multiple items<br />val float : value:&#39;T -&gt; float (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.float<br /><br />--------------------<br />type float = Double<br /><br />Full name: Microsoft.FSharp.Core.float<br /><br />--------------------<br />type float&lt;&#39;Measure&gt; = float<br /><br />Full name: Microsoft.FSharp.Core.float&lt;_&gt;</div>
+<div class="tip" id="fs10">ComplexNumber.Im: float</div>
+<div class="tip" id="fs11">type RecordSchema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Described of Number&lt;int&gt;<br />&#160;&#160;| Translated of Number&lt;int&gt; option<br />&#160;&#160;| Complex of Number&lt;ComplexNumber&gt;<br /><br />Full name: Schema.RecordSchema</div>
+<div class="tip" id="fs12">union case RecordSchema.Original: int -&gt; RecordSchema</div>
+<div class="tip" id="fs13">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs14">union case RecordSchema.Described: Number&lt;int&gt; -&gt; RecordSchema</div>
+<div class="tip" id="fs15">union case RecordSchema.Translated: Number&lt;int&gt; option -&gt; RecordSchema</div>
+<div class="tip" id="fs16">type &#39;T option = Option&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Core.option&lt;_&gt;</div>
+<div class="tip" id="fs17">union case RecordSchema.Complex: Number&lt;ComplexNumber&gt; -&gt; RecordSchema</div>
+<div class="tip" id="fs18">module DSL<br /><br />from FsShelter</div>
+<div class="tip" id="fs19">val ex1 : (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;RecordSchema&gt;)<br /><br />Full name: Schema.ex1</div>
+<div class="tip" id="fs20">type group =<br />&#160;&#160;static member by : select:Expr&lt;(&#39;t -&gt; &#39;p)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)<br /><br />Full name: FsShelter.DSL.group</div>
+<div class="tip" id="fs21">static member group.by : select:Quotations.Expr&lt;(&#39;t -&gt; &#39;p)&gt; -&gt; (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;&#39;t&gt;)</div>
+<div class="tip" id="fs22">val x : int</div>
+<div class="tip" id="fs23">val ex2 : (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;RecordSchema&gt;)<br /><br />Full name: Schema.ex2</div>
+<div class="tip" id="fs24">val x : Number&lt;int&gt;</div>
+<div class="tip" id="fs25">val ex3 : (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;RecordSchema&gt;)<br /><br />Full name: Schema.ex3</div>
+<div class="tip" id="fs26">val x : Number&lt;int&gt; option</div>
+<div class="tip" id="fs27">val ex4 : (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;RecordSchema&gt;)<br /><br />Full name: Schema.ex4</div>
+<div class="tip" id="fs28">val x : Number&lt;ComplexNumber&gt;</div>
+
+        </div>
+        <div class="span3">
+          <img src="/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FsShelter</li>
+            <li><a href="/FsShelter/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FsShelter">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/Prolucid/FsShelter">Source Code on GitHub</a></li>
+            <li><a href="/FsShelter/LICENSE.html">License</a></li>
+            <li><a href="/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started
+            <li><a href="/FsShelter/wordcount.html">WordCount topology</a>
+			<ul>
+			<li><a href="/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
+            <li><a href="/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
+			<li><a href="/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
+			<li><a href="/FsShelter/wordcount.html#Using-F-DSL-to-define-the-topology">Topology</a></li>
+			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
+			</ul>
+			</li>
+            <li><a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+			<ul>
+			<li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+			<li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+			</ul>
+			</li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FsShelter/schema.html">Schema authoring</a></li>
+            <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/Prolucid/FsShelter"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
