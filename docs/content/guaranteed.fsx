@@ -65,26 +65,28 @@ let source =
     let rnd = Random()
     let count = ref 0L
     let pending = Dictionary()
+    let nextId() = Threading.Interlocked.Increment &count.contents
 
     MailboxProcessor.Start (fun inbox -> 
         let rec loop nacked = 
             async { 
                 let! cmd = inbox.Receive()
-                return! loop <| match cmd, nacked with
-                                | Get rc, [] ->
-                                    let tupleId,number = string(Threading.Interlocked.Increment &count.contents), rnd.Next(0, 100)
-                                    pending.Add(tupleId,number)
-                                    rc.Reply(tupleId,number)
-                                    []
-                                | Get rc,(tupleId,number)::xs ->
-                                    pending.Add(tupleId,number)
-                                    rc.Reply (tupleId,number)
-                                    xs
-                                | Ack id, _ -> 
-                                    pending.Remove id |> ignore
-                                    nacked
-                                | Nack id, _ -> 
-                                    (id,pending.[id])::nacked
+                return! loop <|
+                       match cmd, nacked with
+                       | Get rc, [] ->
+                            let tupleId,number = string(nextId()), rnd.Next(0, 100)
+                            pending.Add(tupleId,number)
+                            rc.Reply(tupleId,number)
+                            []
+                       | Get rc,(tupleId,number)::xs ->
+                            pending.Add(tupleId,number)
+                            rc.Reply (tupleId,number)
+                            xs
+                       | Ack id, _ -> 
+                            pending.Remove id |> ignore
+                            nacked
+                       | Nack id, _ -> 
+                            (id,pending.[id])::nacked
             }
         loop [])
 

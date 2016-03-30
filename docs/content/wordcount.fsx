@@ -35,7 +35,7 @@ let sentences source = async { return source() |> Sentence |> Some }
 Defining bolts
 --------------------
 
-A couple of examples of a FsShelter bolts that reads a tuple and emits another one:
+A couple of examples of a FsShelter bolts that read a tuple and emit another one:
 
 *)
 
@@ -150,6 +150,7 @@ let sampleTopology =
 (**
 Here we define the graph by declaring the components and connecting them with arrows. 
 The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
+
 * `log` is the Storm log factory
 * `cfg` is the runtime configuration passed in from Storm 
 * `tuple` is the instance of the schema DU coming in
@@ -159,7 +160,7 @@ The lambda arguments for the "run" methods privde the opportunity to carry out c
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.
 
 
-Submitting the topology for execution 
+Submitting the topology for execution
 --------------
 Storm accepts JARs for code distribution and FsShelter provides functions to package our assemblies and upload them to Nimbus.
 Once the code is uploaded, Storm needs to be told how to run it and FsShelter has functions that convert the above representation into that of Nimbus API.
@@ -177,10 +178,10 @@ Then the execution will be handed over to one of the corresponding "dispatchers"
 Keep in mind that:
 
 * STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).
-* out of the box Storm only supports JSON multilang, for faster IO [ProtoShell](https://github.com/prolucid/protoshell) or [ThriftShell](https://github.com/prolucid/thriftshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
+* out of the box Storm only supports JSON multilang, for faster IO consider [ProtoShell](https://github.com/prolucid/protoshell) or [ThriftShell](https://github.com/prolucid/thriftshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
 
 
-Exporting the topology graph 
+Exporting the topology graph
 --------------
 
 FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:
@@ -194,10 +195,10 @@ This was achived by a simple export to console:
 sampleTopology |> DotGraph.writeToConsole
 
 (**
-Followed by further conversion into a desired format by piping the markup into GrapViz:
+Followed by further conversion into a desired format, piping the markup into GrapViz:
 
 ```bash
-mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
+mono samples/WordCount/bin/Release/WordCount.exe graph | dot -Tsvg -o build/WordCount.svg
 ```
 *)
 

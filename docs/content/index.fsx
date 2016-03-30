@@ -42,7 +42,7 @@ type BasicSchema =
     | Incremented of int
 
 (**
-where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm.
+where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm streams.
 
 It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:
 *)
