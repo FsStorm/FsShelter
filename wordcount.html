@@ -278,20 +278,20 @@ FsShelter's <code>Task</code> will perform the handshake that will determine whi
 <p>Keep in mind that:</p>
 <ul>
 <li>STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).</li>
-<li>out of the box Storm only supports JSON multilang, for faster IO <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> JAR has to be in Storm's classpath.</li>
+<li>out of the box Storm only supports JSON multilang, for faster IO <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
 </ul>
 <h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
 <p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:</p>
 <p><img src="svg/WordCount.svg" alt="SVG" title="WordCount (SVG)" /></p>
 <p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.
-This how we produce DOT markup for the topology:</p>
+This was achived by a simple export to console:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs62', 197)" onmouseover="showTip(event, 'fs62', 197)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs89', 198)" onmouseover="showTip(event, 'fs89', 198)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs90', 199)" onmouseover="showTip(event, 'fs90', 199)" class="f">writeToConsole</span>
 </code></pre></td>
 </tr>
 </table>
-<p>and the result can be piped into GraphViz for further conversion into a desired format, SVG for example:</p>
+<p>Followed by further conversion into a desired format by piping the markup into GrapViz:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="bash">mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
