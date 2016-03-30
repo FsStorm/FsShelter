@@ -13,6 +13,9 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
     <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <link rel="icon"
+            type="image/png"
+            href="/FsShelter/img/logo.png" />
     <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -280,7 +283,7 @@ FsShelter's <code>Task</code> will perform the handshake that will determine whi
 <p>Keep in mind that:</p>
 <ul>
 <li>STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).</li>
-<li>out of the box Storm only supports JSON multilang, for faster IO <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
+<li>out of the box Storm only supports JSON multilang, for faster IO consider <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
 </ul>
 <h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
 <p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:</p>
@@ -412,15 +415,16 @@ This was achived by a simple export to console:</p>
 			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
-            <li><a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
-			<ul>
-			<li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-			<li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
-			</ul>
+              <li>
+                  <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+                  <ul>
+                      <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+                      <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+                  </ul>
+              <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
 			</li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/FsShelter/schema.html">Schema authoring</a></li>
             <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
           </ul>
         </div>

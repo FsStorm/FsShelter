@@ -13,6 +13,9 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
     <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <link rel="icon"
+            type="image/png"
+            href="/FsShelter/img/logo.png" />
     <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -35,8 +38,8 @@
 <h2><a name="More-about-topology-schema" class="anchor" href="#More-about-topology-schema">More about topology schema</a></h2>
 <p>FsShelter will serialize most data types you might want to use in the definition of the DU case for the topology streams. There are however several things to keep in mind...</p>
 <h2><a name="Grouping-expressions" class="anchor" href="#Grouping-expressions">Grouping expressions</a></h2>
-<p>FsShelter DSL uses F# lambdas to define grouping expressions. Since this has to be transformed into a list of fields Storm can understand, only a simple projection of properties is supported, so don't expect to be able to call any functions.
-Examples of structural nesting supported:</p>
+<p>FsShelter DSL uses F# lambdas to define grouping expressions. Since this has to be transformed into a list of fields Storm can understand, only a simple projection of properties is supported, so don't expect to be able to call any functions.</p>
+<p>Examples of structural nesting supported:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -64,7 +67,7 @@ Examples of structural nesting supported:</p>
 <li><code>Translated</code>: [Item]</li>
 <li><code>Complex</code>: [Item.X, Item.Desc]</li>
 </ul>
-<p>And when you reference the fields in the grouping expressions, FsShelter will translate back to these names:</p>
+<p>And when referenced in the grouping expressions, FsShelter will translate the fields back to these names:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -76,14 +79,14 @@ Examples of structural nesting supported:</p>
 <span class="l">9: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 25)" onmouseover="showTip(event, 'fs2', 25)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="i">DSL</span>
-<span class="c">// group tuples on Original stream</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="f">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs12', 30)" onmouseover="showTip(event, 'fs12', 30)" class="p">Original</span> <span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">x</span><span class="o">.</span><span class="i">Item</span>) <span class="c">// Item is implicit name used for the only `int` field on the case</span>
-<span class="c">// group tuples on Described stream</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="f">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 34)" onmouseover="showTip(event, 'fs20', 34)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="p">Described</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 38)" onmouseover="showTip(event, 'fs24', 38)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>) <span class="c">// flattened to [Item.X] for Storm</span>
-<span class="c">// group tuples on Translated stream</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="f">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 40)" onmouseover="showTip(event, 'fs20', 40)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 41)" onmouseover="showTip(event, 'fs21', 41)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs15', 42)" onmouseover="showTip(event, 'fs15', 42)" class="p">Translated</span> <span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 44)" onmouseover="showTip(event, 'fs26', 44)" class="i">x</span><span class="o">.</span><span class="i">Item</span>) <span class="c">// not flattened - the `X` and `Desc` fields will not be accessible to Storm</span>
-<span class="c">// group tuples on Complex stream</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 46)" onmouseover="showTip(event, 'fs20', 46)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 47)" onmouseover="showTip(event, 'fs21', 47)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="p">Complex</span> <span onmouseout="hideTip(event, 'fs28', 49)" onmouseover="showTip(event, 'fs28', 49)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs28', 50)" onmouseover="showTip(event, 'fs28', 50)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>) <span class="c">// flattened to [Item.X] for Storm, `Item.X.Re` is not accessible</span>
+<span class="c">// group tuples on Original stream, Item is implicit name used for the only `int` field on the case</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="f">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs12', 30)" onmouseover="showTip(event, 'fs12', 30)" class="p">Original</span> <span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">x</span><span class="o">.</span><span class="i">Item</span>)
+<span class="c">// group tuples on Described stream, flattened to [Item.X] for Storm</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="f">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 34)" onmouseover="showTip(event, 'fs20', 34)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="p">Described</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 38)" onmouseover="showTip(event, 'fs24', 38)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>) 
+<span class="c">// group tuples on Translated stream, not flattened - the `X` and `Desc` fields will not be accessible to Storm</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="f">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 40)" onmouseover="showTip(event, 'fs20', 40)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 41)" onmouseover="showTip(event, 'fs21', 41)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs15', 42)" onmouseover="showTip(event, 'fs15', 42)" class="p">Translated</span> <span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 44)" onmouseover="showTip(event, 'fs26', 44)" class="i">x</span><span class="o">.</span><span class="i">Item</span>)
+<span class="c">// group tuples on Complex stream, flattened to [Item.X] for Storm, `Item.X.Re` is not accessible</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 46)" onmouseover="showTip(event, 'fs20', 46)" class="t">group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 47)" onmouseover="showTip(event, 'fs21', 47)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="p">Complex</span> <span onmouseout="hideTip(event, 'fs28', 49)" onmouseover="showTip(event, 'fs28', 49)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs28', 50)" onmouseover="showTip(event, 'fs28', 50)" class="i">x</span><span class="o">.</span><span class="i">Item</span><span class="o">.</span><span class="i">X</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -92,7 +95,7 @@ In summary:</p>
 <ul>
 <li>there is no attempt to flattened types other than records</li>
 <li>fields not presented to Storm in the output declaration are transmitted as part of opaque (parent's type) blobs</li>
-<li>there's no way to address a field from an Option field (or any other DU), only entire option can be used</li>
+<li>there's no way to address a value wrapped in an Option (or any other DU), only entire Option field can be used in a grouping</li>
 </ul>
 <h2><a name="Implementation-details-and-performance-considerations" class="anchor" href="#Implementation-details-and-performance-considerations">Implementation details and performance considerations</a></h2>
 <p>FsShelter will serialize most schemas exactly as you would imagine, but there are always "interesting" scenarios.
@@ -155,15 +158,16 @@ Here are some of the implementation details to keep in mind:</p>
 			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
-            <li><a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
-			<ul>
-			<li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-			<li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
-			</ul>
+              <li>
+                  <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+                  <ul>
+                      <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+                      <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+                  </ul>
+              <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
 			</li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/FsShelter/schema.html">Schema authoring</a></li>
             <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
           </ul>
         </div>

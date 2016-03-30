@@ -13,6 +13,9 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
     <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <link rel="icon"
+            type="image/png"
+            href="/FsShelter/img/logo.png" />
     <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -65,7 +68,7 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 </code></pre></td>
 </tr>
 </table>
-<p>where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm.</p>
+<p>where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm streams.</p>
 <p>It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
@@ -322,15 +325,16 @@ redistribution for both commercial and non-commercial purposes. For more informa
 			<li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
-            <li><a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
-			<ul>
-			<li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-			<li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
-			</ul>
+              <li>
+                  <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+                  <ul>
+                      <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+                      <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+                  </ul>
+              <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
 			</li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/FsShelter/schema.html">Schema authoring</a></li>
             <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
           </ul>
         </div>
