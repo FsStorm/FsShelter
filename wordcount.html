@@ -60,7 +60,7 @@ Either implementation is a single function, returning async Option, where None i
 </tr>
 </table>
 <h2><a name="Defining-bolts" class="anchor" href="#Defining-bolts">Defining bolts</a></h2>
-<p>A couple of examples of a FsShelter bolts that reads a tuple and emits another one:</p>
+<p>A couple of examples of a FsShelter bolts that read a tuple and emit another one:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -252,11 +252,13 @@ Either implementation is a single function, returning async Option, where None i
 </tr>
 </table>
 <p>Here we define the graph by declaring the components and connecting them with arrows.
-The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:
-<em> <code>log</code> is the Storm log factory
-</em> <code>cfg</code> is the runtime configuration passed in from Storm
-<em> <code>tuple</code> is the instance of the schema DU coming in
-</em> <code>emit</code> is the function to emit another tuple</p>
+The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:</p>
+<ul>
+<li><code>log</code> is the Storm log factory</li>
+<li><code>cfg</code> is the runtime configuration passed in from Storm</li>
+<li><code>tuple</code> is the instance of the schema DU coming in</li>
+<li><code>emit</code> is the function to emit another tuple</li>
+</ul>
 <p><code>log</code> and <code>cfg</code> are fixed once (curried) and as demonstrated in the logBolt's mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before <code>tuple</code> and <code>emit</code> arguments.
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.</p>
 <h2><a name="Submitting-the-topology-for-execution" class="anchor" href="#Submitting-the-topology-for-execution">Submitting the topology for execution</a></h2>
@@ -294,7 +296,7 @@ This was achived by a simple export to console:</p>
 <p>Followed by further conversion into a desired format by piping the markup into GrapViz:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="bash">mono samples/WordCount/bin/Release/WordCount graph | dot -Tsvg -o build/WordCount.svg
+<td class="snippet"><pre class="fssnip"><code lang="bash">mono samples/WordCount/bin/Release/WordCount.exe graph | dot -Tsvg -o build/WordCount.svg
 </code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace System</div>
