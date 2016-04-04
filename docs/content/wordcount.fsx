@@ -53,9 +53,7 @@ let splitIntoWords (input, emit) =
 let countWords (input, increment, emit) = 
     async { 
         match input with
-        | Word word -> 
-            let! count = increment word
-            WordCount (word,count) |> emit
+        | Word word -> WordCount (word, increment word) |> emit
         | _ -> failwithf "unexpected input: %A" input
     }
 
@@ -87,25 +85,12 @@ let source =
 
     fun () -> sentences.[ rnd.Next(0, sentences.Length) ]
 
+// increment word count and return new value
 let increment =
-    let mkCountAgent () = 
-        let cache = Collections.Generic.Dictionary()
-        MailboxProcessor.Start(fun inbox -> 
-            async { 
-                while true do
-                    let! (rc:AsyncReplyChannel<int64>,word) = inbox.Receive()
-                    match cache.TryGetValue(word) with
-                    | (true,count) -> cache.[word] <- count + 1L
-                                      count + 1L
-                    | _ -> cache.[word] <- 1L
-                           1L
-                    |> rc.Reply
-            })
-    let agentsNumber = 10
-    let countAgents = seq {for i in 1..agentsNumber -> mkCountAgent()} |> Seq.toArray
+    let cache = Collections.Concurrent.ConcurrentDictionary<string,int64 ref>()
     fun word -> 
-        let agent = countAgents.[abs (word.GetHashCode() % agentsNumber)]
-        agent.PostAndAsyncReply(fun rc -> rc,word)
+        let c = cache.GetOrAdd(word, ref 0L) 
+        Threading.Interlocked.Increment &c.contents
 
 (**
 
@@ -144,7 +129,7 @@ let sampleTopology =
         
         yield sentencesSpout --> splitBolt |> shuffle.on Sentence               // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
         yield splitBolt --> countBolt |> group.by (function Word w -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
-        yield countBolt --> logBolt |> group.by (function WordCount (w,c) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
+        yield countBolt --> logBolt |> group.by (function WordCount (w,_) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
     }
 
 (**

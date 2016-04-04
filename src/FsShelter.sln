@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{295576BD-0CF
 	ProjectSection(SolutionItems) = preProject
 		..\docs\content\guaranteed.fsx = ..\docs\content\guaranteed.fsx
 		..\docs\content\index.fsx = ..\docs\content\index.fsx
+		..\docs\content\schema.fsx = ..\docs\content\schema.fsx
 		..\docs\content\wordcount.fsx = ..\docs\content\wordcount.fsx
 	EndProjectSection
 EndProject

@@ -17,7 +17,7 @@ module Includes =
     let defaultExtensions fileName =
             extSet |> Set.contains (Path.GetExtension(fileName).ToLower())
 
-    /// generate list of files (from*to) using the given filter and the typical build output folder</>
+    /// generate list of files (from*to) using the given filter and the typical build output folder
     /// filter: filename filter function (returns true to include).
     /// binDir: binaries (assemblies) folder.
     let buildOutput filter binDir =
@@ -51,7 +51,7 @@ module Includes =
 module Package = 
     open System.IO.Compression
 
-    /// Package the included files into a JAR and return its name</>
+    /// Package the included files into a JAR and return its name
     /// includes: get list of files (src*dst) to include given the specified `binDir`.
     /// binDir: binaries (assemblies) folder.
     let makeJar (includes:string->seq<string*string>) binDir jarPathname = 

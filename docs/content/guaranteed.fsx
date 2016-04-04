@@ -12,7 +12,7 @@ open System.Collections.Generic
 Defining reliable spouts
 --------------------
 [Processing guarantees](https://storm.apache.org/documentation/Guaranteeing-message-processing.html) are the biggest selling point of Storm, please see the official docs for the details.
-The reliable spout implementation for a source like peristent a queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks back to the source.
+The reliable spout implementation for a source like a peristent queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks back to the source.
 The obtained Id has to be passed along with the tuple from the spout function:
 *)
 

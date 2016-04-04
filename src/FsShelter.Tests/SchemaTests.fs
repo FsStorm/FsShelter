@@ -21,16 +21,20 @@ let ``schema unfolds only a level deep``() =
 let ``schema unfolds wide case``() = 
     t2.Streams.["JustFields"].Schema =! ["Item1";"Item2";"Item3";"Item4";"Item5";"Item6";"Item7";"Item8";"Item9";"Item10"]
 
-let (constr,deconst) = TupleSchema.mapSchema<Schema>() |> Map.ofArray |> Map.find "Even"
+[<Test>]
+let ``schema mapping respects displayName``() = 
+    do TupleSchema.mapSchema<Schema>() |> Map.ofArray |> Map.find "__tick" |> ignore
 
 [<Test>]
 let ``schema produces a tuple``() = 
+    let (constr,deconst) = TupleSchema.mapSchema<Schema>() |> Map.ofArray |> Map.find "Even"
     let mutable xs = []
     Even({x=1},{str="a"}) |> deconst (box >> (fun v -> xs <- v::xs))
     xs =! [box "a"; box 1]
 
 [<Test>]
 let ``schema reads a tuple``() = 
+    let (constr,deconst) = TupleSchema.mapSchema<Schema>() |> Map.ofArray |> Map.find "Even"
     let mutable xs = [box "a"; box 1]
     let f = constr (function | t when t = typeof<string> -> box "a" | t when t = typeof<int> -> box 1 | _ -> failwith "?")
     Even({x=1},{str="a"}) =! f()

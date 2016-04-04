@@ -173,7 +173,7 @@ Getting FsShelter
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The FsShelter library can be installed from <a href="https://nuget.org/packages/FsShelter">NuGet</a> source or <a href="https://www.myget.org/F/FsShelter/">MyGet</a>:
+      The FsShelter library can be installed from <a href="https://nuget.org/packages/FsShelter">NuGet</a> or <a href="https://www.myget.org/F/FsShelter/">MyGet</a>:
       <pre>PM> Install-Package FsShelter</pre>
     </div>
   </div>
@@ -191,6 +191,13 @@ also want to read the [library design notes][readme] to understand how it works.
 The library is available under Apache 2.0 license, which allows modification and 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
+
+Commercial support
+--------------------------
+
+Commercial training and support are available from the project sponsor: 
+<a href="http://prolucid.ca/" target="_blank"><img src="http://prolucid.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="Prolucid" style="height:30px" border="0" /></a>
+
 
   [content]: https://github.com/Prolucid/FsShelter/tree/master/docs/content
   [gh]: https://github.com/Prolucid/FsShelter

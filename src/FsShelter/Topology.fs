@@ -92,10 +92,18 @@ module TupleSchema =
                         (fun prefix (p:PropertyInfo) -> prefix |> formatName p.Name)
             |> Array.toList
 
+    /// format a case using its DisplayNameAttribute or name
+    let formatCaseName (case:UnionCaseInfo) = 
+        case.GetCustomAttributes(typeof<System.ComponentModel.DisplayNameAttribute>) 
+        |> Array.tryHead
+        |> Option.map (fun a -> a :?> System.ComponentModel.DisplayNameAttribute)
+        |> Option.map (fun a -> a.DisplayName)
+        |> Option.fold (fun _ -> id) case.Name
+
     /// Map a case to stream name
     let toStreamName<'t> :'t->string = 
         let reader = FSharpValue.PreComputeUnionTagReader typeof<'t>
-        let names = FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> case.Name)
+        let names = FSharpType.GetUnionCases typeof<'t> |> Array.map formatCaseName
         reader >> names.GetValue >> unbox
 
     /// Tuple field reader
@@ -123,4 +131,4 @@ module TupleSchema =
 
     /// Map descriminated union cases to reader*writer functions
     let mapSchema<'t> () =
-        FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> case.Name,(toTupleRW<'t> case))
+        FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> (formatCaseName case),(toTupleRW<'t> case))

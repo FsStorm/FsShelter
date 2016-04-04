@@ -20,6 +20,7 @@ type Schema =
     | MaybeString of string option
     | Nested of Nested
     | JustFields of int * float * Guid * Guid * string * string * string * DateTime * DateTimeOffset * DateTimeOffset
+    | [<ComponentModel.DisplayName("__tick")>] Tick
 
 type World = 
     { rnd : Random

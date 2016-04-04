@@ -96,9 +96,9 @@ module DSL =
     /// wrap (Storm native) java component definition
     let java (className : string) (args : string list) = Java (className, args)
 
-    /// define a reliable spout</>
+    /// define a reliable spout
     /// mkArgs: one-time construction of arguments that will be passed into each next() call.
-    /// mkAcker: one time construction of Ack*Nack handlers (using the args).
+    /// mkAcker: one time construction of `Ack*Nack` handlers (using the args).
     /// next: spout function that returns an id*tuple option.
     let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
         {MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
@@ -188,7 +188,7 @@ module DSL =
     let inline (==>) _ (_:Bolt<'t>) = 
         true
 
-    let internal mapJoin map1 map2 =
+    let private mapJoin map1 map2 =
         Map.fold (fun acc key value -> Map.add key value acc) map1 map2
 
     /// TopologyBuilder computation expression
