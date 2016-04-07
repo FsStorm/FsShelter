@@ -1,3 +1,6 @@
+#### 0.0.1 - Apr 2016
+* Out of beta
+
 #### 0.0.1-beta3 - Apr 2016
 * Stream name override via DisplayName attr
 

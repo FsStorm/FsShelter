@@ -32,11 +32,11 @@ let writeBolt writer id (b:Bolt<_>) =
     fprintfn writer "\t%s [color=green; label=\"%s\n[%d]\"]" id id b.Parallelism
 
 /// edge statement for a stream
-let writeStream writer id (st:Stream<_>) = 
+let writeStream writer ((_,sid),_) (st:Stream<_>) = 
     let style = function
         | true -> "solid"
         | false -> "dotted"
-    fprintfn writer "\t%s -> %s [label=%s; style=%s]" st.Src st.Dst id (style st.Anchoring)
+    fprintfn writer "\t%s -> %s [label=%s; style=%s]" st.Src st.Dst sid (style st.Anchoring)
 
 /// put together default implementations to write to STDOUT
 let writeToConsole t = 

@@ -19,7 +19,7 @@ Overall, the librabry provides "batteries included" experience with wrappers for
 - kill a running topology
 - generate a topology graph as part of your build
 
-The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
+The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/0.10.0/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
 Corresponding [ProtoShell](https://github.com/prolucid/protoshell) and [ThriftShell](https://github.com/prolucid/thriftshell) libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.
 

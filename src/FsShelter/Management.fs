@@ -136,8 +136,8 @@ module ThriftModel =
     
     let private toBolt exe optionalArgs outs ins (cid,bolt) =
         let noop _ _ = []
-        let inputs = ins |> Seq.map (fun (sid, s) -> (GlobalStreamId(s.Src, sid), toGrouping s.Grouping)) |> toDict
-        let outputs = outs |> Seq.map (fun (sid, s) -> (sid, toStreamInfo s)) |> toDict
+        let inputs = ins |> Seq.map (fun (((_,sid),_), s) -> (GlobalStreamId(s.Src, sid), toGrouping s.Grouping)) |> toDict
+        let outputs = outs |> Seq.map (fun (((_,sid),_), s) -> (sid, toStreamInfo s)) |> toDict
         cid,Bolt(toComponent exe optionalArgs (bolt.MkComp noop),
                 ComponentCommon(Parallelism_hint = int bolt.Parallelism,
                                 Inputs = inputs,
@@ -145,7 +145,7 @@ module ThriftModel =
                                 Json_conf = Json.ofConf bolt.Conf))
 
     let private toSpout exe optionalArgs outs (cid:string,spout:Spout<_>) =
-        let outputs = outs |> Seq.map (fun (sid, stm) -> (sid, toStreamInfo stm)) |> toDict
+        let outputs = outs |> Seq.map (fun (((_,sid),_), stm) -> (sid, toStreamInfo stm)) |> toDict
         cid,SpoutSpec(toComponent exe optionalArgs (spout.MkComp ()),
                      ComponentCommon(Parallelism_hint = int spout.Parallelism,
                                      Inputs = Dictionary(),
@@ -153,7 +153,7 @@ module ThriftModel =
                                      Json_conf = Json.ofConf spout.Conf))
 
     /// Convert topology to Nimbus/thrift representation
-    let ofTopology (exeName,args) (topology : Topology<'t>) = // TODO: Make it run on mono properly
+    let ofTopology (exeName,args) (topology : Topology<'t>) =
         let seqOrEmpty k = Map.tryFind k >> Option.fold Seq.append Seq.empty
         let bySource = topology.Streams |> Map.toSeq |> Seq.groupBy (fun (_,s) -> s.Src) |> Map
         let byDest = topology.Streams |> Map.toSeq |> Seq.groupBy (fun (_,s) -> s.Dst) |> Map

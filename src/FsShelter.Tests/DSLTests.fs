@@ -15,5 +15,5 @@ let ``bolts defined``() =
 
 [<Test>]
 let ``streams defined``() = 
-    test <@ t1.Streams |> Map.toList |> List.map fst |> List.sort |> List.forall2 (fun sid2 sid1 -> sid1 = sid2) ["Even";"Odd";"Original"] @>
+    test <@ t1.Streams |> Map.toList |> List.map fst |> List.sort |> List.forall2 (fun sid2 sid1 -> (fst sid1) = sid2) [("b1","Even");("b1","Odd");("s1","Original")] @>
     

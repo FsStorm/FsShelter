@@ -6,7 +6,7 @@ open FsShelter.TestTopology
 open System
 
 [<Test>]
-let ``translates to Thrift``() = 
+let ``translates for Nimbus``() = 
     let tt = t1 |> FsShelter.ThriftModel.ofTopology ("zzz",[]) |> snd
 
     test <@ tt.Spouts |> Seq.forall2 (fun sid2 sd1 -> sd1.Key = sid2) ["s1"] @>

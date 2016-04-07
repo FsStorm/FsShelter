@@ -56,7 +56,7 @@ let autoAckBoltLoop mkArgs consume getAnchors getStream (in', out') conf =
             match msg with
             | Heartbeat -> Sync |> out'
             | Tuple(tuple, id, src, stream, task) -> 
-                let emit t = Emit(t, None, getAnchors stream id, (getStream t), None, None) |> out'
+                let emit t = Emit(t, None, getAnchors (src,stream) id, (getStream t), None, None) |> out'
                 let! res = consume (args tuple emit) |> Async.Catch
                 match res with
                 | Choice1Of2 _ -> Ok id

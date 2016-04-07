@@ -7,19 +7,19 @@ open System
 
 [<Test>]
 let ``schema inferred``() = 
-    t1.Streams.["Odd"].Schema =! ["Item1.x";"Item2"]
+    t1.Streams.[("b1","Odd"),"b2"].Schema =! ["Item1.x";"Item2"]
 
 [<Test>]
 let ``schema unfolds``() = 
-    t1.Streams.["Even"].Schema =! ["number.x";"str.str"]
+    t1.Streams.[("b1","Even"),"b2"].Schema =! ["number.x";"str.str"]
 
 [<Test>]
 let ``schema unfolds only a level deep``() = 
-    t2.Streams.["Nested"].Schema =! ["Item.nested"; "Item.xs"; "Item.m"; "Item.gxs"; "Item.d"]
+    t2.Streams.[("s2","Nested"),"b3"].Schema =! ["Item.nested"; "Item.xs"; "Item.m"; "Item.gxs"; "Item.d"]
 
 [<Test>]
 let ``schema unfolds wide case``() = 
-    t2.Streams.["JustFields"].Schema =! ["Item1";"Item2";"Item3";"Item4";"Item5";"Item6";"Item7";"Item8";"Item9";"Item10"]
+    t2.Streams.[("s2","JustFields"),"b3"].Schema =! ["Item1";"Item2";"Item3";"Item4";"Item5";"Item6";"Item7";"Item8";"Item9";"Item10"]
 
 [<Test>]
 let ``schema mapping respects displayName``() = 
