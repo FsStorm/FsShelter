@@ -62,7 +62,7 @@
             autoAckBoltLoop (...)
           </code>
           <div class="tip" id="13">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c -&gt; (&#39;d -&gt; unit) -&gt; &#39;e) -&gt; consume:(&#39;e -&gt; Async&lt;&#39;f&gt;) -&gt; getAnchors:(string -&gt; string -&gt; string list) -&gt; getStream:(&#39;d -&gt; string) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;c&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;d&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c -&gt; (&#39;d -&gt; unit) -&gt; &#39;e) -&gt; consume:(&#39;e -&gt; Async&lt;&#39;f&gt;) -&gt; getAnchors:(string * string -&gt; string -&gt; string list) -&gt; getStream:(&#39;d -&gt; string) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;c&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;d&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
                           <strong>Type parameters:</strong> 'b, 'c, 'd, 'e, 'f          </div>
         </td>
         <td class="xmldoc">
