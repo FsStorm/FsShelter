@@ -8,7 +8,7 @@ It comes bundled with Json serialization, Thrift, and Protobuf (Thrift and Proto
 
 See [docs][docs] for for an intro and an overview.
 
-Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](TBD)
+Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Prolucid/FsShelter)
 
 ## Limitations
 * At the moment FsShelter doesn't support direct emits.
