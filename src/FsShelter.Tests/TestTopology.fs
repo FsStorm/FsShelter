@@ -79,3 +79,17 @@ let t2 = topology "test2" {
     yield s2 --> b3 |> all.on Nested
     yield s2 --> b3 |> all.on JustFields
 }
+
+let t3 = topology "test3" {
+    let s1 = shell "cmd" ""
+             |> asSpout<Schema>
+             |> withConf []
+    let b1 = java "class" ["args"]
+             |> asBolt<Schema>
+             |> withConf []
+    let b2 = java "class" ["args"]
+             |> asBolt<Schema>
+             |> withConf []
+    yield s1 --> b1 |> shuffle.on Original
+    yield s1 --> b2 |> shuffle.on Original
+}

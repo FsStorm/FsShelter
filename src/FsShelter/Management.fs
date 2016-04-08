@@ -155,7 +155,7 @@ module ThriftModel =
     /// Convert topology to Nimbus/thrift representation
     let ofTopology (exeName,args) (topology : Topology<'t>) =
         let seqOrEmpty k = Map.tryFind k >> Option.fold Seq.append Seq.empty
-        let bySource = topology.Streams |> Map.toSeq |> Seq.groupBy (fun (_,s) -> s.Src) |> Map
+        let bySource = topology.Streams |> Map.toSeq |> Seq.distinctBy (fst >> fst) |> Seq.groupBy (fun (_,s) -> s.Src) |> Map
         let byDest = topology.Streams |> Map.toSeq |> Seq.groupBy (fun (_,s) -> s.Dst) |> Map
         let bolts = topology.Bolts 
                     |> Map.toList

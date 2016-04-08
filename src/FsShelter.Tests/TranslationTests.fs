@@ -18,7 +18,13 @@ let ``translates for Nimbus``() =
     test <@ tt.Bolts.["b1"].Common.Inputs |> Seq.map (fun x -> x.Key.ComponentId,x.Key.StreamId) |> Seq.toList = ["s1","Original"] @>
     test <@ tt.Bolts.["b2"].Common.Inputs |> Seq.map (fun x -> x.Key.ComponentId,x.Key.StreamId) |> Seq.toList = ["b1","Even"; "b1","Odd"] @>
 
-    printf "%A" tt.Bolts.["b1"].Bolt_object.Shell
+[<Test>]
+let ``translates fanout for Nimbus``() = 
+    let tt = t3 |> FsShelter.ThriftModel.ofTopology ("zzz",[]) |> snd
+
+    test <@ tt.Spouts.["s1"].Common.Streams |> Seq.map (fun x -> x.Key) |> Seq.toList = ["Original"] @>
+    test <@ tt.Bolts.["b1"].Common.Inputs |> Seq.map (fun x -> x.Key.ComponentId,x.Key.StreamId) |> Seq.toList = ["s1","Original"] @>
+    test <@ tt.Bolts.["b2"].Common.Inputs |> Seq.map (fun x -> x.Key.ComponentId,x.Key.StreamId) |> Seq.toList = ["s1","Original"] @>
 
 open FsShelter.DotGraph
 [<Test>]
