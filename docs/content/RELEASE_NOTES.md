@@ -1,3 +1,6 @@
+#### 0.0.2 - Apr 2016
+* Fanout fixed
+
 #### 0.0.1 - Apr 2016
 * Out of beta
 
