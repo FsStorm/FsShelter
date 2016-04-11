@@ -1,3 +1,6 @@
+#### 0.0.3 - Apr 2016
+* Nuget dependencies fixed
+
 #### 0.0.2 - Apr 2016
 * Fanout fixed
 

@@ -19,5 +19,7 @@ files
 	build/StormThrift.dll ==> lib/net45
 	build/Prolucid.ProtoShell.dll ==> lib/net45
 dependencies
+	FsPickler >= 2.0.0
+	Newtonsolft.Json >= 8.0.0
 	Thrift >= 0.9.1.3
 	Google.Protobuf >= 3.0.0-beta2
