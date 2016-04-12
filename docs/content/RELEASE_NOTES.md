@@ -1,3 +1,6 @@
+#### 0.0.4 - Apr 2016
+* Nuget dependencies, really fixed
+
 #### 0.0.3 - Apr 2016
 * Nuget dependencies fixed
 
