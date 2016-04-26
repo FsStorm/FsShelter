@@ -18,6 +18,7 @@ type Schema =
     | Even of number:Number*str:String
     | Odd of Number*string
     | MaybeString of string option
+    | NullableGuid of Guid Nullable
     | Nested of Nested
     | JustFields of int * float * Guid * Guid * string * string * string * DateTime * DateTimeOffset * DateTimeOffset
     | [<ComponentModel.DisplayName("__tick")>] Tick

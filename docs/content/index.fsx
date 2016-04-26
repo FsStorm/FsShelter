@@ -180,6 +180,17 @@ Getting FsShelter
   <div class="span1"></div>
 </div>
 
+<div class="row">
+  <div class="span1"></div>
+  <div class="span6">
+    <div class="well well-small">
+      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/prolucid/fsshelter-samples/">docker hub</a>:
+      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 prolucid/fsshelter-samples</pre>
+    </div>
+  </div>
+  <div class="span1"></div>
+</div>
+
 Contributing and copyright
 --------------------------
 

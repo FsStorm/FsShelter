@@ -12,6 +12,8 @@ let toDict (s:seq<_*_>) = System.Linq.Enumerable.ToDictionary(s, fst, snd)
 
 let syncOut (w:unit->unit) = w()
 
+type GuidRec = { g : Nullable<Guid>}
+
 let justFields = 
     let today = DateTime.Today
     JustFields(
@@ -30,6 +32,13 @@ let mkStreams() =
     let memin = new MemoryStream()
     let memout = new MemoryStream()
     (memin,memout)
+
+[<Test>]
+let ``roundtrips Option``() = 
+    let r = Some(Guid.NewGuid())
+    let r' = IO.Common.blobSerialize r
+             |> (IO.Common.blobDeserialize typeof<Guid option> >> unbox)
+    r =! r'
 
 [<Test>]
 let ``roundtrips record``() = 

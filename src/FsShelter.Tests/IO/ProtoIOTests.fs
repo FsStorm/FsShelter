@@ -243,6 +243,35 @@ let ``rw option tuple``() =
     emit.Tuple.[0].StrVal =! "zzz"
 
 [<Test>]
+let ``rw Nullable tuple``() = 
+    let guid = Guid.NewGuid()
+    let tuple = 
+        Messages.StreamIn(
+                Id="2651792242051038370",
+                Stream="NullableGuid",
+                Task=1,
+                Comp="AddOneBolt")
+    tuple.Tuple.Add([V(BytesVal=guid.ToByteString())])
+    let streams = mkStreams()
+    let (in',out') = 
+        Messages.StormMsg(StreamIn=tuple)
+        |> toStreams streams
+        |> ProtoIO.startWith 
+        <|| (syncOut,ignore)
+    
+    let t = NullableGuid(Nullable guid)
+    
+    out'(Emit(t,Some "2651792242051038370",[],"NullableGuid",None,None))
+    async {
+        return! in'()
+    } 
+    |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","NullableGuid",1)
+    let emit = (ofStreams streams).Emit
+    (emit.Id, emit.Stream) =! ("2651792242051038370","NullableGuid")
+    emit.Tuple.Count =! 1
+    emit.Tuple.[0].BytesVal.ToGuid() =! guid
+
+[<Test>]
 [<Category("performance")>]
 let ``roundtrip throughput``() =
     let count = 10000 

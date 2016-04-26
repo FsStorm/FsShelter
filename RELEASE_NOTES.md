@@ -1,3 +1,6 @@
+#### 0.0.5 - Apr 2016
+* Added support for Nullable fields
+
 #### 0.0.4 - Apr 2016
 * Nuget dependencies, really fixed
 

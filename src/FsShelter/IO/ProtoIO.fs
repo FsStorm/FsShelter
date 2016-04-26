@@ -73,6 +73,37 @@ let private typeMap =
         typeof<DateTimeOffset option>, 
             ((fun (o:obj) -> match unbox<DateTimeOffset option> o with | Some v -> V(TimestampVal = Timestamp.FromDateTimeOffset v) | _ -> vNone), 
              fun (v:V) -> box <| match v.KindCase with | VKind.TimestampVal -> Some (v.TimestampVal.ToDateTimeOffset()) | _ -> None)
+
+        typeof<int Nullable>, 
+            ((fun (o:obj) -> match unbox<int Nullable> o with | v when v.HasValue -> V(Int32Val = v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Nullable v.Int32Val | _ -> Nullable())
+        typeof<int64 Nullable>, 
+            ((fun (o:obj) -> match unbox<int64 Nullable> o with | v when v.HasValue -> V(Int64Val  = v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int64Val -> Nullable v.Int64Val | _ -> Nullable())
+        typeof<int16 Nullable>, 
+            ((fun (o:obj) -> match unbox<int16 Nullable> o with | v when v.HasValue -> V(Int32Val = int v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Nullable (int16 v.Int32Val) | _ -> Nullable())
+        typeof<bool Nullable>, 
+            ((fun (o:obj) -> match unbox<bool Nullable> o with | v when v.HasValue -> V(BoolVal  = v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.BoolVal -> Nullable v.BoolVal | _ -> Nullable())
+        typeof<byte Nullable>, 
+            ((fun (o:obj) -> match unbox<byte Nullable> o with | v when v.HasValue -> V(Int32Val = (int v.Value)) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.Int32Val -> Nullable (byte v.Int32Val) | _ -> Nullable())
+        typeof<Guid Nullable>, 
+            ((fun (o:obj) -> match unbox<Guid Nullable> o with | v when v.HasValue -> V(BytesVal = v.Value.ToByteString()) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.BytesVal -> Nullable (v.BytesVal.ToGuid()) | _ -> Nullable())
+        typeof<double Nullable>, 
+            ((fun (o:obj) -> match unbox<double Nullable> o with | v when v.HasValue -> V(DoubleVal  = v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.DoubleVal -> Nullable v.DoubleVal | _ -> Nullable())
+        typeof<single Nullable>, 
+            ((fun (o:obj) -> match unbox<single Nullable> o with | v when v.HasValue -> V(DoubleVal = (double v.Value)) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.DoubleVal -> Nullable (single v.DoubleVal) | _ -> Nullable())
+        typeof<DateTime Nullable>, 
+            ((fun (o:obj) -> match unbox<DateTime Nullable> o with | v when v.HasValue -> V(TimestampVal = Timestamp.FromDateTime (v.Value.ToUniversalTime())) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.TimestampVal -> Nullable (v.TimestampVal.ToDateTime()) | _ -> Nullable())
+        typeof<DateTimeOffset Nullable>, 
+            ((fun (o:obj) -> match unbox<DateTimeOffset Nullable> o with | v when v.HasValue -> V(TimestampVal = Timestamp.FromDateTimeOffset v.Value) | _ -> vNone), 
+             fun (v:V) -> box <| match v.KindCase with | VKind.TimestampVal -> Nullable (v.TimestampVal.ToDateTimeOffset()) | _ -> Nullable())
     ] |> dict
     
 let private toVariant = function
