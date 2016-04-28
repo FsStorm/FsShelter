@@ -34,7 +34,10 @@ let private createPid pidDir pid =
 
 /// converts topology to a runnable task
 let ofTopology (t : Topology<'t>) compId = 
-    let anchor = fun sid -> t.Anchors.[sid]
+    let anchor = t.Anchors.TryFind
+                 >> function
+                    | Some toAnchor -> toAnchor 
+                    | None -> fun _ -> List.empty
     seq { 
         yield t.Spouts
               |> Map.tryFind compId
