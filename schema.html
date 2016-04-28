@@ -106,6 +106,17 @@ Here are some of the implementation details to keep in mind:</p>
 <li>All three serializers support different set of native representations, consequently performance and interopability with non-F# components will vary.</li>
 <li>All three will try to map the field values to Java types before passing the tuple on to Storm and will try to convert back before passing it to a component.</li>
 </ul>
+<h2><a name="System-and-other-arbitrary-streams-names" class="anchor" href="#System-and-other-arbitrary-streams-names">System and other arbitrary streams names</a></h2>
+<p>Certain features of Storm are available through special streams, like "<em></em>tick". Since DU case name like that would look very wrong in an F# application, FsShelter checks for <code>DisplayName</code> attribute that facilitates the mapping, for example:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="t">TimedSchema</span> <span class="o">=</span> 
+    | [&lt;<span onmouseout="hideTip(event, 'fs1', 52)" onmouseover="showTip(event, 'fs1', 52)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 53)" onmouseover="showTip(event, 'fs30', 53)" class="i">ComponentModel</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 54)" onmouseover="showTip(event, 'fs31', 54)" class="t">DisplayName</span>(<span class="s">&quot;__tick&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs32', 55)" onmouseover="showTip(event, 'fs32', 55)" class="p">Tick</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Will use <code>__tick</code> as the name for the stream, while keeping F# conventions in place for the DU case.</p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace FsShelter</div>
@@ -135,6 +146,10 @@ Here are some of the implementation details to keep in mind:</p>
 <div class="tip" id="fs26">val x : Number&lt;int&gt; option</div>
 <div class="tip" id="fs27">val ex4 : (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;RecordSchema&gt;)<br /><br />Full name: Schema.ex4</div>
 <div class="tip" id="fs28">val x : Number&lt;ComplexNumber&gt;</div>
+<div class="tip" id="fs29">type TimedSchema = | Tick<br /><br />Full name: Schema.TimedSchema</div>
+<div class="tip" id="fs30">namespace System.ComponentModel</div>
+<div class="tip" id="fs31">Multiple items<br />type DisplayNameAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; DisplayNameAttribute + 1 overload<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member Equals : obj:obj -&gt; bool<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;member IsDefaultAttribute : unit -&gt; bool<br />&#160;&#160;static val Default : DisplayNameAttribute<br /><br />Full name: System.ComponentModel.DisplayNameAttribute<br /><br />--------------------<br />ComponentModel.DisplayNameAttribute() : unit<br />ComponentModel.DisplayNameAttribute(displayName: string) : unit</div>
+<div class="tip" id="fs32">union case TimedSchema.Tick: TimedSchema</div>
 
         </div>
         <div class="span3">
