@@ -67,4 +67,15 @@ Here are some of the implementation details to keep in mind:
 * All three serializers support different set of native representations, consequently performance and interopability with non-F# components will vary. 
 * All three will try to map the field values to Java types before passing the tuple on to Storm and will try to convert back before passing it to a component.
 
+
+System and other arbitrary streams names
+-----------------------
+Certain features of Storm are available through special streams, like "__tick". Since DU case name like that would look very wrong in an F# application, FsShelter checks for `DisplayName` attribute that facilitates the mapping, for example:
+*)
+
+type TimedSchema = 
+    | [<System.ComponentModel.DisplayName("__tick")>] Tick
+
+(**
+Will use `__tick` as the name for the stream, while keeping F# conventions in place for the DU case.
 *)

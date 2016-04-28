@@ -1,3 +1,6 @@
+#### 0.0.6 - Apr 2016
+* Added support system streams (w/o explicit origin)
+
 #### 0.0.5 - Apr 2016
 * Added support for Nullable fields
 
