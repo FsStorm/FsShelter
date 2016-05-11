@@ -27,5 +27,4 @@ group Tests
 	nuget unquote
 
 group Run
-	http https://github.com/Prolucid/thriftshell/releases/download/v0.0.1/thriftshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-	http https://github.com/Prolucid/protoshell/releases/download/v0.0.1/protoshell-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+	http https://github.com/Prolucid/protoshell/releases/download/v1.0.1/protoshell-1.0.1-SNAPSHOT-jar-with-dependencies.jar
