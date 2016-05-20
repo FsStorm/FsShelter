@@ -52,7 +52,7 @@ let ex4 = group.by (function Complex x -> x.Item.X)
 As you can see this flattening of records is done only one layer deep. Also keep in mind that while use of collection types for fields is possible it doesn't provde any meaningful way to express that to Storm.
 In summary:
 
-* there is no attempt to flattened types other than records
+* there is no attempt to flatten types other than records
 * fields not presented to Storm in the output declaration are transmitted as part of opaque (parent's type) blobs
 * there's no way to address a value wrapped in an Option (or any other DU), only entire Option field can be used in a grouping
 
@@ -63,7 +63,7 @@ FsShelter will serialize most schemata exactly as you would imagine, but there a
 Here are some of the implementation details to keep in mind:
 
 * Json serialization is implemented with Newtonsoft.Json, F# types are mostly serializable, but might look odd on the wire (Option is a DU, think about that for a second).
-* Binary serializers (Protobuf and Thrift) use [FsPickler](https://github.com/nessos/FsPickler) and you might be able to optimize the payload via its APIs accordingly.
+* Binary serializer (Protobuf) uses [FsPickler](https://github.com/nessos/FsPickler) and you might be able to optimize the payload via its APIs accordingly.
 * All three serializers support different set of native representations, consequently performance and interopability with non-F# components will vary. 
 * All three will try to map the field values to Java types before passing the tuple on to Storm and will try to convert back before passing it to a component.
 

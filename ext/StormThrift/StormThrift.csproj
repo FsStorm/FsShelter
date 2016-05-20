@@ -30,11 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\..\paket-files\prolucid\thriftshell\src\main\multilang.thrift">
-      <Paket>True</Paket>
-      <Link>paket-files/multilang.thrift</Link>
-    </Content>
-    <Content Include="..\..\paket-files\apache\storm\storm-core\src\storm.thrift">
+    <Content Include="..\..\paket-files\et1975\storm\storm-core\src\storm.thrift">
       <Paket>True</Paket>
       <Link>paket-files/storm.thrift</Link>
     </Content>
@@ -51,119 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="generated\**\*.cs">
-    </Compile>
-    <Compile Include="StormThrift\StormThrift\AccessControl.cs" />
-    <Compile Include="StormThrift\StormThrift\AccessControlType.cs" />
-    <Compile Include="StormThrift\StormThrift\AlreadyAliveException.cs" />
-    <Compile Include="StormThrift\StormThrift\Assignment.cs" />
-    <Compile Include="StormThrift\StormThrift\AuthorizationException.cs" />
-    <Compile Include="StormThrift\StormThrift\BeginDownloadResult.cs" />
-    <Compile Include="StormThrift\StormThrift\Bolt.cs" />
-    <Compile Include="StormThrift\StormThrift\BoltAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\BoltStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ClusterSummary.cs" />
-    <Compile Include="StormThrift\StormThrift\ClusterWorkerHeartbeat.cs" />
-    <Compile Include="StormThrift\StormThrift\CommonAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ComponentAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ComponentCommon.cs" />
-    <Compile Include="StormThrift\StormThrift\ComponentObject.cs" />
-    <Compile Include="StormThrift\StormThrift\ComponentPageInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\ComponentType.cs" />
-    <Compile Include="StormThrift\StormThrift\Credentials.cs" />
-    <Compile Include="StormThrift\StormThrift\DebugOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\DistributedRPC.cs" />
-    <Compile Include="StormThrift\StormThrift\DistributedRPCInvocations.cs" />
-    <Compile Include="StormThrift\StormThrift\DRPCExecutionException.cs" />
-    <Compile Include="StormThrift\StormThrift\DRPCRequest.cs" />
-    <Compile Include="StormThrift\StormThrift\ErrorInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\ExecutorAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ExecutorInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\ExecutorSpecificStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ExecutorStats.cs" />
-    <Compile Include="StormThrift\StormThrift\ExecutorSummary.cs" />
-    <Compile Include="StormThrift\StormThrift\GetInfoOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\GlobalStreamId.cs" />
-    <Compile Include="StormThrift\StormThrift\Grouping.cs" />
-    <Compile Include="StormThrift\StormThrift\HBAuthorizationException.cs" />
-    <Compile Include="StormThrift\StormThrift\HBExecutionException.cs" />
-    <Compile Include="StormThrift\StormThrift\HBMessage.cs" />
-    <Compile Include="StormThrift\StormThrift\HBMessageData.cs" />
-    <Compile Include="StormThrift\StormThrift\HBNodes.cs" />
-    <Compile Include="StormThrift\StormThrift\HBPulse.cs" />
-    <Compile Include="StormThrift\StormThrift\HBRecords.cs" />
-    <Compile Include="StormThrift\StormThrift\HBServerMessageType.cs" />
-    <Compile Include="StormThrift\StormThrift\InvalidTopologyException.cs" />
-    <Compile Include="StormThrift\StormThrift\JavaObject.cs" />
-    <Compile Include="StormThrift\StormThrift\JavaObjectArg.cs" />
-    <Compile Include="StormThrift\StormThrift\KeyAlreadyExistsException.cs" />
-    <Compile Include="StormThrift\StormThrift\KeyNotFoundException.cs" />
-    <Compile Include="StormThrift\StormThrift\KillOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\ListBlobsResult.cs" />
-    <Compile Include="StormThrift\StormThrift\LocalAssignment.cs" />
-    <Compile Include="StormThrift\StormThrift\LocalStateData.cs" />
-    <Compile Include="StormThrift\StormThrift\LogConfig.cs" />
-    <Compile Include="StormThrift\StormThrift\LogLevel.cs" />
-    <Compile Include="StormThrift\StormThrift\LogLevelAction.cs" />
-    <Compile Include="StormThrift\StormThrift\LSApprovedWorkers.cs" />
-    <Compile Include="StormThrift\StormThrift\LSSupervisorAssignments.cs" />
-    <Compile Include="StormThrift\StormThrift\LSSupervisorId.cs" />
-    <Compile Include="StormThrift\StormThrift\LSTopoHistory.cs" />
-    <Compile Include="StormThrift\StormThrift\LSTopoHistoryList.cs" />
-    <Compile Include="StormThrift\StormThrift\LSWorkerHeartbeat.cs" />
-    <Compile Include="StormThrift\StormThrift\Nimbus.cs" />
-    <Compile Include="StormThrift\StormThrift\NimbusSummary.cs" />
-    <Compile Include="StormThrift\StormThrift\NodeInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\NotAliveException.cs" />
-    <Compile Include="StormThrift\StormThrift\NullStruct.cs" />
-    <Compile Include="StormThrift\StormThrift\NumErrorsChoice.cs" />
-    <Compile Include="StormThrift\StormThrift\ProfileAction.cs" />
-    <Compile Include="StormThrift\StormThrift\ProfileRequest.cs" />
-    <Compile Include="StormThrift\StormThrift\ReadableBlobMeta.cs" />
-    <Compile Include="StormThrift\StormThrift\RebalanceOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\SettableBlobMeta.cs" />
-    <Compile Include="StormThrift\StormThrift\ShellComponent.cs" />
-    <Compile Include="StormThrift\StormThrift\SpecificAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\SpoutAggregateStats.cs" />
-    <Compile Include="StormThrift\StormThrift\SpoutSpec.cs" />
-    <Compile Include="StormThrift\StormThrift\SpoutStats.cs" />
-    <Compile Include="StormThrift\StormThrift\StateSpoutSpec.cs" />
-    <Compile Include="StormThrift\StormThrift\StormBase.cs" />
-    <Compile Include="StormThrift\StormThrift\StormTopology.cs" />
-    <Compile Include="StormThrift\StormThrift\StreamInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\SubmitOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\SupervisorInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\SupervisorSummary.cs" />
-    <Compile Include="StormThrift\StormThrift\ThriftSerializedObject.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyActionOptions.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyHistoryInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyInitialStatus.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyPageInfo.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyStats.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologyStatus.cs" />
-    <Compile Include="StormThrift\StormThrift\TopologySummary.cs" />
-    <Compile Include="StormThrift\StormThrift\WorkerResources.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\AckCommand.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\Context.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\EmitCommand.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\FailReply.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\Handshake.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\Heartbeat.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\LogCommand.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\LogLevel.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\Metric.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\NackCommand.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\NextCommand.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\NoneStruct.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\OkReply.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\PidReply.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\ShellMsg.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\StormMsg.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\StreamIn.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\SyncReply.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\TaskIdsReply.cs" />
-    <Compile Include="ThriftShell\Prolucid\ThriftShell\Messages\Variant.cs" />
+    <Compile Include="StormThrift\*.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -173,17 +57,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2')) Or ($(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile31') Or ($(TargetFrameworkProfile) == 'Profile32') Or ($(TargetFrameworkProfile) == 'Profile44') Or ($(TargetFrameworkProfile) == 'Profile49') Or ($(TargetFrameworkProfile) == 'Profile78') Or ($(TargetFrameworkProfile) == 'Profile84') Or ($(TargetFrameworkProfile) == 'Profile111') Or ($(TargetFrameworkProfile) == 'Profile151') Or ($(TargetFrameworkProfile) == 'Profile157') Or ($(TargetFrameworkProfile) == 'Profile259')">
-      <ItemGroup>
-        <Reference Include="Google.Protobuf">
-          <HintPath>..\..\packages\Google.Protobuf\lib\portable-net45+netcore45+wpa81+wp8\Google.Protobuf.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v3.5' Or $(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2')">
       <ItemGroup>

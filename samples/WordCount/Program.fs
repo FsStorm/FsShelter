@@ -30,7 +30,7 @@ let main argv =
     | _ -> 
         sampleTopology
         |> Task.ofTopology
-        |> Task.run ProtoIO.start // JsonIO.start | ProtoIO.start | ThriftIO.start
+        |> Task.run ProtoIO.start // JsonIO.start | ProtoIO.start
 //        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // log the traffic on this side of IPC
     0
 

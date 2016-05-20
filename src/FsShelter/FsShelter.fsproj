@@ -48,7 +48,6 @@
     <Compile Include="DotGraph.fs" />
     <Compile Include="IO\Common.fs" />
     <Compile Include="IO\JsonIO.fs" />
-    <Compile Include="IO\ThriftIO.fs" />
     <Compile Include="IO\ProtoIO.fs" />
   </ItemGroup>
   <ItemGroup>

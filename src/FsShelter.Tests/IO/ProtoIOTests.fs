@@ -57,11 +57,11 @@ let ``reads handshake``() =
                                    4,"ResultBolt"
                                    5,"SimpleSpout"
                                    6,"__acker"])
-    let handshake = Messages.Handshake(PidDir="C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids", Context = ctx)
+    let handshake = Messages.Handshake(PidDir="pids", Context = ctx)
     handshake.Config.Add(toDict ["FsShelter.id",VL(StringValue ="Simple-2-1456522507")
                                  "dev.zookeeper.path",VL(StringValue="/tmp/dev-storm-zookeeper")
                                  "topology.tick.tuple.freq.secs",VL(NumberValue=30.)
-                                 "topology.classpath",VL(NullValue=WellKnownTypes.NullValue.NULL_VALUE)])
+                                 "topology.classpath",VL(NullValue=WellKnownTypes.NullValue.NullValue)])
 
     let (in',_) = 
         Messages.StormMsg(Handshake = handshake)
@@ -74,7 +74,7 @@ let ``reads handshake``() =
                           "dev.zookeeper.path", box "/tmp/dev-storm-zookeeper"
                           "topology.tick.tuple.freq.secs", box 30.
                           "topology.classpath", null],
-                    "C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
+                    "pids",
                     {TaskId=5;ComponentId="SimpleSpout";Components=Map [1,"AddOneBolt"
                                                                         2,"AddOneBolt"
                                                                         3,"ResultBolt"

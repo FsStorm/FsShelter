@@ -1,3 +1,7 @@
+#### 0.0.7 - May 2016
+* Rebuilt with Google.Protobuf beta3
+* Removed thrift multilang IO
+
 #### 0.0.6 - Apr 2016
 * Added support system streams (w/o explicit origin)
 

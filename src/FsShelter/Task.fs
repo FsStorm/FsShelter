@@ -37,7 +37,7 @@ let ofTopology (t : Topology<'t>) compId =
     let anchor = t.Anchors.TryFind
                  >> function
                     | Some toAnchor -> toAnchor 
-                    | None -> fun _ -> List.empty
+                    | None -> fun _ -> []
     seq { 
         yield t.Spouts
               |> Map.tryFind compId

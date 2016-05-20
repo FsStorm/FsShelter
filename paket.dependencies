@@ -1,6 +1,7 @@
 group Build
 	source https://nuget.org/api/v2
 	nuget FAKE
+    nuget Google.Protobuf.Tools
 	nuget nunit.runners 2.6.4
 	nuget SourceLink.Fake
 	nuget Octokit
@@ -18,8 +19,7 @@ group Main
 	nuget newtonsoft.json
 	
 	github prolucid/protoshell src/main/proto/multilang.proto
-	github prolucid/thriftshell src/main/multilang.thrift
-	github apache/storm storm-core/src/storm.thrift
+	github et1975/storm storm-core/src/storm.thrift
 
 group Tests
 	source https://nuget.org/api/v2

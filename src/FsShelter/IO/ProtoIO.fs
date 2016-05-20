@@ -13,7 +13,7 @@ type internal V = Messages.Variant
 type internal VL = WellKnownTypes.Value
 type internal VLKind = VL.KindOneofCase
 type internal VKind = V.KindOneofCase
-let internal vNone = V(NoneVal = WellKnownTypes.NullValue.NULL_VALUE)
+let internal vNone = V(NoneVal = WellKnownTypes.NullValue.NullValue)
 
 let private typeMap = 
     [

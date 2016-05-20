@@ -310,15 +310,17 @@ Target "ProtoShell" (fun _ ->
     let generated = "ext" @@ "ProtoShell" @@ "generated" 
     CleanDir generated
     Shell.Exec(
-            "packages" @@ "Google.Protobuf" @@ "tools" @@ "protoc.exe", 
+            "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools" @@ "windows_x64" @@ "protoc.exe",  // TODO: support linux/mac as well
             "--csharp_out=" + generated 
+            + " --proto_path=" + "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools"
+            + " --proto_path=" + "paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto"
             + " paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto" @@ "multilang.proto")
     |> ignore
 )
 
 Target "StormThriftNamespace" (fun _ ->
-    "paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift"
-    |> RegexReplaceInFileWithEncoding "namespace java org.apache.FsShelter.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+    "paket-files" @@ "et1975" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift"
+    |> RegexReplaceInFileWithEncoding "namespace java org.apache.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
 )
 
 Target "StormThrift" (fun _ ->
@@ -326,28 +328,15 @@ Target "StormThrift" (fun _ ->
     CleanDir generated
     Shell.Exec(
             "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
-            "-out " + generated
+            "-out " + generated @@ ".."
             + " --gen csharp"
-            + " paket-files" @@ "apache" @@ "storm" @@ "storm-core" @@ "src" @@ "FsShelter.thrift")
-    |> ignore
-)
-
-Target "ThriftShell" (fun _ ->
-    let generated = "ext" @@ "StormThrift" @@ "ThriftShell"
-    CleanDir generated
-    Shell.Exec(
-            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
-            "-out " + generated
-            + " --gen csharp"
-            + " paket-files" @@ "prolucid" @@ "thriftshell" @@ "src" @@ "main" @@ "multilang.thrift")
+            + " paket-files" @@ "et1975" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift")
     |> ignore
 )
 
 Target "GenerateSources" DoNothing
 
 "ProtoShell"
-  ==> "GenerateSources"
-"ThriftShell"
   ==> "GenerateSources"
 "StormThriftNamespace"
   ==> "StormThrift"

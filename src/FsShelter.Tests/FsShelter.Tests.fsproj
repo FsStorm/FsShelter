@@ -42,7 +42,6 @@
     <Compile Include="TaskTests.fs" />
     <Compile Include="IO\CommonTests.fs" />
     <Compile Include="IO\JsonIOTests.fs" />
-    <Compile Include="IO\ThriftIOTests.fs" />
     <Compile Include="IO\ProtoIOTests.fs" />
     <None Include="App.config" />
     <None Include="paket.references" />
