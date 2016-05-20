@@ -253,7 +253,7 @@ FsShelter's <code>Task</code> will perform the handshake that will determine whi
 <p>Keep in mind that:</p>
 <ul>
 <li>STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).</li>
-<li>out of the box Storm only supports JSON multilang, for faster IO consider <a href="https://github.com/prolucid/protoshell">ProtoShell</a> or <a href="https://github.com/prolucid/thriftshell">ThriftShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
+<li>out of the box Storm only supports JSON multilang, for faster IO consider <a href="https://github.com/prolucid/protoshell">ProtoShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
 </ul>
 <h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
 <p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:</p>

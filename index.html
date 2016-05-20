@@ -46,7 +46,7 @@ FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm
 <li>generate a topology graph as part of your build</li>
 </ul>
 <p>The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
-Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> and <a href="https://github.com/prolucid/thriftshell">ThriftShell</a> libraries facilitate Protobuf and Thrift serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
+Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.</p>
 <p>Bring your own, if you need it:</p>
 <ul>
