@@ -4,7 +4,7 @@ FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oy
 FsShelter is a library for defining and running Apache Storm topologies in F# using statically typed streams.
 
 It is a complete rewrite of [FsStorm](https://github.com/FsStorm) with the goals of static typing, modularity, and pluggable serialization.
-It comes bundled with Json serialization, Thrift, and Protobuf (Thrift and Protobuf require corresponding Storm multilang serializer implementation [Thriftshell](https://github.com/prolucid/thriftshell) or [Protoshell](https://github.com/prolucid/protoshell)). 
+It comes bundled with Json serialization and Protobuf (Protobuf requires corresponding Storm multilang serializer implementation  [Protoshell](https://github.com/prolucid/protoshell)). 
 
 See [docs][docs] for for an intro and an overview.
 
