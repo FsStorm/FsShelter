@@ -20,6 +20,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+.DS_Store/
 
 # Roslyn cache directories
 *.ide/
@@ -62,3 +63,4 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
+.DS_Store
