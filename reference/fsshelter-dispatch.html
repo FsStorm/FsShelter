@@ -58,10 +58,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
+          <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
             autoAckBoltLoop (...)
           </code>
-          <div class="tip" id="13">
+          <div class="tip" id="14">
             <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c -&gt; (&#39;d -&gt; unit) -&gt; &#39;e) -&gt; consume:(&#39;e -&gt; Async&lt;&#39;f&gt;) -&gt; getAnchors:(string * string -&gt; string -&gt; string list) -&gt; getStream:(&#39;d -&gt; string) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;c&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;d&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
                           <strong>Type parameters:</strong> 'b, 'c, 'd, 'e, 'f          </div>
         </td>
@@ -78,10 +78,30 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
+          <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
+            autoNackBoltLoop (...)
+          </code>
+          <div class="tip" id="15">
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c -&gt; &#39;d) -&gt; consume:(&#39;d -&gt; Async&lt;&#39;e&gt;) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;c&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;f&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'b, 'c, 'd, 'e, 'f          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Dispatch.fs#L71-71" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Dispatch bolt commands and auto-nack all incoming messages</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
             reliableSpoutLoop (...)
           </code>
-          <div class="tip" id="14">
+          <div class="tip" id="16">
             <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c) -&gt; mkAcker:(&#39;c -&gt; (string -&gt; unit) * (string -&gt; unit)) -&gt; next:(&#39;c -&gt; Async&lt;(string * &#39;d) option&gt;) -&gt; getStream:(&#39;d -&gt; string) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;e&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;d&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
                           <strong>Type parameters:</strong> 'b, 'c, 'd, 'e          </div>
         </td>
@@ -98,10 +118,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
+          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
             unreliableSpoutLoop (...)
           </code>
-          <div class="tip" id="15">
+          <div class="tip" id="17">
             <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; &#39;b -&gt; &#39;c) -&gt; next:(&#39;c -&gt; Async&lt;&#39;d option&gt;) -&gt; getStream:(&#39;d -&gt; string) -&gt; (in&#39;:(unit -&gt; Async&lt;InCommand&lt;&#39;e&gt;&gt;) * out&#39;:(OutCommand&lt;&#39;d&gt; -&gt; unit)) -&gt; conf:&#39;b -&gt; Async&lt;unit&gt;<br />
                           <strong>Type parameters:</strong> 'b, 'c, 'd, 'e          </div>
         </td>
