@@ -1,9 +1,12 @@
+#### 0.0.8 - July 2016
+* Adding auto-nacking bolt and corresponding "terminator" component
+
 #### 0.0.7 - May 2016
 * Rebuilt with Google.Protobuf beta3
 * Removed thrift multilang IO
 
 #### 0.0.6 - Apr 2016
-* Added support system streams (w/o explicit origin)
+* Added support for system streams (w/o explicit edges)
 
 #### 0.0.5 - Apr 2016
 * Added support for Nullable fields

@@ -172,7 +172,7 @@ module DSL =
     let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
         {MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
-         Conf = None}
+         Conf = None }
 
     /// define spout with no processing guarantees
     /// mkArgs: one-time construction of arguments that will be passed into each next() call.
@@ -180,7 +180,7 @@ module DSL =
     let runSpout mkArgs (next:Next<_,'t>):Spout<'t> =
         {MkComp = fun () -> FuncRef (unreliableSpoutLoop mkArgs next TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
-         Conf = None}
+         Conf = None }
 
     /// define a bolt
     /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
@@ -188,17 +188,25 @@ module DSL =
     let runBolt mkArgs (consume:Consume<_>):Bolt<'t> =
         {MkComp = fun toAnchors -> FuncRef (autoAckBoltLoop mkArgs consume toAnchors TupleSchema.toStreamName<'t>)
          Parallelism=1u; 
-         Conf = None}
+         Conf = None }
+    
+    /// define a terminating bolt
+    /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
+    /// consume: bolt function that will receive incoming tuples.
+    let runTerminator mkArgs (consume:Consume<_>):Bolt<'t> =
+        { MkComp = fun toAnchors -> FuncRef (autoNackBoltLoop mkArgs consume)
+          Parallelism=1u; 
+          Conf = None }
 
     /// define a spout for a (external) shell or java component
     let asSpout<'t> comp:Spout<'t> =
-        {Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None}
+        { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None }
 
     /// define a bolt for a (external) shell or java component
     let asBolt<'t> comp:Bolt<'t> =
-        {Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None}
+        { Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = None }
 
-    /// override default parallelism
+   /// override default parallelism
     let inline withParallelism parallelism (spec:^s) =
         (^s : (static member WithParallelism : ^s*uint32 -> 's) (spec, uint32 parallelism))
 

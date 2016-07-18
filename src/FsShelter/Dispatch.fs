@@ -66,3 +66,20 @@ let autoAckBoltLoop mkArgs consume getAnchors getStream (in', out') conf =
                 |> out'
             | _ -> failwithf "Unexpected command: %A" msg
     }
+
+/// Dispatch bolt commands and auto-nack all incoming messages
+let autoNackBoltLoop mkArgs consume (in', out') conf = 
+    async { 
+        let args = mkArgs (log out') conf
+        while true do
+            let! msg = in'()
+            match msg with
+            | Heartbeat -> Sync |> out'
+            | Tuple(tuple, id, src, stream, task) -> 
+                let! res = consume (args tuple) |> Async.Catch
+                match res with
+                | Choice1Of2 _ -> ()
+                | Choice2Of2 ex -> Error("autoBoltRunner: ", ex) |> out'
+                Fail id |> out'
+            | _ -> failwithf "Unexpected command: %A" msg
+    }
