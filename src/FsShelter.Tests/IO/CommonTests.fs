@@ -69,6 +69,15 @@ let ``roundtrips map``() =
              |> (IO.Common.blobDeserialize typeof<Map<int,Number option>> >> unbox)
     r =! r'
 
+type DU = A of int option | B of string option
+
+[<Test>]
+let ``roundtrips DU``() = 
+    let r = A (Some 1)
+    let r' = IO.Common.blobSerialize r
+             |> (IO.Common.blobDeserialize typeof<DU> >> unbox)
+    r =! r'
+
 [<Test>]
 let ``roundtrips dictionary``() = 
     let r = toDict [1, Some {x = 1}; 2, None]

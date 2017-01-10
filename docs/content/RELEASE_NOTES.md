@@ -1,3 +1,6 @@
+#### 0.0.9 - Jan 2017
+* Adding support for streaming of DU fields
+
 #### 0.0.8 - July 2016
 * Adding auto-nacking bolt and corresponding "terminator" component
 

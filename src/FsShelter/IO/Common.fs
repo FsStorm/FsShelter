@@ -20,13 +20,16 @@ module internal Common =
         mb.Post
 
     open Nessos.FsPickler
+    open FSharp.Reflection
 
     let private blobSerializer = FsPickler.CreateBinarySerializer()
     let blobSerialize o = 
         use ms = new MemoryStream()
-        blobSerializer.SerializeUntyped(ms, o, (FsPickler.GeneratePickler (o.GetType())))
+        let t = o.GetType()
+        let t' = if FSharpType.IsUnion t && t.BaseType <> typeof<obj> then t.BaseType else t
+        blobSerializer.SerializeUntyped(ms, o, FsPickler.GeneratePickler t')
         ms.GetBuffer()
 
     let blobDeserialize t (bytes:byte[]) = 
         use ms = new MemoryStream(bytes)
-        blobSerializer.DeserializeUntyped(ms, (FsPickler.GeneratePickler t))
+        blobSerializer.DeserializeUntyped(ms, FsPickler.GeneratePickler t)
