@@ -161,8 +161,8 @@
             ( ==&gt; ) arg1 arg2
           </code>
           <div class="tip" id="1">
-            <strong>Signature:</strong> &#39;?19892 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?19892, 't          </div>
+            <strong>Signature:</strong> &#39;?19645 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?19645, 't          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L265-265" class="github-link">
@@ -182,8 +182,8 @@
             ( --&gt; ) arg1 arg2
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> &#39;?19889 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?19889, 't          </div>
+            <strong>Signature:</strong> &#39;?19642 -&gt; Bolt&lt;&#39;t&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?19642, 't          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L261-261" class="github-link">
@@ -243,8 +243,8 @@
             java className args
           </code>
           <div class="tip" id="5">
-            <strong>Signature:</strong> className:string -&gt; args:string list -&gt; Component&lt;&#39;?19853&gt;<br />
-                          <strong>Type parameters:</strong> '?19853          </div>
+            <strong>Signature:</strong> className:string -&gt; args:string list -&gt; Component&lt;&#39;?19606&gt;<br />
+                          <strong>Type parameters:</strong> '?19606          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L166-166" class="github-link">
@@ -263,8 +263,8 @@
             runBolt mkArgs consume
           </code>
           <div class="tip" id="6">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;?19862) -&gt; consume:Consume&lt;&#39;?19862&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> 't, '?19862          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;?19615) -&gt; consume:Consume&lt;&#39;?19615&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 't, '?19615          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L188-188" class="github-link">
@@ -285,8 +285,8 @@ consume: bolt function that will receive incoming tuples.</p>
             runReliableSpout mkArgs mkAcker next
           </code>
           <div class="tip" id="7">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?19855) -&gt; mkAcker:(&#39;?19855 -&gt; Acker) -&gt; next:Next&lt;&#39;?19855,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> '?19855, 't          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?19608) -&gt; mkAcker:(&#39;?19608 -&gt; Acker) -&gt; next:Next&lt;&#39;?19608,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> '?19608, 't          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L172-172" class="github-link">
@@ -308,8 +308,8 @@ next: spout function that returns an id*tuple option.</p>
             runSpout mkArgs next
           </code>
           <div class="tip" id="8">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?19858) -&gt; next:Next&lt;&#39;?19858,&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> '?19858, 't          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;?19611) -&gt; next:Next&lt;&#39;?19611,&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> '?19611, 't          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L180-180" class="github-link">
@@ -330,8 +330,8 @@ next: spout function that returns a tuple option.</p>
             runTerminator mkArgs consume
           </code>
           <div class="tip" id="9">
-            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; &#39;?19865) -&gt; consume:Consume&lt;&#39;?19865&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
-                          <strong>Type parameters:</strong> 't, '?19865          </div>
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; &#39;?19618) -&gt; consume:Consume&lt;&#39;?19618&gt; -&gt; Bolt&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 't, '?19618          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L196-196" class="github-link">
@@ -352,8 +352,8 @@ consume: bolt function that will receive incoming tuples.</p>
             shell command args
           </code>
           <div class="tip" id="10">
-            <strong>Signature:</strong> command:string -&gt; args:string -&gt; Component&lt;&#39;?19851&gt;<br />
-                          <strong>Type parameters:</strong> '?19851          </div>
+            <strong>Signature:</strong> command:string -&gt; args:string -&gt; Component&lt;&#39;?19604&gt;<br />
+                          <strong>Type parameters:</strong> '?19604          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L164-164" class="github-link">
@@ -392,8 +392,8 @@ consume: bolt function that will receive incoming tuples.</p>
             withConf conf spec
           </code>
           <div class="tip" id="12">
-            <strong>Signature:</strong> conf:seq&lt;string * &#39;?19874&gt; -&gt; spec:^s -&gt; ^s<br />
-                          <strong>Type parameters:</strong> '?19874, ^s          </div>
+            <strong>Signature:</strong> conf:seq&lt;string * &#39;?19627&gt; -&gt; spec:^s -&gt; ^s<br />
+                          <strong>Type parameters:</strong> '?19627, ^s          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L214-214" class="github-link">
@@ -412,8 +412,8 @@ consume: bolt function that will receive incoming tuples.</p>
             withParallelism parallelism spec
           </code>
           <div class="tip" id="13">
-            <strong>Signature:</strong> parallelism:^?19871 -&gt; spec:^s -&gt; ^s<br />
-                          <strong>Type parameters:</strong> ^?19871, ^s          </div>
+            <strong>Signature:</strong> parallelism:^?19624 -&gt; spec:^s -&gt; ^s<br />
+                          <strong>Type parameters:</strong> ^?19624, ^s          </div>
         </td>
         <td class="xmldoc">
             <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L210-210" class="github-link">
