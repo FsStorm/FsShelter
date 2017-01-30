@@ -1,3 +1,7 @@
+#### 0.0.10 - Jan 2017
+* Extending DSL for components defined outside of `topology` CE
+* and adding the ability to combine (++) multiple topologies
+
 #### 0.0.9 - Jan 2017
 * Adding support for streaming of DU fields
 

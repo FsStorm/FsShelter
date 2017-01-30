@@ -78,11 +78,21 @@ module private Parsers =
     let inline raiseUnsupportedExpression expr = failwithf "Unsupported expression: %A" expr
 
     let (|PipeRight|_|) = function
-        | Call (None,op_PipeRight,[Call (None,_,[ValueWithName src;ValueWithName dst]); call]) -> Some (src,dst,call)
+        | Call (None,op_PipeRight,[Call (None,_,[PropertyGet (src_o,src_p,_); PropertyGet (dst_o,dst_p,_)]); call]) -> 
+            Some ((src_p.GetValue src_o, src_p.PropertyType, src_p.Name),
+                  (dst_p.GetValue dst_o, dst_p.PropertyType, dst_p.Name),
+                  call)
+        | Call (None,op_PipeRight,[Call (None,_,[ValueWithName src;ValueWithName dst]); call]) -> 
+            Some (src,dst,call)
         | _ -> None
     
     let (|PipeLeft|_|) = function
-        | Call (None,op_PipeLeft,[call; Call (None,_,[ValueWithName src;ValueWithName dst])]) -> Some (src,dst,call)
+        | Call (None,op_PipeLeft,[call; Call (None,_,[PropertyGet (dst_o,dst_p,_); PropertyGet (src_o,src_p,_)])]) -> 
+            Some ((src_p.GetValue src_o, src_p.PropertyType, src_p.Name),
+                  (dst_p.GetValue dst_o, dst_p.PropertyType, dst_p.Name),
+                  call)
+        | Call (None,op_PipeLeft,[call; Call (None,_,[ValueWithName dst;ValueWithName src])]) -> 
+            Some (src,dst,call)
         | _ -> None
         
     let rec (|UnionCase|_|) = function
@@ -102,14 +112,15 @@ module private Parsers =
             Some (spouts,(dstId, unbox<Bolt<'t>> dst)::bolts,case.Name,srcId,dstId)
         | _ -> None
 
-    let toTopology name = function
+    let toTopology name = 
+        function
         | WithValue (f,_,StreamDef (spouts,bolts,streamId,srcId,dstId)) -> 
             let stream = (srcId,dstId) ||> unbox<ComponentId->ComponentId->Stream<'t>> f
-            {Name=name;
-             Spouts = Map.ofSeq<ComponentId,Spout<'t>> spouts
-             Bolts = Map.ofSeq<ComponentId,Bolt<'t>> bolts
-             Streams = Map.ofSeq [((srcId,streamId),dstId), stream] 
-             Anchors = Map.ofSeq [(srcId,streamId), if stream.Anchoring then fun (tid:TupleId) -> [tid] else fun (_:TupleId) -> [] ]}
+            { Name=name;
+              Spouts = Map.ofSeq<ComponentId,Spout<'t>> spouts
+              Bolts = Map.ofSeq<ComponentId,Bolt<'t>> bolts
+              Streams = Map.ofSeq [((srcId,streamId),dstId), stream] 
+              Anchors = Map.ofSeq [(srcId,streamId), if stream.Anchoring then fun (tid:TupleId) -> [tid] else fun (_:TupleId) -> [] ]}
         | exp -> raiseUnsupportedExpression exp
         
     let rec (|Projection|_|) (bindings:list<string*string>) = function
@@ -268,14 +279,18 @@ module DSL =
     let private mapJoin map1 map2 =
         Map.fold (fun acc key value -> Map.add key value acc) map1 map2
 
+    /// combine two topologies under the first topology's name
+    let (++) (t:Topology<'t>) (t2:Topology<'t>) =
+        { Name = t.Name;
+          Streams= t.Streams |> mapJoin t2.Streams
+          Spouts = t.Spouts |> mapJoin t2.Spouts
+          Bolts = t.Bolts |> mapJoin t2.Bolts
+          Anchors = t.Anchors |> mapJoin t2.Anchors }
+
     /// TopologyBuilder computation expression
     type TopologyBuilder(name) =
         member __.Combine(t:Topology<'t>, t2:Topology<'t>) = 
-            {Name=t.Name;
-             Streams= t.Streams |> mapJoin t2.Streams
-             Spouts = t.Spouts |> mapJoin t2.Spouts
-             Bolts = t.Bolts |> mapJoin t2.Bolts
-             Anchors = t.Anchors |> mapJoin t2.Anchors}
+            t ++ t2
 
         member __.Yield([<ReflectedDefinition(true)>] expr:Expr<ComponentId->ComponentId->Stream<'t>>):Topology<'t> = 
             Parsers.toTopology name expr
@@ -283,11 +298,11 @@ module DSL =
         member __.Delay(f) = f()
     
         member __.Zero() = 
-            {Name=name;
-             Streams= Map.empty<_,Stream<'t>>
-             Spouts = Map.empty<_,Spout<'t>>
-             Bolts = Map.empty<_,Bolt<'t>>
-             Anchors = Map.empty}
+            { Name=name;
+              Streams= Map.empty<_,Stream<'t>>
+              Spouts = Map.empty<_,Spout<'t>>
+              Bolts = Map.empty<_,Bolt<'t>>
+              Anchors = Map.empty}
 
     /// topology builder instance
     let topology name = 
