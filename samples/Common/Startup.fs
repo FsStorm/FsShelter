@@ -5,7 +5,7 @@ open System.IO
 
 let submit (topology:Topology.Topology<'t>) exePath mkCmdArgs conf address port = 
     let includes = [ Includes.buildOutput Includes.defaultExtensions
-                     Includes.jarContents "paket-files/run/github.com/protoshell-1.0.1-SNAPSHOT-jar-with-dependencies.jar" 
+                     Includes.jarContents "paket-files/run/github.com/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar" 
                    ] |> Includes.aggregate
     Nimbus.withClient address port
         (fun client ->

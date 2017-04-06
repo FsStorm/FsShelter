@@ -63,6 +63,27 @@ let ``reads nack``() =
         return! in'()
     } |> Async.RunSynchronously =! InCommand<Schema>.Nack "zzz"
 
+[<Test>]
+let ``reads activate``() = 
+    new System.IO.StringReader("""{"id":"","command":"activate"}"""+END)
+    |> Console.SetIn
+
+    let (in',_) = JsonIO.start ignore
+    
+    async {
+        return! in'()
+    } |> Async.RunSynchronously =! InCommand<Schema>.Activate
+
+[<Test>]
+let ``reads deactivate``() = 
+    new System.IO.StringReader("""{"id":"","command":"deactivate"}"""+END)
+    |> Console.SetIn
+
+    let (in',_) = JsonIO.start ignore
+    
+    async {
+        return! in'()
+    } |> Async.RunSynchronously =! InCommand<Schema>.Deactivate
 
 [<Test>]
 let ``reads tuple``() = 

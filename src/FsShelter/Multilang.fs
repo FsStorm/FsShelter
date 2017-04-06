@@ -28,6 +28,8 @@ type InCommand<'t> =
     | Next
     | TaskIds of int list
     | Heartbeat
+    | Activate
+    | Deactivate
 
 /// Shell messages
 type OutCommand<'t> = 

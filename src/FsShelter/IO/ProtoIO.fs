@@ -142,13 +142,15 @@ let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:M
     match msg.MsgCase with
     | Messages.StormMsg.MsgOneofCase.AckCmd -> Ack msg.AckCmd.Id
     | Messages.StormMsg.MsgOneofCase.Handshake -> Handshake (toConf msg.Handshake.Config, msg.Handshake.PidDir, (toContext msg.Handshake.Context))
-    | Messages.StormMsg.MsgOneofCase.Hearbeat -> Heartbeat
+    | Messages.StormMsg.MsgOneofCase.Heartbeat -> Heartbeat
     | Messages.StormMsg.MsgOneofCase.NackCmd -> Nack msg.NackCmd.Id
     | Messages.StormMsg.MsgOneofCase.NextCmd -> Next
     | Messages.StormMsg.MsgOneofCase.TaskIds -> TaskIds (msg.TaskIds.TaskIds |> List.ofSeq)
     | Messages.StormMsg.MsgOneofCase.StreamIn ->
         let constr = findConstructor msg.StreamIn.Stream
         InCommand.Tuple ((ofFields constr msg.StreamIn.Tuple)(), msg.StreamIn.Id, msg.StreamIn.Comp, msg.StreamIn.Stream, msg.StreamIn.Task)
+    | Messages.StormMsg.MsgOneofCase.ActivateCmd -> Activate
+    | Messages.StormMsg.MsgOneofCase.DeactivateCmd -> Deactivate
     | _ -> failwithf "Unexpected command: %A" msg
 
 let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO<'t> =
