@@ -126,6 +126,32 @@ let ``reads nack``() =
 
 
 [<Test>]
+let ``reads activate``() = 
+    let (in',_) = 
+        Messages.StormMsg(ActivateCmd=Messages.ActivateCommand())
+        |> toStreams (mkStreams())
+        |> ProtoIO.startWith
+        <|| (syncOut,ignore)
+    
+    async {
+        return! in'()
+    } |> Async.RunSynchronously =! InCommand<Schema>.Activate
+
+
+[<Test>]
+let ``reads deactivate``() = 
+    let (in',_) = 
+        Messages.StormMsg(DeactivateCmd=Messages.DeactivateCommand())
+        |> toStreams (mkStreams())
+        |> ProtoIO.startWith
+        <|| (syncOut,ignore)
+    
+    async {
+        return! in'()
+    } |> Async.RunSynchronously =! InCommand<Schema>.Deactivate
+
+
+[<Test>]
 let ``reads tuple``() = 
     let tuple = 
         Messages.StreamIn(

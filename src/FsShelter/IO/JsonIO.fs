@@ -119,6 +119,8 @@ let private (|Control|_|) (o:JObject) =
         | "next" -> Some (Next)
         | "ack" -> Some (Ack (o.["id"].ToObject()))
         | "fail" -> Some (Nack (o.["id"].ToObject()))
+        | "activate" -> Some(Activate)
+        | "deactivate" -> Some(Deactivate)
         | _ -> None
     | _ -> None
 

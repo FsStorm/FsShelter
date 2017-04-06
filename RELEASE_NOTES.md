@@ -1,3 +1,6 @@
+#### 0.0.11 - Apr 2017
+* Added support for `activate` and `deactivate` messages introduced in Storm 1.1.0
+
 #### 0.0.10 - Jan 2017
 * Extending DSL for components defined outside of `topology` CE
 * and adding the ability to combine (++) multiple topologies

@@ -22,6 +22,7 @@ let reliableSpoutLoop mkArgs mkAcker next getStream (in', out') conf =
                         | _ -> ()
                     | Ack tid -> ack tid
                     | Nack tid -> nack tid
+                    | Activate | Deactivate -> () // ignore for now
                     | _ -> failwithf "Unexpected command: %A" msg
                     Sync |> out'
                 }
@@ -42,6 +43,7 @@ let unreliableSpoutLoop mkArgs next getStream (in', out') conf =
                         | _ -> ()
                     | Ack _
                     | Nack _ -> ()
+                    | Activate | Deactivate -> () // ignore for now
                     | _ -> failwithf "Unexpected command: %A" msg
                     Sync |> out'
                 }

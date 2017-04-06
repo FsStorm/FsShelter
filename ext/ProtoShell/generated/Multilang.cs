@@ -10,7 +10,6 @@ using scg = global::System.Collections.Generic;
 namespace Prolucid.ProtoShell.Messages {
 
   /// <summary>Holder for reflection information generated from multilang.proto</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public static partial class MultilangReflection {
 
     #region Descriptor
@@ -42,28 +41,30 @@ namespace Prolucid.ProtoShell.Messages {
             "BHRhc2sYBCABKAUSFwoFdHVwbGUYBSADKAsyCC5WYXJpYW50Ih8KDFRhc2tJ",
             "ZHNSZXBseRIPCgd0YXNrSWRzGAEgAygFIgsKCUhlYXJ0YmVhdCINCgtOZXh0",
             "Q29tbWFuZCIYCgpBY2tDb21tYW5kEgoKAmlkGAEgASgJIhkKC05hY2tDb21t",
-            "YW5kEgoKAmlkGAEgASgJIvQBCghTdG9ybU1zZxIfCgloYW5kc2hha2UYASAB",
-            "KAsyCi5IYW5kc2hha2VIABIfCgduZXh0Q21kGAIgASgLMgwuTmV4dENvbW1h",
-            "bmRIABIdCgZhY2tDbWQYAyABKAsyCy5BY2tDb21tYW5kSAASHwoHbmFja0Nt",
-            "ZBgEIAEoCzIMLk5hY2tDb21tYW5kSAASHQoIc3RyZWFtSW4YBSABKAsyCS5T",
-            "dHJlYW1JbkgAEiAKB3Rhc2tJZHMYBiABKAsyDS5UYXNrSWRzUmVwbHlIABIe",
-            "CghoZWFyYmVhdBgHIAEoCzIKLkhlYXJ0YmVhdEgAQgUKA21zZyIVCgdPa1Jl",
-            "cGx5EgoKAmlkGAEgASgJIhcKCUZhaWxSZXBseRIKCgJpZBgBIAEoCSJ2CgtF",
-            "bWl0Q29tbWFuZBIKCgJpZBgBIAEoCRIOCgZzdHJlYW0YAiABKAkSFwoFdHVw",
-            "bGUYAyADKAsyCC5WYXJpYW50Eg8KB2FuY2hvcnMYBCADKAkSDAoEdGFzaxgF",
-            "IAEoBRITCgtuZWVkVGFza0lkcxgGIAEoCCKAAQoKTG9nQ29tbWFuZBIMCgR0",
-            "ZXh0GAEgASgJEiMKBWxldmVsGAIgASgOMhQuTG9nQ29tbWFuZC5Mb2dMZXZl",
-            "bCI/CghMb2dMZXZlbBIJCgVUcmFjZRAAEgkKBURlYnVnEAESCAoESW5mbxAC",
-            "EggKBFdhcm4QAxIJCgVFcnJvchAEIhcKCFBpZFJlcGx5EgsKA3BpZBgBIAEo",
-            "BSILCglTeW5jUmVwbHkiQgoGTWV0cmljEgwKBG5hbWUYASABKAkSKgoKcGFy",
-            "YW1ldGVycxgCIAMoCzIWLmdvb2dsZS5wcm90b2J1Zi5WYWx1ZSLOAQoIU2hl",
-            "bGxNc2cSFgoCb2sYASABKAsyCC5Pa1JlcGx5SAASGgoEZmFpbBgCIAEoCzIK",
-            "LkZhaWxSZXBseUgAEhwKBGVtaXQYAyABKAsyDC5FbWl0Q29tbWFuZEgAEhgK",
-            "A3BpZBgEIAEoCzIJLlBpZFJlcGx5SAASGgoDbG9nGAUgASgLMgsuTG9nQ29t",
-            "bWFuZEgAEhoKBHN5bmMYBiABKAsyCi5TeW5jUmVwbHlIABIXCgZtZXRyaWMY",
-            "ByABKAsyBy5NZXRyaWNCBQoDbXNnQkEKIGNvbS5wcm9sdWNpZC5wcm90b3No",
-            "ZWxsLm1lc3NhZ2VzqgIcUHJvbHVjaWQuUHJvdG9TaGVsbC5NZXNzYWdlc2IG",
-            "cHJvdG8z"));
+            "YW5kEgoKAmlkGAEgASgJIhEKD0FjdGl2YXRlQ29tbWFuZCITChFEZWFjdGl2",
+            "YXRlQ29tbWFuZCLLAgoIU3Rvcm1Nc2cSHwoJaGFuZHNoYWtlGAEgASgLMgou",
+            "SGFuZHNoYWtlSAASHwoHbmV4dENtZBgCIAEoCzIMLk5leHRDb21tYW5kSAAS",
+            "HQoGYWNrQ21kGAMgASgLMgsuQWNrQ29tbWFuZEgAEh8KB25hY2tDbWQYBCAB",
+            "KAsyDC5OYWNrQ29tbWFuZEgAEh0KCHN0cmVhbUluGAUgASgLMgkuU3RyZWFt",
+            "SW5IABIgCgd0YXNrSWRzGAYgASgLMg0uVGFza0lkc1JlcGx5SAASHwoJaGVh",
+            "cnRiZWF0GAcgASgLMgouSGVhcnRiZWF0SAASJwoLYWN0aXZhdGVDbWQYCCAB",
+            "KAsyEC5BY3RpdmF0ZUNvbW1hbmRIABIrCg1kZWFjdGl2YXRlQ21kGAkgASgL",
+            "MhIuRGVhY3RpdmF0ZUNvbW1hbmRIAEIFCgNtc2ciFQoHT2tSZXBseRIKCgJp",
+            "ZBgBIAEoCSIXCglGYWlsUmVwbHkSCgoCaWQYASABKAkidgoLRW1pdENvbW1h",
+            "bmQSCgoCaWQYASABKAkSDgoGc3RyZWFtGAIgASgJEhcKBXR1cGxlGAMgAygL",
+            "MgguVmFyaWFudBIPCgdhbmNob3JzGAQgAygJEgwKBHRhc2sYBSABKAUSEwoL",
+            "bmVlZFRhc2tJZHMYBiABKAgigAEKCkxvZ0NvbW1hbmQSDAoEdGV4dBgBIAEo",
+            "CRIjCgVsZXZlbBgCIAEoDjIULkxvZ0NvbW1hbmQuTG9nTGV2ZWwiPwoITG9n",
+            "TGV2ZWwSCQoFVHJhY2UQABIJCgVEZWJ1ZxABEggKBEluZm8QAhIICgRXYXJu",
+            "EAMSCQoFRXJyb3IQBCIXCghQaWRSZXBseRILCgNwaWQYASABKAUiCwoJU3lu",
+            "Y1JlcGx5IkIKBk1ldHJpYxIMCgRuYW1lGAEgASgJEioKCnBhcmFtZXRlcnMY",
+            "AiADKAsyFi5nb29nbGUucHJvdG9idWYuVmFsdWUizgEKCFNoZWxsTXNnEhYK",
+            "Am9rGAEgASgLMgguT2tSZXBseUgAEhoKBGZhaWwYAiABKAsyCi5GYWlsUmVw",
+            "bHlIABIcCgRlbWl0GAMgASgLMgwuRW1pdENvbW1hbmRIABIYCgNwaWQYBCAB",
+            "KAsyCS5QaWRSZXBseUgAEhoKA2xvZxgFIAEoCzILLkxvZ0NvbW1hbmRIABIa",
+            "CgRzeW5jGAYgASgLMgouU3luY1JlcGx5SAASFwoGbWV0cmljGAcgASgLMgcu",
+            "TWV0cmljQgUKA21zZ0JBCiBjb20ucHJvbHVjaWQucHJvdG9zaGVsbC5tZXNz",
+            "YWdlc6oCHFByb2x1Y2lkLlByb3RvU2hlbGwuTWVzc2FnZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -76,7 +77,9 @@ namespace Prolucid.ProtoShell.Messages {
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.NextCommand), global::Prolucid.ProtoShell.Messages.NextCommand.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.AckCommand), global::Prolucid.ProtoShell.Messages.AckCommand.Parser, new[]{ "Id" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.NackCommand), global::Prolucid.ProtoShell.Messages.NackCommand.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.StormMsg), global::Prolucid.ProtoShell.Messages.StormMsg.Parser, new[]{ "Handshake", "NextCmd", "AckCmd", "NackCmd", "StreamIn", "TaskIds", "Hearbeat" }, new[]{ "Msg" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.ActivateCommand), global::Prolucid.ProtoShell.Messages.ActivateCommand.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.DeactivateCommand), global::Prolucid.ProtoShell.Messages.DeactivateCommand.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.StormMsg), global::Prolucid.ProtoShell.Messages.StormMsg.Parser, new[]{ "Handshake", "NextCmd", "AckCmd", "NackCmd", "StreamIn", "TaskIds", "Heartbeat", "ActivateCmd", "DeactivateCmd" }, new[]{ "Msg" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.OkReply), global::Prolucid.ProtoShell.Messages.OkReply.Parser, new[]{ "Id" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.FailReply), global::Prolucid.ProtoShell.Messages.FailReply.Parser, new[]{ "Id" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.EmitCommand), global::Prolucid.ProtoShell.Messages.EmitCommand.Parser, new[]{ "Id", "Stream", "Tuple", "Anchors", "Task", "NeedTaskIds" }, null, null, null),
@@ -91,31 +94,36 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
   #region Messages
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class Context : pb::IMessage<Context> {
     private static readonly pb::MessageParser<Context> _parser = new pb::MessageParser<Context>(() => new Context());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Context> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[0]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Context() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Context(Context other) : this() {
       taskId_ = other.taskId_;
       taskComponents_ = other.taskComponents_.Clone();
       componentId_ = other.componentId_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Context Clone() {
       return new Context(this);
     }
@@ -123,6 +131,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "taskId" field.</summary>
     public const int TaskIdFieldNumber = 1;
     private int taskId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int TaskId {
       get { return taskId_; }
       set {
@@ -135,6 +144,7 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pbc::MapField<int, string>.Codec _map_taskComponents_codec
         = new pbc::MapField<int, string>.Codec(pb::FieldCodec.ForInt32(8), pb::FieldCodec.ForString(18), 18);
     private readonly pbc::MapField<int, string> taskComponents_ = new pbc::MapField<int, string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::MapField<int, string> TaskComponents {
       get { return taskComponents_; }
     }
@@ -142,6 +152,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "componentId" field.</summary>
     public const int ComponentIdFieldNumber = 3;
     private string componentId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string ComponentId {
       get { return componentId_; }
       set {
@@ -149,10 +160,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Context);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Context other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -166,6 +179,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (TaskId != 0) hash ^= TaskId.GetHashCode();
@@ -174,10 +188,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (TaskId != 0) {
         output.WriteRawTag(8);
@@ -190,6 +206,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (TaskId != 0) {
@@ -202,6 +219,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Context other) {
       if (other == null) {
         return;
@@ -215,6 +233,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -240,31 +259,36 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class Handshake : pb::IMessage<Handshake> {
     private static readonly pb::MessageParser<Handshake> _parser = new pb::MessageParser<Handshake>(() => new Handshake());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Handshake> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[1]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Handshake() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Handshake(Handshake other) : this() {
       pidDir_ = other.pidDir_;
       Context = other.context_ != null ? other.Context.Clone() : null;
       config_ = other.config_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Handshake Clone() {
       return new Handshake(this);
     }
@@ -272,6 +296,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "pidDir" field.</summary>
     public const int PidDirFieldNumber = 1;
     private string pidDir_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string PidDir {
       get { return pidDir_; }
       set {
@@ -282,6 +307,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "context" field.</summary>
     public const int ContextFieldNumber = 2;
     private global::Prolucid.ProtoShell.Messages.Context context_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.Context Context {
       get { return context_; }
       set {
@@ -294,14 +320,17 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pbc::MapField<string, global::Google.Protobuf.WellKnownTypes.Value>.Codec _map_config_codec
         = new pbc::MapField<string, global::Google.Protobuf.WellKnownTypes.Value>.Codec(pb::FieldCodec.ForString(10), pb::FieldCodec.ForMessage(18, global::Google.Protobuf.WellKnownTypes.Value.Parser), 26);
     private readonly pbc::MapField<string, global::Google.Protobuf.WellKnownTypes.Value> config_ = new pbc::MapField<string, global::Google.Protobuf.WellKnownTypes.Value>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::MapField<string, global::Google.Protobuf.WellKnownTypes.Value> Config {
       get { return config_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Handshake);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Handshake other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -315,6 +344,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (PidDir.Length != 0) hash ^= PidDir.GetHashCode();
@@ -323,10 +353,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (PidDir.Length != 0) {
         output.WriteRawTag(10);
@@ -339,6 +371,7 @@ namespace Prolucid.ProtoShell.Messages {
       config_.WriteTo(output, _map_config_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (PidDir.Length != 0) {
@@ -351,6 +384,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Handshake other) {
       if (other == null) {
         return;
@@ -367,6 +401,7 @@ namespace Prolucid.ProtoShell.Messages {
       config_.Add(other.config_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -395,25 +430,29 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class Variant : pb::IMessage<Variant> {
     private static readonly pb::MessageParser<Variant> _parser = new pb::MessageParser<Variant>(() => new Variant());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Variant> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[2]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Variant() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Variant(Variant other) : this() {
       switch (other.KindCase) {
         case KindOneofCase.StrVal:
@@ -447,12 +486,14 @@ namespace Prolucid.ProtoShell.Messages {
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Variant Clone() {
       return new Variant(this);
     }
 
     /// <summary>Field number for the "strVal" field.</summary>
     public const int StrValFieldNumber = 1;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string StrVal {
       get { return kindCase_ == KindOneofCase.StrVal ? (string) kind_ : ""; }
       set {
@@ -463,6 +504,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "int32Val" field.</summary>
     public const int Int32ValFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Int32Val {
       get { return kindCase_ == KindOneofCase.Int32Val ? (int) kind_ : 0; }
       set {
@@ -473,6 +515,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "int64Val" field.</summary>
     public const int Int64ValFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public long Int64Val {
       get { return kindCase_ == KindOneofCase.Int64Val ? (long) kind_ : 0L; }
       set {
@@ -483,6 +526,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "floatVal" field.</summary>
     public const int FloatValFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public float FloatVal {
       get { return kindCase_ == KindOneofCase.FloatVal ? (float) kind_ : 0F; }
       set {
@@ -493,6 +537,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "doubleVal" field.</summary>
     public const int DoubleValFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public double DoubleVal {
       get { return kindCase_ == KindOneofCase.DoubleVal ? (double) kind_ : 0D; }
       set {
@@ -503,6 +548,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "boolVal" field.</summary>
     public const int BoolValFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool BoolVal {
       get { return kindCase_ == KindOneofCase.BoolVal ? (bool) kind_ : false; }
       set {
@@ -513,6 +559,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "bytesVal" field.</summary>
     public const int BytesValFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pb::ByteString BytesVal {
       get { return kindCase_ == KindOneofCase.BytesVal ? (pb::ByteString) kind_ : pb::ByteString.Empty; }
       set {
@@ -523,6 +570,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "timestampVal" field.</summary>
     public const int TimestampValFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Google.Protobuf.WellKnownTypes.Timestamp TimestampVal {
       get { return kindCase_ == KindOneofCase.TimestampVal ? (global::Google.Protobuf.WellKnownTypes.Timestamp) kind_ : null; }
       set {
@@ -533,6 +581,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "noneVal" field.</summary>
     public const int NoneValFieldNumber = 9;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Google.Protobuf.WellKnownTypes.NullValue NoneVal {
       get { return kindCase_ == KindOneofCase.NoneVal ? (global::Google.Protobuf.WellKnownTypes.NullValue) kind_ : 0; }
       set {
@@ -556,19 +605,23 @@ namespace Prolucid.ProtoShell.Messages {
       NoneVal = 9,
     }
     private KindOneofCase kindCase_ = KindOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public KindOneofCase KindCase {
       get { return kindCase_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void ClearKind() {
       kindCase_ = KindOneofCase.None;
       kind_ = null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Variant);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Variant other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -589,6 +642,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (kindCase_ == KindOneofCase.StrVal) hash ^= StrVal.GetHashCode();
@@ -604,10 +658,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (kindCase_ == KindOneofCase.StrVal) {
         output.WriteRawTag(10);
@@ -647,6 +703,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (kindCase_ == KindOneofCase.StrVal) {
@@ -679,6 +736,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Variant other) {
       if (other == null) {
         return;
@@ -715,6 +773,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -770,25 +829,29 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class StreamIn : pb::IMessage<StreamIn> {
     private static readonly pb::MessageParser<StreamIn> _parser = new pb::MessageParser<StreamIn>(() => new StreamIn());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<StreamIn> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[3]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StreamIn() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StreamIn(StreamIn other) : this() {
       id_ = other.id_;
       comp_ = other.comp_;
@@ -797,6 +860,7 @@ namespace Prolucid.ProtoShell.Messages {
       tuple_ = other.tuple_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StreamIn Clone() {
       return new StreamIn(this);
     }
@@ -804,6 +868,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -814,6 +879,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "comp" field.</summary>
     public const int CompFieldNumber = 2;
     private string comp_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Comp {
       get { return comp_; }
       set {
@@ -824,6 +890,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "stream" field.</summary>
     public const int StreamFieldNumber = 3;
     private string stream_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Stream {
       get { return stream_; }
       set {
@@ -834,6 +901,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "task" field.</summary>
     public const int TaskFieldNumber = 4;
     private int task_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Task {
       get { return task_; }
       set {
@@ -846,14 +914,17 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pb::FieldCodec<global::Prolucid.ProtoShell.Messages.Variant> _repeated_tuple_codec
         = pb::FieldCodec.ForMessage(42, global::Prolucid.ProtoShell.Messages.Variant.Parser);
     private readonly pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> Tuple {
       get { return tuple_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StreamIn);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(StreamIn other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -869,6 +940,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
@@ -879,10 +951,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -903,6 +977,7 @@ namespace Prolucid.ProtoShell.Messages {
       tuple_.WriteTo(output, _repeated_tuple_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -921,6 +996,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(StreamIn other) {
       if (other == null) {
         return;
@@ -940,6 +1016,7 @@ namespace Prolucid.ProtoShell.Messages {
       tuple_.Add(other.tuple_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -973,29 +1050,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class TaskIdsReply : pb::IMessage<TaskIdsReply> {
     private static readonly pb::MessageParser<TaskIdsReply> _parser = new pb::MessageParser<TaskIdsReply>(() => new TaskIdsReply());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<TaskIdsReply> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[4]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public TaskIdsReply() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public TaskIdsReply(TaskIdsReply other) : this() {
       taskIds_ = other.taskIds_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public TaskIdsReply Clone() {
       return new TaskIdsReply(this);
     }
@@ -1005,14 +1087,17 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pb::FieldCodec<int> _repeated_taskIds_codec
         = pb::FieldCodec.ForInt32(10);
     private readonly pbc::RepeatedField<int> taskIds_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<int> TaskIds {
       get { return taskIds_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as TaskIdsReply);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(TaskIdsReply other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1024,26 +1109,31 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       hash ^= taskIds_.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       taskIds_.WriteTo(output, _repeated_taskIds_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       size += taskIds_.CalculateSize(_repeated_taskIds_codec);
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(TaskIdsReply other) {
       if (other == null) {
         return;
@@ -1051,6 +1141,7 @@ namespace Prolucid.ProtoShell.Messages {
       taskIds_.Add(other.taskIds_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1069,36 +1160,43 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class Heartbeat : pb::IMessage<Heartbeat> {
     private static readonly pb::MessageParser<Heartbeat> _parser = new pb::MessageParser<Heartbeat>(() => new Heartbeat());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Heartbeat> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[5]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Heartbeat() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Heartbeat(Heartbeat other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Heartbeat Clone() {
       return new Heartbeat(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Heartbeat);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Heartbeat other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1109,29 +1207,35 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Heartbeat other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1145,36 +1249,43 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class NextCommand : pb::IMessage<NextCommand> {
     private static readonly pb::MessageParser<NextCommand> _parser = new pb::MessageParser<NextCommand>(() => new NextCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<NextCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[6]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NextCommand() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NextCommand(NextCommand other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NextCommand Clone() {
       return new NextCommand(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as NextCommand);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(NextCommand other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1185,29 +1296,35 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(NextCommand other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1221,29 +1338,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class AckCommand : pb::IMessage<AckCommand> {
     private static readonly pb::MessageParser<AckCommand> _parser = new pb::MessageParser<AckCommand>(() => new AckCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<AckCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[7]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AckCommand() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AckCommand(AckCommand other) : this() {
       id_ = other.id_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AckCommand Clone() {
       return new AckCommand(this);
     }
@@ -1251,6 +1373,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -1258,10 +1381,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as AckCommand);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(AckCommand other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1273,16 +1398,19 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -1290,6 +1418,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -1298,6 +1427,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(AckCommand other) {
       if (other == null) {
         return;
@@ -1307,6 +1437,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1324,29 +1455,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class NackCommand : pb::IMessage<NackCommand> {
     private static readonly pb::MessageParser<NackCommand> _parser = new pb::MessageParser<NackCommand>(() => new NackCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<NackCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[8]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NackCommand() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NackCommand(NackCommand other) : this() {
       id_ = other.id_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public NackCommand Clone() {
       return new NackCommand(this);
     }
@@ -1354,6 +1490,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -1361,10 +1498,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as NackCommand);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(NackCommand other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1376,16 +1515,19 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -1393,6 +1535,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -1401,6 +1544,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(NackCommand other) {
       if (other == null) {
         return;
@@ -1410,6 +1554,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1427,25 +1572,207 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-  public sealed partial class StormMsg : pb::IMessage<StormMsg> {
-    private static readonly pb::MessageParser<StormMsg> _parser = new pb::MessageParser<StormMsg>(() => new StormMsg());
-    public static pb::MessageParser<StormMsg> Parser { get { return _parser; } }
+  public sealed partial class ActivateCommand : pb::IMessage<ActivateCommand> {
+    private static readonly pb::MessageParser<ActivateCommand> _parser = new pb::MessageParser<ActivateCommand>(() => new ActivateCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ActivateCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
       get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[9]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ActivateCommand() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ActivateCommand(ActivateCommand other) : this() {
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ActivateCommand Clone() {
+      return new ActivateCommand(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ActivateCommand);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ActivateCommand other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ActivateCommand other) {
+      if (other == null) {
+        return;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class DeactivateCommand : pb::IMessage<DeactivateCommand> {
+    private static readonly pb::MessageParser<DeactivateCommand> _parser = new pb::MessageParser<DeactivateCommand>(() => new DeactivateCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<DeactivateCommand> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[10]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DeactivateCommand() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DeactivateCommand(DeactivateCommand other) : this() {
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DeactivateCommand Clone() {
+      return new DeactivateCommand(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as DeactivateCommand);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(DeactivateCommand other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(DeactivateCommand other) {
+      if (other == null) {
+        return;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class StormMsg : pb::IMessage<StormMsg> {
+    private static readonly pb::MessageParser<StormMsg> _parser = new pb::MessageParser<StormMsg>(() => new StormMsg());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<StormMsg> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[11]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StormMsg() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StormMsg(StormMsg other) : this() {
       switch (other.MsgCase) {
         case MsgOneofCase.Handshake:
@@ -1466,19 +1793,27 @@ namespace Prolucid.ProtoShell.Messages {
         case MsgOneofCase.TaskIds:
           TaskIds = other.TaskIds.Clone();
           break;
-        case MsgOneofCase.Hearbeat:
-          Hearbeat = other.Hearbeat.Clone();
+        case MsgOneofCase.Heartbeat:
+          Heartbeat = other.Heartbeat.Clone();
+          break;
+        case MsgOneofCase.ActivateCmd:
+          ActivateCmd = other.ActivateCmd.Clone();
+          break;
+        case MsgOneofCase.DeactivateCmd:
+          DeactivateCmd = other.DeactivateCmd.Clone();
           break;
       }
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StormMsg Clone() {
       return new StormMsg(this);
     }
 
     /// <summary>Field number for the "handshake" field.</summary>
     public const int HandshakeFieldNumber = 1;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.Handshake Handshake {
       get { return msgCase_ == MsgOneofCase.Handshake ? (global::Prolucid.ProtoShell.Messages.Handshake) msg_ : null; }
       set {
@@ -1489,6 +1824,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "nextCmd" field.</summary>
     public const int NextCmdFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.NextCommand NextCmd {
       get { return msgCase_ == MsgOneofCase.NextCmd ? (global::Prolucid.ProtoShell.Messages.NextCommand) msg_ : null; }
       set {
@@ -1499,6 +1835,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "ackCmd" field.</summary>
     public const int AckCmdFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.AckCommand AckCmd {
       get { return msgCase_ == MsgOneofCase.AckCmd ? (global::Prolucid.ProtoShell.Messages.AckCommand) msg_ : null; }
       set {
@@ -1509,6 +1846,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "nackCmd" field.</summary>
     public const int NackCmdFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.NackCommand NackCmd {
       get { return msgCase_ == MsgOneofCase.NackCmd ? (global::Prolucid.ProtoShell.Messages.NackCommand) msg_ : null; }
       set {
@@ -1519,6 +1857,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "streamIn" field.</summary>
     public const int StreamInFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.StreamIn StreamIn {
       get { return msgCase_ == MsgOneofCase.StreamIn ? (global::Prolucid.ProtoShell.Messages.StreamIn) msg_ : null; }
       set {
@@ -1529,6 +1868,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "taskIds" field.</summary>
     public const int TaskIdsFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.TaskIdsReply TaskIds {
       get { return msgCase_ == MsgOneofCase.TaskIds ? (global::Prolucid.ProtoShell.Messages.TaskIdsReply) msg_ : null; }
       set {
@@ -1537,13 +1877,36 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
-    /// <summary>Field number for the "hearbeat" field.</summary>
-    public const int HearbeatFieldNumber = 7;
-    public global::Prolucid.ProtoShell.Messages.Heartbeat Hearbeat {
-      get { return msgCase_ == MsgOneofCase.Hearbeat ? (global::Prolucid.ProtoShell.Messages.Heartbeat) msg_ : null; }
+    /// <summary>Field number for the "heartbeat" field.</summary>
+    public const int HeartbeatFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Prolucid.ProtoShell.Messages.Heartbeat Heartbeat {
+      get { return msgCase_ == MsgOneofCase.Heartbeat ? (global::Prolucid.ProtoShell.Messages.Heartbeat) msg_ : null; }
       set {
         msg_ = value;
-        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Hearbeat;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Heartbeat;
+      }
+    }
+
+    /// <summary>Field number for the "activateCmd" field.</summary>
+    public const int ActivateCmdFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Prolucid.ProtoShell.Messages.ActivateCommand ActivateCmd {
+      get { return msgCase_ == MsgOneofCase.ActivateCmd ? (global::Prolucid.ProtoShell.Messages.ActivateCommand) msg_ : null; }
+      set {
+        msg_ = value;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.ActivateCmd;
+      }
+    }
+
+    /// <summary>Field number for the "deactivateCmd" field.</summary>
+    public const int DeactivateCmdFieldNumber = 9;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Prolucid.ProtoShell.Messages.DeactivateCommand DeactivateCmd {
+      get { return msgCase_ == MsgOneofCase.DeactivateCmd ? (global::Prolucid.ProtoShell.Messages.DeactivateCommand) msg_ : null; }
+      set {
+        msg_ = value;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.DeactivateCmd;
       }
     }
 
@@ -1557,22 +1920,28 @@ namespace Prolucid.ProtoShell.Messages {
       NackCmd = 4,
       StreamIn = 5,
       TaskIds = 6,
-      Hearbeat = 7,
+      Heartbeat = 7,
+      ActivateCmd = 8,
+      DeactivateCmd = 9,
     }
     private MsgOneofCase msgCase_ = MsgOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public MsgOneofCase MsgCase {
       get { return msgCase_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void ClearMsg() {
       msgCase_ = MsgOneofCase.None;
       msg_ = null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StormMsg);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(StormMsg other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1586,11 +1955,14 @@ namespace Prolucid.ProtoShell.Messages {
       if (!object.Equals(NackCmd, other.NackCmd)) return false;
       if (!object.Equals(StreamIn, other.StreamIn)) return false;
       if (!object.Equals(TaskIds, other.TaskIds)) return false;
-      if (!object.Equals(Hearbeat, other.Hearbeat)) return false;
+      if (!object.Equals(Heartbeat, other.Heartbeat)) return false;
+      if (!object.Equals(ActivateCmd, other.ActivateCmd)) return false;
+      if (!object.Equals(DeactivateCmd, other.DeactivateCmd)) return false;
       if (MsgCase != other.MsgCase) return false;
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (msgCase_ == MsgOneofCase.Handshake) hash ^= Handshake.GetHashCode();
@@ -1599,15 +1971,19 @@ namespace Prolucid.ProtoShell.Messages {
       if (msgCase_ == MsgOneofCase.NackCmd) hash ^= NackCmd.GetHashCode();
       if (msgCase_ == MsgOneofCase.StreamIn) hash ^= StreamIn.GetHashCode();
       if (msgCase_ == MsgOneofCase.TaskIds) hash ^= TaskIds.GetHashCode();
-      if (msgCase_ == MsgOneofCase.Hearbeat) hash ^= Hearbeat.GetHashCode();
+      if (msgCase_ == MsgOneofCase.Heartbeat) hash ^= Heartbeat.GetHashCode();
+      if (msgCase_ == MsgOneofCase.ActivateCmd) hash ^= ActivateCmd.GetHashCode();
+      if (msgCase_ == MsgOneofCase.DeactivateCmd) hash ^= DeactivateCmd.GetHashCode();
       hash ^= (int) msgCase_;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (msgCase_ == MsgOneofCase.Handshake) {
         output.WriteRawTag(10);
@@ -1633,12 +2009,21 @@ namespace Prolucid.ProtoShell.Messages {
         output.WriteRawTag(50);
         output.WriteMessage(TaskIds);
       }
-      if (msgCase_ == MsgOneofCase.Hearbeat) {
+      if (msgCase_ == MsgOneofCase.Heartbeat) {
         output.WriteRawTag(58);
-        output.WriteMessage(Hearbeat);
+        output.WriteMessage(Heartbeat);
+      }
+      if (msgCase_ == MsgOneofCase.ActivateCmd) {
+        output.WriteRawTag(66);
+        output.WriteMessage(ActivateCmd);
+      }
+      if (msgCase_ == MsgOneofCase.DeactivateCmd) {
+        output.WriteRawTag(74);
+        output.WriteMessage(DeactivateCmd);
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (msgCase_ == MsgOneofCase.Handshake) {
@@ -1659,12 +2044,19 @@ namespace Prolucid.ProtoShell.Messages {
       if (msgCase_ == MsgOneofCase.TaskIds) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(TaskIds);
       }
-      if (msgCase_ == MsgOneofCase.Hearbeat) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Hearbeat);
+      if (msgCase_ == MsgOneofCase.Heartbeat) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Heartbeat);
+      }
+      if (msgCase_ == MsgOneofCase.ActivateCmd) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ActivateCmd);
+      }
+      if (msgCase_ == MsgOneofCase.DeactivateCmd) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(DeactivateCmd);
       }
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(StormMsg other) {
       if (other == null) {
         return;
@@ -1688,13 +2080,20 @@ namespace Prolucid.ProtoShell.Messages {
         case MsgOneofCase.TaskIds:
           TaskIds = other.TaskIds;
           break;
-        case MsgOneofCase.Hearbeat:
-          Hearbeat = other.Hearbeat;
+        case MsgOneofCase.Heartbeat:
+          Heartbeat = other.Heartbeat;
+          break;
+        case MsgOneofCase.ActivateCmd:
+          ActivateCmd = other.ActivateCmd;
+          break;
+        case MsgOneofCase.DeactivateCmd:
+          DeactivateCmd = other.DeactivateCmd;
           break;
       }
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1758,11 +2157,29 @@ namespace Prolucid.ProtoShell.Messages {
           }
           case 58: {
             global::Prolucid.ProtoShell.Messages.Heartbeat subBuilder = new global::Prolucid.ProtoShell.Messages.Heartbeat();
-            if (msgCase_ == MsgOneofCase.Hearbeat) {
-              subBuilder.MergeFrom(Hearbeat);
+            if (msgCase_ == MsgOneofCase.Heartbeat) {
+              subBuilder.MergeFrom(Heartbeat);
             }
             input.ReadMessage(subBuilder);
-            Hearbeat = subBuilder;
+            Heartbeat = subBuilder;
+            break;
+          }
+          case 66: {
+            global::Prolucid.ProtoShell.Messages.ActivateCommand subBuilder = new global::Prolucid.ProtoShell.Messages.ActivateCommand();
+            if (msgCase_ == MsgOneofCase.ActivateCmd) {
+              subBuilder.MergeFrom(ActivateCmd);
+            }
+            input.ReadMessage(subBuilder);
+            ActivateCmd = subBuilder;
+            break;
+          }
+          case 74: {
+            global::Prolucid.ProtoShell.Messages.DeactivateCommand subBuilder = new global::Prolucid.ProtoShell.Messages.DeactivateCommand();
+            if (msgCase_ == MsgOneofCase.DeactivateCmd) {
+              subBuilder.MergeFrom(DeactivateCmd);
+            }
+            input.ReadMessage(subBuilder);
+            DeactivateCmd = subBuilder;
             break;
           }
         }
@@ -1771,29 +2188,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class OkReply : pb::IMessage<OkReply> {
     private static readonly pb::MessageParser<OkReply> _parser = new pb::MessageParser<OkReply>(() => new OkReply());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<OkReply> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[12]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public OkReply() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public OkReply(OkReply other) : this() {
       id_ = other.id_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public OkReply Clone() {
       return new OkReply(this);
     }
@@ -1801,6 +2223,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -1808,10 +2231,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as OkReply);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(OkReply other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1823,16 +2248,19 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -1840,6 +2268,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -1848,6 +2277,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(OkReply other) {
       if (other == null) {
         return;
@@ -1857,6 +2287,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1874,29 +2305,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class FailReply : pb::IMessage<FailReply> {
     private static readonly pb::MessageParser<FailReply> _parser = new pb::MessageParser<FailReply>(() => new FailReply());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<FailReply> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[13]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public FailReply() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public FailReply(FailReply other) : this() {
       id_ = other.id_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public FailReply Clone() {
       return new FailReply(this);
     }
@@ -1904,6 +2340,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -1911,10 +2348,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as FailReply);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(FailReply other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -1926,16 +2365,19 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -1943,6 +2385,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -1951,6 +2394,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(FailReply other) {
       if (other == null) {
         return;
@@ -1960,6 +2404,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -1977,25 +2422,29 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class EmitCommand : pb::IMessage<EmitCommand> {
     private static readonly pb::MessageParser<EmitCommand> _parser = new pb::MessageParser<EmitCommand>(() => new EmitCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<EmitCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[14]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public EmitCommand() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public EmitCommand(EmitCommand other) : this() {
       id_ = other.id_;
       stream_ = other.stream_;
@@ -2005,6 +2454,7 @@ namespace Prolucid.ProtoShell.Messages {
       needTaskIds_ = other.needTaskIds_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public EmitCommand Clone() {
       return new EmitCommand(this);
     }
@@ -2012,6 +2462,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "id" field.</summary>
     public const int IdFieldNumber = 1;
     private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Id {
       get { return id_; }
       set {
@@ -2022,6 +2473,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "stream" field.</summary>
     public const int StreamFieldNumber = 2;
     private string stream_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Stream {
       get { return stream_; }
       set {
@@ -2034,6 +2486,7 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pb::FieldCodec<global::Prolucid.ProtoShell.Messages.Variant> _repeated_tuple_codec
         = pb::FieldCodec.ForMessage(26, global::Prolucid.ProtoShell.Messages.Variant.Parser);
     private readonly pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> Tuple {
       get { return tuple_; }
     }
@@ -2043,6 +2496,7 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pb::FieldCodec<string> _repeated_anchors_codec
         = pb::FieldCodec.ForString(34);
     private readonly pbc::RepeatedField<string> anchors_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<string> Anchors {
       get { return anchors_; }
     }
@@ -2050,6 +2504,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "task" field.</summary>
     public const int TaskFieldNumber = 5;
     private int task_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Task {
       get { return task_; }
       set {
@@ -2060,6 +2515,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "needTaskIds" field.</summary>
     public const int NeedTaskIdsFieldNumber = 6;
     private bool needTaskIds_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool NeedTaskIds {
       get { return needTaskIds_; }
       set {
@@ -2067,10 +2523,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as EmitCommand);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(EmitCommand other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2087,6 +2545,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Id.Length != 0) hash ^= Id.GetHashCode();
@@ -2098,10 +2557,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Id.Length != 0) {
         output.WriteRawTag(10);
@@ -2123,6 +2584,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Id.Length != 0) {
@@ -2142,6 +2604,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(EmitCommand other) {
       if (other == null) {
         return;
@@ -2162,6 +2625,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -2199,30 +2663,35 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class LogCommand : pb::IMessage<LogCommand> {
     private static readonly pb::MessageParser<LogCommand> _parser = new pb::MessageParser<LogCommand>(() => new LogCommand());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<LogCommand> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[15]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public LogCommand() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public LogCommand(LogCommand other) : this() {
       text_ = other.text_;
       level_ = other.level_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public LogCommand Clone() {
       return new LogCommand(this);
     }
@@ -2230,6 +2699,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "text" field.</summary>
     public const int TextFieldNumber = 1;
     private string text_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Text {
       get { return text_; }
       set {
@@ -2240,6 +2710,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "level" field.</summary>
     public const int LevelFieldNumber = 2;
     private global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel level_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel Level {
       get { return level_; }
       set {
@@ -2247,10 +2718,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as LogCommand);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(LogCommand other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2263,6 +2736,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Text.Length != 0) hash ^= Text.GetHashCode();
@@ -2270,10 +2744,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Text.Length != 0) {
         output.WriteRawTag(10);
@@ -2285,6 +2761,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Text.Length != 0) {
@@ -2296,6 +2773,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(LogCommand other) {
       if (other == null) {
         return;
@@ -2308,6 +2786,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -2329,7 +2808,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     #region Nested types
     /// <summary>Container for nested types declared in the LogCommand message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static partial class Types {
       public enum LogLevel {
         [pbr::OriginalName("Trace")] Trace = 0,
@@ -2344,29 +2823,34 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class PidReply : pb::IMessage<PidReply> {
     private static readonly pb::MessageParser<PidReply> _parser = new pb::MessageParser<PidReply>(() => new PidReply());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<PidReply> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[16]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public PidReply() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public PidReply(PidReply other) : this() {
       pid_ = other.pid_;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public PidReply Clone() {
       return new PidReply(this);
     }
@@ -2374,6 +2858,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "pid" field.</summary>
     public const int PidFieldNumber = 1;
     private int pid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Pid {
       get { return pid_; }
       set {
@@ -2381,10 +2866,12 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as PidReply);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(PidReply other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2396,16 +2883,19 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Pid != 0) hash ^= Pid.GetHashCode();
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Pid != 0) {
         output.WriteRawTag(8);
@@ -2413,6 +2903,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Pid != 0) {
@@ -2421,6 +2912,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(PidReply other) {
       if (other == null) {
         return;
@@ -2430,6 +2922,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -2447,36 +2940,43 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class SyncReply : pb::IMessage<SyncReply> {
     private static readonly pb::MessageParser<SyncReply> _parser = new pb::MessageParser<SyncReply>(() => new SyncReply());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<SyncReply> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[17]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SyncReply() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SyncReply(SyncReply other) : this() {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public SyncReply Clone() {
       return new SyncReply(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as SyncReply);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(SyncReply other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2487,29 +2987,35 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(SyncReply other) {
       if (other == null) {
         return;
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -2523,30 +3029,35 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class Metric : pb::IMessage<Metric> {
     private static readonly pb::MessageParser<Metric> _parser = new pb::MessageParser<Metric>(() => new Metric());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<Metric> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[18]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Metric() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Metric(Metric other) : this() {
       name_ = other.name_;
       parameters_ = other.parameters_.Clone();
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Metric Clone() {
       return new Metric(this);
     }
@@ -2554,6 +3065,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
     private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
       set {
@@ -2566,14 +3078,17 @@ namespace Prolucid.ProtoShell.Messages {
     private static readonly pb::FieldCodec<global::Google.Protobuf.WellKnownTypes.Value> _repeated_parameters_codec
         = pb::FieldCodec.ForMessage(18, global::Google.Protobuf.WellKnownTypes.Value.Parser);
     private readonly pbc::RepeatedField<global::Google.Protobuf.WellKnownTypes.Value> parameters_ = new pbc::RepeatedField<global::Google.Protobuf.WellKnownTypes.Value>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public pbc::RepeatedField<global::Google.Protobuf.WellKnownTypes.Value> Parameters {
       get { return parameters_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Metric);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(Metric other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2586,6 +3101,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (Name.Length != 0) hash ^= Name.GetHashCode();
@@ -2593,10 +3109,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (Name.Length != 0) {
         output.WriteRawTag(10);
@@ -2605,6 +3123,7 @@ namespace Prolucid.ProtoShell.Messages {
       parameters_.WriteTo(output, _repeated_parameters_codec);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (Name.Length != 0) {
@@ -2614,6 +3133,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(Metric other) {
       if (other == null) {
         return;
@@ -2624,6 +3144,7 @@ namespace Prolucid.ProtoShell.Messages {
       parameters_.Add(other.parameters_);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
@@ -2645,25 +3166,29 @@ namespace Prolucid.ProtoShell.Messages {
 
   }
 
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class ShellMsg : pb::IMessage<ShellMsg> {
     private static readonly pb::MessageParser<ShellMsg> _parser = new pb::MessageParser<ShellMsg>(() => new ShellMsg());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pb::MessageParser<ShellMsg> Parser { get { return _parser; } }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[19]; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ShellMsg() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ShellMsg(ShellMsg other) : this() {
       Metric = other.metric_ != null ? other.Metric.Clone() : null;
       switch (other.MsgCase) {
@@ -2689,12 +3214,14 @@ namespace Prolucid.ProtoShell.Messages {
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ShellMsg Clone() {
       return new ShellMsg(this);
     }
 
     /// <summary>Field number for the "ok" field.</summary>
     public const int OkFieldNumber = 1;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.OkReply Ok {
       get { return msgCase_ == MsgOneofCase.Ok ? (global::Prolucid.ProtoShell.Messages.OkReply) msg_ : null; }
       set {
@@ -2705,6 +3232,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "fail" field.</summary>
     public const int FailFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.FailReply Fail {
       get { return msgCase_ == MsgOneofCase.Fail ? (global::Prolucid.ProtoShell.Messages.FailReply) msg_ : null; }
       set {
@@ -2715,6 +3243,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "emit" field.</summary>
     public const int EmitFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.EmitCommand Emit {
       get { return msgCase_ == MsgOneofCase.Emit ? (global::Prolucid.ProtoShell.Messages.EmitCommand) msg_ : null; }
       set {
@@ -2725,6 +3254,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "pid" field.</summary>
     public const int PidFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.PidReply Pid {
       get { return msgCase_ == MsgOneofCase.Pid ? (global::Prolucid.ProtoShell.Messages.PidReply) msg_ : null; }
       set {
@@ -2735,6 +3265,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "log" field.</summary>
     public const int LogFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.LogCommand Log {
       get { return msgCase_ == MsgOneofCase.Log ? (global::Prolucid.ProtoShell.Messages.LogCommand) msg_ : null; }
       set {
@@ -2745,6 +3276,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "sync" field.</summary>
     public const int SyncFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.SyncReply Sync {
       get { return msgCase_ == MsgOneofCase.Sync ? (global::Prolucid.ProtoShell.Messages.SyncReply) msg_ : null; }
       set {
@@ -2756,6 +3288,7 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "metric" field.</summary>
     public const int MetricFieldNumber = 7;
     private global::Prolucid.ProtoShell.Messages.Metric metric_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Prolucid.ProtoShell.Messages.Metric Metric {
       get { return metric_; }
       set {
@@ -2775,19 +3308,23 @@ namespace Prolucid.ProtoShell.Messages {
       Sync = 6,
     }
     private MsgOneofCase msgCase_ = MsgOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public MsgOneofCase MsgCase {
       get { return msgCase_; }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void ClearMsg() {
       msgCase_ = MsgOneofCase.None;
       msg_ = null;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as ShellMsg);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public bool Equals(ShellMsg other) {
       if (ReferenceEquals(other, null)) {
         return false;
@@ -2806,6 +3343,7 @@ namespace Prolucid.ProtoShell.Messages {
       return true;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
       if (msgCase_ == MsgOneofCase.Ok) hash ^= Ok.GetHashCode();
@@ -2819,10 +3357,12 @@ namespace Prolucid.ProtoShell.Messages {
       return hash;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       if (msgCase_ == MsgOneofCase.Ok) {
         output.WriteRawTag(10);
@@ -2854,6 +3394,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
       if (msgCase_ == MsgOneofCase.Ok) {
@@ -2880,6 +3421,7 @@ namespace Prolucid.ProtoShell.Messages {
       return size;
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(ShellMsg other) {
       if (other == null) {
         return;
@@ -2913,6 +3455,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     }
 
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void MergeFrom(pb::CodedInputStream input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
