@@ -20,7 +20,7 @@ Overall, the librabry provides "batteries included" experience with wrappers for
 - generate a topology graph as part of your build
 
 The topology and the components could be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
-Corresponding [ProtoShell](https://github.com/prolucid/protoshell) Storm-side library facilitates Protobuf serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
+Corresponding [ProtoShell](https://github.com/prolucid/protoshell) Storm-side library facilitates Protobuf serialization, which improves throughput of FsShelter topologies as compared to default JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.
 
 Bring your own, if you need it:
