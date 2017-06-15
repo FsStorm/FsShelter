@@ -61,3 +61,5 @@ text=cr
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+ext/* linguist-vendored

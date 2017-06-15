@@ -56,6 +56,7 @@ let autoAckBoltLoop mkArgs consume getAnchors getStream (in', out') conf =
         while true do
             let! msg = in'()
             match msg with
+            | Activate | Deactivate -> () // ignore for now
             | Heartbeat -> Sync |> out'
             | Tuple(tuple, id, src, stream, task) -> 
                 let emit t = Emit(t, None, getAnchors (src,stream) id, (getStream t), None, None) |> out'
@@ -76,6 +77,7 @@ let autoNackBoltLoop mkArgs consume (in', out') conf =
         while true do
             let! msg = in'()
             match msg with
+            | Activate | Deactivate -> () // ignore for now
             | Heartbeat -> Sync |> out'
             | Tuple(tuple, id, src, stream, task) -> 
                 let! res = consume (args tuple) |> Async.Catch

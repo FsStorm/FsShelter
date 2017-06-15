@@ -65,9 +65,9 @@ let t1 = topology "test" {
              |> withParallelism 2
     let b2 = resultBolt
              |> runBolt (fun _ _ t _ -> ignore,t)
-    yield s1 ==> b1 |> shuffle.on Original
-    yield b1 --> b2 |> group.by (function Odd(n,_) -> (n.x)) 
-    yield b1 --> b2 |> group.by (function Even(x,str) -> (x.x,str.str))
+    yield s1 ==> b1 |> Shuffle.on Original
+    yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x)) 
+    yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
 }
 
 let t2 = topology "test2" {
@@ -77,8 +77,8 @@ let t2 = topology "test2" {
     let b3 = java "class" ["args"]
              |> asBolt<Schema>
              |> withConf []
-    yield s2 --> b3 |> all.on Nested
-    yield s2 --> b3 |> all.on JustFields
+    yield s2 --> b3 |> All.on Nested
+    yield s2 --> b3 |> All.on JustFields
 }
 
 let t3 = topology "test3" {
@@ -91,6 +91,6 @@ let t3 = topology "test3" {
     let b2 = java "class" ["args"]
              |> asBolt<Schema>
              |> withConf []
-    yield s1 --> b1 |> shuffle.on Original
-    yield s1 --> b2 |> shuffle.on Original
+    yield s1 --> b1 |> Shuffle.on Original
+    yield s1 --> b2 |> Shuffle.on Original
 }

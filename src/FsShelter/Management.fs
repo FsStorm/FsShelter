@@ -6,8 +6,8 @@ module private Json =
     open Newtonsoft.Json
 
     let ofConf = function
-        | Some conf -> JsonConvert.SerializeObject conf
-        | _ -> null
+        | conf when Map.isEmpty conf -> null
+        | conf -> conf |> Conf.toDict |> JsonConvert.SerializeObject 
 
 /// File system utilities
 module Includes = 
@@ -123,21 +123,19 @@ module ThriftModel =
                                                    Script = match optionalArgs with [] -> "" | xs -> String.Join(" ", xs)))
     
     let private toGrouping = function
-        | Shuffle        -> Grouping(Shuffle = NullStruct())
-        | Fields fields  -> Grouping(Fields = List(fields))
-        | All            -> Grouping(All = NullStruct())
-        | Direct         -> Grouping(Direct = NullStruct())
+        | Shuffle            -> Grouping(Shuffle = NullStruct())
+        | Fields (_,fields)  -> Grouping(Fields = List(fields))
+        | All                -> Grouping(All = NullStruct())
+        | Direct             -> Grouping(Direct = NullStruct())
 
-    let private toDict (s:seq<_*_>) = System.Linq.Enumerable.ToDictionary(s, fst, snd)
-    
     let private toStreamInfo stream = 
         (stream.Schema |> List, match stream.Grouping with | Direct -> true | _ -> false)
         |> StreamInfo
     
     let private toBolt exe optionalArgs outs ins (cid,bolt) =
         let noop _ _ = []
-        let inputs = ins |> Seq.map (fun (((_,sid),_), s) -> (GlobalStreamId(s.Src, sid), toGrouping s.Grouping)) |> toDict
-        let outputs = outs |> Seq.map (fun (((_,sid),_), s) -> (sid, toStreamInfo s)) |> toDict
+        let inputs = ins |> Seq.map (fun (((_,sid),_), s) -> (GlobalStreamId(s.Src, sid), toGrouping s.Grouping)) |> Seq.toDict
+        let outputs = outs |> Seq.map (fun (((_,sid),_), s) -> (sid, toStreamInfo s)) |> Seq.toDict
         cid,Bolt(toComponent exe optionalArgs (bolt.MkComp noop),
                 ComponentCommon(Parallelism_hint = int bolt.Parallelism,
                                 Inputs = inputs,
@@ -145,7 +143,7 @@ module ThriftModel =
                                 Json_conf = Json.ofConf bolt.Conf))
 
     let private toSpout exe optionalArgs outs (cid:string,spout:Spout<_>) =
-        let outputs = outs |> Seq.map (fun (((_,sid),_), stm) -> (sid, toStreamInfo stm)) |> toDict
+        let outputs = outs |> Seq.map (fun (((_,sid),_), stm) -> (sid, toStreamInfo stm)) |> Seq.toDict
         cid,SpoutSpec(toComponent exe optionalArgs (spout.MkComp ()),
                      ComponentCommon(Parallelism_hint = int spout.Parallelism,
                                      Inputs = Dictionary(),
@@ -166,8 +164,8 @@ module ThriftModel =
                     |> Seq.map (fun (cid,cmp) -> toSpout exeName args (bySource |> seqOrEmpty cid) (cid,cmp))
 
         topology.Name,
-        StormTopology(Bolts = (bolts |> toDict),
-                      Spouts = (spouts |> toDict),
+        StormTopology(Bolts = (bolts |> Seq.toDict),
+                      Spouts = (spouts |> Seq.toDict),
                       State_spouts = Dictionary())
 
 /// Executable startup helpers

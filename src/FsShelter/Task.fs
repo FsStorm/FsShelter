@@ -53,7 +53,7 @@ let ofTopology (t : Topology<'t>) compId =
     | _ -> failwithf "Not a runnable component: %s" compId
 
 /// Reads the handshake and runs the specified task with a logger
-let runWith (startLog:int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
+let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
     async { 
         let pid = pid()
         let log = startLog pid

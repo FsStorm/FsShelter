@@ -15,5 +15,5 @@ let submit (topology:Topology.Topology<'t>) exePath mkCmdArgs conf address port 
                 |> Nimbus.uploadJar client
             (mkCmdArgs exePath,topology)
             ||> ThriftModel.ofTopology 
-            |> Nimbus.submit client (Some conf) uploadedFile)
+            |> Nimbus.submit client conf uploadedFile)
 

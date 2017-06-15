@@ -27,22 +27,22 @@ module Topology =
     type Spout<'t> = {
         MkComp:unit->Component<'t>
         Parallelism:uint32
-        Conf:Conf option
-    } with static member WithConf (s,conf) = {s with Conf = Some conf}
+        Conf:Conf 
+    } with static member WithConf (s,conf) = {s with Conf = conf}
            static member WithParallelism (s,p) = {s with Parallelism = p}
 
     /// Storm Bolt abstraction
     type Bolt<'t> = {
         MkComp:(StreamId->ToAnchors)->Component<'t>
         Parallelism:uint32
-        Conf:Conf option
-    } with static member WithConf (s,conf) = {s with Bolt.Conf = Some conf}
+        Conf:Conf 
+    } with static member WithConf (s,conf) = {s with Bolt.Conf = conf}
            static member WithParallelism (s,p) = {s with Bolt.Parallelism = p}
 
     /// Storm stream grouping abstraction
     type Grouping<'t> = 
         | Shuffle
-        | Fields of names:string list
+        | Fields of getValue:('t->obj) * names:string list
         | All
         | Direct
 
@@ -62,4 +62,5 @@ module Topology =
         Bolts:Map<ComponentId,Bolt<'t>>
         Streams:Map<StreamId*ComponentId,Stream<'t>>
         Anchors:Map<StreamId,ToAnchors>
-    }
+        Conf:Conf 
+    } with static member WithConf (s,conf) = {s with Topology.Conf = conf}

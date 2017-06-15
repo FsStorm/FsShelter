@@ -9,9 +9,9 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 // management CLI and task execution entry point
 [<EntryPoint>]
 let main argv = 
-    let cfg = ["topology.multilang.serializer",box "com.prolucid.protoshell.ProtoSerializer"
-               "topology.max.spout.pending", box 123
-               "topology.debug",box false] |> dict
+    let cfg = [Conf.TOPOLOGY_MULTILANG_SERIALIZER, box "com.prolucid.protoshell.ProtoSerializer"
+               Conf.TOPOLOGY_MAX_SPOUT_PENDING, box 123
+               Conf.TOPOLOGY_DEBUG, box false] |> Conf.ofList
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 

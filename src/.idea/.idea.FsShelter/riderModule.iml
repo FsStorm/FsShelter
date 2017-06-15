@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RIDER_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/../../../LICENSE.md">
+      <sourceFolder url="file://$MODULE_DIR$/../../../LICENSE.md" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../README.md">
+      <sourceFolder url="file://$MODULE_DIR$/../../../README.md" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../RELEASE_NOTES.md">
+      <sourceFolder url="file://$MODULE_DIR$/../../../RELEASE_NOTES.md" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../build.fsx">
+      <sourceFolder url="file://$MODULE_DIR$/../../../build.fsx" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../docs/content/guaranteed.fsx">
+      <sourceFolder url="file://$MODULE_DIR$/../../../docs/content/guaranteed.fsx" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../docs/content/index.fsx">
+      <sourceFolder url="file://$MODULE_DIR$/../../../docs/content/index.fsx" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../docs/content/schema.fsx">
+      <sourceFolder url="file://$MODULE_DIR$/../../../docs/content/schema.fsx" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../docs/content/wordcount.fsx">
+      <sourceFolder url="file://$MODULE_DIR$/../../../docs/content/wordcount.fsx" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../ext/ProtoShell">
+      <sourceFolder url="file://$MODULE_DIR$/../../../ext/ProtoShell" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../ext/ProtoShell/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../ext/ProtoShell/obj" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../ext/StormThrift">
+      <sourceFolder url="file://$MODULE_DIR$/../../../ext/StormThrift" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../ext/StormThrift/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../ext/StormThrift/obj" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../paket-files/et1975/storm/storm-core/src/storm.thrift">
+      <sourceFolder url="file://$MODULE_DIR$/../../../paket-files/et1975/storm/storm-core/src/storm.thrift" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../paket.dependencies">
+      <sourceFolder url="file://$MODULE_DIR$/../../../paket.dependencies" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../paket.lock">
+      <sourceFolder url="file://$MODULE_DIR$/../../../paket.lock" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../paket.template">
+      <sourceFolder url="file://$MODULE_DIR$/../../../paket.template" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../samples/Common">
+      <sourceFolder url="file://$MODULE_DIR$/../../../samples/Common" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/Common/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/Common/obj" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../samples/Guaranteed">
+      <sourceFolder url="file://$MODULE_DIR$/../../../samples/Guaranteed" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/Guaranteed/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/Guaranteed/obj" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../samples/WordCount">
+      <sourceFolder url="file://$MODULE_DIR$/../../../samples/WordCount" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/WordCount/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../samples/WordCount/obj" />
+    </content>
+    <content url="file://$MODULE_DIR$/../..">
+      <sourceFolder url="file://$MODULE_DIR$/../../FsShelter" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../FsShelter.Tests" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../FsShelter.Tests/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../FsShelter.Tests/obj" />
+      <excludeFolder url="file://$MODULE_DIR$/../../FsShelter/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../FsShelter/obj" />
+      <excludeFolder url="file://$MODULE_DIR$/../../packages" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

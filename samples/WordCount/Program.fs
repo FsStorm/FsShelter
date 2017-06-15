@@ -9,8 +9,8 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 // management CLI and task execution entry point
 [<EntryPoint>]
 let main argv = 
-    let cfg = ["topology.multilang.serializer", box "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
-               "topology.debug", box false] |> dict // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
+    let cfg = [Conf.TOPOLOGY_MULTILANG_SERIALIZER, box "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
+               Conf.TOPOLOGY_DEBUG, box false] |> Conf.ofList // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 

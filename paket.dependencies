@@ -13,6 +13,7 @@ group Build
 
 group Main
 	source https://nuget.org/api/v2
+	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf
 	nuget thrift

@@ -3,8 +3,6 @@
 module FsShelter.Multilang
 open System
 
-type Conf = Map<string,obj>
-
 /// Storm log levels
 type LogLevel = 
     | Trace = 0
