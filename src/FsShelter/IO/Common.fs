@@ -19,7 +19,7 @@ module internal Common =
             })
         mb.Post
 
-    open Nessos.FsPickler
+    open MBrace.FsPickler
     open FSharp.Reflection
 
     let private blobSerializer = FsPickler.CreateBinarySerializer()

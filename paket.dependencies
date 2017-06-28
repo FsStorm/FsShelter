@@ -1,5 +1,7 @@
 group Build
+	framework: Net4.6
 	source https://nuget.org/api/v2
+
 	nuget FAKE
     nuget Google.Protobuf.Tools
 	nuget nunit.runners 2.6.4
@@ -12,7 +14,9 @@ group Build
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
+	framework: Net4.6
 	source https://nuget.org/api/v2
+
 	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf
@@ -23,7 +27,9 @@ group Main
 	github et1975/storm storm-core/src/storm.thrift
 
 group Tests
+	framework: Net4.6
 	source https://nuget.org/api/v2
+
 	nuget nunit 2.6.4
 	nuget unquote
 

@@ -14,17 +14,6 @@ type Task<'t> = ComponentId -> Runnable<'t>
 // diagnostics pid shortcut
 let private pid() = System.Diagnostics.Process.GetCurrentProcess().Id
 
-// produce the nested exception's stack trace 
-let internal traceException (ex:Exception) =
-    let sb = new System.Text.StringBuilder()
-    let rec loop (ex:Exception) =
-        sb.AppendLine(ex.Message).AppendLine(ex.StackTrace) |> ignore
-        if isNull ex.InnerException then
-            sb.ToString()
-        else
-            sb.AppendLine("========") |> ignore
-            loop ex.InnerException
-    loop ex
 
 // creates an empty file with current pid as the file name
 let private createPid pidDir pid = 
@@ -71,7 +60,7 @@ let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) =
             log(fun _ -> sprintf "running %s..." compId)
             return! task compId (in', out') cfg
         with ex -> 
-            let msg = traceException ex
+            let msg = Exception.toString ex
             log (fun _ -> msg)
             Log(msg, LogLevel.Error) |> out'
             Threading.Thread.Sleep 1000

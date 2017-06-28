@@ -3,7 +3,7 @@
 open FsShelter
 open System.IO
 
-let submit (topology:Topology.Topology<'t>) exePath mkCmdArgs conf address port = 
+let submit (topology:Topology.Topology<'t>) exePath mkCmdArgs address port = 
     let includes = [ Includes.buildOutput Includes.defaultExtensions
                      Includes.jarContents "paket-files/run/github.com/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar" 
                    ] |> Includes.aggregate
@@ -15,5 +15,5 @@ let submit (topology:Topology.Topology<'t>) exePath mkCmdArgs conf address port 
                 |> Nimbus.uploadJar client
             (mkCmdArgs exePath,topology)
             ||> ThriftModel.ofTopology 
-            |> Nimbus.submit client conf uploadedFile)
+            |> Nimbus.submit client topology.Conf uploadedFile)
 

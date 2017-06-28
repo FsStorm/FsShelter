@@ -171,7 +171,7 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
         | Fail tid -> sprintf """{"command":"fail","id":"%s"}""" tid
         | Ok tid -> sprintf """{"command":"ack","id":"%s"}""" tid
         | Log (msg,lvl) -> toLog msg (int lvl)
-        | Error (msg,ex) -> toLog (sprintf "%s: %s" msg (Task.traceException ex)) (int LogLevel.Error)
+        | Error (msg,ex) -> toLog (sprintf "%s: %s" msg (Exception.toString ex)) (int LogLevel.Error)
         | Emit (t,tid,anchors,stream, task, needTaskIds) -> toEmit streamRW t (tid, anchors, stream, task, needTaskIds)
         |> write
 

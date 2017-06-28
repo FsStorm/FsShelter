@@ -128,6 +128,7 @@ Target "Tests" (fun _ ->
     |> NUnit (fun p ->
         { p with
             DisableShadowCopy = true
+            ExcludeCategory = "interactive"
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = build_out @@ "TestResults.xml" })
 )
@@ -308,9 +309,14 @@ Target "BuildPackage" DoNothing
 // code-gen tasks
 Target "ProtoShell" (fun _ ->
     let generated = "ext" @@ "ProtoShell" @@ "generated" 
+    let cli = 
+        "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools" 
+        @@ if isWindows then "windows_x64" @@ "protoc.exe"
+           else if isLinux then "linux_x64" @@ "protoc"
+           else "macosx_x64" @@ "protoc"
     CleanDir generated
     Shell.Exec(
-            "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools" @@ "windows_x64" @@ "protoc.exe",  // TODO: support linux/mac as well
+            cli,
             "--csharp_out=" + generated 
             + " --proto_path=" + "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools"
             + " --proto_path=" + "paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto"

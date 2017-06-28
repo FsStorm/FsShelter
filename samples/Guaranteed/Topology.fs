@@ -87,13 +87,13 @@ let sampleTopology = topology "Guaranteed" {
     
     let b2 = logResult
              |> runBolt (fun log cfg ->
-                            let mylog = Common.Logging.asyncLog ("odd.log")
+                            let mylog = Common.Logging.asyncLog ("odd")
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     let b3 = logResult
              |> runBolt (fun log cfg -> 
-                            let mylog = Common.Logging.asyncLog ("even.log") 
+                            let mylog = Common.Logging.asyncLog ("even") 
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 

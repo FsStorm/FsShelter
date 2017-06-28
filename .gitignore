@@ -61,3 +61,4 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
+src/.idea

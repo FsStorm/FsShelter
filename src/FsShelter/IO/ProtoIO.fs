@@ -168,7 +168,7 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
         | Fail tid -> Messages.ShellMsg(Fail = Messages.FailReply(Id = tid))
         | Ok tid -> Messages.ShellMsg(Ok = Messages.OkReply(Id = tid))
         | Log (msg,lvl) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = msg, Level = enum (int lvl)))
-        | Error (msg,ex) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = (sprintf "%s: %s" msg (Task.traceException ex)), Level = Messages.LogCommand.Types.LogLevel.Error))
+        | Error (msg,ex) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = (sprintf "%s: %s" msg (Exception.toString ex)), Level = Messages.LogCommand.Types.LogLevel.Error))
         | Emit (t,tid,anchors,stream,task,needTaskIds) -> 
             let (_,d) = streamRW |> Map.find stream
             let cmd = Messages.EmitCommand(Stream = stream)

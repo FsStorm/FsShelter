@@ -162,6 +162,7 @@ module private Parsers =
 /// Embedded DSL for defining the topologies
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "TypeNamesMustBePascalCase")>]
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "MemberNamesMustBePascalCase")>]
+[<AutoOpen>]
 module DSL =
     open Multilang
     open Topology

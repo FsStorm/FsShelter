@@ -46,20 +46,19 @@ module Conf =
     let Default =
         [ TOPOLOGY_BACKPRESSURE_ENABLE, box true
           TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS, box true
-          TOPOLOGY_ACKER_EXECUTORS, box 1
-          TOPOLOGY_MAX_TASK_PARALLELISM, box 1
+          TOPOLOGY_ACKER_EXECUTORS, box 2
           TOPOLOGY_MESSAGE_TIMEOUT_SECS, box 30 ]
         |> Map.ofList
 
     let option key conf =
-        let conf = Default |> Map.join conf
         conf 
+        |> Map.join Default
         |> Map.tryFind key
         |> Option.map unbox
 
     let optionOrDefault key conf =
-        let conf = Default |> Map.join conf
         conf 
+        |> Map.join Default
         |> Map.find key
         |> unbox
 
