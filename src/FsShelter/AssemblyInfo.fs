@@ -5,13 +5,13 @@ open System.Reflection
 [<assembly: AssemblyTitleAttribute("FsShelter")>]
 [<assembly: AssemblyProductAttribute("FsShelter")>]
 [<assembly: AssemblyDescriptionAttribute("F# DSL and runtime for Storm topologies")>]
-[<assembly: AssemblyVersionAttribute("0.0.11")>]
-[<assembly: AssemblyFileVersionAttribute("0.0.11")>]
+[<assembly: AssemblyVersionAttribute("0.1.0")>]
+[<assembly: AssemblyFileVersionAttribute("0.1.0")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "FsShelter"
     let [<Literal>] AssemblyProduct = "FsShelter"
     let [<Literal>] AssemblyDescription = "F# DSL and runtime for Storm topologies"
-    let [<Literal>] AssemblyVersion = "0.0.11"
-    let [<Literal>] AssemblyFileVersion = "0.0.11"
+    let [<Literal>] AssemblyVersion = "0.1.0"
+    let [<Literal>] AssemblyFileVersion = "0.1.0"

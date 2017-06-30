@@ -153,7 +153,7 @@ Target "SourceLink" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-Target "NuGet" (fun _ ->
+Target "Package" (fun _ ->
     Paket.Pack(fun p -> 
         { p with
             OutputPath = build_out
@@ -303,7 +303,6 @@ Target "Release" (fun _ ->
     |> Async.RunSynchronously
 )
 
-Target "BuildPackage" DoNothing
 
 // --------------------------------------------------------------------------------------
 // code-gen tasks
@@ -393,18 +392,17 @@ Target "All" DoNothing
   ==> "Build"
   ==> "CopyBinaries"
   ==> "Tests"
-  =?> ("GenerateReferenceDocs",isLocalBuild)
-  =?> ("GenerateDocs",isLocalBuild)
   ==> "All"
-  =?> ("ReleaseDocs",isLocalBuild)
 
 "All" 
 #if MONO
 #else
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
-  ==> "NuGet"
-  ==> "BuildPackage"
+  ==> "Package"
+  =?> ("GenerateReferenceDocs",isLocalBuild)
+  =?> ("GenerateDocs",isLocalBuild)
+  =?> ("ReleaseDocs",isLocalBuild)
 
 "CleanDocs"
   ==> "GenerateHelp"
@@ -420,7 +418,7 @@ Target "All" DoNothing
 "ReleaseDocs"
   ==> "Release"
 
-"BuildPackage"
+"Package"
   ==> "PublishNuget"
   ==> "Release"
 

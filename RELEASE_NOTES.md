@@ -1,5 +1,5 @@
-#### 0.0.12 - Jun 2017
-* Added experimenal self-hosting
+#### 0.1.0 - Jun 2017
+* Added experimenal self-hosting, breaking changes in Management API
 
 #### 0.0.11 - Apr 2017
 * Added support for `activate` and `deactivate` messages introduced in Storm 1.1.0
