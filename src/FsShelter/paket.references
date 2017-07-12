@@ -3,3 +3,4 @@ newtonsoft.json
 thrift
 Google.Protobuf
 FsPickler
+System.ValueTuple

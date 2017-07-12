@@ -20,6 +20,7 @@ group Main
 	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf
+nuget System.ValueTuple
 	nuget thrift
 	nuget newtonsoft.json
 	

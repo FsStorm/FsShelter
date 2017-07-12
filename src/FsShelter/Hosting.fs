@@ -194,10 +194,10 @@ module internal Routing =
         
         let direct = memoize (fun dstId -> tasks |> Map.find dstId |> direct)
         function
-        | (anchors:TupleId list,srcId:TupleId option,tuple:'t,compId,stream,Some dstId) ->
+        | struct (anchors:TupleId list,srcId:TupleId option,tuple:'t,compId,stream,Some dstId) ->
             mkIds anchors srcId
             |> List.iter (fun tupleId -> Tuple(tuple,tupleId,compId,stream,taskId) |> InCmd |> direct dstId)
-        | (anchors,srcId,tuple,compId,stream,_) ->
+        | struct (anchors,srcId,tuple,compId,stream,_) ->
             tuple |> distributors.[compId,stream] anchors srcId
 
     let mkRouter tasks filter =
@@ -366,7 +366,7 @@ module internal Tasks =
             }
         loop()
 
-    let mkSpout mkEmit compId (comp:Spout<'t>) (topology:Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
+    let mkSpout mkEmit compId (comp:Spout<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
         let conf = comp.Conf |> Map.join topology.Conf
         let emit = mkEmit tasks
         let mutable pending = 0
@@ -404,8 +404,7 @@ module internal Tasks =
             let output =
                 function
                 | Emit (t,tupleId,_,stream,dstId,needIds) -> 
-                    pending <- pending + 1
-                    emit ([],tupleId,t,compId,stream,dstId)
+                    emit struct ([],tupleId,t,compId,stream,dstId)
                 | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
                 | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
                 | Sync -> throttle()
@@ -414,7 +413,7 @@ module internal Tasks =
             return! runnable io conf
         }
 
-    let mkBolt ackers mkEmit compId (comp:Bolt<'t>) (topology:Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
+    let mkBolt ackers mkEmit compId (comp:Bolt<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
         let conf = comp.Conf |> Map.join topology.Conf
         let emit = mkEmit tasks
         let ack = TupleTree.mkAck ackers
@@ -432,7 +431,7 @@ module internal Tasks =
                 }                
             let output =
                 function
-                | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit (anchors,tupleId,t,compId,stream,dstId)
+                | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit struct(anchors,tupleId,t,compId,stream,dstId)
                 | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
                 | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
                 | OutCommand.Ok tid -> ack tid
@@ -461,7 +460,8 @@ module internal Tasks =
                         let runnable = match b.MkComp anchorOfStream with FuncRef r -> r | _ -> raiseNotRunnable() 
                         seq { for i in 1..(int b.Parallelism) ->
                                  fun taskId -> 
-                                    let mkEmit tasks = Routing.mkTupleRouter topology taskId tasks (TupleTree.anchor (TupleTree.mkIdGenerator()) ackers)
+                                    let mkEmit tasks = 
+                                        Routing.mkTupleRouter topology taskId tasks (TupleTree.anchor (TupleTree.mkIdGenerator()) ackers)
                                     let channel = Channel.make (mkBolt ackers mkEmit compId b topology runnable) 
                                     BoltTask (compId, channel)}) 
             yield! topology.Spouts
@@ -469,7 +469,8 @@ module internal Tasks =
                         let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable()
                         seq { for i in 1..(int s.Parallelism) ->
                                 fun taskId -> 
-                                    let mkEmit tasks = Routing.mkTupleRouter topology taskId tasks (TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId)
+                                    let mkEmit tasks = 
+                                        Routing.mkTupleRouter topology taskId tasks (TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId)
                                     let channel = Channel.make (mkSpout mkEmit compId s topology runnable)
                                     SpoutTask (compId, channel)})
         }
