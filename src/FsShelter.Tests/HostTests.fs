@@ -34,17 +34,19 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
+//     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
+     let log taskId = ignore
      
      let stop = 
          Topologies.t1 
          |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 200
-                      Conf.TOPOLOGY_ACKER_EXECUTORS, 2]
+                      Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
          |> Host.runWith log 
      let startedAt = DateTime.Now
      let trace () = 
          Diagnostics.Debug.WriteLine("-- Counted: {0}, rate: \t{1}", !Topologies.world.count, (float !Topologies.world.count)/(DateTime.Now - startedAt).TotalSeconds)
          Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
+         Diagnostics.Debug.Flush()
 
      for i in 1..10 do 
          Threading.Thread.Sleep 10000

@@ -1,3 +1,9 @@
+#### 0.1.3 - July 2017
+* Self-hosting tracks split streams correctly
+
+#### 0.1.2 - July 2017
+* Self-hosting bugfixes
+
 #### 0.1.0 - Jun 2017
 * Added experimenal self-hosting, breaking changes in Management API
 

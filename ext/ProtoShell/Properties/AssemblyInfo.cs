@@ -4,14 +4,14 @@ using System.Reflection;
 [assembly: AssemblyTitleAttribute("ProtoShell")]
 [assembly: AssemblyProductAttribute("FsShelter")]
 [assembly: AssemblyDescriptionAttribute("F# DSL and runtime for Storm topologies")]
-[assembly: AssemblyVersionAttribute("0.1.0")]
-[assembly: AssemblyFileVersionAttribute("0.1.0")]
+[assembly: AssemblyVersionAttribute("0.1.3")]
+[assembly: AssemblyFileVersionAttribute("0.1.3")]
 namespace System {
     internal static class AssemblyVersionInformation {
         internal const System.String AssemblyTitle = "ProtoShell";
         internal const System.String AssemblyProduct = "FsShelter";
         internal const System.String AssemblyDescription = "F# DSL and runtime for Storm topologies";
-        internal const System.String AssemblyVersion = "0.1.0";
-        internal const System.String AssemblyFileVersion = "0.1.0";
+        internal const System.String AssemblyVersion = "0.1.3";
+        internal const System.String AssemblyFileVersion = "0.1.3";
     }
 }
