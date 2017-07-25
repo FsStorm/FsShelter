@@ -61,3 +61,6 @@ module internal Exception =
                 sb.AppendLine("========") |> ignore
                 loop ex.InnerException
         loop ex
+
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FsShelter.Tests")>]
+do ()

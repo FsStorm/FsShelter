@@ -1,3 +1,6 @@
+#### 0.1.4 - July 2017
+* Self-hosting: seed the id generator
+
 #### 0.1.3 - July 2017
 * Self-hosting tracks split streams correctly
 

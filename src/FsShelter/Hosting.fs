@@ -150,16 +150,16 @@ module internal Routing =
         | BoltTask (_,channel) -> Enqueue >> channel
 
     let mkTupleRouter (topology:Topology<'t>) taskId (tasks:Map<TaskId,RuntimeTask<'t>>) mkIds =
-        let sinksOfDst =
+        let sinksOfComp =
             let bolts =
                 tasks
                 |> Map.chooseBy (fun (_,task) -> 
                     match task with
                     | BoltTask (compId,channel) -> Some (compId,channel)
                     | _ -> None)
-            memoize (fun dstId -> bolts.[dstId] |> Array.ofSeq)
+            memoize (fun compId -> bolts.[compId] |> Array.ofSeq)
         
-        let group (instances:_ array) =
+        let mkGroup (instances:_ array) =
             function
             | All -> 
                 fun _ _ -> instances :> _ seq
@@ -176,12 +176,12 @@ module internal Routing =
                     let ix = (map tuple).GetHashCode() % instances.Length |> abs
                     instances.[ix] |> Seq.singleton
 
-        let mkDistributors map (KeyValue((streamId,dstId),stream)) =
+        let mkDistributors map (KeyValue((streamId,dstId),streamDef)) =
             let f = match map |> Map.tryFind streamId with
                     | Some f -> f
                     | _ -> fun _ _ -> ignore
-            let instances = sinksOfDst dstId
-            let group = group instances stream.Grouping
+            let instances = sinksOfComp dstId
+            let group = mkGroup instances streamDef.Grouping
             map |> Map.add streamId (fun anchors srcId tuple ->
                                         f anchors srcId tuple
                                         mkIds anchors srcId
@@ -198,7 +198,9 @@ module internal Routing =
             mkIds anchors srcId
             |> List.iter (fun tupleId -> Tuple(tuple,tupleId,compId,stream,taskId) |> InCmd |> direct dstId)
         | struct (anchors,srcId,tuple,compId,stream,_) ->
-            tuple |> distributors.[compId,stream] anchors srcId
+            match distributors |> Map.tryFind (compId,stream) with
+            | Some d -> tuple |> d anchors srcId
+            | _ -> ()
 
     let mkRouter tasks filter =
         let sinks = 
@@ -215,9 +217,10 @@ module internal Routing =
         tasks |> Map.find taskId |> direct 
 
 module internal TupleTree = 
+    let seed = ref (int DateTime.Now.Ticks)
     let mkIdGenerator() =
-        let rnd = Random()
-        let bytes = Array.zeroCreate<byte> 8;
+        let rnd = Random(Interlocked.Increment &seed.contents)
+        let bytes = Array.zeroCreate<byte> 8
         let rec nextId () =
             rnd.NextBytes(bytes)
             let v = BitConverter.ToInt64 (bytes,0)
@@ -226,7 +229,7 @@ module internal TupleTree =
         nextId
 
     let inline ackerOfAnchor (ackers:_ array) (anchorId:int64) =
-        let i = Math.Abs (anchorId % (int64 ackers.Length))
+        let i = abs (anchorId % (int64 ackers.Length))
         ackers.[int i]
 
     let track nextId ackers taskId _ sourceTupleId =
@@ -377,10 +380,10 @@ module internal Tasks =
             if pending < maxPending then
                 next ()
         let throttle = comp.Conf 
-                        |> Map.join topology.Conf 
-                        |> Conf.option Conf.TOPOLOGY_MAX_SPOUT_PENDING
-                        |> Option.map mkThrottle
-                        |> Option.defaultValue next
+                       |> Map.join topology.Conf 
+                       |> Conf.option Conf.TOPOLOGY_MAX_SPOUT_PENDING
+                       |> Option.map mkThrottle
+                       |> Option.defaultValue next
         async {
             log(fun _ -> sprintf "Starting %s..." compId)
             let rec input' () =
