@@ -60,7 +60,6 @@ module internal Types =
         | [|anchor;tid|] -> Some (int64 anchor, int64 tid)
         | _ -> None
     
-    [<Struct>]
     type TreeState =
         | Pending of TupleId * TaskId * int64
         | Complete of srcId:TupleId * src:TaskId
@@ -149,7 +148,7 @@ module internal Routing =
         | SpoutTask (_,channel)
         | BoltTask (_,channel) -> Enqueue >> channel
 
-    let mkTupleRouter (topology:Topology<'t>) taskId (tasks:Map<TaskId,RuntimeTask<'t>>) mkIds =
+    let mkTupleRouter (topology:Topology<'t>) taskId (tasks:Map<TaskId,RuntimeTask<'t>>) mkIds log =
         let sinksOfComp =
             let bolts =
                 tasks
@@ -179,15 +178,16 @@ module internal Routing =
         let mkDistributors map (KeyValue((streamId,dstId),streamDef)) =
             let f = match map |> Map.tryFind streamId with
                     | Some f -> f
-                    | _ -> fun _ _ -> ignore
+                    | _ -> fun _ -> ignore
             let instances = sinksOfComp dstId
             let group = mkGroup instances streamDef.Grouping
-            map |> Map.add streamId (fun anchors srcId tuple ->
-                                        f anchors srcId tuple
-                                        mkIds anchors srcId
+            map |> Map.add streamId (fun mkIds tuple ->
+                                        f mkIds tuple
+                                        mkIds ()
                                         |> Seq.iter (fun tupleId -> 
+                                                        let msg = Tuple(tuple,tupleId,fst streamId,snd streamId,taskId) |> InCmd |> Enqueue
                                                         group tupleId tuple
-                                                        |> Seq.apply (Tuple(tuple,tupleId,fst streamId,snd streamId,taskId) |> InCmd |> Enqueue)))
+                                                        |> Seq.apply msg))
         let distributors =
             topology.Streams
             |> Seq.fold mkDistributors Map.empty
@@ -195,11 +195,11 @@ module internal Routing =
         let direct = memoize (fun dstId -> tasks |> Map.find dstId |> direct)
         function
         | struct (anchors:TupleId list,srcId:TupleId option,tuple:'t,compId,stream,Some dstId) ->
-            mkIds anchors srcId
+            mkIds anchors srcId ()
             |> List.iter (fun tupleId -> Tuple(tuple,tupleId,compId,stream,taskId) |> InCmd |> direct dstId)
         | struct (anchors,srcId,tuple,compId,stream,_) ->
             match distributors |> Map.tryFind (compId,stream) with
-            | Some d -> tuple |> d anchors srcId
+            | Some d -> tuple |> d (mkIds anchors srcId)
             | _ -> ()
 
     let mkRouter tasks filter =
@@ -222,8 +222,9 @@ module internal TupleTree =
         let rnd = Random(Interlocked.Increment &seed.contents)
         let bytes = Array.zeroCreate<byte> 8
         let rec nextId () =
-            rnd.NextBytes(bytes)
-            let v = BitConverter.ToInt64 (bytes,0)
+            let v = lock bytes (fun _ -> 
+                rnd.NextBytes(bytes)
+                BitConverter.ToInt64 (bytes,0))
             if v = 0L then nextId()
             else v
         nextId
@@ -233,40 +234,37 @@ module internal TupleTree =
         ackers.[int i]
 
     let track nextId ackers taskId _ sourceTupleId =
-        let tupleId = nextId()
+        let anchorId = nextId()
+        let toAcker = AckerCmd >> (ackerOfAnchor ackers anchorId |> Routing.direct)
         match sourceTupleId with
-        | Some sid -> Track(taskId,sid,tupleId) |> AckerCmd |> (ackerOfAnchor ackers tupleId |> Routing.direct)
+        | Some sid -> Track(taskId,sid,anchorId) |> toAcker
         | _ -> ()
-        [sprintf "%d:%d" tupleId tupleId]
+        fun () ->
+            let tupleId = nextId()
+            Anchor(anchorId,tupleId) |> toAcker
+            [sprintf "%d:%d" anchorId tupleId]
 
     let anchor nextId ackers anchors _ =
-        let tupleId = nextId()
-        let anchoredIds =
+        let anchors = 
             anchors 
-            |> List.choose (|AnchoredTuple|_|)
-            |> List.map (fun (a,_) -> (a,tupleId))
-        
-        anchoredIds 
-        |> List.iter (fun (a,id) ->
-            let enqueue = ackerOfAnchor ackers a |> Routing.direct
-            Anchor(a,id) |> AckerCmd |> enqueue)
-        
-        match anchoredIds with
-        | [] -> [string tupleId]
-        | _ -> anchoredIds |> List.map (fun (a,id) -> sprintf "%d:%d" a id)
+            |> List.choose ((|AnchoredTuple|_|) >> Option.map (fun (a,_) -> a, ackerOfAnchor ackers a |> Routing.direct))
+        fun () ->
+            let tupleId = nextId()
+            let anchoredIds = anchors |> List.map (fun a -> (a,tupleId))
+            
+            anchoredIds 
+            |> List.iter (fun ((aid,enqueue),id) ->
+                Anchor(aid,id) |> AckerCmd |> enqueue)
+            
+            match anchoredIds with
+            | [] -> [string tupleId]
+            | _ -> anchoredIds |> List.map (fun ((aid,_),id) -> sprintf "%d:%d" aid id)
 
-    let mkAck ackers = 
+    let mkAck toResult ackers = 
         function
         | AnchoredTuple (a,id) -> 
             let enqueue = ackerOfAnchor ackers a |> Routing.direct
-            Ok(a,id) |> AckerCmd |> enqueue
-        | _ -> ()
-
-    let mkNack ackers = 
-        function
-        | AnchoredTuple (a,id) -> 
-            let enqueue = ackerOfAnchor ackers a |> Routing.direct
-            Fail(a,id) |> AckerCmd |> enqueue
+            toResult (a,id) |> AckerCmd |> enqueue
         | _ -> ()
 
 module internal Tasks =
@@ -300,7 +298,7 @@ module internal Tasks =
                     :> IDisposable)
             |> Seq.append
             <| seq { 
-                yield new System.Threading.Timer(systemTick, (), s 1, s 1) :> IDisposable 
+                yield new System.Threading.Timer(systemTick, (), s 30, s 30) :> IDisposable 
             }
 
         let rec loop timers =
@@ -308,7 +306,7 @@ module internal Tasks =
                 let! cmd = input()
                 match cmd with
                 | InCmd Activate ->
-                    log(fun _ -> sprintf "Starting system for topology %s: [%s]" topology.Name (tasks |> Map.fold describe ""))
+                    log(fun _ -> sprintf "Starting system for topology %s: [%s],\nconf: %A" topology.Name (tasks |> Map.fold describe "") topology.Conf)
                     return! startTimers |> Seq.toArray |> loop
                 | InCmd Deactivate -> 
                     log(fun _ -> sprintf "Stopping system for topology: %s" topology.Name)
@@ -344,7 +342,7 @@ module internal Tasks =
                     log(fun _ -> "Stopping acker...")
                     return ()
                 | AckerCmd (Track (taskId,sid,tupleId)) -> 
-                    inFlight.Add (tupleId, Pending(sid,taskId,tupleId))
+                    inFlight.Add (tupleId, Pending(sid,taskId,0L))
                 | AckerCmd (Anchor (anchor,tupleId)) -> 
                     inFlight.[anchor] <- xor tupleId anchor
                 | AckerCmd (Fail (anchor,tupleId)) ->
@@ -361,7 +359,8 @@ module internal Tasks =
                         let (SpoutTask (_,channel)) = taskMap |> Map.find taskId
                         Ack sourceId |> InCmd |> Enqueue |> channel
                         inFlight.[anchor] <- Done
-                    | v -> inFlight.[anchor] <- v
+                    | _ -> 
+                        inFlight.[anchor] <- xored
                 | SystemCmd Tick ->
                     cleanup()
                 | _ -> ()
@@ -371,17 +370,18 @@ module internal Tasks =
 
     let mkSpout mkEmit compId (comp:Spout<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
         let conf = comp.Conf |> Map.join topology.Conf
-        let emit = mkEmit tasks
-        let mutable pending = 0
+        let emit = mkEmit tasks log
+        let pending = ref 0
         let nextMsg = Next |> InCmd
         let next () =
             nextMsg |> self
         let mkThrottle maxPending () =
-            if pending < maxPending then
+            if !pending < maxPending then
                 next ()
-        let throttle = comp.Conf 
+        let maxPending = comp.Conf 
                        |> Map.join topology.Conf 
                        |> Conf.option Conf.TOPOLOGY_MAX_SPOUT_PENDING
+        let throttle = maxPending
                        |> Option.map mkThrottle
                        |> Option.defaultValue next
         async {
@@ -392,14 +392,16 @@ module internal Tasks =
                     log(fun _ -> sprintf "< %+A" cmd)
                     match cmd with 
                     | SystemCmd Tick ->
-                        throttle()
-                        return! input'()
+                        match maxPending with
+                        | Some mx when !pending < mx -> return Next
+                        | None -> return Next
+                        | _ -> return! input'()
                     | InCmd cmd -> 
                         match cmd with
                         | Activate -> 
                             throttle()
                         | Nack _ | Ack _  -> 
-                            pending <- pending - 1
+                            Interlocked.Decrement &pending.contents |> ignore
                         | _ -> ()
                         return cmd
                     | _ -> return! input'()
@@ -408,6 +410,7 @@ module internal Tasks =
                 function
                 | Emit (t,tupleId,_,stream,dstId,needIds) -> 
                     emit struct ([],tupleId,t,compId,stream,dstId)
+                    Interlocked.Increment &pending.contents |> ignore
                 | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
                 | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
                 | Sync -> throttle()
@@ -418,9 +421,9 @@ module internal Tasks =
 
     let mkBolt ackers mkEmit compId (comp:Bolt<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
         let conf = comp.Conf |> Map.join topology.Conf
-        let emit = mkEmit tasks
-        let ack = TupleTree.mkAck ackers
-        let nack = TupleTree.mkNack ackers
+        let emit = mkEmit tasks log
+        let ack = TupleTree.mkAck Ok ackers
+        let nack = TupleTree.mkAck Fail ackers
         async {
             log(fun _ -> sprintf "Starting %s..." compId)
             let rec input' () =

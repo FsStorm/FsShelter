@@ -8,6 +8,18 @@ open System
 module Topologies =
     open FsShelter.DSL
     open FsShelter.Multilang
+    open System.Threading
+
+    type World = 
+        { rnd : Random
+          count : int64 ref
+          acked: int64 ref }
+
+    /// numbers spout - produces messages
+    let numbers (world : World) =
+        async { 
+            return Some(string(Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
+        }
     
     let printBolt (log,t) =
         match t with 
@@ -15,10 +27,10 @@ module Topologies =
         | _ -> () //log (sprintf "tuple: %A" t)
         |> async.Return
 
-    let world = {rnd = Random(); count = ref 0L}
+    let world = {rnd = Random(); count = ref 0L; acked = ref 0L}
     let t1 = topology "test" {
         let s1 = numbers
-                 |> runReliableSpout (fun log _ -> world ) (fun _ -> ignore, ignore)
+                 |> runReliableSpout (fun log _ -> world ) (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
         let b1 = split
                  |> runBolt (fun log _ t emit -> (t,emit))
                  |> withParallelism 2
@@ -44,7 +56,7 @@ let ``Hosts``() =
          |> Host.runWith log 
      let startedAt = DateTime.Now
      let trace () = 
-         Diagnostics.Debug.WriteLine("-- Counted: {0}, rate: \t{1}", !Topologies.world.count, (float !Topologies.world.count)/(DateTime.Now - startedAt).TotalSeconds)
+         Diagnostics.Debug.WriteLine("-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}", !Topologies.world.count, !Topologies.world.acked, (!Topologies.world.count - !Topologies.world.acked), (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds)
          Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
          Diagnostics.Debug.Flush()
 

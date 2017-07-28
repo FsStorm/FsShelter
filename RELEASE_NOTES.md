@@ -1,3 +1,6 @@
+#### 0.2.2 - July 2017
+* Concurrent spout Next, self-host optimizations
+
 #### 0.1.4 - July 2017
 * Self-hosting: seed the id generator
 

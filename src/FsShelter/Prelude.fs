@@ -62,5 +62,14 @@ module internal Exception =
                 loop ex.InnerException
         loop ex
 
+
+module internal Sync =
+    let gate lock arg alt guarded =
+        try
+            if System.Threading.Monitor.TryEnter lock then guarded arg else alt arg
+        finally
+            if System.Threading.Monitor.IsEntered lock then
+                System.Threading.Monitor.Exit lock
+
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FsShelter.Tests")>]
 do ()
