@@ -389,7 +389,9 @@ module internal Tasks =
             let rec input' () =
                 async {
                     let! cmd = input() 
+#if DEBUG                
                     log(fun _ -> sprintf "< %+A" cmd)
+#endif                
                     match cmd with 
                     | SystemCmd Tick ->
                         match maxPending with

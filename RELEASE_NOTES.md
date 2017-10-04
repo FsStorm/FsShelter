@@ -1,3 +1,6 @@
+#### 0.2.3 - Oct 2017
+* Conditional spout inputs logging
+
 #### 0.2.2 - July 2017
 * Concurrent spout Next, self-host optimizations
 
