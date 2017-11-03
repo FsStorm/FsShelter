@@ -26,6 +26,7 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
+          <li><a href="https://prolucid.github.io">prolucid</a></li>
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://github.com/Prolucid/FsShelter">github page</a></li>
         </ul>
@@ -46,7 +47,7 @@ FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm
 <li>generate a topology graph as part of your build</li>
 </ul>
 <p>The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
-Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improve throughput of FsShelter topologies as compared to standard JSON.
+Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improves throughput of FsShelter topologies as compared to default JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.</p>
 <p>Bring your own, if you need it:</p>
 <ul>
@@ -62,9 +63,9 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="t">BasicSchema</span> <span class="o">=</span> 
-    | <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">int</span>
-    | <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="p">Incremented</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="t">int</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="t">BasicSchema</span> <span class="o">=</span> 
+    | <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="p">Incremented</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">int</span>
 </code></pre></td>
 </tr>
 </table>
@@ -77,12 +78,12 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="t">Number</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">X</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="t">int</span>; <span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="i">Desc</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="t">string</span> }
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="t">Number</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="i">X</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 9)" onmouseover="showTip(event, 'fs4', 9)" class="t">int</span>; <span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="i">Desc</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="t">string</span> }
 
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="t">RecordSchema</span> <span class="o">=</span> 
-    | <span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs5', 15)" onmouseover="showTip(event, 'fs5', 15)" class="t">int</span>
-    | <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="p">Described</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 17)" onmouseover="showTip(event, 'fs7', 17)" class="t">Number</span>
-    | <span onmouseout="hideTip(event, 'fs14', 18)" onmouseover="showTip(event, 'fs14', 18)" class="p">Translated</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 19)" onmouseover="showTip(event, 'fs7', 19)" class="t">Number</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="t">RecordSchema</span> <span class="o">=</span> 
+    | <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 14)" onmouseover="showTip(event, 'fs4', 14)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="p">Described</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 16)" onmouseover="showTip(event, 'fs6', 16)" class="t">Number</span>
+    | <span onmouseout="hideTip(event, 'fs13', 17)" onmouseover="showTip(event, 'fs13', 17)" class="p">Translated</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="t">Number</span>
 </code></pre></td>
 </tr>
 </table>
@@ -91,9 +92,9 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs15', 20)" onmouseover="showTip(event, 'fs15', 20)" class="t">RecordsSchema</span> <span class="o">=</span> 
-    | <span onmouseout="hideTip(event, 'fs16', 21)" onmouseover="showTip(event, 'fs16', 21)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 22)" onmouseover="showTip(event, 'fs7', 22)" class="t">Number</span>
-    | <span onmouseout="hideTip(event, 'fs17', 23)" onmouseover="showTip(event, 'fs17', 23)" class="p">Doubled</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs7', 24)" onmouseover="showTip(event, 'fs7', 24)" class="t">Number</span><span class="o">*</span><span onmouseout="hideTip(event, 'fs7', 25)" onmouseover="showTip(event, 'fs7', 25)" class="t">Number</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs14', 19)" onmouseover="showTip(event, 'fs14', 19)" class="t">RecordsSchema</span> <span class="o">=</span> 
+    | <span onmouseout="hideTip(event, 'fs15', 20)" onmouseover="showTip(event, 'fs15', 20)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 21)" onmouseover="showTip(event, 'fs6', 21)" class="t">Number</span>
+    | <span onmouseout="hideTip(event, 'fs16', 22)" onmouseover="showTip(event, 'fs16', 22)" class="p">Doubled</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 23)" onmouseover="showTip(event, 'fs6', 23)" class="t">Number</span><span class="o">*</span><span onmouseout="hideTip(event, 'fs6', 24)" onmouseover="showTip(event, 'fs6', 24)" class="t">Number</span>
 </code></pre></td>
 </tr>
 </table>
@@ -106,7 +107,7 @@ For exmple, FsShelter components are implemeted as simple functions:</p>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// numbers spout - produces messages</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="f">numbers</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="f">source</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="i">async</span> { <span class="k">return</span> <span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="p">Some</span>(<span onmouseout="hideTip(event, 'fs16', 30)" onmouseover="showTip(event, 'fs16', 30)" class="p">Original</span>(<span onmouseout="hideTip(event, 'fs19', 31)" onmouseover="showTip(event, 'fs19', 31)" class="f">source</span>())) }
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 25)" onmouseover="showTip(event, 'fs17', 25)" class="f">numbers</span> <span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="f">source</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="i">async</span> { <span class="k">return</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="p">Some</span>(<span onmouseout="hideTip(event, 'fs15', 29)" onmouseover="showTip(event, 'fs15', 29)" class="p">Original</span>(<span onmouseout="hideTip(event, 'fs18', 30)" onmouseover="showTip(event, 'fs18', 30)" class="f">source</span>())) }
 </code></pre></td>
 </tr>
 </table>
@@ -122,12 +123,12 @@ For exmple, FsShelter components are implemeted as simple functions:</p>
 <span class="l">8: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// add 1 bolt - consumes and emits messages to Incremented stream</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="f">addOne</span> (<span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="i">input</span>, <span onmouseout="hideTip(event, 'fs24', 34)" onmouseover="showTip(event, 'fs24', 34)" class="f">emit</span>) <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs20', 35)" onmouseover="showTip(event, 'fs20', 35)" class="i">async</span> { 
-        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs23', 36)" onmouseover="showTip(event, 'fs23', 36)" class="i">input</span> <span class="k">with</span>
-        | <span onmouseout="hideTip(event, 'fs3', 37)" onmouseover="showTip(event, 'fs3', 37)" class="t">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 38)" onmouseover="showTip(event, 'fs4', 38)" class="p">Original</span>(<span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="i">x</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs6', 40)" onmouseover="showTip(event, 'fs6', 40)" class="p">Incremented</span>(<span onmouseout="hideTip(event, 'fs25', 41)" onmouseover="showTip(event, 'fs25', 41)" class="i">x</span> <span class="o">+</span> <span class="n">1</span>)
-        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 42)" onmouseover="showTip(event, 'fs26', 42)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs23', 43)" onmouseover="showTip(event, 'fs23', 43)" class="i">input</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs24', 44)" onmouseover="showTip(event, 'fs24', 44)" class="f">emit</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 31)" onmouseover="showTip(event, 'fs21', 31)" class="f">addOne</span> (<span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">input</span>, <span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="f">emit</span>) <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs19', 34)" onmouseover="showTip(event, 'fs19', 34)" class="i">async</span> { 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs22', 35)" onmouseover="showTip(event, 'fs22', 35)" class="i">input</span> <span class="k">with</span>
+        | <span onmouseout="hideTip(event, 'fs2', 36)" onmouseover="showTip(event, 'fs2', 36)" class="t">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 37)" onmouseover="showTip(event, 'fs3', 37)" class="p">Original</span>(<span onmouseout="hideTip(event, 'fs24', 38)" onmouseover="showTip(event, 'fs24', 38)" class="i">x</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs5', 39)" onmouseover="showTip(event, 'fs5', 39)" class="p">Incremented</span>(<span onmouseout="hideTip(event, 'fs24', 40)" onmouseover="showTip(event, 'fs24', 40)" class="i">x</span> <span class="o">+</span> <span class="n">1</span>)
+        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 41)" onmouseover="showTip(event, 'fs25', 41)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs22', 42)" onmouseover="showTip(event, 'fs22', 42)" class="i">input</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs23', 43)" onmouseover="showTip(event, 'fs23', 43)" class="f">emit</span>
     }
 </code></pre></td>
 </tr>
@@ -143,11 +144,11 @@ Also, there can be as many arguments for the component functions as needed, the 
 <span class="l">7: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// terminating bolt - consumes messages</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">logResult</span> (<span onmouseout="hideTip(event, 'fs28', 46)" onmouseover="showTip(event, 'fs28', 46)" class="f">info</span>, <span onmouseout="hideTip(event, 'fs23', 47)" onmouseover="showTip(event, 'fs23', 47)" class="i">input</span>) <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs20', 48)" onmouseover="showTip(event, 'fs20', 48)" class="i">async</span> { 
-        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs23', 49)" onmouseover="showTip(event, 'fs23', 49)" class="i">input</span> <span class="k">with</span>
-        | <span onmouseout="hideTip(event, 'fs3', 50)" onmouseover="showTip(event, 'fs3', 50)" class="t">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 51)" onmouseover="showTip(event, 'fs6', 51)" class="p">Incremented</span>(<span onmouseout="hideTip(event, 'fs25', 52)" onmouseover="showTip(event, 'fs25', 52)" class="i">x</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs28', 53)" onmouseover="showTip(event, 'fs28', 53)" class="f">info</span> (<span onmouseout="hideTip(event, 'fs29', 54)" onmouseover="showTip(event, 'fs29', 54)" class="f">sprintf</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs25', 55)" onmouseover="showTip(event, 'fs25', 55)" class="i">x</span>)
-        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 56)" onmouseover="showTip(event, 'fs26', 56)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs23', 57)" onmouseover="showTip(event, 'fs23', 57)" class="i">input</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 44)" onmouseover="showTip(event, 'fs26', 44)" class="f">logResult</span> (<span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">info</span>, <span onmouseout="hideTip(event, 'fs22', 46)" onmouseover="showTip(event, 'fs22', 46)" class="i">input</span>) <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs19', 47)" onmouseover="showTip(event, 'fs19', 47)" class="i">async</span> { 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs22', 48)" onmouseover="showTip(event, 'fs22', 48)" class="i">input</span> <span class="k">with</span>
+        | <span onmouseout="hideTip(event, 'fs2', 49)" onmouseover="showTip(event, 'fs2', 49)" class="t">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 50)" onmouseover="showTip(event, 'fs5', 50)" class="p">Incremented</span>(<span onmouseout="hideTip(event, 'fs24', 51)" onmouseover="showTip(event, 'fs24', 51)" class="i">x</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs27', 52)" onmouseover="showTip(event, 'fs27', 52)" class="f">info</span> (<span onmouseout="hideTip(event, 'fs28', 53)" onmouseover="showTip(event, 'fs28', 53)" class="f">sprintf</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs24', 54)" onmouseover="showTip(event, 'fs24', 54)" class="i">x</span>)
+        | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 55)" onmouseover="showTip(event, 'fs25', 55)" class="f">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs22', 56)" onmouseover="showTip(event, 'fs22', 56)" class="i">input</span>
     }
 </code></pre></td>
 </tr>
@@ -182,30 +183,30 @@ Also, there can be as many arguments for the component functions as needed, the 
 <span class="l">26: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// define our source dependency</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 58)" onmouseover="showTip(event, 'fs30', 58)" class="f">source</span> <span class="o">=</span> 
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 59)" onmouseover="showTip(event, 'fs31', 59)" class="i">rnd</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs32', 60)" onmouseover="showTip(event, 'fs32', 60)" class="t">Random</span>()
-    <span class="k">fun</span> () <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 61)" onmouseover="showTip(event, 'fs31', 61)" class="i">rnd</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 62)" onmouseover="showTip(event, 'fs33', 62)" class="f">Next</span>(<span class="n">0</span>, <span class="n">100</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 57)" onmouseover="showTip(event, 'fs29', 57)" class="f">source</span> <span class="o">=</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 58)" onmouseover="showTip(event, 'fs30', 58)" class="i">rnd</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 59)" onmouseover="showTip(event, 'fs31', 59)" class="t">Random</span>()
+    <span class="k">fun</span> () <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs30', 60)" onmouseover="showTip(event, 'fs30', 60)" class="i">rnd</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 61)" onmouseover="showTip(event, 'fs32', 61)" class="f">Next</span>(<span class="n">0</span>, <span class="n">100</span>)
 
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 63)" onmouseover="showTip(event, 'fs2', 63)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 64)" onmouseover="showTip(event, 'fs34', 64)" class="i">DSL</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 65)" onmouseover="showTip(event, 'fs2', 65)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 66)" onmouseover="showTip(event, 'fs35', 66)" class="i">Multilang</span>
+<span class="k">open</span> <span class="i">FsShelter</span><span class="o">.</span><span class="i">DSL</span>
+<span class="k">open</span> <span class="i">FsShelter</span><span class="o">.</span><span class="i">Multilang</span>
 
 <span class="c">//define the Storm topology</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 67)" onmouseover="showTip(event, 'fs36', 67)" class="i">sampleTopology</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs37', 68)" onmouseover="showTip(event, 'fs37', 68)" class="f">topology</span> <span class="s">&quot;Sample&quot;</span> { 
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 69)" onmouseover="showTip(event, 'fs38', 69)" class="i">s1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 70)" onmouseover="showTip(event, 'fs18', 70)" class="f">numbers</span> <span class="o">|&gt;</span> <span class="i">runUnreliably</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs39', 71)" onmouseover="showTip(event, 'fs39', 71)" class="i">log</span> <span class="i">cfg</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs30', 72)" onmouseover="showTip(event, 'fs30', 72)" class="i">source</span>) <span class="c">// ignoring available Storm logging and cfg and passing our source function</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 62)" onmouseover="showTip(event, 'fs33', 62)" class="i">sampleTopology</span> <span class="o">=</span> 
+    <span class="i">topology</span> <span class="s">&quot;Sample&quot;</span> { 
+        <span class="k">let</span> <span class="i">s1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 63)" onmouseover="showTip(event, 'fs17', 63)" class="i">numbers</span> <span class="o">|&gt;</span> <span class="i">runUnreliably</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs34', 64)" onmouseover="showTip(event, 'fs34', 64)" class="i">log</span> <span class="i">cfg</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs29', 65)" onmouseover="showTip(event, 'fs29', 65)" class="i">source</span>) <span class="c">// ignoring available Storm logging and cfg and passing our source function</span>
         
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 73)" onmouseover="showTip(event, 'fs40', 73)" class="i">b1</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs22', 74)" onmouseover="showTip(event, 'fs22', 74)" class="f">addOne</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs41', 75)" onmouseover="showTip(event, 'fs41', 75)" class="f">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs42', 76)" onmouseover="showTip(event, 'fs42', 76)" class="f">log</span> <span onmouseout="hideTip(event, 'fs43', 77)" onmouseover="showTip(event, 'fs43', 77)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs44', 78)" onmouseover="showTip(event, 'fs44', 78)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs24', 79)" onmouseover="showTip(event, 'fs24', 79)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs44', 80)" onmouseover="showTip(event, 'fs44', 80)" class="i">tuple</span>, <span onmouseout="hideTip(event, 'fs24', 81)" onmouseover="showTip(event, 'fs24', 81)" class="f">emit</span>)) <span class="c">// pass incoming tuple and emit function</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs45', 82)" onmouseover="showTip(event, 'fs45', 82)" class="f">withParallelism</span> <span class="n">2</span> <span class="c">// override default parallelism of 1</span>
+        <span class="k">let</span> <span class="i">b1</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs21', 66)" onmouseover="showTip(event, 'fs21', 66)" class="i">addOne</span>
+            <span class="o">|&gt;</span> <span class="i">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs34', 67)" onmouseover="showTip(event, 'fs34', 67)" class="i">log</span> <span class="i">cfg</span> <span class="i">tuple</span> <span class="i">emit</span> <span class="k">-&gt;</span> (<span class="i">tuple</span>, <span class="i">emit</span>)) <span class="c">// pass incoming tuple and emit function</span>
+            <span class="o">|&gt;</span> <span class="i">withParallelism</span> <span class="n">2</span> <span class="c">// override default parallelism of 1</span>
         
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs46', 83)" onmouseover="showTip(event, 'fs46', 83)" class="i">b2</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs27', 84)" onmouseover="showTip(event, 'fs27', 84)" class="f">logResult</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs41', 85)" onmouseover="showTip(event, 'fs41', 85)" class="f">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs42', 86)" onmouseover="showTip(event, 'fs42', 86)" class="f">log</span> <span onmouseout="hideTip(event, 'fs43', 87)" onmouseover="showTip(event, 'fs43', 87)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs44', 88)" onmouseover="showTip(event, 'fs44', 88)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs24', 89)" onmouseover="showTip(event, 'fs24', 89)" class="f">emit</span> <span class="k">-&gt;</span> ((<span onmouseout="hideTip(event, 'fs42', 90)" onmouseover="showTip(event, 'fs42', 90)" class="f">log</span> <span onmouseout="hideTip(event, 'fs47', 91)" onmouseover="showTip(event, 'fs47', 91)" class="t">LogLevel</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs48', 92)" onmouseover="showTip(event, 'fs48', 92)" class="i">Info</span>), <span onmouseout="hideTip(event, 'fs44', 93)" onmouseover="showTip(event, 'fs44', 93)" class="i">tuple</span>)) <span class="c">// example of passing Info-level Storm logger into the bolt</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs45', 94)" onmouseover="showTip(event, 'fs45', 94)" class="f">withParallelism</span> <span class="n">2</span>
+        <span class="k">let</span> <span class="i">b2</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs26', 68)" onmouseover="showTip(event, 'fs26', 68)" class="i">logResult</span>
+            <span class="o">|&gt;</span> <span class="i">runBolt</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs34', 69)" onmouseover="showTip(event, 'fs34', 69)" class="i">log</span> <span class="i">cfg</span> <span class="i">tuple</span> <span class="i">emit</span> <span class="k">-&gt;</span> ((<span onmouseout="hideTip(event, 'fs34', 70)" onmouseover="showTip(event, 'fs34', 70)" class="i">log</span> <span class="i">LogLevel</span><span class="o">.</span><span class="i">Info</span>), <span class="i">tuple</span>)) <span class="c">// example of passing Info-level Storm logger into the bolt</span>
+            <span class="o">|&gt;</span> <span class="i">withParallelism</span> <span class="n">2</span>
         
-        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs38', 95)" onmouseover="showTip(event, 'fs38', 95)" class="i">s1</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs40', 96)" onmouseover="showTip(event, 'fs40', 96)" class="i">b1</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs49', 97)" onmouseover="showTip(event, 'fs49', 97)" class="t">shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 98)" onmouseover="showTip(event, 'fs50', 98)" class="f">on</span> <span onmouseout="hideTip(event, 'fs3', 99)" onmouseover="showTip(event, 'fs3', 99)" class="t">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 100)" onmouseover="showTip(event, 'fs4', 100)" class="p">Original</span> <span class="c">// emit from s1 to b1 on Original stream</span>
-        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs40', 101)" onmouseover="showTip(event, 'fs40', 101)" class="i">b1</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs46', 102)" onmouseover="showTip(event, 'fs46', 102)" class="i">b2</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs49', 103)" onmouseover="showTip(event, 'fs49', 103)" class="t">shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 104)" onmouseover="showTip(event, 'fs50', 104)" class="f">on</span> <span onmouseout="hideTip(event, 'fs6', 105)" onmouseover="showTip(event, 'fs6', 105)" class="p">Incremented</span> <span class="c">// emit from b1 to b2 on Incremented stream</span>
+        <span class="k">yield</span> <span class="i">s1</span> <span class="o">--&gt;</span> <span class="i">b1</span> <span class="o">|&gt;</span> <span class="i">shuffle</span><span class="o">.</span><span class="i">on</span> <span onmouseout="hideTip(event, 'fs2', 71)" onmouseover="showTip(event, 'fs2', 71)" class="i">BasicSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 72)" onmouseover="showTip(event, 'fs3', 72)" class="i">Original</span> <span class="c">// emit from s1 to b1 on Original stream</span>
+        <span class="k">yield</span> <span class="i">b1</span> <span class="o">--&gt;</span> <span class="i">b2</span> <span class="o">|&gt;</span> <span class="i">shuffle</span><span class="o">.</span><span class="i">on</span> <span onmouseout="hideTip(event, 'fs5', 73)" onmouseover="showTip(event, 'fs5', 73)" class="i">Incremented</span> <span class="c">// emit from b1 to b2 on Incremented stream</span>
     }
 </code></pre></td>
 </tr>
@@ -216,7 +217,7 @@ Also, there can be as many arguments for the component functions as needed, the 
 <p>Once the number of components grows beyond trivial it is often handy to be able to visualize them and FsShelter includes a simple way to export the topology into a graph:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs36', 106)" onmouseover="showTip(event, 'fs36', 106)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 107)" onmouseover="showTip(event, 'fs51', 107)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 108)" onmouseover="showTip(event, 'fs52', 108)" class="f">writeToConsole</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs33', 74)" onmouseover="showTip(event, 'fs33', 74)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span class="i">DotGraph</span><span class="o">.</span><span class="i">writeToConsole</span>
 </code></pre></td>
 </tr>
 </table>
@@ -264,57 +265,39 @@ redistribution for both commercial and non-commercial purposes. For more informa
 <a href="http://prolucid.ca/" target="_blank"><img src="http://prolucid.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="Prolucid" style="height:30px" border="0" /></a></p>
 
 <div class="tip" id="fs1">namespace System</div>
-<div class="tip" id="fs2">namespace FsShelter</div>
-<div class="tip" id="fs3">type BasicSchema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Incremented of int<br /><br />Full name: Index.BasicSchema</div>
-<div class="tip" id="fs4">union case BasicSchema.Original: int -&gt; BasicSchema</div>
-<div class="tip" id="fs5">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
-<div class="tip" id="fs6">union case BasicSchema.Incremented: int -&gt; BasicSchema</div>
-<div class="tip" id="fs7">type Number =<br />&#160;&#160;{X: int;<br />&#160;&#160;&#160;Desc: string;}<br /><br />Full name: Index.Number</div>
-<div class="tip" id="fs8">Number.X: int</div>
-<div class="tip" id="fs9">Number.Desc: string</div>
-<div class="tip" id="fs10">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
-<div class="tip" id="fs11">type RecordSchema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Described of Number<br />&#160;&#160;| Translated of Number<br /><br />Full name: Index.RecordSchema</div>
-<div class="tip" id="fs12">union case RecordSchema.Original: int -&gt; RecordSchema</div>
-<div class="tip" id="fs13">union case RecordSchema.Described: Number -&gt; RecordSchema</div>
-<div class="tip" id="fs14">union case RecordSchema.Translated: Number -&gt; RecordSchema</div>
-<div class="tip" id="fs15">type RecordsSchema =<br />&#160;&#160;| Original of Number<br />&#160;&#160;| Doubled of Number * Number<br /><br />Full name: Index.RecordsSchema</div>
-<div class="tip" id="fs16">union case RecordsSchema.Original: Number -&gt; RecordsSchema</div>
-<div class="tip" id="fs17">union case RecordsSchema.Doubled: Number * Number -&gt; RecordsSchema</div>
-<div class="tip" id="fs18">val numbers : source:(unit -&gt; Number) -&gt; Async&lt;RecordsSchema option&gt;<br /><br />Full name: Index.numbers</div>
-<div class="tip" id="fs19">val source : (unit -&gt; Number)</div>
-<div class="tip" id="fs20">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
-<div class="tip" id="fs21">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs22">val addOne : input:BasicSchema * emit:(BasicSchema -&gt; unit) -&gt; Async&lt;unit&gt;<br /><br />Full name: Index.addOne</div>
-<div class="tip" id="fs23">val input : BasicSchema</div>
-<div class="tip" id="fs24">val emit : (BasicSchema -&gt; unit)</div>
-<div class="tip" id="fs25">val x : int</div>
-<div class="tip" id="fs26">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
-<div class="tip" id="fs27">val logResult : info:(string -&gt; unit) * input:BasicSchema -&gt; Async&lt;unit&gt;<br /><br />Full name: Index.logResult</div>
-<div class="tip" id="fs28">val info : (string -&gt; unit)</div>
-<div class="tip" id="fs29">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
-<div class="tip" id="fs30">val source : (unit -&gt; int)<br /><br />Full name: Index.source</div>
-<div class="tip" id="fs31">val rnd : Random</div>
-<div class="tip" id="fs32">Multiple items<br />type Random =<br />&#160;&#160;new : unit -&gt; Random + 1 overload<br />&#160;&#160;member Next : unit -&gt; int + 2 overloads<br />&#160;&#160;member NextBytes : buffer:byte[] -&gt; unit<br />&#160;&#160;member NextDouble : unit -&gt; float<br /><br />Full name: System.Random<br /><br />--------------------<br />Random() : unit<br />Random(Seed: int) : unit</div>
-<div class="tip" id="fs33">Random.Next() : int<br />Random.Next(maxValue: int) : int<br />Random.Next(minValue: int, maxValue: int) : int</div>
-<div class="tip" id="fs34">module DSL<br /><br />from FsShelter</div>
-<div class="tip" id="fs35">module Multilang<br /><br />from FsShelter</div>
-<div class="tip" id="fs36">val sampleTopology : Topology.Topology&lt;BasicSchema&gt;<br /><br />Full name: Index.sampleTopology</div>
-<div class="tip" id="fs37">val topology : name:string -&gt; TopologyBuilder<br /><br />Full name: FsShelter.DSL.topology</div>
-<div class="tip" id="fs38">val s1 : obj</div>
-<div class="tip" id="fs39">val log : value:&#39;T -&gt; &#39;T (requires member Log)<br /><br />Full name: Microsoft.FSharp.Core.Operators.log</div>
-<div class="tip" id="fs40">val b1 : Topology.Bolt&lt;BasicSchema&gt;</div>
-<div class="tip" id="fs41">val runBolt : mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;a) -&gt; consume:Consume&lt;&#39;a&gt; -&gt; Topology.Bolt&lt;&#39;t&gt;<br /><br />Full name: FsShelter.DSL.runBolt</div>
-<div class="tip" id="fs42">val log : (LogLevel -&gt; string -&gt; unit)</div>
-<div class="tip" id="fs43">val cfg : Conf</div>
-<div class="tip" id="fs44">val tuple : BasicSchema</div>
-<div class="tip" id="fs45">val withParallelism : parallelism:&#39;a -&gt; spec:&#39;s -&gt; &#39;s (requires member op_Explicit and member WithParallelism)<br /><br />Full name: FsShelter.DSL.withParallelism</div>
-<div class="tip" id="fs46">val b2 : Topology.Bolt&lt;BasicSchema&gt;</div>
-<div class="tip" id="fs47">type LogLevel =<br />&#160;&#160;|  Trace  =  0<br />&#160;&#160;|  Debug  =  1<br />&#160;&#160;|  Info  =  2<br />&#160;&#160;|  Warn  =  3<br />&#160;&#160;|  Error  =  4<br /><br />Full name: FsShelter.Multilang.LogLevel</div>
-<div class="tip" id="fs48">LogLevel.Info: LogLevel = 2</div>
-<div class="tip" id="fs49">type shuffle =<br />&#160;&#160;static member on : case:Expr&lt;(&#39;a0 -&gt; &#39;t)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)<br /><br />Full name: FsShelter.DSL.shuffle</div>
-<div class="tip" id="fs50">static member shuffle.on : case:Quotations.Expr&lt;(&#39;a0 -&gt; &#39;t)&gt; -&gt; (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;&#39;t&gt;)</div>
-<div class="tip" id="fs51">module DotGraph<br /><br />from FsShelter</div>
-<div class="tip" id="fs52">val writeToConsole : t:Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: FsShelter.DotGraph.writeToConsole</div>
+<div class="tip" id="fs2">type BasicSchema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Incremented of int<br /><br />Full name: Index.BasicSchema</div>
+<div class="tip" id="fs3">union case BasicSchema.Original: int -&gt; BasicSchema</div>
+<div class="tip" id="fs4">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs5">union case BasicSchema.Incremented: int -&gt; BasicSchema</div>
+<div class="tip" id="fs6">type Number =<br />&#160;&#160;{X: int;<br />&#160;&#160;&#160;Desc: string;}<br /><br />Full name: Index.Number</div>
+<div class="tip" id="fs7">Number.X: int</div>
+<div class="tip" id="fs8">Number.Desc: string</div>
+<div class="tip" id="fs9">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs10">type RecordSchema =<br />&#160;&#160;| Original of int<br />&#160;&#160;| Described of Number<br />&#160;&#160;| Translated of Number<br /><br />Full name: Index.RecordSchema</div>
+<div class="tip" id="fs11">union case RecordSchema.Original: int -&gt; RecordSchema</div>
+<div class="tip" id="fs12">union case RecordSchema.Described: Number -&gt; RecordSchema</div>
+<div class="tip" id="fs13">union case RecordSchema.Translated: Number -&gt; RecordSchema</div>
+<div class="tip" id="fs14">type RecordsSchema =<br />&#160;&#160;| Original of Number<br />&#160;&#160;| Doubled of Number * Number<br /><br />Full name: Index.RecordsSchema</div>
+<div class="tip" id="fs15">union case RecordsSchema.Original: Number -&gt; RecordsSchema</div>
+<div class="tip" id="fs16">union case RecordsSchema.Doubled: Number * Number -&gt; RecordsSchema</div>
+<div class="tip" id="fs17">val numbers : source:(unit -&gt; Number) -&gt; Async&lt;RecordsSchema option&gt;<br /><br />Full name: Index.numbers</div>
+<div class="tip" id="fs18">val source : (unit -&gt; Number)</div>
+<div class="tip" id="fs19">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
+<div class="tip" id="fs20">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs21">val addOne : input:BasicSchema * emit:(BasicSchema -&gt; unit) -&gt; Async&lt;unit&gt;<br /><br />Full name: Index.addOne</div>
+<div class="tip" id="fs22">val input : BasicSchema</div>
+<div class="tip" id="fs23">val emit : (BasicSchema -&gt; unit)</div>
+<div class="tip" id="fs24">val x : int</div>
+<div class="tip" id="fs25">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs26">val logResult : info:(string -&gt; unit) * input:BasicSchema -&gt; Async&lt;unit&gt;<br /><br />Full name: Index.logResult</div>
+<div class="tip" id="fs27">val info : (string -&gt; unit)</div>
+<div class="tip" id="fs28">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs29">val source : (unit -&gt; int)<br /><br />Full name: Index.source</div>
+<div class="tip" id="fs30">val rnd : Random</div>
+<div class="tip" id="fs31">Multiple items<br />type Random =<br />&#160;&#160;new : unit -&gt; Random + 1 overload<br />&#160;&#160;member Next : unit -&gt; int + 2 overloads<br />&#160;&#160;member NextBytes : buffer:byte[] -&gt; unit<br />&#160;&#160;member NextDouble : unit -&gt; float<br /><br />Full name: System.Random<br /><br />--------------------<br />Random() : unit<br />Random(Seed: int) : unit</div>
+<div class="tip" id="fs32">Random.Next() : int<br />Random.Next(maxValue: int) : int<br />Random.Next(minValue: int, maxValue: int) : int</div>
+<div class="tip" id="fs33">val sampleTopology : obj<br /><br />Full name: Index.sampleTopology</div>
+<div class="tip" id="fs34">val log : value:&#39;T -&gt; &#39;T (requires member Log)<br /><br />Full name: Microsoft.FSharp.Core.Operators.log</div>
 
         </div>
         <div class="span3">
