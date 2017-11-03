@@ -36,6 +36,7 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="TestTopology.fs" />
+    <Compile Include="ConfTests.fs" />
     <Compile Include="DSLTests.fs" />
     <Compile Include="SchemaTests.fs" />
     <Compile Include="TranslationTests.fs" />

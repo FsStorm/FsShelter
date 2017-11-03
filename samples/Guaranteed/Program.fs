@@ -37,7 +37,7 @@ let main argv =
             |> Host.run
         printf "Running the topology, press ENTER to stop..."
         let sw = System.Diagnostics.Stopwatch.StartNew()
-        System.Console.ReadLine() |> ignore
+        System.Threading.Thread.Sleep (-1) |> ignore
         stop()
         sw.Stop()
         let (count,_) = Topology.source.PostAndReply Get

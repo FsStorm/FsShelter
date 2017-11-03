@@ -136,7 +136,7 @@ module ThriftModel =
         let noop _ _ = []
         let inputs = ins |> Seq.map (fun (((_,sid),_), s) -> (GlobalStreamId(s.Src, sid), toGrouping s.Grouping)) |> Seq.toDict
         let outputs = outs |> Seq.map (fun (((_,sid),_), s) -> (sid, toStreamInfo s)) |> Seq.toDict
-        cid,Bolt(toComponent exe optionalArgs (bolt.MkComp noop),
+        cid,Bolt(toComponent exe optionalArgs (bolt.MkComp (noop,None,None)),
                 ComponentCommon(Parallelism_hint = int bolt.Parallelism,
                                 Inputs = inputs,
                                 Streams = outputs,

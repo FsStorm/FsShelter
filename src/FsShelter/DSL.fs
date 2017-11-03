@@ -32,7 +32,7 @@ module TupleSchema =
     let formatCaseName (case:UnionCaseInfo) = 
         case.GetCustomAttributes(typeof<System.ComponentModel.DisplayNameAttribute>) 
         |> Array.tryHead
-        |> Option.map (fun a -> a :?> System.ComponentModel.DisplayNameAttribute)
+        |> Option.bind (fun a -> a :?> System.ComponentModel.DisplayNameAttribute |> Option.ofObj)
         |> Option.map (fun a -> a.DisplayName)
         |> Option.fold (fun _ -> id) case.Name
 
@@ -193,7 +193,7 @@ module DSL =
     /// next: spout function that returns an id*tuple option.
     let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
         { MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
-          Parallelism = 1u; 
+          Parallelism = 1u 
           Conf = Conf.empty }
 
     /// define spout with no processing guarantees
@@ -201,40 +201,52 @@ module DSL =
     /// next: spout function that returns a tuple option.
     let runSpout mkArgs (next:Next<_,'t>):Spout<'t> =
         { MkComp = fun () -> FuncRef (unreliableSpoutLoop mkArgs next TupleSchema.toStreamName<'t>)
-          Parallelism = 1u; 
-          Conf = Conf.empty  }
+          Parallelism = 1u
+          Conf = Conf.empty }
 
     /// define a bolt
     /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
     /// consume: bolt function that will receive incoming tuples.
     let runBolt mkArgs (consume:Consume<_>):Bolt<'t> =
-        { MkComp = fun toAnchors -> FuncRef (autoAckBoltLoop mkArgs consume toAnchors TupleSchema.toStreamName<'t>)
-          Parallelism = 1u; 
-          Conf = Conf.empty  }
+        { MkComp = fun (toAnchors,act,deact) -> FuncRef (autoAckBoltLoop mkArgs consume (toAnchors,act,deact) TupleSchema.toStreamName<'t>)
+          Parallelism = 1u 
+          Conf = Conf.empty
+          Activate = None
+          Deactivate = None }
     
     /// define a terminating bolt
     /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
     /// consume: bolt function that will receive incoming tuples.
     let runTerminator mkArgs (consume:Consume<_>):Bolt<'t> =
-        { MkComp = fun toAnchors -> FuncRef (autoNackBoltLoop mkArgs consume)
-          Parallelism = 1u; 
-          Conf = Conf.empty  }
+        { MkComp = fun _ -> FuncRef (autoNackBoltLoop mkArgs consume)
+          Parallelism = 1u 
+          Conf = Conf.empty
+          Activate = None
+          Deactivate = None }
 
     /// define a spout for a (external) shell or java component
     let asSpout<'t> comp:Spout<'t> =
-        { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty  }
+        { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty }
 
     /// define a bolt for a (external) shell or java component
     let asBolt<'t> comp:Bolt<'t> =
-        { Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty  }
+        { Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty; Activate = None; Deactivate = None }
 
    /// override default parallelism
     let inline withParallelism parallelism (spec:^s) =
-        (^s : (static member WithParallelism : ^s*uint32 -> 's) (spec, uint32 parallelism))
+        (^s : (static member WithParallelism : ^s*uint32 -> ^s) (spec, uint32 parallelism))
 
     /// supply component configuration/overrides
     let inline withConf conf (spec:^s) =
-        (^s : (static member WithConf : ^s*Conf -> 's) (spec, conf |> Seq.map (fun (k,v)->(k,box v)) |> Map.ofSeq))
+        (^s : (static member WithConf : ^s*Conf -> ^s) (spec, conf |> Seq.map (fun (k,v)->(k,box v)) |> Map.ofSeq))
+
+    /// supply component Activation tuple
+    let inline withActivation tuple (spec:^s) =
+        (^s : (static member WithActivation : ^s*'t -> ^s) (spec, tuple))
+
+    /// supply component Deactivation tuple
+    let inline withDeactivation tuple (spec:^s) =
+        (^s : (static member WithDeactivation : ^s*'t -> ^s) (spec, tuple))
 
     /// define shuffle grouping
     type Shuffle =

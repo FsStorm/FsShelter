@@ -23,6 +23,8 @@ module Topologies =
     
     let printBolt (log,t) =
         match t with 
+        | Original _ -> log (sprintf "Init: %A" DateTime.Now)
+        | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
         | Tick -> log (sprintf "time: %A" DateTime.Now)
         | _ -> () //log (sprintf "tuple: %A" t)
         |> async.Return
@@ -36,6 +38,8 @@ module Topologies =
                  |> withParallelism 2
         let b2 = printBolt
                  |> runBolt (fun log _ t _ -> (log LogLevel.Info),t)
+                 |> withActivation (Original {x=1})
+                 |> withDeactivation (MaybeString None)
                  //|> withConf [Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1]
 
         yield s1 ==> b1 |> Shuffle.on Original
@@ -46,8 +50,8 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-//     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
-     let log taskId = ignore
+     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
+//     let log taskId = ignore
      
      let stop = 
          Topologies.t1 

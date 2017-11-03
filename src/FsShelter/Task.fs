@@ -33,7 +33,7 @@ let ofTopology (t : Topology<'t>) compId =
               |> Option.map (fun s -> s.MkComp())
         yield t.Bolts
               |> Map.tryFind compId
-              |> Option.map (fun s -> s.MkComp anchor)
+              |> Option.map (fun b -> b.MkComp (anchor,b.Activate,b.Deactivate))
     }
     |> Seq.choose id
     |> Seq.head

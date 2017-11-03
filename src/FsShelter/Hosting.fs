@@ -465,7 +465,7 @@ module internal Tasks =
             yield! seq { for i in 1..ackers.Length -> fun _ -> ackers.[i-1] }
             yield! topology.Bolts
                    |> Seq.collect (fun (KeyValue(compId,b)) -> 
-                        let runnable = match b.MkComp anchorOfStream with FuncRef r -> r | _ -> raiseNotRunnable() 
+                        let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable() 
                         seq { for i in 1..(int b.Parallelism) ->
                                  fun taskId -> 
                                     let mkEmit tasks = 

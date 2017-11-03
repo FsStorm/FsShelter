@@ -73,7 +73,7 @@ let t1 = topology "test" {
 let t2 = topology "test2" {
     let s2 = shell "cmd" ""
              |> asSpout<Schema>
-             |> withConf []
+             |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 1]
     let b3 = java "class" ["args"]
              |> asBolt<Schema>
              |> withConf []

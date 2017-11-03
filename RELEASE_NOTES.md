@@ -1,3 +1,6 @@
+#### 0.2.4 - Nov 2017
+* Reverting spout to non-async, adding Activate/Deactive support for bolts
+
 #### 0.2.3 - Oct 2017
 * Conditional spout inputs logging
 
