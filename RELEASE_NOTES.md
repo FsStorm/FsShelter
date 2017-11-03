@@ -1,3 +1,6 @@
+#### 0.2.5 - Nov 2017
+* Make unanchored emit available to bolt's Activate/Deactive
+
 #### 0.2.4 - Nov 2017
 * Reverting spout to non-async, adding Activate/Deactive support for bolts
 

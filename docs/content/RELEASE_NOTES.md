@@ -1,3 +1,15 @@
+#### 0.2.4 - Nov 2017
+* Reverting spout to non-async, adding Activate/Deactive support for bolts
+
+#### 0.2.3 - Oct 2017
+* Conditional spout inputs logging
+
+#### 0.2.2 - July 2017
+* Concurrent spout Next, self-host optimizations
+
+#### 0.1.4 - July 2017
+* Self-hosting: seed the id generator
+
 #### 0.1.3 - July 2017
 * Self-hosting tracks split streams correctly
 

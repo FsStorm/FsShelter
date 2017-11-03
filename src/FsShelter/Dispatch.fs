@@ -57,19 +57,20 @@ let unreliableSpoutLoop mkArgs next getStream (in', out') conf =
 let autoAckBoltLoop mkArgs consume (getAnchors,act,deact) getStream (in', out') conf = 
     async { 
         let args = mkArgs (log out') conf
+        let unanchoredEmit t = Emit(t, None, [], (getStream t), None, None) |> out'
         while true do
             let! msg = in'()
             match msg with
             | Activate when Option.isNone act -> ()
             | Deactivate when Option.isNone deact -> ()
             | Activate ->
-                let! res = consume (args act.Value ignore) |> Async.Catch
+                let! res = consume (args act.Value unanchoredEmit) |> Async.Catch
                 match res with
                 | Choice1Of2 _ -> ()
                 | Choice2Of2 ex -> 
                     Error("autoBoltRunner: ", ex) |> out'
             | Deactivate -> 
-                let! res = consume (args deact.Value ignore) |> Async.Catch
+                let! res = consume (args deact.Value unanchoredEmit) |> Async.Catch
                 match res with
                 | Choice1Of2 _ -> ()
                 | Choice2Of2 ex -> 

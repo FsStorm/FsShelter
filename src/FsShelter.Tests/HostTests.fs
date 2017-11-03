@@ -25,7 +25,7 @@ module Topologies =
         match t with 
         | Original _ -> log (sprintf "Init: %A" DateTime.Now)
         | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
-        | Tick -> log (sprintf "time: %A" DateTime.Now)
+        | Tick 
         | _ -> () //log (sprintf "tuple: %A" t)
         |> async.Return
 
@@ -69,5 +69,36 @@ let ``Hosts``() =
          trace()
 
      stop()
+     
+     trace()
+
+[<Test>]
+[<Category("interactive")>]
+let ``Hosts several``() = 
+     let log name taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}:{2} {3}",DateTime.Now,name,taskId,f())
+//     let log taskId = ignore
+     
+     let stop = 
+         seq {
+             for i in 1..10 ->
+                 Topologies.t1 
+                 |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 200
+                              Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
+                 |> fun t -> { t with Name = sprintf "t%d" i } 
+                 |> fun t -> Host.runWith (log t.Name) t
+         } |> Seq.toArray
+
+     let startedAt = DateTime.Now
+     let trace () = 
+         Diagnostics.Debug.WriteLine("-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}", !Topologies.world.count, !Topologies.world.acked, (!Topologies.world.count - !Topologies.world.acked), (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds)
+         Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
+         Diagnostics.Debug.Flush()
+
+     for i in 1..2 do 
+         Threading.Thread.Sleep 10000
+         trace()
+
+     stop
+     |> Array.iter (fun s -> s())
      
      trace()
