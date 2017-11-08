@@ -119,9 +119,7 @@ module internal Channel =
                     match msg with
                     | Enqueue cmd -> enqueue cmd
                     | Dequeue rc -> dequeue rc
-                    | Stop -> 
-                        log(fun _ -> sprintf ">%d,%d<, msg: %+A" inQueue.Count outQueue.Count msg)
-                        return! shutdown ts
+                    | Stop -> return! shutdown ts
                     return! loop log ts
                 }
 
@@ -332,13 +330,11 @@ module internal Tasks =
             |> Seq.filter (function KeyValue(anchor,Done) -> true | _ -> false) 
             |> Array.ofSeq 
             |> Array.iter (fun (KeyValue(anchor,_))-> inFlight.Remove anchor |> ignore)
-            log(fun _ -> sprintf "Inflight: %d" inFlight.Count)
-            
 
         let rec loop () =
             async {
                 let! cmd = input()
-                // log(fun _ -> sprintf "< %+A" cmd)
+                log(fun _ -> sprintf "< %+A" cmd)
                 match cmd with
                 | InCmd Activate ->
                     log(fun _ -> "Starting acker...")
@@ -394,7 +390,7 @@ module internal Tasks =
                 async {
                     let! cmd = input() 
 #if DEBUG                
-                    // log(fun _ -> sprintf "< %+A" cmd)
+                    log(fun _ -> sprintf "< %+A" cmd)
 #endif                
                     match cmd with 
                     | SystemCmd Tick ->
@@ -435,7 +431,7 @@ module internal Tasks =
             let rec input' () =
                 async {
                     let! cmd = input() 
-                    // log(fun _ -> sprintf "< %+A" cmd)
+                    log(fun _ -> sprintf "< %+A" cmd)
                     match cmd with 
                     | InCmd cmd -> 
                         return cmd
