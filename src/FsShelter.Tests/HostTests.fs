@@ -18,7 +18,13 @@ module Topologies =
     /// numbers spout - produces messages
     let numbers (world : World) =
         async { 
-            return Some(string(Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
+            let x = Interlocked.Increment &world.count.contents
+            //if (x % 5L) = 0L then 
+            //    do! Async.Sleep 1000
+            //    return None
+            //else 
+                //return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
+            return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
         }
     
     let printBolt (log,t) =
@@ -64,7 +70,7 @@ let ``Hosts``() =
          Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
          Diagnostics.Debug.Flush()
 
-     for i in 1..10 do 
+     for i in 1..100 do 
          Threading.Thread.Sleep 10000
          trace()
 
@@ -75,8 +81,8 @@ let ``Hosts``() =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts several``() = 
-     let log name taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}:{2} {3}",DateTime.Now,name,taskId,f())
-//     let log taskId = ignore
+//     let log name taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}:{2} {3}",DateTime.Now,name,taskId,f())
+     let log _ _ = ignore 
      
      let stop = 
          seq {
@@ -94,9 +100,7 @@ let ``Hosts several``() =
          Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
          Diagnostics.Debug.Flush()
 
-     for i in 1..2 do 
-         Threading.Thread.Sleep 10000
-         trace()
+     Threading.Thread.Sleep 10000
 
      stop
      |> Array.iter (fun s -> s())
