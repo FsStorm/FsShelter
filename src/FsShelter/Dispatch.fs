@@ -3,26 +3,30 @@ module FsShelter.Dispatch
 
 open System
 open FsShelter.Multilang
+open System.Threading
 
 let private log out' level msg = Log(msg, level) |> out'
 
 let mkSerialNext next args out toEmit =
     let mutable err = None
-    let mb = MailboxProcessor.Start(fun inbox ->
-                let rec loop() =
-                    async {
-                        let! _ = inbox.Receive()
-                        let! t = next args
-                        t |> Option.map toEmit |> Option.iter out
-                        Sync |> out
-                        return! loop()
-                    }
-                loop ())
-    mb.Error.Add(fun e -> err <- Some e)
+    let event = new ManualResetEvent(false)
+    let rec loop() =
+        async {
+            try 
+                let! _ = Async.AwaitWaitHandle event
+                let! t = next args
+                event.Reset() |> ignore            
+                t |> Option.iter (toEmit >> out)
+                Sync |> out
+            with 
+                ex -> err <- Some ex
+            return! loop()
+        }
+    loop () |> Async.Start
     fun () ->
         match err with
         | Some e -> raise e
-        | _ -> mb.Post()
+        | _ -> event.Set() |> ignore
 
 /// Dispatch spout commands and handle retries
 let reliableSpoutLoop mkArgs mkAcker next getStream (in', out') conf = 
@@ -37,8 +41,10 @@ let reliableSpoutLoop mkArgs mkAcker next getStream (in', out') conf =
                 callNext()
             | Ack tid -> 
                 ack tid
+                Sync |> out'
             | Nack tid ->
                 nack tid
+                Sync |> out'
             | Activate | Deactivate -> // ignore for now
                 Sync |> out'
             | _ -> failwithf "Unexpected command: %A" msg
@@ -54,8 +60,7 @@ let unreliableSpoutLoop mkArgs next getStream (in', out') conf =
             match msg with
             | Next -> 
                 callNext()
-            | Ack _ 
-            | Nack _ -> ()
+            | Ack _ | Nack _ 
             | Activate | Deactivate -> // ignore for now
                 Sync |> out'
             | _ -> failwithf "Unexpected command: %A" msg

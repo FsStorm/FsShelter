@@ -56,8 +56,8 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
-//     let log taskId = ignore
+//     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
+     let log taskId = ignore
      
      let stop = 
          Topologies.t1 

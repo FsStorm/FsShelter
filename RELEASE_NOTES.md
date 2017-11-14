@@ -1,3 +1,6 @@
+#### 0.2.9 - Nov 2017
+* Fixing spout timeout when running as a shelled component
+
 #### 0.2.7 - Nov 2017
 * Reverting the debug logging in Hosting modules
 

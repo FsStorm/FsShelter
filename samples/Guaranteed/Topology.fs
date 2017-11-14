@@ -62,7 +62,6 @@ let source =
                                     rc.Reply(tupleId,number)
                                     []
                                 | Get rc,(tupleId,number)::xs ->
-                                    pending.Add(tupleId,number)
                                     rc.Reply (tupleId,number)
                                     xs
                                 | Ack id, _ -> 
