@@ -1,6 +1,5 @@
 FSharp.Core
 newtonsoft.json
-thrift
+apache-thrift-netcore
 Google.Protobuf
 FsPickler
-System.ValueTuple

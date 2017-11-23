@@ -11,7 +11,7 @@ module private Json =
 
 /// File system utilities
 module Includes = 
-    let private extSet = [".exe";".dll";".config";".sh";".cmd"] |> Set.ofList
+    let private extSet = [".exe";".dll";".json";".config";".sh";".cmd"] |> Set.ofList
     
     /// filter: include most commmon .NET files only
     let defaultExtensions fileName =
@@ -170,11 +170,7 @@ module ThriftModel =
 
 /// Executable startup helpers
 module Startup =
-    /// make arguments suitable for running shell components on Windows
-    let mkWindowsArgs args exe = 
-        ("cmd", "/c"::(Path.GetFileName exe)::args)
-
     /// make arguments suitable for running shell components under Mono
-    let mkMonoArgs args exe = 
-        ("mono", (Path.GetFileName exe)::args)
+    let mkArgs args exe = 
+        ("dotnet", (Path.GetFileName exe)::args)
 

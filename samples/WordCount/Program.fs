@@ -16,13 +16,9 @@ let main argv =
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 
-        Startup.submit topology exePath (Startup.mkWindowsArgs []) address (int port) 
-    | "submit-mono"::address::[port] -> 
-        Startup.submit topology exePath (Startup.mkMonoArgs []) address (int port)
+        Startup.submit topology exePath (Startup.mkArgs []) address (int port) 
     | ["submit-local"] -> 
-        let mkArgs = if isNull (System.Type.GetType "Mono.Runtime") then Startup.mkWindowsArgs
-                     else Startup.mkMonoArgs
-        Startup.submit topology exePath (mkArgs []) "localhost" Nimbus.DefaultPort
+        Startup.submit topology exePath (Startup.mkArgs []) "localhost" Nimbus.DefaultPort
     | "kill"::address::[port] ->
         Nimbus.withClient address (int port) 
             (fun client -> Nimbus.kill client topology.Name)

@@ -57,6 +57,22 @@ let build_out = "build"
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
+let dotnetcliVersion = "2.0.0"
+
+let mutable dotnetExePath = "dotnet"
+
+Target "InstallDotNetCore" (fun _ ->
+    dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
+)
+
+let runDotnet workingDir args =
+    let result =
+        ExecProcess (fun info ->
+            info.FileName <- dotnetExePath
+            info.WorkingDirectory <- workingDir
+            info.Arguments <- args) TimeSpan.MaxValue
+    if result <> 0 then failwithf "dotnet %s failed" args
+
 // Helper active pattern for project types
 let (|Fsproj|Csproj|) (projFileName:string) = 
     match projFileName with
@@ -65,32 +81,6 @@ let (|Fsproj|Csproj|) (projFileName:string) =
     | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
 
 // Generate assembly info files with the right version & up-to-date information
-Target "AssemblyInfo" (fun _ ->
-    let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName)
-          Attribute.Product project
-          Attribute.Description summary
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion ]
-
-    let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath, 
-          projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
-        )
-
-    !! "src/**/*.??proj" 
-    ++ "ext/**/*.??proj"
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
-        match projFileName with
-        | Fsproj -> CreateFSharpAssemblyInfo (folderName @@ "AssemblyInfo.fs") attributes
-        | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        )
-)
-
 // Copies binaries from default VS location to expected bin folder
 // But keeps a subdirectory structure for each project in the 
 // src folder to support multiple project outputs
@@ -100,23 +90,36 @@ Target "CopyBinaries" (fun _ ->
     |>  Seq.iter (fun (fromDir) -> CopyDir build_out fromDir (fun _ -> true))
 )
 
-// --------------------------------------------------------------------------------------
-// Clean build results
-
 Target "Clean" (fun _ ->
     CleanDirs [build_out]
+    !! "src/**/*.??proj"
+    ++ "ext/**/*.??proj"
+    ++ "samples/**/*.??proj"
+    |> Seq.iter ((sprintf "clean %s") >> runDotnet ".")
 )
 
 Target "CleanDocs" (fun _ ->
     CleanDirs ["docs/output"]
 )
 
-// --------------------------------------------------------------------------------------
-// Build library & test project
+Target "Restore" (fun _ ->
+    !! "src/**/*.??proj"
+    ++ "ext/**/*.??proj"
+    ++ "samples/**/*.??proj"
+    |> Seq.iter ((sprintf "restore %s") >> runDotnet ".")
+)
 
 Target "Build" (fun _ ->
+    let assemblyInfo =
+        [ "Description",summary
+          "Version", release.AssemblyVersion
+          "Authors", gitOwner
+          "PackageProjectUrl", gitHome
+          "RepositoryUrl", gitHome
+          "PackageIconUrl", gitRaw + "/master/docs/files/img/logo.png"
+          "PackageLicenseUrl", gitRaw + "/master/docs/files/LICENSE.md" ]
     !! solutionFile
-    |> MSBuildReleaseExt "" ["LINT","True"] "Rebuild"
+    |> MSBuildReleaseExt "" (assemblyInfo @ ["LINT","True"]) "Rebuild"
     |> ignore
 )
 
@@ -332,7 +335,7 @@ Target "StormThrift" (fun _ ->
     let generated = "ext" @@ "StormThrift" @@ "StormThrift"
     CleanDir generated
     Shell.Exec(
-            "packages" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
+            "packages" @@ "build" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
             "-out " + generated @@ ".."
             + " --gen csharp"
             + " paket-files" @@ "et1975" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift")
@@ -388,7 +391,7 @@ Target "ExportGraphs" DoNothing
 Target "All" DoNothing
 
 "Clean"
-  ==> "AssemblyInfo"
+  ==> "Restore"
   ==> "Build"
   ==> "CopyBinaries"
   ==> "Tests"

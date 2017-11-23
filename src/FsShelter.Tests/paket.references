@@ -1,6 +1,5 @@
 FSharp.Core
 newtonsoft.json
-thrift
 Google.Protobuf
 group tests
 Unquote

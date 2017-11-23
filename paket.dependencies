@@ -1,5 +1,5 @@
 group Build
-	framework: Net4.6
+	framework: Net4.6.1
 	source https://nuget.org/api/v2
 
 	nuget FAKE
@@ -10,25 +10,26 @@ group Build
 	nuget FSharp.Formatting
 	nuget fsharplint
 	nuget Google.Protobuf
+	nuget thrift
 	
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
-	framework: Net4.6
+	framework: netstandard2.0
+	storage: none
 	source https://nuget.org/api/v2
 
 	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf
-nuget System.ValueTuple
-	nuget thrift
+	nuget apache-thrift-netcore
 	nuget newtonsoft.json
 	
 	github prolucid/protoshell src/main/proto/multilang.proto
 	github et1975/storm storm-core/src/storm.thrift
 
 group Tests
-	framework: Net4.6
+	framework: Net4.6.1
 	source https://nuget.org/api/v2
 
 	nuget nunit 2.6.4
