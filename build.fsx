@@ -37,9 +37,6 @@ let tags = "storm event-driven fsharp distributed"
 // File system information 
 let solutionFile  = "src/FsShelter.sln"
 
-// Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "build/*Test*.dll"
-
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
 let gitOwner = "Prolucid" 
@@ -51,11 +48,17 @@ let gitName = "FsShelter"
 // The url for the raw files hosted
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/"+gitOwner+"/"+gitName
 
-// build output folder
-let build_out = "build" 
-
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
+
+let assemblyInfo =
+    [ "Description",summary
+      "Version", release.AssemblyVersion
+      "Authors", gitOwner
+      "PackageProjectUrl", gitHome
+      "RepositoryUrl", gitHome
+      "PackageIconUrl", gitRaw + "/master/docs/files/img/logo.png"
+      "PackageLicenseUrl", gitRaw + "/master/docs/files/LICENSE.md" ]
 
 let dotnetcliVersion = "2.0.0"
 
@@ -73,34 +76,15 @@ let runDotnet workingDir args =
             info.Arguments <- args) TimeSpan.MaxValue
     if result <> 0 then failwithf "dotnet %s failed" args
 
-// Helper active pattern for project types
-let (|Fsproj|Csproj|) (projFileName:string) = 
-    match projFileName with
-    | f when f.EndsWith("fsproj") -> Fsproj
-    | f when f.EndsWith("csproj") -> Csproj
-    | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
-
-// Generate assembly info files with the right version & up-to-date information
-// Copies binaries from default VS location to expected bin folder
-// But keeps a subdirectory structure for each project in the 
-// src folder to support multiple project outputs
-Target "CopyBinaries" (fun _ ->
-    !! "src/**/*.??proj"
-    |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release"))
-    |>  Seq.iter (fun (fromDir) -> CopyDir build_out fromDir (fun _ -> true))
-)
 
 Target "Clean" (fun _ ->
-    CleanDirs [build_out]
+    CleanDirs ["docs/output"]
     !! "src/**/*.??proj"
     ++ "ext/**/*.??proj"
     ++ "samples/**/*.??proj"
     |> Seq.iter ((sprintf "clean %s") >> runDotnet ".")
 )
 
-Target "CleanDocs" (fun _ ->
-    CleanDirs ["docs/output"]
-)
 
 Target "Restore" (fun _ ->
     !! "src/**/*.??proj"
@@ -110,21 +94,14 @@ Target "Restore" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    let assemblyInfo =
-        [ "Description",summary
-          "Version", release.AssemblyVersion
-          "Authors", gitOwner
-          "PackageProjectUrl", gitHome
-          "RepositoryUrl", gitHome
-          "PackageIconUrl", gitRaw + "/master/docs/files/img/logo.png"
-          "PackageLicenseUrl", gitRaw + "/master/docs/files/LICENSE.md" ]
     !! solutionFile
-    |> MSBuildReleaseExt "" (assemblyInfo @ ["LINT","True"]) "Rebuild"
+    |> MSBuildReleaseExt "" assemblyInfo "Rebuild"
     |> ignore
 )
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
+let testAssemblies = "src/*Tests*/bin/**/*Test*.dll"
 
 Target "Tests" (fun _ ->
     !! testAssemblies
@@ -133,7 +110,7 @@ Target "Tests" (fun _ ->
             DisableShadowCopy = true
             ExcludeCategory = "interactive"
             TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = build_out @@ "TestResults.xml" })
+            OutputFile = "src/FsShelter.Tests/obj/TestResults.xml" })
 )
 
 #if MONO
@@ -157,18 +134,13 @@ Target "SourceLink" (fun _ ->
 // Build a NuGet package
 
 Target "Package" (fun _ ->
-    Paket.Pack(fun p -> 
-        { p with
-            OutputPath = build_out
-            TemplateFile = "paket.template"
-            Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes})
+    runDotnet 
+        "src/FsShelter"
+        (assemblyInfo |> Seq.fold (fun s (p,v) -> s + (sprintf " /p:%s=\"%s\"" p v)) "pack -c Release --no-build")
 )
 
 Target "PublishNuget" (fun _ ->
-    Paket.Push(fun p -> 
-        { p with
-            WorkingDir = build_out })
+    runDotnet "src/FsShelter" "nuget publish"
 )
 
 
@@ -363,7 +335,7 @@ Target "WordCountSvg" (fun _ ->
             "/c "+
 #endif
             ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "WordCount.exe") +
-            " graph | dot -Tsvg -o " + build_out + "/WordCount.svg")
+            " graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount.svg")
     |> ignore
 )
 
@@ -377,7 +349,7 @@ Target "GuaranteedSvg" (fun _ ->
             "/c "+
 #endif
             ("samples" @@ "Guaranteed" @@ "bin" @@ "Release" @@ "Guaranteed.exe") +
-            " graph | dot -Tsvg -o " + build_out + "/Guaranteed.svg")
+            " graph | dot -Tsvg -o " + "samples/Guaranteed/obj/Guaranteed.svg")
     |> ignore
 )
 
@@ -393,11 +365,7 @@ Target "All" DoNothing
 "Clean"
   ==> "Restore"
   ==> "Build"
-  ==> "CopyBinaries"
   ==> "Tests"
-  ==> "All"
-
-"All" 
 #if MONO
 #else
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
@@ -406,13 +374,14 @@ Target "All" DoNothing
   =?> ("GenerateReferenceDocs",isLocalBuild)
   =?> ("GenerateDocs",isLocalBuild)
   =?> ("ReleaseDocs",isLocalBuild)
+  ==> "All"
 
-"CleanDocs"
+"Clean"
   ==> "GenerateHelp"
   ==> "GenerateReferenceDocs"
   ==> "GenerateDocs"
 
-"CleanDocs"
+"Clean"
   ==> "GenerateHelpDebug"
 
 "GenerateHelp"

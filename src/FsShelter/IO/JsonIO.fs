@@ -8,6 +8,7 @@ open System.IO
 open Newtonsoft.Json
 open TupleSchema
 open Newtonsoft.Json.Linq
+open Hopac
 
 [<Literal>]
 let internal END = "\nend\n"
@@ -177,10 +178,10 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
 
     let findConstructor stream = 
         streamRW |> Map.find stream |> fst
-    let in' ():Async<InCommand<'t>> =
-        async {
-            let! msg  = stdin.ReadLineAsync() |> Async.AwaitTask
-            let! term = stdin.ReadLineAsync() |> Async.AwaitTask
+    let in' ():Job<InCommand<'t>> =
+        job {
+            let! msg  = stdin.ReadLineAsync |> Job.fromTask
+            let! term = stdin.ReadLineAsync |> Job.fromTask
             log (fun _ -> "< "+msg+term)
             return match msg,term with
                    | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg

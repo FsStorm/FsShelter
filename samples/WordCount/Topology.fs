@@ -1,6 +1,7 @@
 ﻿module Sample.Topology
 
 open System
+open Hopac
 
 // data schema for the topology, every case is a unqiue stream
 type Schema = 
@@ -9,29 +10,31 @@ type Schema =
     | WordCount of string*int64
 
 // sentences spout - feeds messages into the topology
-let sentences source = async { return source() |> Sentence |> Some }
+let sentences source = job { return source() |> Sentence |> Some }
 
 // split bolt - consumes sentences and emits words
-let splitIntoWords (input, emit) = 
-    async { 
+let splitIntoWords (input, (emit:_->Job<_>)) = 
+    job { 
         match input with
-        | Sentence s -> s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries) 
-                        |> Seq.map Word 
-                        |> Seq.iter emit
+        | Sentence s -> 
+            do! s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries) 
+                |> Seq.map (Word >> emit)
+                |> Job.seqCollect 
+                |> Job.Ignore
         | _ -> failwithf "unexpected input: %A" input
     }
 
 // count words bolt 
-let countWords (input, increment, emit) = 
-    async { 
+let countWords (input, increment, (emit:_->Job<_>)) = 
+    job { 
         match input with
-        | Word word -> WordCount (word,increment word) |> emit
+        | Word word -> do! WordCount (word,increment word) |> emit
         | _ -> failwithf "unexpected input: %A" input
     }
 
 // log word count - terminating bolt 
 let logResult (log, input) = 
-    async { 
+    job { 
         match input with
         | WordCount (word,count) -> log (sprintf "%s: %d" word count)
         | _ -> failwithf "unexpected input: %A" input

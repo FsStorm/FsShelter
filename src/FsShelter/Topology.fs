@@ -3,6 +3,7 @@
 /// Topology data model
 module Topology =
     open Multilang
+    open Hopac
 
     /// Tuple id
     type TupleId = string
@@ -13,9 +14,9 @@ module Topology =
     /// Signature for anchoring implementation
     type ToAnchors = TupleId->TupleId list
     /// Signature for pluggable IO implementation
-    type IO<'t> = (unit->Async<InCommand<'t>>)*(OutCommand<'t>->unit)
+    type IO<'t> = (unit->Job<InCommand<'t>>)*(OutCommand<'t>->Job<unit>)
     /// Signature for a final runnable component
-    type Runnable<'t> = IO<'t>->Conf->Async<unit>
+    type Runnable<'t> = IO<'t>->Conf->Job<unit>
 
     /// Storm Componend abstraction
     type Component<'t> = 

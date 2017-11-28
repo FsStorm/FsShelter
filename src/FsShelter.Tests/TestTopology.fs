@@ -4,6 +4,7 @@
 //defines the spout and bolt 
 open System
 open System.Collections.Generic
+open Hopac
 
 type Number = 
     { x : int32 }
@@ -29,25 +30,25 @@ type World =
 
 /// numbers spout - produces messages
 let numbers (world : World) =
-    async { 
+    job { 
         return Some(string(Threading.Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
     }
 
 /// split bolt - consumes and emits messages
-let split (input,emit) =
-    async { 
-        match input with
-        | Original { x = x } -> 
-            match x % 2 with
-            | 0 -> Even ({x=x}, {str="even"})
-            | _ -> Odd ({x=x}, "odd" )
-        | _ -> failwithf "unexpected input: %A" input
-        |> emit
+let split (input,(emit:_->Job<_>)) =
+    job { 
+        do! match input with
+            | Original { x = x } -> 
+                match x % 2 with
+                | 0 -> Even ({x=x}, {str="even"})
+                | _ -> Odd ({x=x}, "odd" )
+            | _ -> failwithf "unexpected input: %A" input
+            |> emit
     }
 
 /// terminating bolt - consumes messages
 let resultBolt (info,input) =
-    async { 
+    job { 
         match input with
         | Even ({x = x}, {str=str})
         | Odd ({x = x},str) -> info (sprintf "Got %A" input)

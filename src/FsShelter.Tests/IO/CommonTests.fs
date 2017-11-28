@@ -7,10 +7,11 @@ open FsShelter.Multilang
 open System
 open System.IO
 open TupleSchema
+open Hopac
 
 let toDict (s:seq<_*_>) = System.Linq.Enumerable.ToDictionary(s, fst, snd)
 
-let syncOut (w:unit->unit) = w()
+let syncOut (w:unit->unit) = w() |> Job.result
 
 type GuidRec = { g : Nullable<Guid>}
 
