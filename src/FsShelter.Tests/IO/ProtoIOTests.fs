@@ -288,10 +288,11 @@ let ``roundtrip throughput``() =
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     job {
-        for i in {1..count} do
+        for i in 1..count do
             do! Emit(justFields,Some "2651792242051038370",[],"JustFields",None,None) |> out'
         let in':unit->Job<InCommand<Schema>> = reverseIn mem "AddOneBolt" 1 
-        for i in {1..count} do
+        for i in 1..count do
             do! in'() |> Job.Ignore
     } |> run
-    System.Diagnostics.Debug.WriteLine( sprintf "[Proto] Ellapsed: %dms, %f/s" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds))
+    sw.Stop()
+    printf "[Proto] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)

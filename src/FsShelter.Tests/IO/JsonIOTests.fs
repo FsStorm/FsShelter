@@ -11,14 +11,13 @@ open Hopac
 
 [<Test>]
 let ``reads handshake``() = 
-    new System.IO.StringReader(
-            """{"pidDir":"C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
-                "context":{"task->component":{"1":"AddOneBolt","2":"AddOneBolt","3":"ResultBolt","4":"ResultBolt","5":"SimpleSpout","6":"__acker"},"taskid":5},
-                "conf":{"FsShelter.id":"Simple-2-1456522507","dev.zookeeper.path":"\/tmp\/dev-storm-zookeeper","topology.tick.tuple.freq.secs":30,"topology.classpath":null}}"""
-                .Replace("\r","").Replace("\n","")+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader(
+                    """{"pidDir":"C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
+                        "context":{"task->component":{"1":"AddOneBolt","2":"AddOneBolt","3":"ResultBolt","4":"ResultBolt","5":"SimpleSpout","6":"__acker"},"taskid":5},
+                        "conf":{"FsShelter.id":"Simple-2-1456522507","dev.zookeeper.path":"\/tmp\/dev-storm-zookeeper","topology.tick.tuple.freq.secs":30,"topology.classpath":null}}"""
+                        .Replace("\r","").Replace("\n","")+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     let expected = InCommand<Schema>.Handshake(
                     Conf ["FsShelter.id",box "Simple-2-1456522507"; "dev.zookeeper.path", box "/tmp/dev-storm-zookeeper"; "topology.tick.tuple.freq.secs", box 30L; "topology.classpath", null],
@@ -29,67 +28,60 @@ let ``reads handshake``() =
 
 [<Test>]
 let ``reads next``() = 
-    new System.IO.StringReader("""{"id":"","command":"next"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader("""{"id":"","command":"next"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     in'() |> run =! InCommand<Schema>.Next
 
 
 [<Test>]
 let ``reads ack``() = 
-    new System.IO.StringReader("""{"id":"zzz","command":"ack"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader("""{"id":"zzz","command":"ack"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     in'() |> run =! InCommand<Schema>.Ack "zzz"
 
 
 [<Test>]
 let ``reads nack``() = 
-    new System.IO.StringReader("""{"id":"zzz","command":"fail"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader("""{"id":"zzz","command":"fail"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     in'() |> run =! InCommand<Schema>.Nack "zzz"
 
 [<Test>]
 let ``reads activate``() = 
-    new System.IO.StringReader("""{"id":"","command":"activate"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
-    
+    let sr = new System.IO.StringReader("""{"id":"","command":"activate"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+   
     in'() |> run =! InCommand<Schema>.Activate
 
 [<Test>]
 let ``reads deactivate``() = 
-    new System.IO.StringReader("""{"id":"","command":"deactivate"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader("""{"id":"","command":"deactivate"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     in'() |> run =! InCommand<Schema>.Deactivate
 
 [<Test>]
 let ``reads tuple``() = 
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Original","id":"2651792242051038370"}"""+END)
-    |> Console.SetIn
-
-    let (in',_) = JsonIO.start ignore
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Original","id":"2651792242051038370"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
     in'() |> run =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
 
 [<Test>]
 let ``writes tuple``() = 
+    let sr = new System.IO.StringReader("")
     let sw = new System.IO.StringWriter()
-    sw |> Console.SetOut
-
-    let (_,out) = JsonIO.start ignore
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
     
     out(Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None)) |> run
     Threading.Thread.Sleep(10)
@@ -97,13 +89,9 @@ let ``writes tuple``() =
 
 [<Test>]
 let ``rw complex tuple``() = 
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END)
-    |> Console.SetIn
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    sw |> Console.SetOut
-    
-    let (in',out) = JsonIO.start ignore
-    
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
     let even = Even({x=62},{str="a"})
     
     job {
@@ -116,13 +104,9 @@ let ``rw complex tuple``() =
 
 [<Test>]
 let ``rw option tuple``() = 
-    new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Some","Fields":["zzz"]}],"task":1,"stream":"MaybeString","id":"2651792242051038370"}"""+END)
-    |> Console.SetIn
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Some","Fields":["zzz"]}],"task":1,"stream":"MaybeString","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    sw |> Console.SetOut
-    
-    let (in',out) = JsonIO.start ignore
-    
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
     let t = MaybeString(Some "zzz")
     
     job {
@@ -148,4 +132,5 @@ let ``roundtrip throughput``() =
         for i in {1..count} do
             do! in'() |> Job.Ignore
     } |> run
-    System.Diagnostics.Debug.WriteLine( sprintf "[Json] Ellapsed: %dms, %f/s" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds))
+    sw.Stop()
+    printf "[Json] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)
