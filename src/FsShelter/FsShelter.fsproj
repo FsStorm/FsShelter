@@ -14,7 +14,7 @@
     <Compile Include="Topology.fs" />
     <Compile Include="DSL.fs" />
     <Compile Include="Task.fs" />
-    <!-- <Compile Include="Hosting.fs" /> -->
+    <Compile Include="Hosting.fs" />
     <Compile Include="Management.fs" />
     <Compile Include="DotGraph.fs" />
     <Compile Include="IO\Common.fs" />

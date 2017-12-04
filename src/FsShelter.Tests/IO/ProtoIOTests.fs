@@ -11,7 +11,6 @@ open Google.Protobuf.WellKnownTypes
 open Prolucid.ProtoShell
 open TupleSchema
 open CommonTests
-open Hopac
 
 type V = Messages.Variant
 type VL = WellKnownTypes.Value
@@ -31,7 +30,7 @@ let ofStreams (_,memout:#Stream) =
     memout.Seek(0L, SeekOrigin.Begin) |> ignore
     Messages.ShellMsg.Parser.ParseDelimitedFrom memout 
 
-let reverseIn (memin:#Stream) comp task :unit->Job<InCommand<'t>> =
+let reverseIn (memin:#Stream) comp task :unit->Async<InCommand<'t>> =
     memin.Seek(0L, IO.SeekOrigin.Begin) |> ignore
 
     let streamRW = TupleSchema.mapSchema<'t>() |> Map.ofArray
@@ -42,7 +41,7 @@ let reverseIn (memin:#Stream) comp task :unit->Job<InCommand<'t>> =
         let constr = findConstructor msg.Emit.Stream
         InCommand.Tuple ((ProtoIO.ofFields constr msg.Emit.Tuple)(), msg.Emit.Id, comp, msg.Emit.Stream, task)
 
-    fun () -> job {
+    fun () -> async {
                 let msg = Messages.ShellMsg.Parser.ParseDelimitedFrom memin
                 return toCommand msg
               }
@@ -80,7 +79,7 @@ let ``reads handshake``() =
                                                                         4, "ResultBolt"
                                                                         5,"SimpleSpout"
                                                                         6,"__acker"]})
-    in'() |> run =! expected
+    in'() |> Async.RunSynchronously =! expected
 
 
 [<Test>]
@@ -91,7 +90,7 @@ let ``reads next``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
     
-    in'() |> run =! InCommand<Schema>.Next
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Next
 
 
 [<Test>]
@@ -102,7 +101,7 @@ let ``reads ack``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
 
-    in'() |> run =! InCommand<Schema>.Ack "zzz"
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Ack "zzz"
 
 
 [<Test>]
@@ -113,7 +112,7 @@ let ``reads nack``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
     
-    in'() |> run =! InCommand<Schema>.Nack "zzz"
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Nack "zzz"
 
 
 [<Test>]
@@ -124,7 +123,7 @@ let ``reads activate``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
     
-    in'() |> run =! InCommand<Schema>.Activate
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Activate
 
 
 [<Test>]
@@ -135,7 +134,7 @@ let ``reads deactivate``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
     
-    in'() |> run =! InCommand<Schema>.Deactivate
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Deactivate
 
 
 [<Test>]
@@ -154,7 +153,7 @@ let ``reads tuple``() =
         |> ProtoIO.startWith
         <|| (syncOut,ignore)
 
-    in'() |> run =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
+    in'() |> Async.RunSynchronously =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
 
 [<Test>]
@@ -162,7 +161,7 @@ let ``writes tuple``() =
     let streams = mkStreams()
     let (_,out) = ProtoIO.startWith streams syncOut ignore
     
-    out(Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None)) |> run
+    out <| Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None)
     Threading.Thread.Sleep(10)
     let emit = (ofStreams streams).Emit
     (emit.Id, emit.Anchors |> List.ofSeq, emit.NeedTaskIds, emit.Stream) =! ("2651792242051038370",["123"], false, "Original")
@@ -187,10 +186,10 @@ let ``rw complex tuple``() =
     
     let even = Even({x=62},{str="a"})
     
-    job {
-        do! out'(Emit(even,Some "2651792242051038370",[],"Even",None,None))
+    async {
+        out'(Emit(even,Some "2651792242051038370",[],"Even",None,None))
         return! in'()
-    } |> run =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
+    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
     let emit = (ofStreams streams).Emit
     (emit.Id, emit.Stream) =! ("2651792242051038370", "Even")
     emit.Tuple.Count =! 2
@@ -208,12 +207,12 @@ let ``roundtrip nested tuple``() =
                      m = Map [3, Some {x=3}; 0, None]
                      gxs = System.Collections.Generic.List([{x=4}])
                      d = toDict ["5", Some {x=5}; "0", None]})
-    let emitted = job {
-                    do! Emit(nested,Some "2651792242051038370",[],"Nested",None, None) |> out'
+    let emitted = async {
+                    Emit(nested,Some "2651792242051038370",[],"Nested",None, None) |> out'
 
                     let in' = reverseIn mem "AddOneBolt" 1
                     return! in'()
-                  } |> run
+                  } |> Async.RunSynchronously
     
     match emitted,nested with
     | InCommand.Tuple(Nested tuple, _, _, _, _),Nested original ->
@@ -242,10 +241,10 @@ let ``rw option tuple``() =
     
     let t = MaybeString(Some "zzz")
     
-    job {
-        do! out'(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
+    async {
+        out'(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
         return! in'()
-    } |> run =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
+    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
     let emit = (ofStreams streams).Emit
     (emit.Id, emit.Stream) =! ("2651792242051038370","MaybeString")
     emit.Tuple.Count =! 1
@@ -270,10 +269,10 @@ let ``rw Nullable tuple``() =
     
     let t = NullableGuid(Nullable guid)
     
-    job {
-        do! out'(Emit(t,Some "2651792242051038370",[],"NullableGuid",None,None))
+    async {
+        out'(Emit(t,Some "2651792242051038370",[],"NullableGuid",None,None))
         return! in'()
-    } |> run =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","NullableGuid",1)
+    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","NullableGuid",1)
     let emit = (ofStreams streams).Emit
     (emit.Id, emit.Stream) =! ("2651792242051038370","NullableGuid")
     emit.Tuple.Count =! 1
@@ -287,12 +286,12 @@ let ``roundtrip throughput``() =
     let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    job {
+    async {
         for i in 1..count do
-            do! Emit(justFields,Some "2651792242051038370",[],"JustFields",None,None) |> out'
-        let in':unit->Job<InCommand<Schema>> = reverseIn mem "AddOneBolt" 1 
+            Emit(justFields,Some "2651792242051038370",[],"JustFields",None,None) |> out'
+        let in':unit->Async<InCommand<Schema>> = reverseIn mem "AddOneBolt" 1 
         for i in 1..count do
-            do! in'() |> Job.Ignore
-    } |> run
+            do! in'() |> Async.Ignore
+    } |> Async.RunSynchronously
     sw.Stop()
     printf "[Proto] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)

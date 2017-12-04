@@ -1,5 +1,4 @@
 ﻿module Guaranteed.Topology
-open Hopac
 
 // data schema for the topology, every case is a unqiue stream
 type Schema = 
@@ -9,26 +8,26 @@ type Schema =
 
 // numbers spout - produces messages
 let numbers source =
-    job { 
-        let! (tupleId,number) = source() |> Job.fromAsync
+    async { 
+        let! (tupleId,number) = source()
         return Some(tupleId, Original (number)) 
     }
 
 // add 1 bolt - consumes and emits messages to either Even or Odd stream
-let addOne (input,(emit:_->Job<_>)) =
-    job { 
-        do! match input with
-            | Original x -> 
-                match x % 2 with
-                | 1 -> Even (x+1)
-                | _ -> Odd (x+1)
-            | _ -> failwithf "unexpected input: %A" input
-            |> emit
+let addOne (input,emit) =
+    async { 
+        match input with
+        | Original x -> 
+            match x % 2 with
+            | 1 -> Even (x+1)
+            | _ -> Odd (x+1)
+        | _ -> failwithf "unexpected input: %A" input
+        |> emit
     }
 
 // terminating bolt - consumes messages
 let logResult (info,input) =
-    job { 
+    async { 
         match input with
         | Even x
         | Odd x -> info (sprintf "Got: %A" input)

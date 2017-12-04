@@ -26,22 +26,22 @@ let main argv =
     | ["graph"] ->
         topology
         |> DotGraph.writeToConsole
-//     | ["self-host"] ->
-//         let stop = 
-//             topology
-// //            |> Host.runWith (sprintf "self-%d-%d" (System.Diagnostics.Process.GetCurrentProcess().Id) >> Logging.callbackLog)
-//             |> Host.run
-//         printf "Running the topology, press ENTER to stop..."
-//         let sw = System.Diagnostics.Stopwatch.StartNew()
-//         System.Threading.Thread.Sleep (-1) |> ignore
-//         stop()
-//         sw.Stop()
-//         let (count,_) = Topology.source.PostAndReply Get
-//         printf "Count: %s, %d/s\n" count (1000L*(int64 count)/sw.ElapsedMilliseconds)
+    | ["self-host"] ->
+        let stop = 
+            topology
+//            |> Host.runWith (sprintf "self-%d-%d" (System.Diagnostics.Process.GetCurrentProcess().Id) >> Logging.callbackLog)
+            |> Host.run
+        printf "Running the topology, press ENTER to stop..."
+        let sw = System.Diagnostics.Stopwatch.StartNew()
+        System.Console.ReadLine() |> ignore
+        stop()
+        sw.Stop()
+        let (count,_) = Topology.source.PostAndReply Get
+        printf "Count: %s, %d/s\n" count (1000L*(int64 count)/sw.ElapsedMilliseconds)
     | _ -> 
         topology
         |> Task.ofTopology
-//        |> Task.run ProtoIO.start
-        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // start using a traffic logger 
+        |> Task.run ProtoIO.start
+//        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // start using a traffic logger 
     0
 

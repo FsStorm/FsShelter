@@ -5,7 +5,6 @@ open System.IO
 open FsShelter.Multilang
 open FsShelter.Topology
 open System
-open Hopac
 
 /// Logger signature    
 type Log = (unit -> string) -> unit
@@ -44,7 +43,7 @@ let ofTopology (t : Topology<'t>) compId =
 
 /// Reads the handshake and runs the specified task with a logger
 let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
-    job { 
+    async { 
         let pid = pid()
         let log = startLog pid
         let (in', out') = io log
@@ -55,19 +54,19 @@ let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) =
                 match msg with
                 | Handshake(cfg, pidDir, context) -> 
                     pid |> createPid pidDir
+                    Pid pid |> out'
                     (cfg, context.ComponentId)
                 | _ -> failwithf "Expected handshake, got: %A" msg
-            do! Pid pid |> out'
             log(fun _ -> sprintf "running %s..." compId)
             return! task compId (in', out') cfg
         with ex -> 
             let msg = Exception.toString ex
             log (fun _ -> msg)
-            do! Log(msg, LogLevel.Error) |> out'
+            Log(msg, LogLevel.Error) |> out'
             Threading.Thread.Sleep 1000
             Environment.Exit 1
     }
-    |> run
+    |> Async.RunSynchronously
 
 /// Reads the handshake and runs the specified task
 let run (io : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) io task

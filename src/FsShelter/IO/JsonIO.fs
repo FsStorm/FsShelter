@@ -8,7 +8,6 @@ open System.IO
 open Newtonsoft.Json
 open TupleSchema
 open Newtonsoft.Json.Linq
-open Hopac
 
 [<Literal>]
 let internal END = "\nend\n"
@@ -151,17 +150,8 @@ let private isMono() = not <| isNull (System.Type.GetType("Mono.Runtime"))
 let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topology.IO<'t> =
     let write (text:string) =
         log (fun _ -> "> "+text)
-        syncOut (fun () -> stdout.Write(text.Replace("\n","\\n"))
-                           stdout.Write(END)
+        syncOut (fun () -> stdout.Write(text.Replace("\n","\\n")+END)
                            stdout.Flush())
-
-    if isMono() then
-        () //on osx/linux under mono, set env LANG=en_US.UTF-8
-    else
-        if not Console.IsInputRedirected then
-            Console.InputEncoding <- Encoding.UTF8
-        if not Console.IsOutputRedirected then
-            Console.OutputEncoding <- Encoding.UTF8
 
     let streamRW = TupleSchema.mapSchema<'t>() |> Map.ofArray
    
@@ -178,10 +168,10 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
 
     let findConstructor stream = 
         streamRW |> Map.find stream |> fst
-    let in' ():Job<InCommand<'t>> =
-        job {
-            let! msg  = stdin.ReadLineAsync |> Job.fromTask
-            let! term = stdin.ReadLineAsync |> Job.fromTask
+    let in' ():Async<InCommand<'t>> =
+        async {
+            let! msg  = stdin.ReadLineAsync() |> Async.AwaitTask
+            let! term = stdin.ReadLineAsync() |> Async.AwaitTask
             log (fun _ -> "< "+msg+term)
             return match msg,term with
                    | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg

@@ -172,15 +172,15 @@ module private Parsers =
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "MemberNamesMustBePascalCase")>]
 [<AutoOpen>]
 module DSL =
-    open Hopac
+    open Multilang
     open Topology
     open Dispatch
     open FSharp.Quotations
 
     /// spout function signature
-    type Next<'a,'t> = 'a->Job<'t option> 
+    type Next<'a,'t> = 'a->Async<'t option> 
     /// bolt function signature
-    type Consume<'a> = 'a->Job<unit>
+    type Consume<'a> = 'a->Async<unit>
     /// emit signature
     type Emit<'t> = 't->unit
     /// ack signature
@@ -260,41 +260,41 @@ module DSL =
     type Shuffle =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
-                { Grouping = Grouping.Shuffle
-                  Src = src
-                  Dst = dst
-                  Anchoring = anchor
-                  Schema = Parsers.findCase case |> TupleSchema.toNames }
+                {Grouping = Grouping.Shuffle
+                 Src = src
+                 Dst = dst
+                 Anchoring = anchor
+                 Schema = Parsers.findCase case |> TupleSchema.toNames}
 
     /// define all grouping
     type All =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
-                { Grouping = Grouping.All
-                  Src = src
-                  Dst = dst
-                  Anchoring = anchor
-                  Schema = Parsers.findCase case |> TupleSchema.toNames}
+                {Grouping = Grouping.All
+                 Src = src
+                 Dst = dst
+                 Anchoring = anchor
+                 Schema = Parsers.findCase case |> TupleSchema.toNames}
 
     /// define direct grouping
     type Direct =
         static member on ([<ReflectedDefinition(true)>] case:Expr<_->'t>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
-                { Grouping = Grouping.Direct
-                  Src = src
-                  Dst = dst
-                  Anchoring = anchor
-                  Schema = Parsers.findCase case |> TupleSchema.toNames}
+                {Grouping = Grouping.Direct
+                 Src = src
+                 Dst = dst
+                 Anchoring = anchor
+                 Schema = Parsers.findCase case |> TupleSchema.toNames}
 
     /// define fields grouping
     type Group =
         static member by ([<ReflectedDefinition(true)>] select:Expr<'t->'p>):bool->ComponentId->ComponentId->Stream<'t> =
             fun anchor src dst -> 
-                { Grouping = Parsers.toGroup select
-                  Src = src
-                  Dst = dst
-                  Anchoring = anchor
-                  Schema = Parsers.findCase select |> TupleSchema.toNames}
+                {Grouping = Parsers.toGroup select
+                 Src = src
+                 Dst = dst
+                 Anchoring = anchor
+                 Schema = Parsers.findCase select |> TupleSchema.toNames}
 
 //    let inline (!*>) (anchor:bool) (case:Expr<_->'t>) =
 //        all.on case anchor

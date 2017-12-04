@@ -10,7 +10,7 @@
     <Compile Include="SchemaTests.fs" />
     <Compile Include="TranslationTests.fs" />
     <Compile Include="TaskTests.fs" />
-    <!-- <Compile Include="HostTests.fs" /> -->
+    <Compile Include="HostTests.fs" />
     <Compile Include="IO\CommonTests.fs" />
     <Compile Include="IO\JsonIOTests.fs" />
     <Compile Include="IO\ProtoIOTests.fs" />

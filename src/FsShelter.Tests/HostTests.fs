@@ -28,12 +28,13 @@ module Topologies =
         }
     
     let printBolt (log,t) =
-        match t with 
-        | Original _ -> log (sprintf "Init: %A" DateTime.Now)
-        | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
-        | Tick 
-        | _ -> () //log (sprintf "tuple: %A" t)
-        |> async.Return
+        async {
+            match t with 
+            | Original _ -> log (sprintf "Init: %A" DateTime.Now)
+            | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
+            | Tick 
+            | _ -> () //log (sprintf "tuple: %A" t)
+        }
 
     let world = {rnd = Random(); count = ref 0L; acked = ref 0L}
     let t1 = topology "test" {

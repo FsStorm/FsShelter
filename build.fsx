@@ -59,7 +59,7 @@ let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
 let assemblyInfo =
     [ "Description",summary
-      "Version", release.AssemblyVersion
+      "Version", release.NugetVersion
       "Authors", gitOwner
       "PackageProjectUrl", gitHome
       "RepositoryUrl", gitHome
@@ -133,7 +133,7 @@ Target "Package" (fun _ ->
 )
 
 Target "PublishNuget" (fun _ ->
-    runDotnet "src/FsShelter" "nuget publish"
+    runDotnet "src/FsShelter" (sprintf "nuget push bin/Release/FsShelter.%s.nupkg -s nuget.org -k %s" release.NugetVersion (environVar "nugetkey"))
 )
 
 

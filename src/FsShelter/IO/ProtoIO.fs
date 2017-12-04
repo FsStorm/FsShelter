@@ -8,7 +8,6 @@ open Google.Protobuf.WellKnownTypes
 open Prolucid.ProtoShell
 open TupleSchema
 open System.IO
-open Hopac
 
 type internal V = Messages.Variant
 type internal VL = WellKnownTypes.Value
@@ -183,8 +182,8 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
     let findConstructor stream = 
         streamRW |> Map.find stream |> fst
 
-    let in' ():Job<InCommand<'t>> =
-        job {
+    let in' ():Async<InCommand<'t>> =
+        async {
             let msg = Messages.StormMsg.Parser.ParseDelimitedFrom stdin
             log (fun _ -> sprintf "< %A" msg)
             return toCommand log findConstructor msg

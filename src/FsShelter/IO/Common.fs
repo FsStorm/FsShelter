@@ -1,6 +1,7 @@
 ﻿namespace FsShelter.IO
 
 open System
+open System.Reflection
 open System.Runtime.CompilerServices
 
 [<assembly: InternalsVisibleTo("FsShelter.Tests")>]
@@ -8,15 +9,15 @@ do()
 
 module internal Common =
     open System.IO
-    open Hopac
     
     let serialOut = 
-        let mb = Mailbox()
-        job {
-            let! (write:unit->unit) = Mailbox.take mb
-            write()
-        } |> Job.foreverServer |> start
-        Mailbox.send mb
+        let mb = MailboxProcessor.Start (fun inbox ->
+            async {
+                while true do
+                    let! (write:unit->unit) = inbox.Receive()
+                    write()
+            })
+        mb.Post
 
     open MBrace.FsPickler
     open FSharp.Reflection

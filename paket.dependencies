@@ -23,7 +23,6 @@ group Main
 	nuget FsPickler
 	nuget Google.Protobuf
 	nuget apache-thrift-netcore
-nuget Hopac
 	nuget newtonsoft.json
 	
 	github prolucid/protoshell src/main/proto/multilang.proto
