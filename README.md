@@ -1,4 +1,4 @@
-fakeFsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter) [![Mono/OSX build](https://travis-ci.org/Prolucid/FsShelter.svg?branch=master)](https://travis-ci.org/Prolucid/FsShelter) [![NuGet version](https://badge.fury.io/nu/fsshelter.svg)](https://badge.fury.io/nu/fsshelter)
+FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter) [![Mono/OSX build](https://travis-ci.org/Prolucid/FsShelter.svg?branch=master)](https://travis-ci.org/Prolucid/FsShelter) [![NuGet version](https://badge.fury.io/nu/fsshelter.svg)](https://badge.fury.io/nu/fsshelter)
 =======
 
 FsShelter is a library for defining and running Apache Storm topologies in F# using statically typed streams.
