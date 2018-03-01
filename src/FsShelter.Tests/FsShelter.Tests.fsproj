@@ -19,6 +19,8 @@
   </ItemGroup>
   <ItemGroup>
       <ProjectReference Include="..\FsShelter\FsShelter.fsproj" />
+      <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
+      <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

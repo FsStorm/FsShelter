@@ -1,4 +1,4 @@
-#### 1.0.0-beta-1 - Nov 2017
+#### 1.0.0-beta-3 - Nov 2017
 * netstandard 2.0 release
 
 #### 0.2.9 - Nov 2017

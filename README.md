@@ -12,7 +12,6 @@ Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](htt
 
 ## Limitations
 * At the moment FsShelter doesn't support direct emits.
-* [STORM-1644](https://issues.apache.org/jira/browse/STORM-1644): Currently, when running on Windows, the process will run under cmd.exe incurring slight overhead.
 
 # Building
 On Windows, from the cloned root:

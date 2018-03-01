@@ -22,8 +22,18 @@
     <Compile Include="IO\ProtoIO.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
-    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
+    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(OutputPath)\StormThrift.dll">
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
+    <Content Include="$(OutputPath)\ProtoShell.dll">
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
