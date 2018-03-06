@@ -10,7 +10,7 @@ open FsShelter
 Overview
 -------
 FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components and topologies in F#.
-FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split into itsown project.
+FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split into its own project.
 
 Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:
 
