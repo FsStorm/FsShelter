@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../build"
+#I "../../src/FsShelter/bin/Release/netstandard2.0"
 #r "FsShelter.dll"
 
 open System
