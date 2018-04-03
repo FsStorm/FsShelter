@@ -79,12 +79,7 @@ type NestedSchema<'a> =
     | Nested of 'a
     
 (**
-where a topology can be defined with the signature:
-*)
-
-Topology<NestedSchema<BasicSchema>>
-    
-(**
+where a topology can be defined with the signature: Topology<NestedSchema<BasicSchema>>
 This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped by adding the NestedStreamAttribute to the Nested case. Without this attribute, nested streams will be treated as blobs.
 *)
 
