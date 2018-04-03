@@ -1,6 +1,6 @@
 #### 1.0.0 - Nov 2017
-* netstandard 2.0 release
 * support for nested and generic streams
+* netstandard 2.0 release
 
 #### 1.0.0-beta-3 - Nov 2017
 * netstandard 2.0 release
