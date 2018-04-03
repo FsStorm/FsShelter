@@ -87,6 +87,44 @@ let ``writes tuple``() =
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Original","need_task_ids":false}"""+END
 
 [<Test>]
+let ``reads generic tuple``() = 
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"task":1,"stream":"Inner","id":"2651792242051038370"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    
+    in'() |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner",1)
+
+
+[<Test>]
+let ``writes generic tuple``() = 
+    let sr = new System.IO.StringReader("")
+    let sw = new System.IO.StringWriter()
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
+    
+    out(Emit(GenericSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner",None,None))
+    Threading.Thread.Sleep(10)
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"anchors":["123"],"stream":"Inner","need_task_ids":false}"""+END
+
+[<Test>]
+let ``reads nested generic tuple``() = 
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Inner+Original","id":"2651792242051038370"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    
+    in'() |> Async.RunSynchronously =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner+Original",1)
+
+
+[<Test>]
+let ``writes nested generic tuple``() = 
+    let sr = new System.IO.StringReader("")
+    let sw = new System.IO.StringWriter()
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
+    
+    out(Emit(Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner+Original",None,None))
+    Threading.Thread.Sleep(10)
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Inner+Original","need_task_ids":false}"""+END
+
+[<Test>]
 let ``rw complex tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
@@ -113,6 +151,19 @@ let ``rw option tuple``() =
         return! in'()
     } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Some","Fields":["zzz"]}],"stream":"MaybeString","need_task_ids":false}"""+END
+
+[<Test>]
+let ``rw generic tuple``() =
+    let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"task":1,"stream":"Inner","id":"2651792242051038370"}"""+END)
+    let sw = new System.IO.StringWriter()
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let t = GenericSchema.Inner(Original({x=62}))
+    
+    async {
+        out(Emit(t,Some "2651792242051038370",[],"Inner",None,None))
+        return! in'()
+    } |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(t,"2651792242051038370","AddOneBolt","Inner",1)
+    sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"stream":"Inner","need_task_ids":false}"""+END
 
 
 [<Test>]

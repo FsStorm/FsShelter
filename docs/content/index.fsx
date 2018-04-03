@@ -66,6 +66,32 @@ type RecordsSchema =
 Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
 FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.
 
+(**
+Generic or nested schemas are also supported. For example:
+*)
+
+type BasicSchema = 
+    | Original of int
+    | Incremented of int
+
+type NestedSchema<'a> = 
+    | Named of string
+    | Nested of 'a
+    
+(**
+where a topology can be defined with the signature:
+*)
+
+Topology<NestedSchema<BasicSchema>>
+    
+(**
+This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped by adding the NestedStreamAttribute to the Nested case. Without this attribute, nested streams will be treated as blobs.
+*)
+
+type NestedSchema<'a> = 
+    | Named of string
+    | [<NestedStream>] Nested of 'a
+
 
 FsShelter components
 -----------------------
