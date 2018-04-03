@@ -4,7 +4,7 @@ group Build
 
 	nuget FAKE
     nuget Google.Protobuf.Tools
-	nuget nunit.runners 2.6.4
+	nuget nunit.runners
 	nuget SourceLink.Fake
 	nuget Octokit
 	nuget FSharp.Formatting
@@ -32,7 +32,7 @@ group Tests
 	framework: Net4.6.1
 	source https://nuget.org/api/v2
 
-	nuget nunit 2.6.4
+	nuget nunit
 	nuget unquote
 
 group Run

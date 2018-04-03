@@ -1,11 +1,14 @@
 ﻿namespace FsShelter
 
+type NestedStreamAttribute() =
+    inherit System.Attribute()
+
 /// DU/Stream schema mapping functions
 module TupleSchema =
     open System.Reflection
     open FSharp.Reflection
 
-    let private forRecords = Option.Some >> Option.filter FSharpType.IsRecord 
+    let private forRecords = Option.Some >> Option.filter FSharpType.IsRecord
     let private no _ = None
 
     /// Format a field name
@@ -14,7 +17,7 @@ module TupleSchema =
         | Some pref -> sprintf "%s.%s" pref name
 
     /// Map a case to field names
-    let toNames (case:UnionCaseInfo) =
+    let toNames (case:UnionCaseInfo,_) =
         let rec mapNames recurse prefix f (props:PropertyInfo[]) =
             props
             |> Array.collect (fun p -> 
@@ -27,14 +30,25 @@ module TupleSchema =
                         None 
                         (fun prefix (p:PropertyInfo) -> prefix |> formatName p.Name)
             |> Array.toList
-
+            
     /// format a case using its DisplayNameAttribute or name
-    let formatCaseName (case:UnionCaseInfo) = 
-        case.GetCustomAttributes(typeof<System.ComponentModel.DisplayNameAttribute>) 
+    let formatNestedCaseName (outer:UnionCaseInfo option) (inner:UnionCaseInfo) =
+        let fmt = 
+            outer
+            |> Option.map (fun p ->
+                p.GetCustomAttributes(typeof<NestedStreamAttribute>) 
+                |> Array.tryHead
+                |> Option.map (fun _-> sprintf "%s+%s" p.Name)
+                |> Option.defaultValue (fun _ -> p.Name))
+            |> Option.defaultValue id
+        inner.GetCustomAttributes(typeof<System.ComponentModel.DisplayNameAttribute>) 
         |> Array.tryHead
         |> Option.bind (fun a -> a :?> System.ComponentModel.DisplayNameAttribute |> Option.ofObj)
         |> Option.map (fun a -> a.DisplayName)
-        |> Option.fold (fun _ -> id) case.Name
+        |> Option.defaultValue (fmt inner.Name)
+    
+    /// format a case using its DisplayNameAttribute or name
+    let formatCaseName = formatNestedCaseName None
 
     /// Map a case to stream name
     let toStreamName<'t> :'t->string = 
@@ -52,28 +66,40 @@ module TupleSchema =
     type FieldReader = System.Type->obj
     /// Tuple field writer
     type FieldWriter = obj->unit
-
-    /// Map a union case to reader/writer functions
-    let toTupleRW<'t> (case:UnionCaseInfo) =
-        let rec mapRW recurse (constr:obj[]->obj,deconst:obj->obj[]) (props:PropertyInfo[]):(FieldReader->unit->obj)*(FieldWriter->obj->unit) =
+    
+    /// Map a [nested] union case to reader/writer functions
+    let toTupleRW<'t> (case:UnionCaseInfo) (nested:UnionCaseInfo option) =
+        let recurser = (forRecords >> Option.map (fun t -> FSharpType.GetRecordFields t,((FSharpValue.PreComputeRecordConstructor t),(FSharpValue.PreComputeRecordReader t))))
+        let rec mapRW nest recurse (constr:obj[]->obj,deconst:obj->obj[]) (props:PropertyInfo[]) : (FieldReader->unit->obj)*(FieldWriter->obj->unit) =
             let mapSingle (p:PropertyInfo) = 
-                match recurse p.PropertyType with
-                | Some (properties, fs) -> properties |> mapRW no fs
-                | _ -> (fun r ()-> r p.PropertyType), fun w v -> w v
+                match nest, recurse p.PropertyType with
+                | None, Some (properties, fs) -> properties |> mapRW None no fs
+                | Some (c:UnionCaseInfo), _ -> c.GetFields() |> mapRW None recurser ((FSharpValue.PreComputeUnionConstructor c),(FSharpValue.PreComputeUnionReader c))
+                | _,_ -> (fun r ()-> r p.PropertyType), fun w v -> w v
             let acc = props |> Array.map mapSingle
             (fun r () -> acc |> Array.map (fun (pr,_) -> pr r ()) |> constr),
              fun w o -> deconst o |> Array.zip (acc |> Array.map snd) |> Array.iter (fun (f,v) -> f w v)
-                    
+
         let (read,write) =
             case.GetFields()
-            |> mapRW (forRecords >> Option.map (fun t -> FSharpType.GetRecordFields t,((FSharpValue.PreComputeRecordConstructor t),(FSharpValue.PreComputeRecordReader t))))
-                     ((FSharpValue.PreComputeUnionConstructor case),(FSharpValue.PreComputeUnionReader case))
+            |> mapRW nested recurser ((FSharpValue.PreComputeUnionConstructor case),(FSharpValue.PreComputeUnionReader case))
         
         (fun r () -> read r () |> unbox<'t>),write
 
     /// Map descriminated union cases to reader*writer functions
     let mapSchema<'t> () =
-        FSharpType.GetUnionCases typeof<'t> |> Array.map (fun case -> (formatCaseName case),(toTupleRW<'t> case))
+        let rec map c fmt t =
+            FSharpType.GetUnionCases t 
+            |> Array.collect (fun case -> 
+                let hasNestedAttr = case.GetCustomAttributes(typeof<NestedStreamAttribute>) |> Array.isEmpty |> not
+                if case.DeclaringType.IsGenericType && hasNestedAttr then
+                    case.DeclaringType.GenericTypeArguments // TODO Can something else be used here?
+                    |> Array.collect (Some case |> formatNestedCaseName |> map (Some case))
+                else
+                    match c with
+                    | Some outer -> [|(fmt case),(Some case |> toTupleRW<'t> outer)|]
+                    | None -> [|(fmt case),(None |> toTupleRW<'t> case)|])
+        map None formatCaseName typeof<'t>
 
 module private Parsers =
     open Topology
@@ -110,20 +136,24 @@ module private Parsers =
         | _ -> None
         
     let rec (|UnionCase|_|) = function
-        | Call (_,_,[UnionCase case]) -> Some case
-        | Call (_,_,[UnionCase case;_]) -> Some case
-        | Lambda(_, UnionCase case) -> Some case
-        | Let (_,_,UnionCase case) -> Some case
-        | NewUnionCase (case,_) -> Some case
-        | IfThenElse (UnionCaseTest(_,case),_,_) -> Some case
+        | NewUnionCase (case,_) -> Some (case,None)
+        | Call (None,compose,[UnionCase (case,_); UnionCase (pre,_)]) when compose.Name = "op_ComposeRight" -> Some (case,Some pre)
+        | Call (None,compose,[UnionCase (pre,_); UnionCase (case,_)]) when compose.Name = "op_ComposeLeft" -> Some (case,Some pre)
+        | Call (_,_,[UnionCase (case,pre)]) -> Some (case,pre)
+        | Call (_,_,[UnionCase (case,pre);_]) -> Some (case,pre)
+        | Lambda(_, UnionCase (case,pre)) -> Some (case,pre)
+        | Let (_,_,UnionCase (case,pre)) -> Some (case,pre)
+        | IfThenElse (UnionCaseTest(_,pre),UnionCase (case,_),_) -> Some (case, Some pre)
+        | IfThenElse (UnionCaseTest(_,case),_,_) -> Some (case,None)
         | _ -> None
         
-    let (|StreamDef|_|) = function
-        | PipeRight ((src,srcT,srcId),(dst,_,dstId),UnionCase case)
-        | PipeLeft ((src,srcT,srcId),(dst,_,dstId),UnionCase case) -> 
+    let (|StreamDef|_|) = fun e ->
+        match e with
+        | PipeRight ((src,srcT,srcId),(dst,_,dstId),UnionCase (case,pre))
+        | PipeLeft ((src,srcT,srcId),(dst,_,dstId),UnionCase (case,pre)) -> 
             let spouts = if srcT.GetGenericTypeDefinition() = typedefof<Spout<_>> then [srcId,unbox<Spout<'t>> src] else []
             let bolts = if srcT.GetGenericTypeDefinition() = typedefof<Bolt<_>> then [srcId,unbox<Bolt<'t>> src] else []
-            Some (spouts,(dstId, unbox<Bolt<'t>> dst)::bolts,case.Name,srcId,dstId)
+            Some (spouts,(dstId, unbox<Bolt<'t>> dst)::bolts,formatNestedCaseName pre case,srcId,dstId)
         | _ -> None
 
     let toTopology name = 

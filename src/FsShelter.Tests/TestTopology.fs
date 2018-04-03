@@ -94,3 +94,62 @@ let t3 = topology "test3" {
     yield s1 --> b1 |> Shuffle.on Original
     yield s1 --> b2 |> Shuffle.on Original
 }
+
+type GenericSchema<'a> =
+    | Outer of int
+    | Inner of 'a
+
+let t4 = topology "test4" {
+    let s1 = shell "cmd" ""
+             |> asSpout<GenericSchema<Schema>>
+             |> withConf []
+    let b1 = java "class" ["args"]
+             |> asBolt<GenericSchema<Schema>>
+             |> withConf []
+    let b2 = java "class" ["args"]
+             |> asBolt<GenericSchema<Schema>>
+             |> withConf []
+    let b3 = java "class" ["args"]
+             |> asBolt<GenericSchema<Schema>>
+             |> withConf []
+    yield s1 --> b1 |> Shuffle.on Outer
+    yield s1 --> b2 |> Shuffle.on (Inner << Original)
+    yield s1 --> b3 |> Shuffle.on (Even >> Inner)
+}
+
+type GenericNestedSchema<'a> =
+    | Outer of int
+    | [<NestedStream>] Inner of 'a
+
+let t5 = topology "test5" {
+    let s1 = shell "cmd" ""
+             |> asSpout<GenericNestedSchema<Schema>>
+             |> withConf []
+    let b1 = java "class" ["args"]
+             |> asBolt<GenericNestedSchema<Schema>>
+             |> withConf []
+    let b2 = java "class" ["args"]
+             |> asBolt<GenericNestedSchema<Schema>>
+             |> withConf []
+    let b3 = java "class" ["args"]
+             |> asBolt<GenericNestedSchema<Schema>>
+             |> withConf []
+    yield s1 --> b1 |> Shuffle.on Outer
+    yield s1 --> b2 |> Shuffle.on (Inner << Original)
+    yield s1 --> b3 |> Shuffle.on (Even >> Inner)
+}
+
+let t6 = topology "test6" {
+    let s1 = shell "cmd" ""
+             |> asSpout<GenericNestedSchema<Schema>>
+             |> withConf []
+    let b1 = java "class" ["args"]
+             |> asBolt<GenericNestedSchema<Schema>>
+             |> withConf []
+    let b2 = java "class" ["args"]
+             |> asBolt<GenericNestedSchema<Schema>>
+             |> withConf []
+    yield s1 --> b1 |> Shuffle.on Outer
+    yield s1 --> b2 |> Group.by (function | Inner(Original(n))-> n)
+    yield s1 --> b2 |> Group.by (function | Inner(Even(n,s)) -> n)
+}

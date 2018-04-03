@@ -136,7 +136,7 @@ let ``reads deactivate``() =
     
     in'() |> Async.RunSynchronously =! InCommand<Schema>.Deactivate
 
-
+    
 [<Test>]
 let ``reads tuple``() = 
     let tuple = 
@@ -155,7 +155,26 @@ let ``reads tuple``() =
 
     in'() |> Async.RunSynchronously =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
+[<Test>]
+let ``reads generic tuple``() = 
+    let t = Original {x=62}
+    let tuple = 
+        Messages.StreamIn(
+                Id="2651792242051038370",
+                Stream="Inner",
+                Task=1,
+                Comp="AddOneBolt")
+    tuple.Tuple.Add([V(BytesVal = ByteString.CopyFrom (IO.Common.blobSerialize t))])
 
+    let (in',_) = 
+        Messages.StormMsg(StreamIn=tuple)
+        |> toStreams (mkStreams())
+        |> ProtoIO.startWith
+        <|| (syncOut,ignore)
+
+    in'() |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(t),"2651792242051038370","AddOneBolt","Inner",1)
+
+    
 [<Test>]
 let ``writes tuple``() = 
     let streams = mkStreams()
@@ -165,6 +184,30 @@ let ``writes tuple``() =
     Threading.Thread.Sleep(10)
     let emit = (ofStreams streams).Emit
     (emit.Id, emit.Anchors |> List.ofSeq, emit.NeedTaskIds, emit.Stream) =! ("2651792242051038370",["123"], false, "Original")
+    emit.Tuple.Count =! 1
+    emit.Tuple.[0].Int32Val =! 62
+
+[<Test>]
+let ``writes generic tuple``() = 
+    let streams = mkStreams()
+    let (_,out) = ProtoIO.startWith streams syncOut ignore
+    
+    out <| Emit(GenericSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner",None,None)
+    Threading.Thread.Sleep(10)
+    let emit = (ofStreams streams).Emit
+    (emit.Id, emit.Anchors |> List.ofSeq, emit.NeedTaskIds, emit.Stream) =! ("2651792242051038370",["123"], false, "Inner")
+    emit.Tuple.Count =! 1
+    emit.Tuple.[0].BytesVal.ToByteArray() |> IO.Common.blobDeserialize typeof<Schema> |> unbox =! Original {x=62}
+    
+[<Test>]
+let ``writes nested generic tuple``() = 
+    let streams = mkStreams()
+    let (_,out) = ProtoIO.startWith streams syncOut ignore
+    
+    out <| Emit(GenericNestedSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner+Original",None,None)
+    Threading.Thread.Sleep(10)
+    let emit = (ofStreams streams).Emit
+    (emit.Id, emit.Anchors |> List.ofSeq, emit.NeedTaskIds, emit.Stream) =! ("2651792242051038370",["123"], false, "Inner+Original")
     emit.Tuple.Count =! 1
     emit.Tuple.[0].Int32Val =! 62
 
