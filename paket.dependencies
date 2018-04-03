@@ -4,7 +4,6 @@ group Build
 
 	nuget FAKE
     nuget Google.Protobuf.Tools
-	nuget nunit.runners
 	nuget SourceLink.Fake
 	nuget Octokit
 	nuget FSharp.Formatting
@@ -15,7 +14,6 @@ group Build
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
-	framework: netstandard2.0
 	storage: none
 	source https://nuget.org/api/v2
 
@@ -24,16 +22,13 @@ group Main
 	nuget Google.Protobuf
 	nuget apache-thrift-netcore
 	nuget newtonsoft.json
+	nuget nunit
+	nuget NUnit3TestAdapter
+	nuget unquote
+	nuget Microsoft.NET.Test.Sdk
 	
 	github prolucid/protoshell src/main/proto/multilang.proto
 	github et1975/storm storm-core/src/storm.thrift
-
-group Tests
-	framework: Net4.6.1
-	source https://nuget.org/api/v2
-
-	nuget nunit
-	nuget unquote
 
 group Run
 	http https://github.com/Prolucid/protoshell/releases/download/v1.1.0/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar

@@ -17,26 +17,6 @@ open System.IO
 open SourceLink
 #endif
 
-// The name of the project
-// (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "FsShelter"
-
-// Short summary of the project
-// (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "F# DSL and runtime for Storm topologies"
-
-// Longer description of the project
-// (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = "F# DSL and runtime for Apache Storm topologies"
-
-// List of author names (for NuGet package)
-let authors = [ "Eugene Tolmachev" ]
-
-// Tags for your project (for NuGet package)
-let tags = "storm event-driven fsharp distributed"
-
-// File system information 
-let solutionFile  = "src/FsShelter.sln"
 let projects =
     !! "src/**/*.??proj"
     ++ "ext/**/*.??proj"
@@ -56,15 +36,6 @@ let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/"+gitOwner+"/"
 
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-
-let assemblyInfo =
-    [ "Description",summary
-      "Version", release.NugetVersion
-      "Authors", gitOwner
-      "PackageProjectUrl", gitHome
-      "RepositoryUrl", gitHome
-      "PackageIconUrl", gitRaw + "/master/docs/files/img/logo.png"
-      "PackageLicenseUrl", gitRaw + "/master/docs/files/LICENSE.md" ]
 
 let dotnetcliVersion = "2.0.0"
 
@@ -96,6 +67,22 @@ Target "Clean" (fun _ ->
     |> Seq.iter (CleanDir)
 )
 
+Target "Meta" (fun _ ->
+    [ "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">"
+      "<PropertyGroup>"
+      "<PackageProjectUrl>https://github.com/prolucid/FsShelter</PackageProjectUrl>"
+      "<PackageLicenseUrl>https://raw.githubusercontent.com/prolucid/FsShelter/master/LICENSE.md</PackageLicenseUrl>"
+      "<PackageIconUrl>https://raw.githubusercontent.com/prolucid/FsShelter/master/docs/files/img/logo.png</PackageIconUrl>"
+      "<RepositoryUrl>https://github.com/prolucid/FsShelter.git</RepositoryUrl>"
+      "<PackageTags>storm;cep;event-driven;fsharp;distributed</PackageTags>"
+      "<PackageDescription>F# DSL and runtime for Apache Storm topologies</PackageDescription>"
+      "<Authors>Prolucid</Authors>"
+      sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes)
+      sprintf "<Version>%s</Version>" (string release.SemVer)
+      "</PropertyGroup>"
+      "</Project>"]
+    |> WriteToFile false "Directory.Build.props"
+)
 
 Target "Restore" (fun _ ->
     projects
@@ -103,25 +90,15 @@ Target "Restore" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    !! solutionFile
-    |> MSBuildReleaseExt "" assemblyInfo "Build"
-    |> ignore
+    projects
+    |> Seq.iter ((sprintf "build -c Release --no-restore %s") >> runDotnet ".")
 )
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
-let testAssemblies = "src/*Tests*/bin/Release/**/*Tests.dll"
-
 Target "Tests" (fun _ ->
-    !! testAssemblies
-    |> NUnit (fun p ->
-        { p with
-            DisableShadowCopy = true
-            ExcludeCategory = "interactive"
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "src/FsShelter.Tests/obj/TestResults.xml" })
+    runDotnet "src/FsShelter.Tests" "test --no-restore --filter \"TestCategory!=interactive\""
 )
-
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -129,7 +106,7 @@ Target "Tests" (fun _ ->
 Target "Package" (fun _ ->
     runDotnet 
         "src/FsShelter"
-        (assemblyInfo |> Seq.fold (fun s (p,v) -> s + (sprintf " /p:%s=\"%s\"" p v)) "pack -c Release --no-build")
+        "pack -c Release"
 )
 
 Target "PublishNuget" (fun _ ->
@@ -352,7 +329,7 @@ Target "ExportGraphs" DoNothing
 
 Target "All" DoNothing
 "All"
-  <== ["Clean"; "Restore"; "Build"; "Tests"; "Package"; "GenerateReferenceDocs"; "GenerateDocs"]
+  <== ["Clean"; "Restore"; "Meta"; "Build"; "Tests"; "Package"; "GenerateReferenceDocs"; "GenerateDocs"]
 
 "Build"
   ==> "Tests"

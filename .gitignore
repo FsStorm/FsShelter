@@ -60,3 +60,4 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 
 src/.idea
+Directory.Build.props

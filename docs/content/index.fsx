@@ -10,9 +10,9 @@ open FsShelter
 Overview
 -------
 FsShelter is a library for implementation of [Apache Storm](https://storm.apache.org/) components and topologies in F#.
-FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStrom in significant ways and therefore has been split into its own project.
+FsShelter is based on and a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStorm in significant ways and therefore has been split into its own project.
 
-Overall, the librabry provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:
+Overall, the library provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:
 
 - bundle and submit a topology for execution w/o needing JDK or Storm CLI
 - include Storm-side serializer along
@@ -66,7 +66,6 @@ type RecordsSchema =
 Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
 FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.
 
-(**
 Generic or nested schemas are also supported. For example:
 *)
 
@@ -79,8 +78,8 @@ type NestedSchema<'a> =
     | Nested of 'a
     
 (**
-where a topology can be defined with the signature: Topology<NestedSchema<BasicSchema>>
-This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped by adding the NestedStreamAttribute to the Nested case. Without this attribute, nested streams will be treated as blobs.
+where a topology can be defined with the signature: `Topology<NestedSchema<BasicSchema>>`.
+This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped on by adding the NestedStreamAttribute to the Nested case. Without this attribute, nested streams will be treated as blobs.
 *)
 
 type NestedSchema<'a> = 
@@ -88,6 +87,7 @@ type NestedSchema<'a> =
     | [<NestedStream>] Nested of 'a
 
 
+(**
 FsShelter components
 -----------------------
 Some of the flexibility of Storm has been hidden to provide simple developer experience for authoring event-driven solutions.

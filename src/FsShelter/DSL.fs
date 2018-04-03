@@ -1,5 +1,7 @@
 ﻿namespace FsShelter
 
+/// Identifies a stream that should be "unfolded" into individual substream for each nested DU case.
+/// Only applies to single-argument constructor case that takes another DU case as nested.
 type NestedStreamAttribute() =
     inherit System.Attribute()
 

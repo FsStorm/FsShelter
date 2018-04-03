@@ -1,6 +1,7 @@
 FSharp.Core
 newtonsoft.json
 Google.Protobuf
-group tests
 Unquote
 NUnit
+NUnit3TestAdapter
+Microsoft.NET.Test.Sdk
