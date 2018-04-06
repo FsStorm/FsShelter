@@ -122,6 +122,10 @@ module private Parsers =
             Some ((src_p.Invoke(src_o, [||]), src_p.ReturnType, src_p.Name),
                   (dst_p.Invoke(dst_o, [||]), dst_p.ReturnType, dst_p.Name),
                   call)
+        | Call (None,op_PipeRight,[Call (None,_,[Call (src_o,src_p,_); ValueWithName dst]); call]) -> 
+            Some ((src_p.Invoke(src_o, [||]), src_p.ReturnType, src_p.Name),
+                  dst,
+                  call)
         | _ -> None
     
     let (|PipeLeft|_|) = function
@@ -134,6 +138,10 @@ module private Parsers =
         | Call (None,op_PipeLeft,[Call (None,_,[Call (src_o,src_p,_); Call (dst_o,dst_p,_)]); call]) -> 
             Some ((src_p.Invoke(src_o, [||]), src_p.ReturnType, src_p.Name),
                   (dst_p.Invoke(dst_o, [||]), dst_p.ReturnType, dst_p.Name),
+                  call)
+        | Call (None,op_PipeLeft,[Call (None,_,[Call (src_o,src_p,_); ValueWithName dst]); call]) -> 
+            Some ((src_p.Invoke(src_o, [||]), src_p.ReturnType, src_p.Name),
+                  dst,
                   call)
         | _ -> None
         
