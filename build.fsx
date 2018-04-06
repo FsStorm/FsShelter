@@ -4,6 +4,7 @@ open Fake.FileSystem
 // --------------------------------------------------------------------------------------
 
 #r @"packages/build/FAKE/tools/FakeLib.dll"
+#r "System.Web.dll"
 
 open Fake
 open Fake.Git
@@ -77,7 +78,7 @@ Target "Meta" (fun _ ->
       "<PackageTags>storm;cep;event-driven;fsharp;distributed</PackageTags>"
       "<PackageDescription>F# DSL and runtime for Apache Storm topologies</PackageDescription>"
       "<Authors>Prolucid</Authors>"
-      sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes)
+      sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes |> System.Web.HttpUtility.HtmlEncode)
       sprintf "<Version>%s</Version>" (string release.SemVer)
       "</PropertyGroup>"
       "</Project>"]

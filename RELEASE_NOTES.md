@@ -1,4 +1,7 @@
-#### 1.0.0 - Nov 2017
+#### 1.0.1 - Apr 2018
+* `bolt1<'a> --> bolt2 |> Shuffle.on Stream` syntax support
+
+#### 1.0.0 - Mar 2018
 * support for nested and generic streams
 * netstandard 2.0 release
 
