@@ -63,6 +63,7 @@ let ``generic nested schema produces a tuple``() =
     let (constr,deconst) = TupleSchema.mapSchema<GenericNestedSchema<Schema>>() |> Map.ofArray |> Map.find "Inner+Even"
     let mutable xs = []
     Inner(Even({x=1},{str="a"})) |> deconst (box >> (fun v -> xs <- v::xs))
+    //(Even({x=1},{str="a"})) |> deconst (box >> (fun v -> xs <- v::xs))
     xs =! [box "a"; box 1]
 
 [<Test>]
