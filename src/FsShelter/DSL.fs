@@ -50,16 +50,25 @@ module TupleSchema =
         |> Option.defaultValue (fmt inner.Name)
     
     /// format a case using its DisplayNameAttribute or name
-    let formatCaseName = formatNestedCaseName None
+    let formatInnerCaseName = formatNestedCaseName None
 
     /// Map a case to stream name
     let toStreamName<'t> :'t->string = 
         let reader = FSharpValue.PreComputeUnionTagReader typeof<'t>
-        let names = FSharpType.GetUnionCases typeof<'t> |> Array.map formatCaseName
+        let names = 
+            FSharpType.GetUnionCases typeof<'t>
+            |> Array.collect (fun outerCase -> 
+                match outerCase.GetFields() with
+                | [|inner|] when FSharpType.IsUnion inner.PropertyType ->
+                    let innerCases = FSharpType.GetUnionCases inner.PropertyType
+                    innerCases
+                    |> Array.map (fun c ->
+                        formatNestedCaseName (Some outerCase) c) 
+                | _  -> formatInnerCaseName outerCase |> Array.singleton)
         reader >> names.GetValue >> unbox
 
     let mkTick<'t> () : 't option = 
-        FSharpType.GetUnionCases typeof<'t> |> Array.tryFind (fun c -> formatCaseName c = "__tick")
+        FSharpType.GetUnionCases typeof<'t> |> Array.tryFind (fun c -> formatInnerCaseName c = "__tick")
         |> Option.map FSharpValue.PreComputeUnionConstructor
         |> Option.map (fun tick -> tick [||] |> unbox)
         
@@ -90,18 +99,18 @@ module TupleSchema =
 
     /// Map descriminated union cases to reader*writer functions
     let mapSchema<'t> () =
-        let rec map c fmt t =
+        let rec map outerCase fmt t =
             FSharpType.GetUnionCases t 
             |> Array.collect (fun case -> 
                 let hasNestedAttr = case.GetCustomAttributes(typeof<NestedStreamAttribute>) |> Array.isEmpty |> not
                 if case.DeclaringType.IsGenericType && hasNestedAttr then
                     case.DeclaringType.GenericTypeArguments // TODO Can something else be used here?
-                    |> Array.collect (Some case |> formatNestedCaseName |> map (Some case))
+                    |> Array.collect (map (Some case) (formatNestedCaseName <| Some case))
                 else
-                    match c with
+                    match outerCase with
                     | Some outer -> [|(fmt case),(Some case |> toTupleRW<'t> outer)|]
                     | None -> [|(fmt case),(None |> toTupleRW<'t> case)|])
-        map None formatCaseName typeof<'t>
+        map None formatInnerCaseName typeof<'t>
 
 module private Parsers =
     open Topology

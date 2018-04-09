@@ -174,6 +174,25 @@ let ``reads generic tuple``() =
 
     in'() |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(t),"2651792242051038370","AddOneBolt","Inner",1)
 
+[<Test>]
+let ``reads nested generic tuple``() = 
+    let t = Original {x=62}
+    let tuple = 
+        Messages.StreamIn(
+                Id="2651792242051038370",
+                Stream="Inner+Original",
+                Task=1,
+                Comp="AddOneBolt")
+    tuple.Tuple.Add([V(Int32Val=62)])
+
+    let (in',_) = 
+        Messages.StormMsg(StreamIn=tuple)
+        |> toStreams (mkStreams())
+        |> ProtoIO.startWith
+        <|| (syncOut,ignore)
+
+    in'() |> Async.RunSynchronously =! InCommand<GenericNestedSchema<Schema>>.Tuple(GenericNestedSchema.Inner(t),"2651792242051038370","AddOneBolt","Inner+Original",1)
+
     
 [<Test>]
 let ``writes tuple``() = 
@@ -259,6 +278,34 @@ let ``roundtrip nested tuple``() =
     
     match emitted,nested with
     | InCommand.Tuple(Nested tuple, _, _, _, _),Nested original ->
+        tuple.nested         =! original.nested
+        tuple.xs             =! original.xs
+        List.ofSeq tuple.gxs =! List.ofSeq original.gxs
+        tuple.m              =! original.m
+        List.ofSeq tuple.d   =! List.ofSeq original.d
+    | _ -> failwith "?!"
+
+[<Test>]
+let ``roundtrip generic nested tuple``() = 
+    use mem = new MemoryStream()
+    let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
+
+    let nested = 
+        GenericNestedSchema<Schema>.Inner(
+            Nested( {nested = {str="a"}
+                     xs=[{x=1}; {x=2}]
+                     m = Map [3, Some {x=3}; 0, None]
+                     gxs = System.Collections.Generic.List([{x=4}])
+                     d = toDict ["5", Some {x=5}; "0", None]}))
+    let emitted = async {
+                    Emit(nested,Some "2651792242051038370",[],"Inner+Nested",None, None) |> out'
+
+                    let in' = reverseIn mem "AddOneBolt" 1
+                    return! in'()
+                  } |> Async.RunSynchronously
+    
+    match emitted,nested with
+    | InCommand.Tuple(GenericNestedSchema.Inner(Nested tuple), _, _, _, _),GenericNestedSchema.Inner(Nested original) ->
         tuple.nested         =! original.nested
         tuple.xs             =! original.xs
         List.ofSeq tuple.gxs =! List.ofSeq original.gxs
