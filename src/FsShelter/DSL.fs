@@ -4,7 +4,7 @@
 /// Only applies to single-argument constructor case that takes another DU case as nested.
 type NestedStreamAttribute() =
     inherit System.Attribute()
-    
+
 /// DU/Stream schema mapping functions
 module TupleSchema =
     open System.Reflection
