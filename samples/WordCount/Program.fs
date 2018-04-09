@@ -12,7 +12,7 @@ let main argv =
     let topology = 
         sampleTopology
         |> withConf [ Conf.TOPOLOGY_MULTILANG_SERIALIZER, box "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
-                      Conf.TOPOLOGY_DEBUG, box false] // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
+                      Conf.TOPOLOGY_DEBUG, box true] // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 
@@ -28,7 +28,7 @@ let main argv =
     | _ -> 
         topology
         |> Task.ofTopology
-        |> Task.run ProtoIO.start // JsonIO.start | ProtoIO.start
-//        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // log the traffic on this side of IPC
+        //|> Task.run ProtoIO.start // JsonIO.start | ProtoIO.start
+        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // log the traffic on this side of IPC
     0
 

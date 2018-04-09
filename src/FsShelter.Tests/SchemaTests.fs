@@ -4,6 +4,7 @@ open NUnit.Framework
 open Swensen.Unquote
 open FsShelter.TestTopology
 open System
+open FsShelter.TupleSchema
 
 [<Test>]
 let ``schema inferred``() = 
@@ -62,9 +63,22 @@ let ``generic schema produces a tuple``() =
 let ``generic nested schema produces a tuple``() = 
     let (constr,deconst) = TupleSchema.mapSchema<GenericNestedSchema<Schema>>() |> Map.ofArray |> Map.find "Inner+Even"
     let mutable xs = []
-    Inner(Even({x=1},{str="a"})) |> deconst (box >> (fun v -> xs <- v::xs))
+    let t = Inner(Even({x=1},{str="a"}))
+    t |> deconst (box >> (fun v -> xs <- v::xs))
+    let f = constr (fun t -> xs |> List.find (fun v -> v.GetType() = t))
+    let t' = f()
+    t' =! t
     //(Even({x=1},{str="a"})) |> deconst (box >> (fun v -> xs <- v::xs))
     xs =! [box "a"; box 1]
+
+[<Test>]
+let ``generic nested schema resolves to stream name``() = 
+    let t1 = Inner(Even({x=1},{str="a"}))
+    let t2 = Inner(Original({x=1}))
+    let t3 = Inner(MaybeString(Some "hello"))
+    toStreamName t1 =! "Inner+Even"
+    toStreamName t2 =! "Inner+Original"
+    toStreamName t3 =! "Inner+MaybeString"
 
 [<Test>]
 let ``schema reads a tuple``() = 

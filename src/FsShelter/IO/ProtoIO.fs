@@ -154,6 +154,7 @@ let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:M
     | _ -> failwithf "Unexpected command: %A" msg
 
 let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO<'t> =
+    let mylog = Logging.asyncLog (Diagnostics.Process.GetCurrentProcess().Id.ToString() + "_dbg")
     let write (msg:Messages.ShellMsg) =
         log (fun _ -> sprintf "> %A" msg)
         syncOut (fun () -> msg.WriteDelimitedTo stdout
@@ -170,6 +171,7 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
         | Log (msg,lvl) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = msg, Level = enum (int lvl)))
         | Error (msg,ex) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = (sprintf "%s: %s" msg (Exception.toString ex)), Level = Messages.LogCommand.Types.LogLevel.Error))
         | Emit (t,tid,anchors,stream,task,needTaskIds) -> 
+            mylog <| sprintf "Emitting on %s '%O'" stream t
             let (_,d) = streamRW |> Map.find stream
             let cmd = Messages.EmitCommand(Stream = stream)
             cmd.Tuple.Add (toFields d t)
