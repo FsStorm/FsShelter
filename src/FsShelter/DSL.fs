@@ -4,35 +4,7 @@
 /// Only applies to single-argument constructor case that takes another DU case as nested.
 type NestedStreamAttribute() =
     inherit System.Attribute()
-
-
-module Logging = 
-    open System
-    open System.IO
-
-    // start simple file logger that writes into a file in ~/logs
-    let startLog name =
-        let logFile = Path.Combine((Environment.GetFolderPath Environment.SpecialFolder.UserProfile), sprintf "logs/%s.log" name)
-        Directory.CreateDirectory(Path.GetDirectoryName logFile) |> ignore
-        let writer = new StreamWriter(new FileStream(logFile,FileMode.Create,FileAccess.Write, FileShare.ReadWrite))
-        MailboxProcessor.Start( fun inbox -> 
-            async {
-                while true do
-                    let! text = inbox.Receive()
-                    text() |> (sprintf "%s %s" (DateTime.Now.ToString("HH:mm:ss.ff"))) |> writer.WriteLine
-                    writer.Flush()
-            })
-
-    // log results of the passed function, calling it asynchronously
-    let callbackLog name =
-        let mb = startLog name
-        fun (mkEntry:unit->string) -> mb.Post mkEntry
-
-    // log specified text asynchronously
-    let asyncLog (name:string) = 
-        let mb = startLog name
-        fun text -> mb.Post <| fun () -> text
-
+    
 /// DU/Stream schema mapping functions
 module TupleSchema =
     open System.Reflection
@@ -195,7 +167,8 @@ module private Parsers =
                   call)
         | _ -> None
         
-    let rec (|UnionCase|_|) = function
+    let rec (|UnionCase|_|) = fun arg ->
+        match arg with
         | NewUnionCase (case,_) -> Some (case,None)
         | Call (None,compose,[UnionCase (case,_); UnionCase (pre,_)]) when compose.Name = "op_ComposeRight" -> Some (case,Some pre)
         | Call (None,compose,[UnionCase (pre,_); UnionCase (case,_)]) when compose.Name = "op_ComposeLeft" -> Some (case,Some pre)

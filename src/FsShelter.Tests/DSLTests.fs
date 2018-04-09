@@ -27,5 +27,5 @@ let ``nested generic streams defined``() =
     
 [<Test>]
 let ``nested generic grouped streams defined``() = 
-    test <@ t6.Streams |> Map.toList |> List.map fst |> List.sort |> List.forall2 (fun sid2 sid1 -> (fst sid1) = sid2) [("s1","Inner+Even");("s1","Inner+Original");("s1","Outer")] @>
+    test <@ t6.Streams |> Map.toList |> List.map fst |> List.sort |> List.forall2 (fun sid2 sid1 -> (fst sid1) = sid2) [("b1","Inner+Odd");("s1","Inner+Even");("s1","Inner+Original");("s1","Outer")] @>
 

@@ -25,6 +25,11 @@ let main argv =
     | ["graph"] ->
         topology
         |> DotGraph.writeToConsole
+    | ["self-host"] ->
+        System.Console.WriteLine "Running, press ENTER to stop..."
+        let stop = topology |> Host.run
+        System.Console.ReadLine() |> ignore
+        stop()
     | _ -> 
         topology
         |> Task.ofTopology
