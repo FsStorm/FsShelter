@@ -5,6 +5,34 @@
 type NestedStreamAttribute() =
     inherit System.Attribute()
 
+
+module Logging = 
+    open System
+    open System.IO
+
+    // start simple file logger that writes into a file in ~/logs
+    let startLog name =
+        let logFile = Path.Combine((Environment.GetFolderPath Environment.SpecialFolder.UserProfile), sprintf "logs/%s.log" name)
+        Directory.CreateDirectory(Path.GetDirectoryName logFile) |> ignore
+        let writer = new StreamWriter(new FileStream(logFile,FileMode.Create,FileAccess.Write, FileShare.ReadWrite))
+        MailboxProcessor.Start( fun inbox -> 
+            async {
+                while true do
+                    let! text = inbox.Receive()
+                    text() |> (sprintf "%s %s" (DateTime.Now.ToString("HH:mm:ss.ff"))) |> writer.WriteLine
+                    writer.Flush()
+            })
+
+    // log results of the passed function, calling it asynchronously
+    let callbackLog name =
+        let mb = startLog name
+        fun (mkEntry:unit->string) -> mb.Post mkEntry
+
+    // log specified text asynchronously
+    let asyncLog (name:string) = 
+        let mb = startLog name
+        fun text -> mb.Post <| fun () -> text
+
 /// DU/Stream schema mapping functions
 module TupleSchema =
     open System.Reflection
@@ -53,19 +81,32 @@ module TupleSchema =
     let formatInnerCaseName = formatNestedCaseName None
 
     /// Map a case to stream name
-    let toStreamName<'t> :'t->string = 
-        let reader = FSharpValue.PreComputeUnionTagReader typeof<'t>
-        let names = 
+    let toStreamName<'t> :'t->string =
+        let outerTagReader = FSharpValue.PreComputeUnionTagReader typeof<'t>
+        let innerTagReader = 
+            FSharpType.GetUnionCases typeof<'t>
+            |> Array.mapi (fun i outerCase ->
+                match outerCase.GetFields() with
+                | [|inner|] when FSharpType.IsUnion inner.PropertyType ->
+                    let tagReader = FSharpValue.PreComputeUnionTagReader inner.PropertyType
+                    let toFields = FSharpValue.PreComputeUnionReader outerCase
+                    fun o -> i, toFields o |> Array.head |> tagReader
+                | _  -> fun _ -> i, 0
+            )
+        let names =
             FSharpType.GetUnionCases typeof<'t>
             |> Array.collect (fun outerCase -> 
                 match outerCase.GetFields() with
                 | [|inner|] when FSharpType.IsUnion inner.PropertyType ->
+                    //let rdr = FSharpValue.PreComputeUnionReader outerCase
                     let innerCases = FSharpType.GetUnionCases inner.PropertyType
                     innerCases
                     |> Array.map (fun c ->
-                        formatNestedCaseName (Some outerCase) c) 
-                | _  -> formatInnerCaseName outerCase |> Array.singleton)
-        reader >> names.GetValue >> unbox
+                        (outerCase.Tag,c.Tag), formatNestedCaseName (Some outerCase) c) 
+                | _  -> ((outerCase.Tag,0), formatInnerCaseName outerCase) |> Array.singleton)
+            |> Map.ofArray
+
+        fun o -> names |> Map.find (o |> innerTagReader.[outerTagReader o])
 
     let mkTick<'t> () : 't option = 
         FSharpType.GetUnionCases typeof<'t> |> Array.tryFind (fun c -> formatInnerCaseName c = "__tick")

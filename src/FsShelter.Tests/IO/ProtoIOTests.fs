@@ -290,7 +290,7 @@ let ``roundtrip generic nested tuple``() =
     use mem = new MemoryStream()
     let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
 
-    let nested = 
+    let nested =
         GenericNestedSchema<Schema>.Inner(
             Nested( {nested = {str="a"}
                      xs=[{x=1}; {x=2}]

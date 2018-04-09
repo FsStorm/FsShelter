@@ -85,7 +85,10 @@ let sampleTopology =
                             fun tuple emit -> (mylog, tuple))
             |> withParallelism 2
         
-        yield sentencesSpout --> splitBolt |> Shuffle.on (Sentence >> Stream)               // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
+        yield sentencesSpout --> splitBolt |> Shuffle.on (Sentence >> Stream)           // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
         yield splitBolt --> countBolt |> Group.by (function Stream(Word w) -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
         yield countBolt --> logBolt |> Group.by (function Stream(WordCount (w,_)) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
+
+        //yield splitBolt --> countBolt |> Shuffle.on (Word >> Stream)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
+        //yield countBolt --> logBolt |> Shuffle.on (WordCount >> Stream) // emit from countBolt into logBolt on WordCount stream, group by word value
     }
