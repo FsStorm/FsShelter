@@ -1,3 +1,6 @@
+#### 1.0.2 - Apr 2018
+* bugfixes in nested streams support
+
 #### 1.0.1 - Apr 2018
 * `bolt1<'a> --> bolt2 |> Shuffle.on Stream` syntax support
 
