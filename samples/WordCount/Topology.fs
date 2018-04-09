@@ -8,19 +8,16 @@ type Schema =
     | Word of string
     | WordCount of string*int64
 
-type SchemaWrapper<'a> =
-    | [<FsShelter.NestedStream>] Stream of 'a
-
 // sentences spout - feeds messages into the topology
-let sentences source = async { return source() |> Sentence |> Stream |> Some }
+let sentences source = async { return source() |> Sentence |> Some }
 
 // split bolt - consumes sentences and emits words
 let splitIntoWords (input, emit) = 
     async { 
         match input with
-        | Stream (Sentence s) -> 
+        | Sentence s -> 
             s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries) 
-            |> Seq.map (Word >> Stream)
+            |> Seq.map Word
             |> Seq.iter emit
         | _ -> failwithf "unexpected input: %A" input
     }
@@ -29,7 +26,7 @@ let splitIntoWords (input, emit) =
 let countWords (input, increment, emit) = 
     async { 
         match input with
-        | Stream (Word word) -> (WordCount (word,increment word) |> Stream) |> emit
+        | Word word -> WordCount (word,increment word) |> emit
         | _ -> failwithf "unexpected input: %A" input
     }
 
@@ -37,7 +34,7 @@ let countWords (input, increment, emit) =
 let logResult (log, input) = 
     async { 
         match input with
-        | Stream (WordCount (word,count)) -> log (sprintf "%s: %d" word count)
+        | WordCount (word,count) -> log (sprintf "%s: %d" word count)
         | _ -> failwithf "unexpected input: %A" input
     }
 
@@ -85,10 +82,7 @@ let sampleTopology =
                             fun tuple emit -> (mylog, tuple))
             |> withParallelism 2
         
-        yield sentencesSpout --> splitBolt |> Shuffle.on (Sentence >> Stream)           // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
-        yield splitBolt --> countBolt |> Group.by (function Stream(Word w) -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
-        yield countBolt --> logBolt |> Group.by (function Stream(WordCount (w,_)) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
-
-        //yield splitBolt --> countBolt |> Shuffle.on (Word >> Stream)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
-        //yield countBolt --> logBolt |> Shuffle.on (WordCount >> Stream) // emit from countBolt into logBolt on WordCount stream, group by word value
+        yield sentencesSpout --> splitBolt |> Shuffle.on Sentence          // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
+        yield splitBolt --> countBolt |> Group.by (function Word w -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
+        yield countBolt --> logBolt |> Group.by (function WordCount (w,_) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
     }

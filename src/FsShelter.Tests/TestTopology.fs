@@ -150,6 +150,7 @@ let t6 = topology "test6" {
              |> asBolt<GenericNestedSchema<Schema>>
              |> withConf []
     yield s1 --> b1 |> Shuffle.on Outer
-    yield s1 --> b2 |> Group.by (function | Inner(Original(n))-> n)
-    yield s1 --> b2 |> Group.by (function | Inner(Even(n,s)) -> n)
+    yield s1 --> b2 |> Group.by (function Inner(Original n) -> n)
+    yield s1 --> b2 |> Group.by (function Inner(Even (n,_)) -> n)
+    yield b1 --> b2 |> Group.by (function Inner(Odd (n,_)) -> n)
 }
