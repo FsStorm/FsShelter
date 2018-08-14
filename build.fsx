@@ -38,18 +38,10 @@ let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/"+gitOwner+"/"
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
-let dotnetcliVersion = "2.0.0"
-
-let mutable dotnetExePath = "dotnet"
-
-Target "InstallDotNetCore" (fun _ ->
-    dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
-)
-
 let runDotnet workingDir args =
     let result =
         ExecProcess (fun info ->
-            info.FileName <- dotnetExePath
+            info.FileName <- "dotnet"
             info.WorkingDirectory <- workingDir
             info.Arguments <- args) TimeSpan.MaxValue
     if result <> 0 then failwithf "dotnet %s failed" args
@@ -92,7 +84,7 @@ Target "Restore" (fun _ ->
 
 Target "Build" (fun _ ->
     projects
-    |> Seq.iter ((sprintf "build -c Release --no-restore %s") >> runDotnet ".")
+    |> Seq.iter ((sprintf "build -c Release %s") >> runDotnet ".")
 )
 
 // --------------------------------------------------------------------------------------
