@@ -17,10 +17,12 @@ group Main
 	storage: none
 	source https://nuget.org/api/v2
 
+	nuget disruptor.net
 	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf
 	nuget apache-thrift-netcore
+nuget Microsoft.IO.RecyclableMemoryStream
 	nuget newtonsoft.json
 	nuget nunit
 	nuget NUnit3TestAdapter

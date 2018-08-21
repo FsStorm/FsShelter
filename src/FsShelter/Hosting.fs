@@ -30,7 +30,7 @@ module internal Types =
         | SystemCmd of SystemMsg
         | AckerCmd of AckerMsg
 
-    and Input<'t> = unit -> Async<TaskIn<'t>>
+    and Input<'t> = unit -> TaskIn<'t>
 
     and Channel<'t> = TaskControl<'t> -> unit
 
@@ -47,7 +47,7 @@ module internal Types =
                 | BoltTask (compId,_) -> compId
 
 
-    and Loop<'t> = (TaskIn<'t> -> unit) -> TaskMap<'t> -> Log -> Input<'t> -> Async<unit>
+    and Loop<'t> = (TaskIn<'t> -> unit) -> TaskMap<'t> -> Log -> Input<'t> -> unit
 
     and TaskControl<'t> =
         | Enqueue of TaskIn<'t>
@@ -69,13 +69,16 @@ module internal Channel =
     let make (dispatch:Loop<_>) =
         let run self map input log token = 
             let rec loop () =
-                dispatch self map log input
-                |> Async.Catch 
-                |> Async.map (function | Choice2Of2 ex -> 
-                                            log (fun _ -> sprintf "Loop failed: %s, restarting..." (Exception.toString ex))
-                                            Async.Start (loop(),token)
-                                       | _ -> log (fun _ -> "Finished")) 
-            Async.Start (loop(),token)
+                let retry =
+                    try
+                        dispatch self map log input
+                        log (fun _ -> "Finished")
+                        ignore
+                    with ex -> 
+                        log (fun _ -> sprintf "Loop failed: %s, restarting..." (Exception.toString ex))
+                        loop
+                retry()                    
+            loop()
 
         let inQueue = System.Collections.Generic.Queue<TaskIn<_>>()
         let outQueue = System.Collections.Generic.Queue<AsyncReplyChannel<_>>()
@@ -107,7 +110,7 @@ module internal Channel =
                     let ts = new CancellationTokenSource()
                     match msg with
                     | Start (map, log) -> 
-                        run (Enqueue >> mb.Post) map (fun () -> mb.PostAndAsyncReply Dequeue) log ts.Token
+                        run (Enqueue >> mb.Post) map (fun () -> mb.PostAndReply Dequeue) log ts.Token
                         Activate |> InCmd |> inQueue.Enqueue
                         return! loop log ts
                     | Stop -> return! shutdown ts
@@ -302,17 +305,15 @@ module internal Tasks =
             }
 
         let rec loop timers =
-            async {
-                let! cmd = input()
-                match cmd with
-                | InCmd Activate ->
-                    log(fun _ -> sprintf "Starting system for topology %s: [%s],\nconf: %A" topology.Name (tasks |> Map.fold describe "") topology.Conf)
-                    return! startTimers |> Seq.toArray |> loop
-                | InCmd Deactivate -> 
-                    log(fun _ -> sprintf "Stopping system for topology: %s" topology.Name)
-                    timers |> Seq.iter (fun _ -> timers |> Seq.iter (fun t -> t.Dispose()))
-                | _ -> log (fun _ -> sprintf "unexpect message received by __system: %+A" cmd)
-            }
+            let cmd = input()
+            match cmd with
+            | InCmd Activate ->
+                log(fun _ -> sprintf "Starting system for topology %s: [%s],\nconf: %A" topology.Name (tasks |> Map.fold describe "") topology.Conf)
+                startTimers |> Seq.toArray |> loop
+            | InCmd Deactivate -> 
+                log(fun _ -> sprintf "Stopping system for topology: %s" topology.Name)
+                timers |> Seq.iter (fun _ -> timers |> Seq.iter (fun t -> t.Dispose()))
+            | _ -> log (fun _ -> sprintf "unexpect message received by __system: %+A" cmd)
         loop [||]
 
 
@@ -332,40 +333,41 @@ module internal Tasks =
             |> Array.iter (fun (KeyValue(anchor,_))-> inFlight.Remove anchor |> ignore)
 
         let rec loop () =
-            async {
-                let! cmd = input()
-                log(fun _ -> sprintf "< %+A" cmd)
-                match cmd with
-                | InCmd Activate ->
-                    log(fun _ -> "Starting acker...")
-                | InCmd Deactivate ->
-                    log(fun _ -> "Stopping acker...")
-                    return ()
-                | AckerCmd (Track (taskId,sid,tupleId)) -> 
-                    inFlight.Add (tupleId, Pending(sid,taskId,0L))
-                | AckerCmd (Anchor (anchor,tupleId)) -> 
-                    inFlight.[anchor] <- xor tupleId anchor
-                | AckerCmd (Fail (anchor,tupleId)) ->
-                    match inFlight.TryGetValue anchor with
-                    | true,Pending(sourceId,taskId,_) ->
-                        let (SpoutTask (_,channel)) = taskMap |> Map.find taskId
-                        Nack sourceId |> InCmd |> Enqueue |> channel
-                        inFlight.[anchor] <- Done
-                    | _ -> ()
-                | AckerCmd (Ok (anchor,tupleId)) ->
-                    let xored = xor tupleId anchor
-                    match xored with
-                    | Complete(sourceId,taskId) ->
-                        let (SpoutTask (_,channel)) = taskMap |> Map.find taskId
-                        Ack sourceId |> InCmd |> Enqueue |> channel
-                        inFlight.[anchor] <- Done
-                    | _ -> 
-                        inFlight.[anchor] <- xored
-                | SystemCmd Tick ->
-                    cleanup()
+            let cmd = input()
+            log(fun _ -> sprintf "< %+A" cmd)
+            match cmd with
+            | InCmd Activate ->
+                log(fun _ -> "Starting acker...")
+            | InCmd Deactivate ->
+                log(fun _ -> "Stopping acker...")
+            | AckerCmd (Track (taskId,sid,tupleId)) -> 
+                inFlight.Add (tupleId, Pending(sid,taskId,0L))
+            | AckerCmd (Anchor (anchor,tupleId)) -> 
+                inFlight.[anchor] <- xor tupleId anchor
+            | AckerCmd (Fail (anchor,tupleId)) ->
+                match inFlight.TryGetValue anchor with
+                | true,Pending(sourceId,taskId,_) ->
+                    let channel = match taskMap |> Map.find taskId with
+                                  | (SpoutTask (_,channel)) -> channel
+                                  | _ -> failwithf "unable to find spout channel for the taskId: %A" taskId
+                    Nack sourceId |> InCmd |> Enqueue |> channel
+                    inFlight.[anchor] <- Done
                 | _ -> ()
-                return! loop()
-            }
+            | AckerCmd (Ok (anchor,tupleId)) ->
+                let xored = xor tupleId anchor
+                match xored with
+                | Complete(sourceId,taskId) ->
+                    let channel = match taskMap |> Map.find taskId with
+                                  | (SpoutTask (_,channel)) -> channel
+                                  | _ -> failwithf "unable to find spout channel for the taskId: %A" taskId
+                    Ack sourceId |> InCmd |> Enqueue |> channel
+                    inFlight.[anchor] <- Done
+                | _ -> 
+                    inFlight.[anchor] <- xored
+            | SystemCmd Tick ->
+                cleanup()
+            | _ -> ()
+            loop()
         loop()
 
     let mkSpout mkEmit compId (comp:Spout<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
@@ -384,70 +386,64 @@ module internal Tasks =
         let throttle = maxPending
                        |> Option.map mkThrottle
                        |> Option.defaultValue next
-        async {
-            log(fun _ -> sprintf "Starting %s..." compId)
-            let rec input' () =
-                async {
-                    let! cmd = input() 
+        log(fun _ -> sprintf "Starting %s..." compId)
+        let rec input' () =
+            let cmd = input() 
 #if DEBUG                
-                    log(fun _ -> sprintf "< %+A" cmd)
+            log(fun _ -> sprintf "< %+A" cmd)
 #endif                
-                    match cmd with 
-                    | SystemCmd Tick ->
-                        match maxPending with
-                        | Some mx when !pending < mx -> return Next
-                        | None -> return Next
-                        | _ -> return! input'()
-                    | InCmd cmd -> 
-                        match cmd with
-                        | Activate -> 
-                            throttle()
-                        | Nack _ | Ack _  -> 
-                            Interlocked.Decrement &pending.contents |> ignore
-                        | _ -> ()
-                        return cmd
-                    | _ -> return! input'()
-                }                
-            let output =
-                function
-                | Emit (t,tupleId,_,stream,dstId,needIds) -> 
-                    emit struct ([],tupleId,t,compId,stream,dstId)
-                    Interlocked.Increment &pending.contents |> ignore
-                | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
-                | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
-                | Sync -> throttle()
-                | cmd -> failwithf "Unexpected command: %+A" cmd
-            let io = (input', output)
-            return! runnable io conf
-        }
+            match cmd with 
+            | SystemCmd Tick ->
+                match maxPending with
+                | Some mx when !pending < mx -> Next
+                | None -> Next
+                | _ -> input'()
+            | InCmd cmd -> 
+                match cmd with
+                | Activate -> 
+                    throttle()
+                | Nack _ | Ack _  -> 
+                    Interlocked.Decrement &pending.contents |> ignore
+                | _ -> ()
+                cmd
+            | _ -> input'()
+
+        let output =
+            function
+            | Emit (t,tupleId,_,stream,dstId,needIds) -> 
+                emit struct ([],tupleId,t,compId,stream,dstId)
+                Interlocked.Increment &pending.contents |> ignore
+            | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
+            | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
+            | Sync -> throttle()
+            | cmd -> failwithf "Unexpected command: %+A" cmd
+        let io = (input', output)
+        runnable io conf
 
     let mkBolt ackers mkEmit compId (comp:Bolt<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
         let conf = comp.Conf |> Map.join topology.Conf
         let emit = mkEmit tasks log
         let ack = TupleTree.mkAck Ok ackers
         let nack = TupleTree.mkAck Fail ackers
-        async {
-            log(fun _ -> sprintf "Starting %s..." compId)
-            let rec input' () =
-                async {
-                    let! cmd = input() 
-                    log(fun _ -> sprintf "< %+A" cmd)
-                    match cmd with 
-                    | InCmd cmd -> 
-                        return cmd
-                    | _ -> return! input'()
-                }                
-            let output =
-                function
-                | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit struct(anchors,tupleId,t,compId,stream,dstId)
-                | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
-                | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
-                | OutCommand.Ok tid -> ack tid
-                | OutCommand.Fail tid -> nack tid
-                | cmd -> failwithf "Unexpected command: %+A" cmd
-            let io = (input', output)
-            return! runnable io conf
-        }
+
+        log(fun _ -> sprintf "Starting %s..." compId)
+        let rec input' () =
+            let cmd = input() 
+            log(fun _ -> sprintf "< %+A" cmd)
+            match cmd with 
+            | InCmd cmd -> cmd
+            | _ -> input'()
+
+        let output =
+            function
+            | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit struct(anchors,tupleId,t,compId,stream,dstId)
+            | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
+            | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
+            | OutCommand.Ok tid -> ack tid
+            | OutCommand.Fail tid -> nack tid
+            | cmd -> failwithf "Unexpected command: %+A" cmd
+        let io = (input', output)
+        runnable io conf
 
     let mkTasks (topology:Topology<'t>) : Map<int,RuntimeTask<'t>> =
         let anchorOfStream = topology.Anchors.TryFind >> Option.defaultValue (fun _ -> [])

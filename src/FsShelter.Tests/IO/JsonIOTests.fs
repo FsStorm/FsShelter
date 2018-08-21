@@ -22,7 +22,7 @@ let ``reads handshake``() =
                     Conf ["FsShelter.id",box "Simple-2-1456522507"; "dev.zookeeper.path", box "/tmp/dev-storm-zookeeper"; "topology.tick.tuple.freq.secs", box 30L; "topology.classpath", null],
                     "C:\\Users\\eugene\\storm-local\\workers\\9ee413b6-c7d2-4896-ae4d-d150da988822\\pids",
                     {TaskId=5;ComponentId="SimpleSpout";Components=Map [1,"AddOneBolt"; 2,"AddOneBolt"; 3,"ResultBolt"; 4, "ResultBolt"; 5,"SimpleSpout"; 6,"__acker"]})
-    in'() |> Async.RunSynchronously =! expected
+    in'() =! expected
 
 
 [<Test>]
@@ -31,7 +31,7 @@ let ``reads next``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Next
+    in'() =! InCommand<Schema>.Next
 
 
 [<Test>]
@@ -40,7 +40,7 @@ let ``reads ack``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Ack "zzz"
+    in'() =! InCommand<Schema>.Ack "zzz"
 
 
 [<Test>]
@@ -49,7 +49,7 @@ let ``reads nack``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Nack "zzz"
+    in'() =! InCommand<Schema>.Nack "zzz"
 
 [<Test>]
 let ``reads activate``() = 
@@ -57,7 +57,7 @@ let ``reads activate``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
    
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Activate
+    in'() =! InCommand<Schema>.Activate
 
 [<Test>]
 let ``reads deactivate``() = 
@@ -65,7 +65,7 @@ let ``reads deactivate``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Deactivate
+    in'() =! InCommand<Schema>.Deactivate
 
 [<Test>]
 let ``reads tuple``() = 
@@ -73,7 +73,7 @@ let ``reads tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
+    in'() =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
 
 [<Test>]
@@ -92,7 +92,7 @@ let ``reads generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner",1)
+    in'() =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner",1)
 
 
 [<Test>]
@@ -111,7 +111,7 @@ let ``reads nested generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
     
-    in'() |> Async.RunSynchronously =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner+Original",1)
+    in'() =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner+Original",1)
 
 
 [<Test>]
@@ -131,10 +131,8 @@ let ``rw complex tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
     let even = Even({x=62},{str="a"})
     
-    async {
-        out(Emit(even,Some "2651792242051038370",[],"Even",None,None))
-        return! in'()
-    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
+    out(Emit(even,Some "2651792242051038370",[],"Even",None,None))
+    in'() =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
     Threading.Thread.Sleep 100
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62,"a"],"stream":"Even","need_task_ids":false}"""+END
 
@@ -146,10 +144,8 @@ let ``rw option tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
     let t = MaybeString(Some "zzz")
     
-    async {
-        out(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
-        return! in'()
-    } |> Async.RunSynchronously =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
+    out(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
+    in'() =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Some","Fields":["zzz"]}],"stream":"MaybeString","need_task_ids":false}"""+END
 
 [<Test>]
@@ -159,10 +155,8 @@ let ``rw generic tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
     let t = GenericSchema.Inner(Original({x=62}))
     
-    async {
-        out(Emit(t,Some "2651792242051038370",[],"Inner",None,None))
-        return! in'()
-    } |> Async.RunSynchronously =! InCommand<GenericSchema<Schema>>.Tuple(t,"2651792242051038370","AddOneBolt","Inner",1)
+    out(Emit(t,Some "2651792242051038370",[],"Inner",None,None))
+    in'() =! InCommand<GenericSchema<Schema>>.Tuple(t,"2651792242051038370","AddOneBolt","Inner",1)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"stream":"Inner","need_task_ids":false}"""+END
 
 
@@ -174,13 +168,11 @@ let ``roundtrip throughput``() =
     let (in',out') = JsonIO.startWith (new IO.StreamReader(mem), new IO.StreamWriter(mem)) syncOut ignore
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    async {
-        for i in {1..count} do
-            Emit(justFields,Some "2651792242051038370",[],"JustFields",Some 1,None) |> out'
+    for i in {1..count} do
+        Emit(justFields,Some "2651792242051038370",[],"JustFields",Some 1,None) |> out'
 
-        mem.Seek(0L, IO.SeekOrigin.Begin) |> ignore
-        for i in {1..count} do
-            do! in'() |> Async.Ignore
-    } |> Async.RunSynchronously
+    mem.Seek(0L, IO.SeekOrigin.Begin) |> ignore
+    for i in {1..count} do
+        in'() |> ignore
     sw.Stop()
     printf "[Json] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)

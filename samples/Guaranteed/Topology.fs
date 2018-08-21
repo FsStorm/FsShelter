@@ -8,31 +8,25 @@ type Schema =
 
 // numbers spout - produces messages
 let numbers source =
-    async { 
-        let! (tupleId,number) = source()
-        return Some(tupleId, Original (number)) 
-    }
+    let (tupleId,number) = source()
+    Some(tupleId, Original (number)) 
 
 // add 1 bolt - consumes and emits messages to either Even or Odd stream
 let addOne (input,emit) =
-    async { 
-        match input with
-        | Original x -> 
-            match x % 2 with
-            | 1 -> Even (x+1)
-            | _ -> Odd (x+1)
-        | _ -> failwithf "unexpected input: %A" input
-        |> emit
-    }
+    match input with
+    | Original x -> 
+        match x % 2 with
+        | 1 -> Even (x+1)
+        | _ -> Odd (x+1)
+    | _ -> failwithf "unexpected input: %A" input
+    |> emit
 
 // terminating bolt - consumes messages
 let logResult (info,input) =
-    async { 
-        match input with
-        | Even x
-        | Odd x -> info (sprintf "Got: %A" input)
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | Even x
+    | Odd x -> info (sprintf "Got: %A" input)
+    | _ -> failwithf "unexpected input: %A" input
 
 /// In-memory "reliable" queue implementation
 open FsShelter.Topology
@@ -78,7 +72,7 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let sampleTopology = topology "Guaranteed" {
     let s1 = numbers
-             |> runReliableSpout (fun log cfg () -> source.PostAndAsyncReply Get)  // ignoring logging and cfg available
+             |> runReliableSpout (fun log cfg () -> source.PostAndReply Get)  // ignoring logging and cfg available
                                  (fun _ -> Ack >> source.Post, Nack >> source.Post)
     let b1 = addOne
              |> runBolt (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function

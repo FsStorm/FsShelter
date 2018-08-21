@@ -17,24 +17,20 @@ module Topologies =
 
     /// numbers spout - produces messages
     let numbers (world : World) =
-        async { 
-            let x = Interlocked.Increment &world.count.contents
-            //if (x % 5L) = 0L then 
-            //    do! Async.Sleep 1000
-            //    return None
-            //else 
-                //return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
-            return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
-        }
+        let x = Interlocked.Increment &world.count.contents
+        //if (x % 5L) = 0L then 
+        //    do! Async.Sleep 1000
+        //    return None
+        //else 
+            //return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
+        Some(string x, Original { x = world.rnd.Next(0, 100) }) 
     
     let printBolt (log,t) =
-        async {
-            match t with 
-            | Original _ -> log (sprintf "Init: %A" DateTime.Now)
-            | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
-            | Tick 
-            | _ -> () //log (sprintf "tuple: %A" t)
-        }
+        match t with 
+        | Original _ -> log (sprintf "Init: %A" DateTime.Now)
+        | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
+        | Tick 
+        | _ -> () //log (sprintf "tuple: %A" t)
 
     let world = {rnd = Random(); count = ref 0L; acked = ref 0L}
     let t1 = topology "test" {
@@ -54,10 +50,11 @@ module Topologies =
         yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
     }
 
+
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-//     let log taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
+//     let log taskId f = Console.formatLine("{0}\t{1}: {2}",DateTime.Now,taskId,f())
      let log taskId = ignore
      
      let stop = 
@@ -66,12 +63,16 @@ let ``Hosts``() =
                       Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
          |> Host.runWith log 
      let startedAt = DateTime.Now
+     let proc = System.Diagnostics.Process.GetCurrentProcess()
+     let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
      let trace () = 
-         Diagnostics.Debug.WriteLine("-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}", !Topologies.world.count, !Topologies.world.acked, (!Topologies.world.count - !Topologies.world.acked), (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds)
-         Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
-         Diagnostics.Debug.Flush()
+         TraceLog.formatLine "-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}" [| box !Topologies.world.count; box !Topologies.world.acked; box(!Topologies.world.count - !Topologies.world.acked); box<| (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds |]
+         TraceLog.formatLine "-- GC: {0}, {1}/{2}/{3}" [|GC.GetTotalMemory(false); GC.CollectionCount 0; GC.CollectionCount 1; GC.CollectionCount 2|]
+         TraceLog.formatLine "-- CPU: {0}" [| proc.TotalProcessorTime.TotalMilliseconds - procTime |]
+         procTime <- proc.TotalProcessorTime.TotalMilliseconds
+         TraceLog.flush()
 
-     for i in 1..100 do 
+     for i in 1..50 do 
          Threading.Thread.Sleep 10000
          trace()
 
@@ -81,8 +82,8 @@ let ``Hosts``() =
 
 [<Test>]
 [<Category("interactive")>]
-let ``Hosts several``() = 
-//     let log name taskId f = Diagnostics.Debug.WriteLine("{0}\t{1}:{2} {3}",DateTime.Now,name,taskId,f())
+let ``Several``() = 
+//     let log name taskId f = TraceLog.formatLine "{0}\t{1}:{2} {3}" [|DateTime.Now,name,taskId,f()|]
      let log _ _ = ignore 
      
      let stop = 
@@ -97,9 +98,9 @@ let ``Hosts several``() =
 
      let startedAt = DateTime.Now
      let trace () = 
-         Diagnostics.Debug.WriteLine("-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}", !Topologies.world.count, !Topologies.world.acked, (!Topologies.world.count - !Topologies.world.acked), (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds)
-         Diagnostics.Debug.WriteLine("-- GC: {0}", GC.GetTotalMemory(false))
-         Diagnostics.Debug.Flush()
+         TraceLog.formatLine "-- Emited: {0}, Acked: {1}, In-flight: {2}, rate: \t{3}" [|box !Topologies.world.count; box !Topologies.world.acked; box (!Topologies.world.count - !Topologies.world.acked); box <| (float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds|]
+         TraceLog.formatLine "-- GC: {0}" [| GC.GetTotalMemory(false) |]
+         TraceLog.flush()
 
      Threading.Thread.Sleep 10000
 

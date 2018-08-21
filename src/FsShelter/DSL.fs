@@ -241,9 +241,9 @@ module DSL =
     open FSharp.Quotations
 
     /// spout function signature
-    type Next<'a,'t> = 'a->Async<'t option> 
+    type Next<'a,'t> = 'a->'t option
     /// bolt function signature
-    type Consume<'a> = 'a->Async<unit>
+    type Consume<'a> = 'a->unit
     /// emit signature
     type Emit<'t> = 't->unit
     /// ack signature

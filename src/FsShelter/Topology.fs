@@ -13,9 +13,9 @@ module Topology =
     /// Signature for anchoring implementation
     type ToAnchors = TupleId->TupleId list
     /// Signature for pluggable IO implementation
-    type IO<'t> = (unit->Async<InCommand<'t>>)*(OutCommand<'t>->unit)
+    type IO<'t> = (unit->InCommand<'t>)*(OutCommand<'t>->unit)
     /// Signature for a final runnable component
-    type Runnable<'t> = IO<'t>->Conf->Async<unit>
+    type Runnable<'t> = IO<'t>->Conf->unit
 
     /// Storm Componend abstraction
     type Component<'t> = 

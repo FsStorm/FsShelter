@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Prelude.fs" />
     <Compile Include="TestTopology.fs" />
     <Compile Include="ConfTests.fs" />
     <Compile Include="DSLTests.fs" />
@@ -19,10 +20,10 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-      <ProjectReference Include="..\FsShelter\FsShelter.fsproj" />
-      <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
-      <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
+    <ProjectReference Include="..\FsShelter\FsShelter.fsproj" />
+    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
+    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
   <Import Project="netfx.props" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

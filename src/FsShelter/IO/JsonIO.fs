@@ -168,15 +168,13 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
 
     let findConstructor stream = 
         streamRW |> Map.find stream |> fst
-    let in' ():Async<InCommand<'t>> =
-        async {
-            let! msg  = stdin.ReadLineAsync() |> Async.AwaitTask
-            let! term = stdin.ReadLineAsync() |> Async.AwaitTask
+    let in' ():InCommand<'t> =
+            let msg  = stdin.ReadLine()
+            let term = stdin.ReadLine()
             log (fun _ -> "< "+msg+term)
-            return match msg,term with
-                   | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg
-                   | _ -> failwithf "Unexpected input msg/term: %s/%s" msg term
-         }
+            match msg,term with
+            | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg
+            | _ -> failwithf "Unexpected input msg/term: %s/%s" msg term
 
     (in',out')
 

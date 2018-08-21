@@ -182,12 +182,10 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
     let findConstructor stream = 
         streamRW |> Map.find stream |> fst
 
-    let in' ():Async<InCommand<'t>> =
-        async {
-            let msg = Messages.StormMsg.Parser.ParseDelimitedFrom stdin
-            log (fun _ -> sprintf "< %A" msg)
-            return toCommand log findConstructor msg
-        }
+    let in' ():InCommand<'t> =
+        let msg = Messages.StormMsg.Parser.ParseDelimitedFrom stdin
+        log (fun _ -> sprintf "< %A" msg)
+        toCommand log findConstructor msg
 
     (in',out')
 

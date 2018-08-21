@@ -43,30 +43,27 @@ let ofTopology (t : Topology<'t>) compId =
 
 /// Reads the handshake and runs the specified task with a logger
 let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
-    async { 
-        let pid = pid()
-        let log = startLog pid
-        let (in', out') = io log
-        try 
-            log(fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
-            let! msg = in'()
-            let (cfg, compId) = 
-                match msg with
-                | Handshake(cfg, pidDir, context) -> 
-                    pid |> createPid pidDir
-                    Pid pid |> out'
-                    (cfg, context.ComponentId)
-                | _ -> failwithf "Expected handshake, got: %A" msg
-            log(fun _ -> sprintf "running %s..." compId)
-            return! task compId (in', out') cfg
-        with ex -> 
-            let msg = Exception.toString ex
-            log (fun _ -> msg)
-            Log(msg, LogLevel.Error) |> out'
-            Threading.Thread.Sleep 1000
-            Environment.Exit 1
-    }
-    |> Async.RunSynchronously
+    let pid = pid()
+    let log = startLog pid
+    let (in', out') = io log
+    try 
+        log(fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
+        let msg = in'()
+        let (cfg, compId) = 
+            match msg with
+            | Handshake(cfg, pidDir, context) -> 
+                pid |> createPid pidDir
+                Pid pid |> out'
+                (cfg, context.ComponentId)
+            | _ -> failwithf "Expected handshake, got: %A" msg
+        log(fun _ -> sprintf "running %s..." compId)
+        task compId (in', out') cfg
+    with ex -> 
+        let msg = Exception.toString ex
+        log (fun _ -> msg)
+        Log(msg, LogLevel.Error) |> out'
+        Threading.Thread.Sleep 1000
+        Environment.Exit 1
 
 /// Reads the handshake and runs the specified task
 let run (io : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) io task

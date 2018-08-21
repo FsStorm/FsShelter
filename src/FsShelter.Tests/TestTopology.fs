@@ -29,30 +29,24 @@ type World =
 
 /// numbers spout - produces messages
 let numbers (world : World) =
-    async { 
-        return Some(string(Threading.Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
-    }
+    Some(string(Threading.Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
 
 /// split bolt - consumes and emits messages
 let split (input,emit) =
-    async { 
-        match input with
-        | Original { x = x } -> 
-            match x % 2 with
-            | 0 -> Even ({x=x}, {str="even"})
-            | _ -> Odd ({x=x}, "odd" )
-        | _ -> failwithf "unexpected input: %A" input
-        |> emit
-    }
+    match input with
+    | Original { x = x } -> 
+        match x % 2 with
+        | 0 -> Even ({x=x}, {str="even"})
+        | _ -> Odd ({x=x}, "odd" )
+    | _ -> failwithf "unexpected input: %A" input
+    |> emit
 
 /// terminating bolt - consumes messages
 let resultBolt (info,input) =
-    async { 
-        match input with
-        | Even ({x = x}, {str=str})
-        | Odd ({x = x},str) -> info (sprintf "Got %A" input)
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | Even ({x = x}, {str=str})
+    | Odd ({x = x},str) -> info (sprintf "Got %A" input)
+    | _ -> failwithf "unexpected input: %A" input
 
 open FsShelter.DSL
 
@@ -154,3 +148,4 @@ let t6 = topology "test6" {
     yield s1 --> b2 |> Group.by (function Inner(Even (n,_)) -> n)
     yield b1 --> b2 |> Group.by (function Inner(Odd (n,_)) -> n)
 }
+

@@ -9,34 +9,28 @@ type Schema =
     | WordCount of string*int64
 
 // sentences spout - feeds messages into the topology
-let sentences source = async { return source() |> Sentence |> Some }
+let sentences source = source() |> Sentence |> Some
 
 // split bolt - consumes sentences and emits words
 let splitIntoWords (input, emit) = 
-    async { 
-        match input with
-        | Sentence s -> 
-            s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries) 
-            |> Seq.map Word
-            |> Seq.iter emit
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | Sentence s -> 
+        s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries) 
+        |> Seq.map Word
+        |> Seq.iter emit
+    | _ -> failwithf "unexpected input: %A" input
 
 // count words bolt 
 let countWords (input, increment, emit) = 
-    async { 
-        match input with
-        | Word word -> WordCount (word,increment word) |> emit
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | Word word -> WordCount (word,increment word) |> emit
+    | _ -> failwithf "unexpected input: %A" input
 
 // log word count - terminating bolt 
 let logResult (log, input) = 
-    async { 
-        match input with
-        | WordCount (word,count) -> log (sprintf "%s: %d" word count)
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | WordCount (word,count) -> log (sprintf "%s: %d" word count)
+    | _ -> failwithf "unexpected input: %A" input
 
 // data source
 let source = 
