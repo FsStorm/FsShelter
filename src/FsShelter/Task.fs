@@ -42,10 +42,10 @@ let ofTopology (t : Topology<'t>) compId =
     | _ -> failwithf "Not a runnable component: %s" compId
 
 /// Reads the handshake and runs the specified task with a logger
-let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) = 
+let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) = 
     let pid = pid()
     let log = startLog pid
-    let (in', out') = io log
+    let (in', out) = mkIO log
     try 
         log(fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
         let msg = in'()
@@ -53,18 +53,21 @@ let runWith (startLog : int->Log) (io : Log -> IO<'t>) (task : Task<'t>) =
             match msg with
             | Handshake(cfg, pidDir, context) -> 
                 pid |> createPid pidDir
-                Pid pid |> out'
+                Pid pid |> out
                 (cfg, context.ComponentId)
             | _ -> failwithf "Expected handshake, got: %A" msg
         log(fun _ -> sprintf "running %s..." compId)
-        task compId (in', out') cfg
+        let dispatch = task compId cfg out
+        while true do
+            let msg = in'()
+            dispatch msg
     with ex -> 
         let msg = Exception.toString ex
         log (fun _ -> msg)
-        Log(msg, LogLevel.Error) |> out'
+        Log(msg, LogLevel.Error) |> out
         Threading.Thread.Sleep 1000
         Environment.Exit 1
 
 /// Reads the handshake and runs the specified task
-let run (io : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) io task
+let run (mkIO : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) mkIO task
 

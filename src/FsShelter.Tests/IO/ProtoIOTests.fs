@@ -374,8 +374,7 @@ let ``roundtrip throughput``() =
         in'() |> ignore
 
     sw.Stop()
-    sprintf "[Proto] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds) 
-    |> TraceLog.write
-    sprintf "-- GC: %dKB, %d/%d/%d" ((GC.GetTotalMemory false)/1024L)  (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2) 
-    |> TraceLog.write
-    TraceLog.flush()
+    (fun _ -> sprintf "[Proto] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)) 
+    |> TraceLog.asyncLog
+    (fun _ -> sprintf "-- GC: %dKB, %d/%d/%d" ((GC.GetTotalMemory false)/1024L)  (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)) 
+    |> TraceLog.asyncLog

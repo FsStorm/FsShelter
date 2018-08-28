@@ -11,11 +11,13 @@ module Topology =
     /// Stream id
     type StreamId = ComponentId*string
     /// Signature for anchoring implementation
-    type ToAnchors = TupleId->TupleId list
+    type ToAnchors = TupleId -> TupleId list
     /// Signature for pluggable IO implementation
-    type IO<'t> = (unit->InCommand<'t>)*(OutCommand<'t>->unit)
+    type IO<'t> = (unit -> InCommand<'t>)*(OutCommand<'t>->unit)
+    /// Commands dispatcher
+    type Dispatcher<'t> = (OutCommand<'t> -> unit) -> InCommand<'t> -> unit
     /// Signature for a final runnable component
-    type Runnable<'t> = IO<'t>->Conf->unit
+    type Runnable<'t> = Conf -> Dispatcher<'t>
 
     /// Storm Componend abstraction
     type Component<'t> = 

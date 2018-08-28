@@ -12,18 +12,20 @@ module Logging =
         MailboxProcessor.Start( fun inbox -> 
             async {
                 while true do
-                    let! text = inbox.Receive()
-                    text() |> (sprintf "%s %s" (DateTime.Now.ToString("HH:mm:ss.ff"))) |> writer.WriteLine
+                    let! ts,text = inbox.Receive()
+                    text() |> (sprintf "%s %s" ts) |> writer.WriteLine
                     writer.Flush()
             })
 
+    let inline private ts() = DateTime.Now.ToString("HH:mm:ss.ff")
+    
     // log results of the passed function, calling it asynchronously
     let callbackLog name =
         let mb = startLog name
-        fun (mkEntry:unit->string) -> mb.Post mkEntry
+        fun (mkEntry:unit->string) -> (ts(),mkEntry) |> mb.Post 
 
     // log specified text asynchronously
     let asyncLog (name:string) = 
         let mb = startLog name
-        fun text -> mb.Post <| fun () -> text
+        fun text -> (ts(),(fun () -> text)) |> mb.Post 
     

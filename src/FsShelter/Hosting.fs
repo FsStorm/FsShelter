@@ -1,164 +1,57 @@
-/// Self-hosting
-module FsShelter.Host
+module FsShelter.Hosting
 
-open System
-open System.IO
-open System.Threading
-open FsShelter.Multilang
 open FsShelter.Topology
 open FsShelter.Task
+open FsShelter.Multilang
+open Disruptor.Dsl
 
 [<AutoOpen>]
 module internal Types =
     type TaskId = int
 
-    type AnchoredTupleId = int64 * int64
+    type AnchoredTupleId = (struct (int64 * int64))
 
-    type TaskMap<'t> = Map<TaskId,RuntimeTask<'t>>
-
-    and SystemMsg =
-        | Tick
-        
-    and AckerMsg =
-        | Anchor of AnchoredTupleId
-        | Ok of AnchoredTupleId
-        | Fail of AnchoredTupleId
-        | Track of TaskId * TupleId * int64
-
-    and TaskIn<'t> =
-        | InCmd of InCommand<'t>
-        | SystemCmd of SystemMsg
-        | AckerCmd of AckerMsg
-
-    and Input<'t> = unit -> TaskIn<'t>
-
-    and Channel<'t> = TaskControl<'t> -> unit
-
-    and RuntimeTask<'t> =
-        | SystemTask of Channel<'t>
-        | AckerTask of Channel<'t>
-        | SpoutTask of ComponentId * Channel<'t>
-        | BoltTask of ComponentId * Channel<'t>
-        with override x.ToString() =
-                match x with
-                | SystemTask _ -> "__system"
-                | AckerTask _ -> "__acker"
-                | SpoutTask (compId,_) -> compId
-                | BoltTask (compId,_) -> compId
-
-
-    and Loop<'t> = (TaskIn<'t> -> unit) -> TaskMap<'t> -> Log -> Input<'t> -> unit
-
-    and TaskControl<'t> =
-        | Enqueue of TaskIn<'t>
-        | Dequeue of AsyncReplyChannel<TaskIn<'t>>
+    and [<Struct>] TaskMsg<'t,'msg> =
+        | Start of rtt:RuntimeTopology<'t>
         | Stop
-        | Start of TaskMap<'t> * Log
+        | Tick
+        | Other of 'msg
+
+    and [<Struct>] AckerMsg =
+        | Anchor of aid:AnchoredTupleId
+        | Ok of okid:AnchoredTupleId
+        | Fail of fid:AnchoredTupleId
+        | Track of taid:TaskId * tid:TupleId * int64
+
+    and Send<'t> = 't -> unit
+    and Shutdown = unit -> unit
+    and Channel<'t> = Send<'t> * Shutdown
+
+    and RuntimeTopology<'t> =
+        { systemTask : TaskId * Channel<TaskMsg<'t,unit>>
+          ackerTasks : Map<TaskId, Channel<TaskMsg<'t,AckerMsg>>>
+          spoutTasks : Map<TaskId, ComponentId * Channel<TaskMsg<'t,InCommand<'t>>>>
+          boltTasks : Map<TaskId, ComponentId * Channel<TaskMsg<'t,InCommand<'t>>>> }
 
     let (|AnchoredTuple|_|) (tupleId:string) =
-        match tupleId.Split (':') with
+        match tupleId.Split ':' with
         | [|anchor;tid|] -> Some (int64 anchor, int64 tid)
         | _ -> None
     
-    type TreeState =
+    type [<Struct>] TreeState =
         | Pending of TupleId * TaskId * int64
         | Complete of srcId:TupleId * src:TaskId
         | Done
 
-module internal Channel =
-    let make (dispatch:Loop<_>) =
-        let run self map input log token = 
-            let rec loop () =
-                let retry =
-                    try
-                        dispatch self map log input
-                        log (fun _ -> "Finished")
-                        ignore
-                    with ex -> 
-                        log (fun _ -> sprintf "Loop failed: %s, restarting..." (Exception.toString ex))
-                        loop
-                retry()                    
-            loop()
+    type Envelope<'msg>() =
+        member val Msg:'msg voption = ValueOption.ValueNone with get, set
 
-        let inQueue = System.Collections.Generic.Queue<TaskIn<_>>()
-        let outQueue = System.Collections.Generic.Queue<AsyncReplyChannel<_>>()
-        let enqueue msg =
-            match outQueue.Count, inQueue.Count with
-            | 0,_ -> inQueue.Enqueue msg
-            | _,0 ->
-                let rc = outQueue.Dequeue()
-                rc.Reply msg
-            | _ ->
-                inQueue.Enqueue msg
-                let rc = outQueue.Dequeue()
-                let msg = inQueue.Dequeue()
-                rc.Reply msg
-
-        let dequeue rc =
-            match inQueue.Count, outQueue.Count with
-            | 0,_ -> outQueue.Enqueue rc
-            | _,0 -> inQueue.Dequeue() |> rc.Reply
-            | _ -> 
-                outQueue.Enqueue rc
-                let rc = outQueue.Dequeue()
-                inQueue.Dequeue() |> rc.Reply
-
-        let inbox = MailboxProcessor.Start(fun mb ->
-            let rec init () =
-                async {
-                    let! msg = mb.Receive()
-                    let ts = new CancellationTokenSource()
-                    match msg with
-                    | Start (map, log) -> 
-                        run (Enqueue >> mb.Post) map (fun () -> mb.PostAndReply Dequeue) log ts.Token
-                        Activate |> InCmd |> inQueue.Enqueue
-                        return! loop log ts
-                    | Stop -> return! shutdown ts
-                }
-            
-            and loop log ts =
-                async {
-                    let! msg = mb.Receive()
-                    match msg with
-                    | Enqueue cmd -> enqueue cmd
-                    | Dequeue rc -> dequeue rc
-                    | Stop -> return! shutdown ts
-                    return! loop log ts
-                }
-
-            and shutdown ts =
-                async {
-                    let wait = 1000 // TODO: Read a Conf option
-                    let shutdownStarted = DateTime.Now
-                    let! rc = 
-                        if outQueue.Count > 0 then outQueue.Dequeue() |> Some |> async.Return
-                        else mb.Receive wait |> Async.Catch |> Async.map (function Choice1Of2(Dequeue rc) -> Some rc | _ -> None)
-                    rc |> Option.iter (fun rc -> Deactivate |> InCmd |> rc.Reply)
-                    let remainingWait = ((float wait) - (DateTime.Now - shutdownStarted).TotalMilliseconds)
-                    do! Async.Sleep (int (max remainingWait 0.))
-                    ts.Cancel false
-                }
-            init ()
-        )
-        inbox.Post
-
+    and MsgProcessor<'msg> = bool -> 'msg -> unit
 
 module internal Routing =
-    let direct =
-        function
-        | SystemTask (channel)
-        | AckerTask (channel)
-        | SpoutTask (_,channel)
-        | BoltTask (_,channel) -> Enqueue >> channel
-
-    let mkTupleRouter (topology:Topology<'t>) taskId (tasks:Map<TaskId,RuntimeTask<'t>>) mkIds log =
+    let mkTupleRouter mkIds (streams: Map<(StreamId * ComponentId),Stream<'t>>) (boltTasks:Map<TaskId, ComponentId * Channel<TaskMsg<'t,InCommand<'t>>>>) =
         let sinksOfComp =
-            let bolts =
-                tasks
-                |> Map.chooseBy (fun (_,task) -> 
-                    match task with
-                    | BoltTask (compId,channel) -> Some (compId,channel)
-                    | _ -> None)
+            let bolts = boltTasks |> Map.groupBy (fun (_,(compId,(_,_))) -> compId) (fun (_,(_,(send,_))) -> send)
             memoize (fun compId -> bolts.[compId] |> Array.ofSeq)
         
         let mkGroup (instances:_ array) =
@@ -166,7 +59,7 @@ module internal Routing =
             | All -> 
                 fun _ _ -> instances :> _ seq
             | Shuffle when instances.Length = 1 -> 
-                 fun _ _ -> instances :> _ seq
+                fun _ _ -> instances :> _ seq
             | Shuffle -> 
                 let ix tupleId = abs(tupleId.GetHashCode() % instances.Length)
                 fun tupleId _ -> 
@@ -178,7 +71,7 @@ module internal Routing =
                     let ix = (map tuple).GetHashCode() % instances.Length |> abs
                     instances.[ix] |> Seq.singleton
 
-        let mkDistributors map (KeyValue((streamId,dstId),streamDef)) =
+        let mkDistributors taskId map (KeyValue((streamId,dstId),streamDef)) =
             let f = match map |> Map.tryFind streamId with
                     | Some f -> f
                     | _ -> fun _ -> ignore
@@ -188,41 +81,47 @@ module internal Routing =
                                         f mkIds tuple
                                         mkIds ()
                                         |> Seq.iter (fun tupleId -> 
-                                                        let msg = Tuple(tuple,tupleId,fst streamId,snd streamId,taskId) |> InCmd |> Enqueue
+                                                        let msg = Tuple(tuple,tupleId,fst streamId,snd streamId,taskId) |> Other
                                                         group tupleId tuple
                                                         |> Seq.apply msg))
-        let distributors =
-            topology.Streams
-            |> Seq.fold mkDistributors Map.empty
-        
-        let direct = memoize (fun dstId -> tasks |> Map.find dstId |> direct)
-        function
-        | struct (anchors:TupleId list,srcId:TupleId option,tuple:'t,compId,stream,Some dstId) ->
-            mkIds anchors srcId ()
-            |> List.iter (fun tupleId -> Tuple(tuple,tupleId,compId,stream,taskId) |> InCmd |> direct dstId)
-        | struct (anchors,srcId,tuple,compId,stream,_) ->
-            match distributors |> Map.tryFind (compId,stream) with
-            | Some d -> tuple |> d (mkIds anchors srcId)
-            | _ -> ()
+        let direct = 
+            memoize (fun dstId -> let (_,(send,_)) = boltTasks |> Map.find dstId in Other >> send)
 
-    let mkRouter tasks filter =
+        fun taskId ->
+            let distributors =
+                streams
+                |> Seq.fold (mkDistributors taskId) Map.empty
+            
+            function
+            | (anchors:TupleId list,srcId:TupleId option,tuple:'t,compId,stream,Some dstId) ->
+                mkIds anchors srcId ()
+                |> List.iter (fun tupleId -> Tuple(tuple,tupleId,compId,stream,taskId) |> direct dstId)
+            | (anchors,srcId,tuple,compId,stream,_) ->
+                match distributors |> Map.tryFind (compId,stream) with
+                | Some d -> tuple |> d (mkIds anchors srcId)
+                | _ -> ()
+
+    let inline mkRouter tasks =
         let sinks = 
             tasks 
-            |> Map.filter filter
-            |> Seq.map (fun (KeyValue(_,task)) -> direct task)
+            |> Seq.map (fun (KeyValue(_,(_,(send,_)))) -> send)
             |> Seq.cache
                             
         fun cmd -> 
             sinks
             |> Seq.apply cmd
 
-    let toTask taskId tasks =
-        tasks |> Map.find taskId |> direct 
+    let inline toTask taskId tasks =
+        let (_,(send,_)) = tasks |> Map.find taskId in send
+
+    let inline direct (_,(send,_)) = send
 
 module internal TupleTree = 
+    open System
+
     let seed = ref (int DateTime.Now.Ticks)
     let mkIdGenerator() =
-        let rnd = Random(Interlocked.Increment &seed.contents)
+        let rnd = Random(Threading.Interlocked.Increment &seed.contents)
         let bytes = Array.zeroCreate<byte> 8
         let rec nextId () =
             let v = lock bytes (fun _ -> 
@@ -235,29 +134,31 @@ module internal TupleTree =
     let inline ackerOfAnchor (ackers:_ array) (anchorId:int64) =
         let i = abs (anchorId % (int64 ackers.Length))
         ackers.[int i]
+    
+    let inline toAcker ackers anchorId = Other >> (ackerOfAnchor ackers anchorId |> Routing.direct)
 
     let track nextId ackers taskId _ sourceTupleId =
         let anchorId = nextId()
-        let toAcker = AckerCmd >> (ackerOfAnchor ackers anchorId |> Routing.direct)
+        let toAcker = toAcker ackers anchorId
         match sourceTupleId with
         | Some sid -> Track(taskId,sid,anchorId) |> toAcker
         | _ -> ()
         fun () ->
             let tupleId = nextId()
-            Anchor(anchorId,tupleId) |> toAcker
+            Anchor(struct(anchorId,tupleId)) |> toAcker
             [sprintf "%d:%d" anchorId tupleId]
 
     let anchor nextId ackers anchors _ =
         let anchors = 
             anchors 
-            |> List.choose ((|AnchoredTuple|_|) >> Option.map (fun (a,_) -> a, ackerOfAnchor ackers a |> Routing.direct))
+            |> List.choose ((|AnchoredTuple|_|) >> Option.map (fun (a,_) -> a, toAcker ackers a))
         fun () ->
             let tupleId = nextId()
             let anchoredIds = anchors |> List.map (fun a -> (a,tupleId))
             
             anchoredIds 
             |> List.iter (fun ((aid,enqueue),id) ->
-                Anchor(aid,id) |> AckerCmd |> enqueue)
+                Anchor(struct(aid,id)) |> enqueue)
             
             match anchoredIds with
             | [] -> [string tupleId]
@@ -266,58 +167,59 @@ module internal TupleTree =
     let mkAck toResult ackers = 
         function
         | AnchoredTuple (a,id) -> 
-            let enqueue = ackerOfAnchor ackers a |> Routing.direct
-            toResult (a,id) |> AckerCmd |> enqueue
+            toResult struct(a,id) |> toAcker ackers a
         | _ -> ()
 
-module internal Tasks =
+module internal Channel =
+    
+    open Disruptor
+    open Disruptor.Dsl
+    open System.Threading.Tasks
+
+    type MsgHandler<'msg> = Disruptor.IEventHandler<Envelope<'msg>>
+    type ExceptionHandler = Disruptor.IExceptionHandler
+
+    let private createDisruptor<'msg> () =
+        // default is multi-producer + BlockingWait
+        Dsl.Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>>(Envelope),1024,TaskScheduler.Default) // TODO: Conf?
+
+    let private publish (ringBuffer: RingBuffer<Envelope<'msg>>) (msg: 'msg) =
+        let seqno = ringBuffer.Next()
+        let entry = ringBuffer.[seqno]
+        entry.Msg <- ValueSome msg
+        ringBuffer.Publish seqno
+
+    let private withHandler (f: MsgProcessor<'msg>) (disruptor:Disruptor<_>) =
+        { new MsgHandler<'msg> with
+            member __.OnNext(ev: Envelope<'msg>, seqno, eob) =
+                match ev.Msg with | ValueSome msg -> msg |> f eob | _ -> () }
+        |> disruptor.HandleEventsWith            
+
+    let private withExceptionHandler (f:exn->unit) (disruptor:Disruptor<_>) =
+        { new ExceptionHandler with
+            member __.HandleEventException(exn:exn, seqno, eob) = f exn
+            member __.HandleOnStartException(exn:exn) = f exn
+            member __.HandleOnShutdownException(exn:exn) = f exn }
+        |> disruptor.HandleExceptionsWith
+        disruptor
+
+    let start onException onData =
+        let disruptor = createDisruptor()
+        disruptor
+        |> withExceptionHandler onException
+        |> withHandler onData
+        |> ignore
+        let ringBuffer = disruptor.Start()
+        publish ringBuffer, disruptor.Shutdown
+
+module internal RuntimeTopology =
+    open System
+    open System.Threading
     let s n = 1000 * n
     let m n = 60 * (s n)
-    let mkSystem nextId (topology:Topology<'t>) self (tasks:TaskMap<'t>) log input = 
-        let describe state taskId =
-            function
-            | SpoutTask (compId,_) -> sprintf "%s\n\t%d: %s (%+A)" state taskId compId (topology.Spouts |> Map.find compId).Conf
-            | BoltTask (compId,_) -> sprintf "%s\n\t%d: %s (%+A)" state taskId compId (topology.Bolts |> Map.find compId).Conf
-            | t -> sprintf "%s\n\t%d: %s" state taskId (t.ToString())
-        let tick dstId = 
-            let tuple = TupleSchema.mkTick()
-            let route = Routing.mkRouter tasks (fun _ -> function BoltTask (compId,_) -> compId = dstId | _ -> false)
-            match tuple with
-            | Some t -> fun _ -> Tuple(t, (string <| nextId()), "__system", "__tick", 1) |> InCmd |> route
-            | _ -> failwith "Topology schema doesn't define \"__tick\" tuple"
-        let systemTick = 
-            let msg = SystemCmd Tick 
-            let route = Routing.mkRouter tasks (fun _ -> function AckerTask _ | SpoutTask _ -> true | _ -> false) 
-            fun _ -> route msg
-        let startTimers =
-            topology.Bolts
-            |> Seq.choose (fun (KeyValue(compId,b)) -> 
-                    b.Conf 
-                    |> Conf.option Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS 
-                    |> Option.map (fun tf -> compId, tf))
-            |> Seq.map (fun (compId,timeout) -> 
-                    log(fun _ -> sprintf "Starting timer with timeout %ds for: %s" timeout compId)
-                    new Timer(tick compId, (), s timeout, s timeout)
-                    :> IDisposable)
-            |> Seq.append
-            <| seq { 
-                yield new Timer(systemTick, (), s 30, s 30) :> IDisposable 
-            }
-
-        let rec loop timers =
-            let cmd = input()
-            match cmd with
-            | InCmd Activate ->
-                log(fun _ -> sprintf "Starting system for topology %s: [%s],\nconf: %A" topology.Name (tasks |> Map.fold describe "") topology.Conf)
-                startTimers |> Seq.toArray |> loop
-            | InCmd Deactivate -> 
-                log(fun _ -> sprintf "Stopping system for topology: %s" topology.Name)
-                timers |> Seq.iter (fun _ -> timers |> Seq.iter (fun t -> t.Dispose()))
-            | _ -> log (fun _ -> sprintf "unexpect message received by __system: %+A" cmd)
-        loop [||]
 
 
-    let mkAcker (topology:Topology<'t>) self (taskMap:TaskMap<'t>) log input = 
+    let private mkAcker log (topology:Topology<'t>) = 
         let inFlight = System.Collections.Generic.Dictionary<int64,TreeState>(100)
         let xor tupleId anchor =
             match inFlight.TryGetValue anchor with
@@ -332,183 +234,248 @@ module internal Tasks =
             |> Array.ofSeq 
             |> Array.iter (fun (KeyValue(anchor,_))-> inFlight.Remove anchor |> ignore)
 
-        let rec loop () =
-            let cmd = input()
-            log(fun _ -> sprintf "< %+A" cmd)
+        let mutable sendToSpout = fun _ -> failwith "The acker is not started."
+        fun _ cmd ->
             match cmd with
-            | InCmd Activate ->
+            | Start rtt ->
                 log(fun _ -> "Starting acker...")
-            | InCmd Deactivate ->
+                sendToSpout <- fun sid -> let (send,_) = rtt.spoutTasks |> Map.find sid |> snd in Other >> send
+            | Stop ->
                 log(fun _ -> "Stopping acker...")
-            | AckerCmd (Track (taskId,sid,tupleId)) -> 
+            | Tick ->
+                cleanup()
+            | Other(Track (taskId,sid,tupleId)) -> 
                 inFlight.Add (tupleId, Pending(sid,taskId,0L))
-            | AckerCmd (Anchor (anchor,tupleId)) -> 
+            | Other(Anchor (struct(anchor,tupleId))) -> 
                 inFlight.[anchor] <- xor tupleId anchor
-            | AckerCmd (Fail (anchor,tupleId)) ->
+            | Other(Fail (struct(anchor,tupleId))) ->
                 match inFlight.TryGetValue anchor with
                 | true,Pending(sourceId,taskId,_) ->
-                    let channel = match taskMap |> Map.find taskId with
-                                  | (SpoutTask (_,channel)) -> channel
-                                  | _ -> failwithf "unable to find spout channel for the taskId: %A" taskId
-                    Nack sourceId |> InCmd |> Enqueue |> channel
+                    Nack sourceId |> sendToSpout taskId
                     inFlight.[anchor] <- Done
                 | _ -> ()
-            | AckerCmd (Ok (anchor,tupleId)) ->
+            | Other(Ok (struct(anchor,tupleId))) ->
                 let xored = xor tupleId anchor
                 match xored with
                 | Complete(sourceId,taskId) ->
-                    let channel = match taskMap |> Map.find taskId with
-                                  | (SpoutTask (_,channel)) -> channel
-                                  | _ -> failwithf "unable to find spout channel for the taskId: %A" taskId
-                    Ack sourceId |> InCmd |> Enqueue |> channel
+                    Ack sourceId |> sendToSpout taskId
                     inFlight.[anchor] <- Done
                 | _ -> 
                     inFlight.[anchor] <- xored
-            | SystemCmd Tick ->
-                cleanup()
-            | _ -> ()
-            loop()
-        loop()
 
-    let mkSpout mkEmit compId (comp:Spout<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
+    let private mkSystem log nextId (topology:Topology<'t>) taskId = 
+        let tick bolts dstId = 
+            let tuple = TupleSchema.mkTick()
+            let route = Other >> Routing.mkRouter (bolts |> Seq.where  (fun (KeyValue(_,(compId,_))) -> compId = dstId))
+            match tuple with
+            | Some t -> fun _ -> InCommand.Tuple(t, (string <| nextId()), "__system", "__tick", taskId) |> route
+            | _ -> failwith "Topology schema doesn't define \"__tick\" tuple"
+        let systemTick spouts = 
+            let route = Routing.mkRouter spouts
+            fun _ -> route Tick
+        let startTimers (rtt:RuntimeTopology<'t>) =
+            topology.Bolts
+            |> Seq.choose (fun (KeyValue(compId,b)) -> 
+                    b.Conf 
+                    |> Conf.option Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS 
+                    |> Option.map (fun tf -> compId, tf))
+            |> Seq.map (fun (compId,timeout) -> 
+                    log(fun _ -> sprintf "Starting timer with timeout %ds for: %s" timeout compId)
+                    new Timer(TimerCallback(tick rtt.boltTasks compId), (), s timeout, s timeout)
+                    :> IDisposable)
+            |> Seq.append
+            <| seq { 
+                yield new Timer(TimerCallback(systemTick rtt.spoutTasks), (), s 30, s 30) :> IDisposable 
+            }
+        
+        let mutable timers = [||]
+        fun _ ->
+            function
+            | Start rtt ->
+                log(fun _ -> sprintf "Starting system for topology %s..." topology.Name)
+                timers <- startTimers rtt |> Seq.toArray
+            | Stop ->
+                log(fun _ -> sprintf "Stopping system for topology: %s" topology.Name)
+                timers |> Array.iter (fun _ -> timers |> Seq.iter (fun t -> t.Dispose()))
+            | cmd ->
+                log(fun _ -> sprintf "Unsupported command for system task: %A" cmd)
+
+    let private mkSpout log compId (comp:Spout<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
+        let next = Other Next
+        let mutable pending = 0
+        let inline throttled maxPending self =
+            if pending < maxPending then // TODO: Interlocked?
+                next |> self
+        let inline unthrottled self = next |> self
         let conf = comp.Conf |> Map.join topology.Conf
-        let emit = mkEmit tasks log
-        let pending = ref 0
-        let nextMsg = Next |> InCmd
-        let next () =
-            nextMsg |> self
-        let mkThrottle maxPending () =
-            if !pending < maxPending then
-                next ()
         let maxPending = comp.Conf 
                        |> Map.join topology.Conf 
                        |> Conf.option Conf.TOPOLOGY_MAX_SPOUT_PENDING
-        let throttle = maxPending
-                       |> Option.map mkThrottle
-                       |> Option.defaultValue next
-        log(fun _ -> sprintf "Starting %s..." compId)
-        let rec input' () =
-            let cmd = input() 
-#if DEBUG                
-            log(fun _ -> sprintf "< %+A" cmd)
-#endif                
-            match cmd with 
-            | SystemCmd Tick ->
-                match maxPending with
-                | Some mx when !pending < mx -> Next
-                | None -> Next
-                | _ -> input'()
-            | InCmd cmd -> 
-                match cmd with
-                | Activate -> 
-                    throttle()
-                | Nack _ | Ack _  -> 
-                    Interlocked.Decrement &pending.contents |> ignore
-                | _ -> ()
-                cmd
-            | _ -> input'()
+        let throttle = maxPending |> Option.map throttled |> Option.defaultValue unthrottled
 
-        let output =
+        let mkOutput rtt issueNext =
+            let ackers = rtt.ackerTasks |> Map.toArray
+            let mkIds = TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId
+            let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
             function
             | Emit (t,tupleId,_,stream,dstId,needIds) -> 
-                emit struct ([],tupleId,t,compId,stream,dstId)
-                Interlocked.Increment &pending.contents |> ignore
+                emit ([],tupleId,t,compId,stream,dstId)
+                Interlocked.Increment &pending |> ignore
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
-            | Sync -> throttle()
+            | Sync -> issueNext()
             | cmd -> failwithf "Unexpected command: %+A" cmd
-        let io = (input', output)
-        runnable io conf
 
-    let mkBolt ackers mkEmit compId (comp:Bolt<'t>) (topology : Topology<'t>) (runnable:Runnable<'t>) self (tasks:TaskMap<'t>) log input = 
+
+        let dispatcher = runnable conf
+        let mutable issueNext = ignore
+        let mutable out = ignore
+        fun eob (cmd:TaskMsg<'t,InCommand<'t>>) ->
+            match cmd with
+            | Tick ->
+                ()
+            | Start rtt -> 
+                let (_,(self,_)) = rtt.spoutTasks |> Map.find taskId
+                issueNext <- fun _ -> throttle self
+                out <- mkOutput rtt issueNext
+                log(fun _ -> sprintf "Starting %s..." compId)
+                dispatcher out InCommand.Activate
+            | Stop -> 
+                issueNext <- ignore
+                out <- ignore
+                dispatcher out InCommand.Deactivate
+            | Other msg ->
+#if DEBUG                
+                log(fun _ -> sprintf "< %+A" msg)
+#endif
+                match msg with
+                | Ack _ | Nack _ -> Interlocked.Decrement &pending |> ignore
+                | _ -> ()
+                dispatcher out msg
+            if eob then issueNext()
+            
+    let mkBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
         let conf = comp.Conf |> Map.join topology.Conf
-        let emit = mkEmit tasks log
-        let ack = TupleTree.mkAck Ok ackers
-        let nack = TupleTree.mkAck Fail ackers
 
-        log(fun _ -> sprintf "Starting %s..." compId)
-        let rec input' () =
-            let cmd = input() 
-            log(fun _ -> sprintf "< %+A" cmd)
-            match cmd with 
-            | InCmd cmd -> cmd
-            | _ -> input'()
-
-        let output =
+        let mkOutput (rtt:RuntimeTopology<'t>) =
+            let ackers = rtt.ackerTasks |> Map.toArray
+            let mkIds = TupleTree.anchor (TupleTree.mkIdGenerator()) ackers
+            let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
+            let ack = TupleTree.mkAck Ok ackers
+            let nack = TupleTree.mkAck Fail ackers
             function
-            | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit struct(anchors,tupleId,t,compId,stream,dstId)
+            | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit (anchors,tupleId,t,compId,stream,dstId)
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
             | OutCommand.Ok tid -> ack tid
             | OutCommand.Fail tid -> nack tid
             | cmd -> failwithf "Unexpected command: %+A" cmd
-        let io = (input', output)
-        runnable io conf
 
-    let mkTasks (topology:Topology<'t>) : Map<int,RuntimeTask<'t>> =
+        let dispatcher = runnable conf
+        let mutable out = ignore
+
+        fun _ ->
+            function
+            | Start rtt ->        
+                log(fun _ -> sprintf "Starting %s..." compId)
+                out <- mkOutput rtt 
+                dispatcher out InCommand.Activate
+            | Stop ->
+                log(fun _ -> sprintf "Stopping %s..." compId)
+                dispatcher out InCommand.Deactivate
+            | Other msg -> 
+#if DEBUG                
+                log(fun _ -> sprintf "< %+A" msg)
+#endif
+                dispatcher out msg
+            | cmd -> 
+                failwithf "Usupported command for a bolt: %A" cmd
+
+    let ofTopology startLog onException (topology:Topology<'t>) : RuntimeTopology<'t> =
         let anchorOfStream = topology.Anchors.TryFind >> Option.defaultValue (fun _ -> [])
-        let raiseNotRunnable() = failwith "Only native FsShelter components can be hosted"
+        let raiseNotRunnable compId = failwithf "%s: Only native FsShelter components can be hosted" compId
         let ackersCount = topology.Conf |> Conf.optionOrDefault Conf.TOPOLOGY_ACKER_EXECUTORS
-        let system = Channel.make (mkSystem (TupleTree.mkIdGenerator()) topology) |> SystemTask
-        let ackers = [| for i in 1..ackersCount -> Channel.make (mkAcker topology) |> AckerTask |]
         let nextTaskId =
-            let mutable taskId = 0
-            fun () ->
-                taskId <- taskId + 1
-                taskId
-        seq { 
-            yield (fun _ -> system)
-            yield! seq { for i in 1..ackers.Length -> fun _ -> ackers.[i-1] }
-            yield! topology.Bolts
+            let s = (Seq.initInfinite id).GetEnumerator()
+            fun _ -> s.MoveNext() |> ignore; s.Current
+        let system taskId =
+            taskId, 
+            mkSystem (startLog taskId) (TupleTree.mkIdGenerator()) topology taskId |> Channel.start onException
+
+        let ackers = [| for i in 1..ackersCount -> 
+                            fun taskId ->
+                                taskId,
+                                topology |> mkAcker (startLog taskId) |> Channel.start onException |]
+        let bolts = topology.Bolts
                    |> Seq.collect (fun (KeyValue(compId,b)) -> 
-                        let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable() 
+                        let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int b.Parallelism) ->
                                  fun taskId -> 
-                                    let mkEmit tasks = 
-                                        Routing.mkTupleRouter topology taskId tasks (TupleTree.anchor (TupleTree.mkIdGenerator()) ackers)
-                                    let channel = Channel.make (mkBolt ackers mkEmit compId b topology runnable) 
-                                    BoltTask (compId, channel)}) 
-            yield! topology.Spouts
+                                    let channel = runnable |> mkBolt (startLog taskId) compId b topology taskId |> Channel.start onException
+                                    taskId, (compId, channel)})
+        let spouts = topology.Spouts
                    |> Seq.collect (fun (KeyValue(compId,s)) -> 
-                        let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable()
+                        let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int s.Parallelism) ->
-                                fun taskId -> 
-                                    let mkEmit tasks = 
-                                        Routing.mkTupleRouter topology taskId tasks (TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId)
-                                    let channel = Channel.make (mkSpout mkEmit compId s topology runnable)
-                                    SpoutTask (compId, channel)})
-        }
-        |> Seq.map (fun mkTask -> 
-                        let taskId = nextTaskId() 
-                        taskId, mkTask taskId)
-        |> Map.ofSeq
-
+                                 fun taskId -> 
+                                    let channel = runnable |> mkSpout (startLog taskId) compId s topology taskId |> Channel.start onException
+                                    taskId, (compId, channel)})
+        
+        { systemTask = nextTaskId() |> system
+          ackerTasks = ackers |> Seq.map (fun a -> nextTaskId() |> a ) |> Map.ofSeq 
+          spoutTasks = spouts |> Seq.map (fun s -> nextTaskId() |> s ) |> Map.ofSeq
+          boltTasks = bolts |> Seq.map (fun b -> nextTaskId() |> b ) |> Map.ofSeq }
 
 let runWith (startLog:int->Log) (topology:Topology<'t>) =
-    let tasks = Tasks.mkTasks topology
+    let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
+    let describe (rtt:RuntimeTopology<'t>) =
+        seq {
+            yield sprintf "\n\t%d (__system)" (fst rtt.systemTask)
+            for (KeyValue(taskId,_)) in rtt.ackerTasks do
+                yield sprintf "\n\t%d (__acker)" taskId
+            for (KeyValue(taskId,(compId,_))) in rtt.spoutTasks do
+                yield sprintf "\n\t%d: %s (%+A)" taskId compId (topology.Spouts |> Map.find compId).Conf
+            for (KeyValue(taskId,(compId,_))) in rtt.boltTasks do
+                yield sprintf "\n\t%d: %s (%+A)" taskId compId (topology.Bolts |> Map.find compId).Conf
+        } |> Seq.fold (+) ""
 
-    let start =
-        fun taskId ->
-            function
-            | SystemTask channel
-            | AckerTask channel
-            | SpoutTask (_,channel)
-            | BoltTask (_,channel) -> 
-                Start (tasks, startLog taskId) 
-                |> channel
+    let activate rtt =
+        rtt.ackerTasks |> Map.iter (fun _ (send,_) -> send (Start rtt))
+        rtt.boltTasks |> Map.iter (fun _ (_,(send,_)) -> send (Start rtt))
+        rtt.spoutTasks |> Map.iter (fun _ (_,(send,_)) -> send (Start rtt))
+        let (_,(send,_)) = rtt.systemTask in send (Start rtt)
 
-    let stop _ =
-        function
-        | SystemTask channel
-        | AckerTask channel
-        | SpoutTask (_,channel)
-        | BoltTask (_,channel) -> 
-            Stop |> channel
-            Thread.Sleep 1000 //TODO: Read a Conf option
+    let stop rtt =
+        let (_,(send,_)) = rtt.systemTask in send Stop
+        rtt.spoutTasks |> Map.iter (fun _ (_,(send,_)) -> send Stop)
+        rtt.boltTasks |> Map.iter (fun _ (_,(send,_)) -> send Stop)
+        rtt.ackerTasks |> Map.iter (fun _ (send,_) -> send Stop)
 
-    tasks |> Map.iter start
+    let shutdown rtt =
+        let (_,(_,shutdown)) = rtt.systemTask in shutdown()
+        rtt.spoutTasks |> Map.iter (fun _ (_,(_,shutdown)) -> shutdown())
+        rtt.boltTasks |> Map.iter (fun _ (_,(_,shutdown)) -> shutdown())
+        rtt.ackerTasks |> Map.iter (fun _ (_,shutdown) -> shutdown())
 
-    fun () -> tasks |> Map.iter stop
+    let mutable rtt = None
+    let rec restart (ex:exn) =
+        log(fun _ -> sprintf "Error running the topology: %A,\n restarting..." ex) 
+        stopAndShutdown ()
+        start ()
+    and start () =
+        rtt <- Some (topology |> RuntimeTopology.ofTopology startLog restart)
+        log(fun _ -> sprintf "Hosting the topology: %s {%s},\n with configuration: %A" topology.Name (describe rtt.Value) topology.Conf)
+        System.Threading.Thread.Sleep 1000 //TODO: Read a Conf option
+        activate rtt.Value
+    and stopAndShutdown () =
+        match rtt with
+        | Some rtt ->
+            stop rtt
+            System.Threading.Thread.Sleep 1000 //TODO: Read a Conf option
+            shutdown rtt
+        | _ -> ()
 
-let run topology = runWith (fun _ -> ignore) topology
- 
+    start ()
+    stopAndShutdown
+
+let run topology = runWith (fun _ -> ignore) topology    

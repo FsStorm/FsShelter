@@ -1,54 +1,37 @@
 [<AutoOpen>]
-module FsShelter.Prelude
+module internal FsShelter.Prelude
 
-let internal memoize f =
-    let dict = System.Collections.Concurrent.ConcurrentDictionary<_,_>()
-    fun x -> dict.GetOrAdd(x, lazy (f x)).Force()
+let memoize f =
+    let dict = System.Collections.Generic.Dictionary<_,_>()
+    fun x ->
+        match dict.TryGetValue(x) with
+        | true, v -> v
+        | _ -> let v = f x in dict.[x] <- v; v
 
-module internal Map =
+module Map =
     let join map =
         Map.fold (fun acc key value -> Map.add key value acc) map
 
-    let choose f =
-        Map.fold (fun acc key value -> f key value |> function Some v -> acc |> Map.add key v | _ -> acc) Map.empty
-
-    let toValueArray map =
-        Map.toSeq map |> Seq.map (fun (_,value) -> value) |> Seq.toArray
-
-    let groupBy f =
+    let groupBy toGroup toValue =
         Map.toSeq 
-        >> Seq.groupBy f 
-        >> Seq.map (fun (k,xs) -> k,xs |> Seq.map fst |> Seq.cache) 
+        >> Seq.groupBy toGroup 
+        >> Seq.map (fun (k,xs) -> k,xs |> Seq.map toValue |> Seq.cache) 
         >> Map.ofSeq
 
-    let chooseBy f =
-        Map.toSeq 
-        >> Seq.map f 
-        >> Seq.groupBy (function Some (k,v) -> Some k | _ -> None) 
-        >> Seq.choose (function (Some k,xs) -> Some (k, xs |> Seq.choose (Option.map snd) |> Seq.cache) | _ -> None) 
-        >> Map.ofSeq
-
-    let selectBy f =
-        Map.toSeq 
-        >> Seq.map f 
-        >> Seq.groupBy (fun (k,v) -> k) 
-        >> Seq.map (fun (k,xs) -> (k, xs |> Seq.map snd |> Seq.cache)) 
-        >> Map.ofSeq
-
-module internal Async =
+module Async =
     let map cont async1 =
         async {
             let! r = async1
             return cont r
         }
 
-module internal Seq =
+module Seq =
     let  toDict (s:seq<_*_>) = System.Linq.Enumerable.ToDictionary(s, fst, snd)
 
     let apply v =
         Seq.iter (fun f -> f v)
 
-module internal Exception =
+module Exception =
     open System
     // produce the nested exception's stack trace 
     let toString (ex:Exception) =
@@ -64,4 +47,5 @@ module internal Exception =
 
 
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FsShelter.Tests")>]
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FsShelter.Disruptor")>]
 do ()

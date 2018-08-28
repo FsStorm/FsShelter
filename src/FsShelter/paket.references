@@ -3,4 +3,4 @@ newtonsoft.json
 apache-thrift-netcore
 Google.Protobuf
 FsPickler
-Microsoft.IO.RecyclableMemoryStream
+disruptor.net
