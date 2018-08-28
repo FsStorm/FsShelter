@@ -59,8 +59,9 @@ let ``Hosts``() =
      
      let stop = 
          Topologies.t1 
-         |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 200
-                      Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
+         |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 4
+                      Conf.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 32
+                      Conf.TOPOLOGY_ACKER_EXECUTORS, 2]
          |> Hosting.runWith log 
      let startedAt = DateTime.Now
      let proc = System.Diagnostics.Process.GetCurrentProcess()
@@ -68,13 +69,13 @@ let ``Hosts``() =
      let trace () =
          let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
          TraceLog.asyncLog (fun _ -> s)
-         let s = sprintf "-- GC: %d, %d/%d/%d" (GC.GetTotalMemory(false)) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
+         let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
          TraceLog.asyncLog (fun _ -> s)
          let s = sprintf "-- CPU: %4.2f" (proc.TotalProcessorTime.TotalMilliseconds - procTime)
          TraceLog.asyncLog (fun _ -> s)
          procTime <- proc.TotalProcessorTime.TotalMilliseconds
 
-     for i in 1..5 do 
+     for i in 1..50 do 
          Threading.Thread.Sleep 10000
          trace()
 

@@ -179,9 +179,9 @@ module internal Channel =
     type MsgHandler<'msg> = Disruptor.IEventHandler<Envelope<'msg>>
     type ExceptionHandler = Disruptor.IExceptionHandler
 
-    let private createDisruptor<'msg> () =
+    let private createDisruptor<'msg> ringSize =
         // default is multi-producer + BlockingWait
-        Dsl.Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>>(Envelope),1024,TaskScheduler.Default) // TODO: Conf?
+        Dsl.Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>>(Envelope),ringSize,TaskScheduler.Default)
 
     let private publish (ringBuffer: RingBuffer<Envelope<'msg>>) (msg: 'msg) =
         let seqno = ringBuffer.Next()
@@ -193,7 +193,14 @@ module internal Channel =
         { new MsgHandler<'msg> with
             member __.OnNext(ev: Envelope<'msg>, seqno, eob) =
                 match ev.Msg with | ValueSome msg -> msg |> f eob | _ -> () }
-        |> disruptor.HandleEventsWith            
+        |> disruptor.HandleEventsWith
+
+    let private withCleanup (group:EventHandlerGroup<Envelope<'msg>>) =
+        group.Then [|
+            { new MsgHandler<'msg> with
+                member __.OnNext(ev: Envelope<'msg>, seqno, eob) =
+                    ev.Msg <- ValueNone }|]
+        
 
     let private withExceptionHandler (f:exn->unit) (disruptor:Disruptor<_>) =
         { new ExceptionHandler with
@@ -203,11 +210,12 @@ module internal Channel =
         |> disruptor.HandleExceptionsWith
         disruptor
 
-    let start onException onData =
-        let disruptor = createDisruptor()
+    let start ringSize onException onData =
+        let disruptor = createDisruptor ringSize
         disruptor
         |> withExceptionHandler onException
         |> withHandler onData
+        // |> withCleanup
         |> ignore
         let ringBuffer = disruptor.Start()
         publish ringBuffer, disruptor.Shutdown
@@ -395,30 +403,31 @@ module internal RuntimeTopology =
         let anchorOfStream = topology.Anchors.TryFind >> Option.defaultValue (fun _ -> [])
         let raiseNotRunnable compId = failwithf "%s: Only native FsShelter components can be hosted" compId
         let ackersCount = topology.Conf |> Conf.optionOrDefault Conf.TOPOLOGY_ACKER_EXECUTORS
+        let ringSize = topology.Conf |> Conf.optionOrDefault Conf.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
         let nextTaskId =
             let s = (Seq.initInfinite id).GetEnumerator()
             fun _ -> s.MoveNext() |> ignore; s.Current
         let system taskId =
             taskId, 
-            mkSystem (startLog taskId) (TupleTree.mkIdGenerator()) topology taskId |> Channel.start onException
+            mkSystem (startLog taskId) (TupleTree.mkIdGenerator()) topology taskId |> Channel.start 16 onException
 
         let ackers = [| for i in 1..ackersCount -> 
                             fun taskId ->
                                 taskId,
-                                topology |> mkAcker (startLog taskId) |> Channel.start onException |]
+                                topology |> mkAcker (startLog taskId) |> Channel.start (ringSize*2) onException |]
         let bolts = topology.Bolts
                    |> Seq.collect (fun (KeyValue(compId,b)) -> 
                         let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int b.Parallelism) ->
                                  fun taskId -> 
-                                    let channel = runnable |> mkBolt (startLog taskId) compId b topology taskId |> Channel.start onException
+                                    let channel = runnable |> mkBolt (startLog taskId) compId b topology taskId |> Channel.start ringSize onException
                                     taskId, (compId, channel)})
         let spouts = topology.Spouts
                    |> Seq.collect (fun (KeyValue(compId,s)) -> 
                         let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int s.Parallelism) ->
                                  fun taskId -> 
-                                    let channel = runnable |> mkSpout (startLog taskId) compId s topology taskId |> Channel.start onException
+                                    let channel = runnable |> mkSpout (startLog taskId) compId s topology taskId |> Channel.start ringSize onException
                                     taskId, (compId, channel)})
         
         { systemTask = nextTaskId() |> system

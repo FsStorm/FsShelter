@@ -15,6 +15,9 @@ module Conf =
 
     [<Literal>]
     let TOPOLOGY_MAX_SPOUT_PENDING = "topology.max.spout.pending"
+    
+    [<Literal>]
+    let TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE = "topology.executor.receive.buffer.size"
 
     [<Literal>]
     let TOPOLOGY_TICK_TUPLE_FREQ_SECS = "topology.tick.tuple.freq.secs"
@@ -47,7 +50,8 @@ module Conf =
         [ TOPOLOGY_BACKPRESSURE_ENABLE, box true
           TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS, box true
           TOPOLOGY_ACKER_EXECUTORS, box 2
-          TOPOLOGY_MAX_SPOUT_PENDING, box 123
+          TOPOLOGY_MAX_SPOUT_PENDING, box 128
+          TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, box 256
           TOPOLOGY_MESSAGE_TIMEOUT_SECS, box 30 ]
         |> Map.ofList
 
