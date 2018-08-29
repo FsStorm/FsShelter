@@ -12,7 +12,8 @@ let main argv =
     let topology = 
         sampleTopology
         |> withConf [ Conf.TOPOLOGY_MULTILANG_SERIALIZER, box "com.prolucid.protoshell.ProtoSerializer"
-                      Conf.TOPOLOGY_MAX_SPOUT_PENDING, box 123
+                      Conf.TOPOLOGY_MAX_SPOUT_PENDING, box 32
+                      Conf.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, box 512
                       Conf.TOPOLOGY_DEBUG, box false]
 
     match argv |> List.ofArray with

@@ -11,13 +11,13 @@ module internal Types =
 
     type AnchoredTupleId = (struct (int64 * int64))
 
-    and [<Struct>] TaskMsg<'t,'msg> =
+    and TaskMsg<'t,'msg> =
         | Start of rtt:RuntimeTopology<'t>
         | Stop
         | Tick
         | Other of 'msg
 
-    and [<Struct>] AckerMsg =
+    and AckerMsg =
         | Anchor of aid:AnchoredTupleId
         | Ok of okid:AnchoredTupleId
         | Fail of fid:AnchoredTupleId
@@ -38,7 +38,7 @@ module internal Types =
         | [|anchor;tid|] -> Some (int64 anchor, int64 tid)
         | _ -> None
     
-    type [<Struct>] TreeState =
+    type TreeState =
         | Pending of TupleId * TaskId * int64
         | Complete of srcId:TupleId * src:TaskId
         | Done
