@@ -17,7 +17,7 @@ group Main
 	storage: none
 	source https://nuget.org/api/v2
 
-	nuget disruptor.net
+nuget Disruptor
 	nuget FSharp.Core redirects: force
 	nuget FsPickler
 	nuget Google.Protobuf

@@ -177,7 +177,6 @@ module internal Channel =
     open System.Threading.Tasks
 
     type MsgHandler<'msg> = Disruptor.IEventHandler<Envelope<'msg>>
-    type ExceptionHandler = Disruptor.IExceptionHandler
 
     let private createDisruptor<'msg> ringSize =
         // default is multi-producer + BlockingWait
@@ -191,23 +190,23 @@ module internal Channel =
 
     let private withHandler (f: MsgProcessor<'msg>) (disruptor:Disruptor<_>) =
         { new MsgHandler<'msg> with
-            member __.OnNext(ev: Envelope<'msg>, seqno, eob) =
+            member __.OnEvent(ev: Envelope<'msg>, seqno, eob) =
                 match ev.Msg with | ValueSome msg -> msg |> f eob | _ -> () }
         |> disruptor.HandleEventsWith
 
-    let private withCleanup (group:EventHandlerGroup<Envelope<'msg>>) =
-        group.Then [|
-            { new MsgHandler<'msg> with
-                member __.OnNext(ev: Envelope<'msg>, seqno, eob) =
-                    ev.Msg <- ValueNone }|]
+    // let private withCleanup (group:EventHandlerGroup<Envelope<'msg>>) =
+    //     group.Then [|
+    //         { new MsgHandler<'msg> with
+    //             member __.OnEvent(ev: Envelope<'msg>, seqno, eob) =
+    //                 ev.Msg <- ValueNone }|]
         
 
     let private withExceptionHandler (f:exn->unit) (disruptor:Disruptor<_>) =
-        { new ExceptionHandler with
+        { new IExceptionHandler<_> with
             member __.HandleEventException(exn:exn, seqno, eob) = f exn
             member __.HandleOnStartException(exn:exn) = f exn
             member __.HandleOnShutdownException(exn:exn) = f exn }
-        |> disruptor.HandleExceptionsWith
+        |> disruptor.SetDefaultExceptionHandler
         disruptor
 
     let start ringSize onException onData =
@@ -218,7 +217,7 @@ module internal Channel =
         // |> withCleanup
         |> ignore
         let ringBuffer = disruptor.Start()
-        publish ringBuffer, disruptor.Shutdown
+        publish ringBuffer, disruptor.Halt
 
 module internal RuntimeTopology =
     open System
