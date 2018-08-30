@@ -9,7 +9,7 @@ open Disruptor.Dsl
 module internal Types =
     type TaskId = int
 
-    type AnchoredTupleId = (struct (int64 * int64))
+    type AnchoredTupleId = (int64 * int64)
 
     and TaskMsg<'t,'msg> =
         | Start of rtt:RuntimeTopology<'t>
@@ -101,10 +101,10 @@ module internal Routing =
                 | Some d -> tuple |> d (mkIds anchors srcId)
                 | _ -> ()
 
-    let inline mkRouter tasks =
+    let inline mkRouter tasks sendMap =
         let sinks = 
             tasks 
-            |> Seq.map (fun (KeyValue(_,(_,(send,_)))) -> send)
+            |> Seq.map sendMap
             |> Seq.cache
                             
         fun cmd -> 
@@ -145,7 +145,7 @@ module internal TupleTree =
         | _ -> ()
         fun () ->
             let tupleId = nextId()
-            Anchor(struct(anchorId,tupleId)) |> toAcker
+            Anchor(anchorId,tupleId) |> toAcker
             [sprintf "%d:%d" anchorId tupleId]
 
     let anchor nextId ackers anchors _ =
@@ -158,7 +158,7 @@ module internal TupleTree =
             
             anchoredIds 
             |> List.iter (fun ((aid,enqueue),id) ->
-                Anchor(struct(aid,id)) |> enqueue)
+                Anchor(aid,id) |> enqueue)
             
             match anchoredIds with
             | [] -> [string tupleId]
@@ -167,7 +167,7 @@ module internal TupleTree =
     let mkAck toResult ackers = 
         function
         | AnchoredTuple (a,id) -> 
-            toResult struct(a,id) |> toAcker ackers a
+            toResult (a,id) |> toAcker ackers a
         | _ -> ()
 
 module internal Channel =
@@ -226,8 +226,8 @@ module internal RuntimeTopology =
     let m n = 60 * (s n)
 
 
-    let private mkAcker log (topology:Topology<'t>) = 
-        let inFlight = System.Collections.Generic.Dictionary<int64,TreeState>(100)
+    let private mkAcker log (highWater:int) (topology:Topology<'t>) = 
+        let inFlight = System.Collections.Generic.Dictionary<int64,TreeState>(highWater)
         let xor tupleId anchor =
             match inFlight.TryGetValue anchor with
             | (true,Pending(sourceId,taskId,v)) -> 
@@ -250,18 +250,20 @@ module internal RuntimeTopology =
             | Stop ->
                 log(fun _ -> "Stopping acker...")
             | Tick ->
+                log(fun _ -> sprintf "InFlight: %d" inFlight.Count)
                 cleanup()
             | Other(Track (taskId,sid,tupleId)) -> 
+                if inFlight.Count > highWater then cleanup()
                 inFlight.Add (tupleId, Pending(sid,taskId,0L))
-            | Other(Anchor (struct(anchor,tupleId))) -> 
+            | Other(Anchor (anchor,tupleId)) -> 
                 inFlight.[anchor] <- xor tupleId anchor
-            | Other(Fail (struct(anchor,tupleId))) ->
+            | Other(Fail (anchor,tupleId)) ->
                 match inFlight.TryGetValue anchor with
                 | true,Pending(sourceId,taskId,_) ->
                     Nack sourceId |> sendToSpout taskId
                     inFlight.[anchor] <- Done
                 | _ -> ()
-            | Other(Ok (struct(anchor,tupleId))) ->
+            | Other(Ok (anchor,tupleId)) ->
                 let xored = xor tupleId anchor
                 match xored with
                 | Complete(sourceId,taskId) ->
@@ -273,12 +275,12 @@ module internal RuntimeTopology =
     let private mkSystem log nextId (topology:Topology<'t>) taskId = 
         let tick bolts dstId = 
             let tuple = TupleSchema.mkTick()
-            let route = Other >> Routing.mkRouter (bolts |> Seq.where  (fun (KeyValue(_,(compId,_))) -> compId = dstId))
+            let route = Other >> Routing.mkRouter (bolts |> Seq.where  (fun (KeyValue(_,(compId,_))) -> compId = dstId)) (fun (KeyValue(_,(_,(send,_)))) -> send)
             match tuple with
             | Some t -> fun _ -> InCommand.Tuple(t, (string <| nextId()), "__system", "__tick", taskId) |> route
             | _ -> failwith "Topology schema doesn't define \"__tick\" tuple"
-        let systemTick spouts = 
-            let route = Routing.mkRouter spouts
+        let systemTick tasks sendMap = 
+            let route = Routing.mkRouter tasks sendMap
             fun _ -> route Tick
         let startTimers (rtt:RuntimeTopology<'t>) =
             topology.Bolts
@@ -292,7 +294,9 @@ module internal RuntimeTopology =
                     :> IDisposable)
             |> Seq.append
             <| seq { 
-                yield new Timer(TimerCallback(systemTick rtt.spoutTasks), (), s 30, s 30) :> IDisposable 
+                let spoutTick = systemTick rtt.spoutTasks (fun (KeyValue(_,(_,(send,_)))) -> send)
+                let ackerTick = systemTick rtt.ackerTasks (fun (KeyValue(_,(send,_))) -> send)
+                yield new Timer(TimerCallback(spoutTick >> ackerTick), (), s 30, s 30) :> IDisposable 
             }
         
         let mutable timers = [||]
@@ -331,7 +335,7 @@ module internal RuntimeTopology =
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
             | Sync -> issueNext()
-            | cmd -> failwithf "Unexpected command: %+A" cmd
+            | cmd -> failwithf "Unexpected command from a spout: %+A" cmd
 
 
         let dispatcher = runnable conf
@@ -412,8 +416,8 @@ module internal RuntimeTopology =
 
         let ackers = [| for i in 1..ackersCount -> 
                             fun taskId ->
-                                taskId,
-                                topology |> mkAcker (startLog taskId) |> Channel.start (ringSize*2) onException |]
+                                let channel = topology |> mkAcker (startLog taskId) ringSize |> Channel.start (ringSize*2) onException
+                                taskId, channel |]
         let bolts = topology.Bolts
                    |> Seq.collect (fun (KeyValue(compId,b)) -> 
                         let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable compId

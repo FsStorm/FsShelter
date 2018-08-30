@@ -59,8 +59,7 @@ let ``Hosts``() =
      
      let stop = 
          Topologies.t1 
-         |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 4
-                      Conf.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 32
+         |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 20
                       Conf.TOPOLOGY_ACKER_EXECUTORS, 2]
          |> Hosting.runWith log 
      let startedAt = DateTime.Now
@@ -93,7 +92,7 @@ let ``Several``() =
          seq {
              for i in 1..10 ->
                  Topologies.t1 
-                 |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 200
+                 |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 20
                               Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
                  |> fun t -> { t with Name = sprintf "t%d" i } 
                  |> fun t -> Hosting.runWith (log t.Name) t
