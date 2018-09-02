@@ -338,9 +338,8 @@ module internal RuntimeTopology =
             | cmd -> failwithf "Unexpected command from a spout: %+A" cmd
 
 
-        let dispatcher = runnable conf
+        let mutable dispatcher = ignore
         let mutable issueNext = ignore
-        let mutable out = ignore
         fun eob (cmd:TaskMsg<'t,InCommand<'t>>) ->
             match cmd with
             | Tick ->
@@ -348,13 +347,13 @@ module internal RuntimeTopology =
             | Start rtt -> 
                 let (_,(self,_)) = rtt.spoutTasks |> Map.find taskId
                 issueNext <- fun _ -> throttle self
-                out <- mkOutput rtt issueNext
                 log(fun _ -> sprintf "Starting %s..." compId)
-                dispatcher out InCommand.Activate
+                dispatcher <- runnable conf (mkOutput rtt issueNext)
+                dispatcher InCommand.Activate
             | Stop -> 
+                dispatcher InCommand.Deactivate
                 issueNext <- ignore
-                out <- ignore
-                dispatcher out InCommand.Deactivate
+                dispatcher <- ignore
             | Other msg ->
 #if DEBUG                
                 log(fun _ -> sprintf "< %+A" msg)
@@ -362,7 +361,7 @@ module internal RuntimeTopology =
                 match msg with
                 | Ack _ | Nack _ -> Interlocked.Decrement &pending |> ignore
                 | _ -> ()
-                dispatcher out msg
+                dispatcher msg
             if eob then issueNext()
             
     let mkBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
@@ -382,23 +381,23 @@ module internal RuntimeTopology =
             | OutCommand.Fail tid -> nack tid
             | cmd -> failwithf "Unexpected command: %+A" cmd
 
-        let dispatcher = runnable conf
-        let mutable out = ignore
+        let mutable dispatcher = ignore
 
         fun _ ->
             function
             | Start rtt ->        
                 log(fun _ -> sprintf "Starting %s..." compId)
-                out <- mkOutput rtt 
-                dispatcher out InCommand.Activate
+                dispatcher <- runnable conf (mkOutput rtt)
+                dispatcher InCommand.Activate
             | Stop ->
                 log(fun _ -> sprintf "Stopping %s..." compId)
-                dispatcher out InCommand.Deactivate
+                dispatcher InCommand.Deactivate
+                dispatcher <- ignore
             | Other msg -> 
 #if DEBUG                
                 log(fun _ -> sprintf "< %+A" msg)
 #endif
-                dispatcher out msg
+                dispatcher msg
             | cmd -> 
                 failwithf "Usupported command for a bolt: %A" cmd
 

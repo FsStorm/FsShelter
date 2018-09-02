@@ -263,7 +263,7 @@ module DSL =
     /// mkAcker: one time construction of `Ack*Nack` handlers (using the args).
     /// next: spout function that returns an id*tuple option.
     let runReliableSpout mkArgs (mkAcker:_->Acker) (next:Next<_,_*'t>) :Spout<'t> =
-        { MkComp = fun () -> FuncRef (reliableSpoutLoop mkArgs mkAcker next TupleSchema.toStreamName<'t>)
+        { MkComp = fun () -> FuncRef (reliableSpout mkArgs mkAcker next TupleSchema.toStreamName<'t>)
           Parallelism = 1u 
           Conf = Conf.empty }
 
@@ -271,7 +271,7 @@ module DSL =
     /// mkArgs: one-time construction of arguments that will be passed into each next() call.
     /// next: spout function that returns a tuple option.
     let runSpout mkArgs (next:Next<_,'t>):Spout<'t> =
-        { MkComp = fun () -> FuncRef (unreliableSpoutLoop mkArgs next TupleSchema.toStreamName<'t>)
+        { MkComp = fun () -> FuncRef (unreliableSpout mkArgs next TupleSchema.toStreamName<'t>)
           Parallelism = 1u
           Conf = Conf.empty }
 
@@ -279,7 +279,7 @@ module DSL =
     /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
     /// consume: bolt function that will receive incoming tuples.
     let runBolt mkArgs (consume:Consume<_>):Bolt<'t> =
-        { MkComp = fun (toAnchors,act,deact) -> FuncRef (autoAckBoltLoop mkArgs consume (toAnchors,act,deact) TupleSchema.toStreamName<'t>)
+        { MkComp = fun (toAnchors,act,deact) -> FuncRef (autoAckBolt mkArgs consume (toAnchors,act,deact) TupleSchema.toStreamName<'t>)
           Parallelism = 1u 
           Conf = Conf.empty
           Activate = None
@@ -289,7 +289,7 @@ module DSL =
     /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
     /// consume: bolt function that will receive incoming tuples.
     let runTerminator mkArgs (consume:Consume<_>):Bolt<'t> =
-        { MkComp = fun _ -> FuncRef (autoNackBoltLoop mkArgs consume)
+        { MkComp = fun _ -> FuncRef (autoNackBolt mkArgs consume)
           Parallelism = 1u 
           Conf = Conf.empty
           Activate = None

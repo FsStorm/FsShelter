@@ -15,9 +15,9 @@ module Topology =
     /// Signature for pluggable IO implementation
     type IO<'t> = (unit -> InCommand<'t>)*(OutCommand<'t>->unit)
     /// Commands dispatcher
-    type Dispatcher<'t> = (OutCommand<'t> -> unit) -> InCommand<'t> -> unit
+    type Dispatcher<'t> = InCommand<'t> -> unit
     /// Signature for a final runnable component
-    type Runnable<'t> = Conf -> Dispatcher<'t>
+    type Runnable<'t> = Conf -> (OutCommand<'t> -> unit) -> Dispatcher<'t>
 
     /// Storm Componend abstraction
     type Component<'t> = 

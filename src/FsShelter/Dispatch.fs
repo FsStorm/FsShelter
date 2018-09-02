@@ -1,4 +1,4 @@
-﻿/// Dispatch loops for spouts and bolts
+﻿/// Dispatch functions for spouts and bolts
 module FsShelter.Dispatch
 
 open System
@@ -7,7 +7,7 @@ open FsShelter.Multilang
 let private log out level msg = Log(msg, level) |> out
 
 /// Dispatch spout commands and handle retries
-let reliableSpoutLoop mkArgs mkAcker next getStream conf out = 
+let reliableSpout mkArgs mkAcker next getStream conf out = 
     let args = mkArgs (log out) conf
     let ack, nack = mkAcker args
     function
@@ -25,7 +25,7 @@ let reliableSpoutLoop mkArgs mkAcker next getStream conf out =
     | msg -> failwithf "Unexpected command: %A" msg
 
 /// Dispatch commands for spouts that don't provide unique ids to emitted tuples
-let unreliableSpoutLoop mkArgs next getStream conf out = 
+let unreliableSpout mkArgs next getStream conf out = 
     let args = mkArgs (log out) conf
     function
     | Next -> 
@@ -37,7 +37,7 @@ let unreliableSpoutLoop mkArgs next getStream conf out =
     | msg -> failwithf "Unexpected command: %A" msg
 
 /// Dispatch bolt commands and auto ack/nack handled messages
-let autoAckBoltLoop mkArgs consume (getAnchors,act,deact) getStream conf out = 
+let autoAckBolt mkArgs consume (getAnchors,act,deact) getStream conf out = 
     let args = mkArgs (log out) conf
     let unanchoredEmit t = Emit(t, None, [], (getStream t), None, None) |> out
     function
@@ -66,7 +66,7 @@ let autoAckBoltLoop mkArgs consume (getAnchors,act,deact) getStream conf out =
     | msg -> failwithf "Unexpected command: %A" msg
 
 /// Dispatch bolt commands and auto-nack all incoming messages
-let autoNackBoltLoop mkArgs consume conf out = 
+let autoNackBolt mkArgs consume conf out = 
     let args = mkArgs (log out) conf
     function
     | Activate | Deactivate -> () // ignore for now

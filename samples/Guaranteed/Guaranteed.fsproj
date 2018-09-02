@@ -5,7 +5,6 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TieredCompilation>true</TieredCompilation>
-    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Topology.fs" />
