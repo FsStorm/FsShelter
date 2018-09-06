@@ -12,9 +12,9 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     let topology = 
         sampleTopology
-        |> withConf [ Conf.TOPOLOGY_MULTILANG_SERIALIZER, box "com.prolucid.protoshell.ProtoSerializer"
-                      Conf.TOPOLOGY_MAX_SPOUT_PENDING, box 123
-                      Conf.TOPOLOGY_DEBUG, box false]
+        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer"
+                      TOPOLOGY_MAX_SPOUT_PENDING 123
+                      TOPOLOGY_DEBUG false]
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 

@@ -309,7 +309,7 @@ module DSL =
 
     /// supply component configuration/overrides
     let inline withConf conf (spec:^s) =
-        (^s : (static member WithConf : ^s*Conf -> ^s) (spec, conf |> Seq.map (fun (k,v)->(k,box v)) |> Map.ofSeq))
+        (^s : (static member WithConf : ^s*Conf -> ^s) (spec, conf |> Conf.ofList ))
 
     /// supply component Activation tuple
     let inline withActivation tuple (spec:^s) =

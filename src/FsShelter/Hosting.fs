@@ -286,7 +286,7 @@ module internal RuntimeTopology =
             topology.Bolts
             |> Seq.choose (fun (KeyValue(compId,b)) -> 
                     b.Conf 
-                    |> Conf.option Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS 
+                    |> Conf.option ConfOption.TOPOLOGY_TICK_TUPLE_FREQ_SECS 
                     |> Option.map (fun tf -> compId, tf))
             |> Seq.map (fun (compId,timeout) -> 
                     log(fun _ -> sprintf "Starting timer with timeout %ds for: %s" timeout compId)
@@ -321,8 +321,10 @@ module internal RuntimeTopology =
         let conf = comp.Conf |> Map.join topology.Conf
         let maxPending = comp.Conf 
                        |> Map.join topology.Conf 
-                       |> Conf.option Conf.TOPOLOGY_MAX_SPOUT_PENDING
+                       |> Conf.option TOPOLOGY_MAX_SPOUT_PENDING
         let throttle = maxPending |> Option.map throttled |> Option.defaultValue unthrottled
+        let debug = topology.Conf |> Conf.optionOrDefault TOPOLOGY_DEBUG
+        let none = []
 
         let mkOutput rtt issueNext =
             let ackers = rtt.ackerTasks |> Map.toArray
@@ -330,13 +332,14 @@ module internal RuntimeTopology =
             let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
             function
             | Emit (t,tupleId,_,stream,dstId,needIds) -> 
-                emit ([],tupleId,t,compId,stream,dstId)
+                let tuple = (none,tupleId,t,compId,stream,dstId)
+                emit tuple 
+                if debug then log(fun _ -> sprintf "> %+A" tuple)
                 Interlocked.Increment &pending |> ignore
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
             | Sync -> issueNext()
             | cmd -> failwithf "Unexpected command from a spout: %+A" cmd
-
 
         let mutable dispatcher = ignore
         let mutable issueNext = ignore
@@ -355,9 +358,7 @@ module internal RuntimeTopology =
                 issueNext <- ignore
                 dispatcher <- ignore
             | Other msg ->
-#if DEBUG                
-                log(fun _ -> sprintf "< %+A" msg)
-#endif
+                if debug then log(fun _ -> sprintf "< %+A" msg)
                 match msg with
                 | Ack _ | Nack _ -> Interlocked.Decrement &pending |> ignore
                 | _ -> ()
@@ -366,6 +367,7 @@ module internal RuntimeTopology =
             
     let mkBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
         let conf = comp.Conf |> Map.join topology.Conf
+        let debug = topology.Conf |> Conf.optionOrDefault ConfOption.TOPOLOGY_DEBUG
 
         let mkOutput (rtt:RuntimeTopology<'t>) =
             let ackers = rtt.ackerTasks |> Map.toArray
@@ -374,7 +376,10 @@ module internal RuntimeTopology =
             let ack = TupleTree.mkAck Ok ackers
             let nack = TupleTree.mkAck Fail ackers
             function
-            | Emit (t,tupleId,anchors,stream,dstId,needIds) -> emit (anchors,tupleId,t,compId,stream,dstId)
+            | Emit (t,tupleId,anchors,stream,dstId,needIds) -> 
+                let tuple = (anchors,tupleId,t,compId,stream,dstId)
+                emit tuple
+                if debug then log(fun _ -> sprintf "> %+A" tuple)
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
             | OutCommand.Ok tid -> ack tid
@@ -394,9 +399,8 @@ module internal RuntimeTopology =
                 dispatcher InCommand.Deactivate
                 dispatcher <- ignore
             | Other msg -> 
-#if DEBUG                
-                log(fun _ -> sprintf "< %+A" msg)
-#endif
+                if debug then                
+                    log(fun _ -> sprintf "< %+A" msg)
                 dispatcher msg
             | cmd -> 
                 failwithf "Usupported command for a bolt: %A" cmd
@@ -404,8 +408,8 @@ module internal RuntimeTopology =
     let ofTopology startLog onException (topology:Topology<'t>) : RuntimeTopology<'t> =
         let anchorOfStream = topology.Anchors.TryFind >> Option.defaultValue (fun _ -> [])
         let raiseNotRunnable compId = failwithf "%s: Only native FsShelter components can be hosted" compId
-        let ackersCount = topology.Conf |> Conf.optionOrDefault Conf.TOPOLOGY_ACKER_EXECUTORS
-        let ringSize = topology.Conf |> Conf.optionOrDefault Conf.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
+        let ackersCount = topology.Conf |> Conf.optionOrDefault ConfOption.TOPOLOGY_ACKER_EXECUTORS
+        let ringSize = topology.Conf |> Conf.optionOrDefault ConfOption.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
         let nextTaskId =
             let s = (Seq.initInfinite id).GetEnumerator()
             fun _ -> s.MoveNext() |> ignore; s.Current

@@ -33,6 +33,7 @@ module Topologies =
         | _ -> () //log (sprintf "tuple: %A" t)
 
     let world = {rnd = Random(); count = ref 0L; acked = ref 0L}
+    
     let t1 = topology "test" {
         let s1 = numbers
                  |> runReliableSpout (fun log _ -> world ) (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
@@ -59,8 +60,8 @@ let ``Hosts``() =
      
      let stop = 
          Topologies.t1 
-         |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 20
-                      Conf.TOPOLOGY_ACKER_EXECUTORS, 2]
+         |> withConf [ConfOption.TOPOLOGY_MAX_SPOUT_PENDING 20
+                      ConfOption.TOPOLOGY_ACKER_EXECUTORS 2]
          |> Hosting.runWith log 
      let startedAt = DateTime.Now
      let proc = System.Diagnostics.Process.GetCurrentProcess()
@@ -92,8 +93,8 @@ let ``Several``() =
          seq {
              for i in 1..10 ->
                  Topologies.t1 
-                 |> withConf [Conf.TOPOLOGY_MAX_SPOUT_PENDING, 20
-                              Conf.TOPOLOGY_ACKER_EXECUTORS, 4]
+                 |> withConf [ConfOption.TOPOLOGY_MAX_SPOUT_PENDING 20
+                              ConfOption.TOPOLOGY_ACKER_EXECUTORS 4]
                  |> fun t -> { t with Name = sprintf "t%d" i } 
                  |> fun t -> Hosting.runWith (log t.Name) t
          } |> Seq.toArray
