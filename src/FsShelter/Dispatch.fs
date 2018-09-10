@@ -7,34 +7,61 @@ open FsShelter.Multilang
 let private log out level msg = Log(msg, level) |> out
 
 /// Dispatch spout commands and handle retries
-let reliableSpout mkArgs mkAcker next getStream conf out = 
-    let args = mkArgs (log out) conf
-    let ack, nack = mkAcker args
-    function
-    | Next -> 
-        next args
-        |> Option.iter (fun (tid, tuple) -> Emit(tuple, Some tid, [], (getStream tuple), None, None) |> out)
-    | Ack tid -> 
-        ack tid
+let reliableSpout mkArgs mkAcker deactivate next getStream conf out = 
+    let mutable current = ignore
+    let rec inactive msg =
+        match msg with
+        | Activate ->
+            current <- 
+                let args = mkArgs (log out) conf
+                let ack, nack = mkAcker args
+                function
+                | Next -> 
+                    next args
+                    |> Option.iter (fun (tid, tuple) -> Emit(tuple, Some tid, [], (getStream tuple), None, None) |> out)
+                | Ack tid -> 
+                    ack tid
+                | Nack tid ->
+                    nack tid
+                | Activate ->
+                    log out LogLevel.Error ("Already active")
+                | Deactivate ->
+                    deactivate args
+                    current <- inactive
+                | msg -> failwithf "Unexpected command: %+A" msg
+        | msg ->
+            log out LogLevel.Error (sprintf "Unsupported command for an inactive spout: %+A" msg)
+    current <- inactive        
+    fun msg ->
+        current msg
         Sync |> out
-    | Nack tid ->
-        nack tid
-        Sync |> out
-    | Activate | Deactivate -> // ignore for now
-        Sync |> out
-    | msg -> failwithf "Unexpected command: %A" msg
 
 /// Dispatch commands for spouts that don't provide unique ids to emitted tuples
-let unreliableSpout mkArgs next getStream conf out = 
-    let args = mkArgs (log out) conf
-    function
-    | Next -> 
-        next args
-        |> Option.iter (fun tuple -> Emit(tuple, None, [], (getStream tuple), None, None) |> out)
-    | Ack _ | Nack _ 
-    | Activate | Deactivate -> // ignore for now
+let unreliableSpout mkArgs deactivate next getStream conf out = 
+    let mutable current = ignore
+    let rec inactive msg =
+        match msg with
+        | Activate ->
+            current <- 
+                let args = mkArgs (log out) conf
+                function
+                | Next -> 
+                    next args
+                    |> Option.iter (fun tuple -> Emit(tuple, None, [], (getStream tuple), None, None) |> out)
+                | Ack _ | Nack _ ->
+                    ()
+                | Activate ->
+                    log out LogLevel.Error ("Already active")
+                | Deactivate ->
+                    deactivate args
+                    current <- inactive
+                | msg -> failwithf "Unexpected command: %+A" msg
+        | msg ->
+            log out LogLevel.Error (sprintf "Unsupported command for an inactive spout: %+A" msg)
+    current <- inactive        
+    fun msg ->
+        current msg
         Sync |> out
-    | msg -> failwithf "Unexpected command: %A" msg
 
 /// Dispatch bolt commands and auto ack/nack handled messages
 let autoAckBolt mkArgs consume (getAnchors,act,deact) getStream conf out = 

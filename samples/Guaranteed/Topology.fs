@@ -73,7 +73,8 @@ open FsShelter.DSL
 let sampleTopology = topology "Guaranteed" {
     let s1 = numbers
              |> runReliableSpout (fun log cfg () -> source.PostAndReply Get)  // ignoring logging and cfg available
-                                 (fun _ -> Ack >> source.Post, Nack >> source.Post)
+                                 (fun _ -> Ack >> source.Post, Nack >> source.Post) 
+                                 ignore
     let b1 = addOne
              |> runBolt (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
              |> withParallelism 2

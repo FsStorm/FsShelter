@@ -1,4 +1,4 @@
-#### 2.0.0-beta-2 - Aug 2018
+#### 2.0.0-beta-3 - Aug 2018
 * sync dispatch and disruptor-based self-hosting
 
 #### 1.0.2 - Apr 2018

@@ -57,7 +57,7 @@ open FsShelter.DSL
 let sampleTopology = 
     topology "WordCount" { 
         let sentencesSpout = 
-            sentences |> runSpout (fun log cfg -> source)        // make arguments: ignoring Storm logging and cfg, passing our source function
+            sentences |> runSpout (fun log cfg -> source) ignore // make arguments: ignoring Storm logging and cfg, passing our source function
         
         let splitBolt = 
             splitIntoWords

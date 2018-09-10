@@ -118,7 +118,7 @@ module internal Routing =
 
 module internal TupleTree = 
     open System
-
+    
     let seed = ref (int DateTime.Now.Ticks)
     let mkIdGenerator() =
         let rnd = Random(Threading.Interlocked.Increment &seed.contents)
@@ -222,9 +222,10 @@ module internal Channel =
 module internal RuntimeTopology =
     open System
     open System.Threading
+    open System.Diagnostics
+
     let s n = 1000 * n
     let m n = 60 * (s n)
-
 
     let private mkAcker log (highWater:int) (topology:Topology<'t>) = 
         let inFlight = System.Collections.Generic.Dictionary<int64,TreeState>(highWater)
@@ -237,10 +238,11 @@ module internal RuntimeTopology =
         
         let cleanup () =
             inFlight 
-            |> Seq.filter (function KeyValue(anchor,Done) -> true | _ -> false) 
+            |> Seq.filter (function KeyValue(_,Done) -> true | _ -> false) 
             |> Array.ofSeq 
             |> Array.iter (fun (KeyValue(anchor,_))-> inFlight.Remove anchor |> ignore)
 
+        let trace = if topology.Conf |> Conf.optionOrDefault TOPOLOGY_DEBUG then log else ignore
         let mutable sendToSpout = fun _ -> failwith "The acker is not started."
         fun _ cmd ->
             match cmd with
@@ -250,7 +252,7 @@ module internal RuntimeTopology =
             | Stop ->
                 log(fun _ -> "Stopping acker...")
             | Tick ->
-                log(fun _ -> sprintf "InFlight: %d" inFlight.Count)
+                trace (fun _ -> sprintf "InFlight: %d" inFlight.Count)
                 cleanup()
             | Other(Track (taskId,sid,tupleId)) -> 
                 if inFlight.Count > highWater then cleanup()
@@ -319,11 +321,12 @@ module internal RuntimeTopology =
                 next |> self
         let inline unthrottled self = next |> self
         let conf = comp.Conf |> Map.join topology.Conf
+        let debug = conf |> Conf.optionOrDefault TOPOLOGY_DEBUG 
         let maxPending = comp.Conf 
                        |> Map.join topology.Conf 
                        |> Conf.option TOPOLOGY_MAX_SPOUT_PENDING
         let throttle = maxPending |> Option.map throttled |> Option.defaultValue unthrottled
-        let debug = topology.Conf |> Conf.optionOrDefault TOPOLOGY_DEBUG
+        let trace = if debug then log else ignore
         let none = []
 
         let mkOutput rtt issueNext =
@@ -334,7 +337,7 @@ module internal RuntimeTopology =
             | Emit (t,tupleId,_,stream,dstId,needIds) -> 
                 let tuple = (none,tupleId,t,compId,stream,dstId)
                 emit tuple 
-                if debug then log(fun _ -> sprintf "> %+A" tuple)
+                trace (fun _ -> sprintf "> %+A" tuple)
                 Interlocked.Increment &pending |> ignore
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
@@ -351,14 +354,22 @@ module internal RuntimeTopology =
                 let (_,(self,_)) = rtt.spoutTasks |> Map.find taskId
                 issueNext <- fun _ -> throttle self
                 log(fun _ -> sprintf "Starting %s..." compId)
-                dispatcher <- runnable conf (mkOutput rtt issueNext)
+                let dispatch = runnable conf (mkOutput rtt issueNext)
+                if debug then
+                    dispatcher <- (fun msg ->
+                        let sw = Stopwatch.StartNew()
+                        dispatch msg
+                        sw.Stop()
+                        log(fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds))
+                else                
+                    dispatcher <- dispatch
                 dispatcher InCommand.Activate
             | Stop -> 
                 dispatcher InCommand.Deactivate
                 issueNext <- ignore
                 dispatcher <- ignore
             | Other msg ->
-                if debug then log(fun _ -> sprintf "< %+A" msg)
+                trace (fun _ -> sprintf "< %+A" msg)
                 match msg with
                 | Ack _ | Nack _ -> Interlocked.Decrement &pending |> ignore
                 | _ -> ()
@@ -367,7 +378,8 @@ module internal RuntimeTopology =
             
     let mkBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
         let conf = comp.Conf |> Map.join topology.Conf
-        let debug = topology.Conf |> Conf.optionOrDefault ConfOption.TOPOLOGY_DEBUG
+        let debug = conf |> Conf.optionOrDefault TOPOLOGY_DEBUG
+        let trace = if debug then log else ignore
 
         let mkOutput (rtt:RuntimeTopology<'t>) =
             let ackers = rtt.ackerTasks |> Map.toArray
@@ -379,7 +391,7 @@ module internal RuntimeTopology =
             | Emit (t,tupleId,anchors,stream,dstId,needIds) -> 
                 let tuple = (anchors,tupleId,t,compId,stream,dstId)
                 emit tuple
-                if debug then log(fun _ -> sprintf "> %+A" tuple)
+                trace (fun _ -> sprintf "> %+A" tuple)
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
             | OutCommand.Ok tid -> ack tid
@@ -392,15 +404,22 @@ module internal RuntimeTopology =
             function
             | Start rtt ->        
                 log(fun _ -> sprintf "Starting %s..." compId)
-                dispatcher <- runnable conf (mkOutput rtt)
+                let dispatch = runnable conf (mkOutput rtt)
+                if debug then
+                    dispatcher <- (fun msg ->
+                        let sw = Stopwatch.StartNew()
+                        dispatch msg
+                        sw.Stop()
+                        log(fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds))
+                else                
+                    dispatcher <- dispatch
                 dispatcher InCommand.Activate
             | Stop ->
                 log(fun _ -> sprintf "Stopping %s..." compId)
                 dispatcher InCommand.Deactivate
                 dispatcher <- ignore
             | Other msg -> 
-                if debug then                
-                    log(fun _ -> sprintf "< %+A" msg)
+                trace (fun _ -> sprintf "< %+A" msg)
                 dispatcher msg
             | cmd -> 
                 failwithf "Usupported command for a bolt: %A" cmd
@@ -472,6 +491,7 @@ let runWith (startLog:int->Log) (topology:Topology<'t>) =
         rtt.boltTasks |> Map.iter (fun _ (_,(_,shutdown)) -> shutdown())
         rtt.ackerTasks |> Map.iter (fun _ (_,shutdown) -> shutdown())
 
+    let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
     let mutable rtt = None
     let rec restart (ex:exn) =
         log(fun _ -> sprintf "Error running the topology: %A,\n restarting..." ex) 
@@ -480,13 +500,14 @@ let runWith (startLog:int->Log) (topology:Topology<'t>) =
     and start () =
         rtt <- Some (topology |> RuntimeTopology.ofTopology startLog restart)
         log(fun _ -> sprintf "Hosting the topology: %s {%s},\n with configuration: %A" topology.Name (describe rtt.Value) topology.Conf)
-        System.Threading.Thread.Sleep 1000 //TODO: Read a Conf option
+        System.Threading.Thread.Sleep (1000*timeout)
         activate rtt.Value
     and stopAndShutdown () =
         match rtt with
         | Some rtt ->
+            log(fun _ -> sprintf "Stopping topology: %s..." topology.Name) 
             stop rtt
-            System.Threading.Thread.Sleep 1000 //TODO: Read a Conf option
+            System.Threading.Thread.Sleep (1000*timeout)
             shutdown rtt
         | _ -> ()
 

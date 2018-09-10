@@ -30,8 +30,8 @@ let main argv =
     | ["self-host"] ->
         let stop = 
             topology
-//            |> Hosting.runWith (sprintf "self-%d-%d" (System.Diagnostics.Process.GetCurrentProcess().Id) >> Logging.callbackLog)
             |> Hosting.run
+        //    |> Hosting.runWith (sprintf "self-%d-%d" (System.Diagnostics.Process.GetCurrentProcess().Id) >> Logging.callbackLog)
         let log = Logging.asyncLog "hosting.log"
         printf "Running the topology, press ENTER to stop..."
         let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -45,6 +45,6 @@ let main argv =
         topology
         |> Task.ofTopology
         |> Task.run ProtoIO.start
-//        |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // start using a traffic logger 
+        // |> Task.runWith (string >> Logging.callbackLog)  ProtoIO.start // start using a traffic logger 
     0
 

@@ -29,7 +29,7 @@ module Topology =
     type Spout<'t> = {
         MkComp : unit -> Component<'t>
         Parallelism : uint32
-        Conf : Conf 
+        Conf : Conf
     } with static member WithConf (s,conf) = {s with Conf = conf}
            static member WithParallelism (s,p) = {s with Parallelism = p}
 

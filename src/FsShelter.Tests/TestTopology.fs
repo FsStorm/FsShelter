@@ -53,7 +53,7 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let t1 = topology "test" {
     let s1 = numbers
-             |> runReliableSpout (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore)
+             |> runReliableSpout (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
     let b1 = split
              |> runBolt (fun _ _ t emit -> (t,emit))
              |> withParallelism 2

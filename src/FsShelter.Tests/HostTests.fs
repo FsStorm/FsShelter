@@ -36,7 +36,9 @@ module Topologies =
     
     let t1 = topology "test" {
         let s1 = numbers
-                 |> runReliableSpout (fun log _ -> world ) (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                 |> runReliableSpout (fun log _ -> world )
+                                     (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                                     ignore                                    
         let b1 = split
                  |> runBolt (fun log _ t emit -> (t,emit))
                  |> withParallelism 2

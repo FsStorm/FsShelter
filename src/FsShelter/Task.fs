@@ -5,6 +5,7 @@ open System.IO
 open FsShelter.Multilang
 open FsShelter.Topology
 open System
+open System.Diagnostics
 
 /// Logger signature    
 type Log = (unit -> string) -> unit
@@ -58,9 +59,18 @@ let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) =
             | _ -> failwithf "Expected handshake, got: %A" msg
         log(fun _ -> sprintf "running %s..." compId)
         let dispatch = task compId cfg out
+        let timedDispatch = 
+            if cfg |> Conf.optionOrDefault TOPOLOGY_DEBUG then
+                fun msg ->
+                    let sw = Stopwatch.StartNew()
+                    dispatch msg
+                    sw.Stop()
+                    log(fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds)
+            else dispatch                        
+
         while true do
             let msg = in'()
-            dispatch msg
+            timedDispatch msg
     with ex -> 
         let msg = Exception.toString ex
         log (fun _ -> msg)
