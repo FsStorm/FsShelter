@@ -11,8 +11,9 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     let topology = 
         sampleTopology
-        |> withConf [ ConfOption.TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
-                      ConfOption.TOPOLOGY_DEBUG false] // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
+        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
+                      TOPOLOGY_MAX_SPOUT_PENDING 123
+                      TOPOLOGY_DEBUG false] // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 

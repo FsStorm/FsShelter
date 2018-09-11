@@ -9,7 +9,15 @@ type Schema =
     | WordCount of string*int64
 
 // sentences spout - feeds messages into the topology
-let sentences source = source() |> Sentence |> Some
+let sentences source = 
+    let sentence = source()
+    Some(Sentence sentence)
+
+// "reliable" sentences spout - gives the tuple an ID, 
+// so that it could be replayed in case of downstream failure
+let reliableSentences source = 
+    let sentence = source()
+    Some(sentence, Sentence sentence) // we'll just pretend we've generated a unique Id
 
 // split bolt - consumes sentences and emits words
 let splitIntoWords (input, emit) = 
@@ -57,26 +65,62 @@ open FsShelter.DSL
 let sampleTopology = 
     topology "WordCount" { 
         let sentencesSpout = 
-            sentences |> runSpout (fun log cfg -> source) ignore // make arguments: ignoring Storm logging and cfg, passing our source function
+            sentences
+            |> Spout.runUnreliable (fun log cfg -> source)  // make arguments: ignoring Storm logging and cfg, passing our source function
+                                   ignore                   // no deactivation
+            |> withParallelism 4
         
         let splitBolt = 
             splitIntoWords
-            |> runBolt (fun log cfg tuple emit -> (tuple, emit)) // make arguments: pass incoming tuple and emit function
-            |> withParallelism 2
+            |> Bolt.run (fun log cfg tuple emit -> (tuple, emit)) // make arguments: pass incoming tuple and emit function
+            |> withParallelism 4
         
         let countBolt = 
             countWords
-            |> runBolt (fun log cfg tuple emit -> (tuple, increment, emit))
-            |> withParallelism 2
+            |> Bolt.run (fun log cfg tuple emit -> (tuple, increment, emit))
+            |> withParallelism 4
         
         let logBolt = 
             logResult
-            |> runBolt (fun log cfg ->                           // make arguments: pass PID-log and incoming tuple 
+            |> Bolt.run (fun log cfg ->                           // make arguments: pass PID-log and incoming tuple 
                             let mylog = Common.Logging.asyncLog (Diagnostics.Process.GetCurrentProcess().Id.ToString()+"_count")
                             fun tuple emit -> (mylog, tuple))
             |> withParallelism 2
         
         yield sentencesSpout --> splitBolt |> Shuffle.on Sentence               // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
         yield splitBolt --> countBolt |> Group.by (function Word w -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
+        yield countBolt --> logBolt |> Group.by (function WordCount (w,_) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
+    }
+
+
+//define the storm topology
+let reliableTopology = 
+    topology "ReliableWordCount" { 
+        let sentencesSpout = 
+            reliableSentences 
+            |> Spout.runReliable (fun log cfg -> source)  // make arguments: ignoring Storm logging and cfg, passing our source function
+                                 (fun _ -> ignore,ignore) // make ack/nack handlers: ignoring
+                                 ignore                   // no deactivation
+            |> withParallelism 4
+        
+        let splitBolt = 
+            splitIntoWords
+            |> Bolt.run (fun log cfg tuple emit -> (tuple, emit)) // make arguments: pass incoming tuple and emit function
+            |> withParallelism 4
+        
+        let countBolt = 
+            countWords
+            |> Bolt.run (fun log cfg tuple emit -> (tuple, increment, emit))
+            |> withParallelism 4
+        
+        let logBolt = 
+            logResult
+            |> Bolt.run (fun log cfg ->                           // make arguments: pass PID-log and incoming tuple 
+                            let mylog = Common.Logging.asyncLog (Diagnostics.Process.GetCurrentProcess().Id.ToString()+"_count")
+                            fun tuple emit -> (mylog, tuple))
+            |> withParallelism 2
+        
+        yield sentencesSpout ==> splitBolt |> Shuffle.on Sentence               // emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances
+        yield splitBolt ==> countBolt |> Group.by (function Word w -> w)        // emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)
         yield countBolt --> logBolt |> Group.by (function WordCount (w,_) -> w) // emit from countBolt into logBolt on WordCount stream, group by word value
     }

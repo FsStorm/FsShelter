@@ -53,12 +53,12 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let t1 = topology "test" {
     let s1 = numbers
-             |> runReliableSpout (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
+             |> Spout.runReliable (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
     let b1 = split
-             |> runBolt (fun _ _ t emit -> (t,emit))
+             |> Bolt.run (fun _ _ t emit -> (t,emit))
              |> withParallelism 2
     let b2 = resultBolt
-             |> runBolt (fun _ _ t _ -> ignore,t)
+             |> Bolt.run (fun _ _ t _ -> ignore,t)
     yield s1 ==> b1 |> Shuffle.on Original
     yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x)) 
     yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
@@ -66,10 +66,10 @@ let t1 = topology "test" {
 
 let t2 = topology "test2" {
     let s2 = shell "cmd" ""
-             |> asSpout<Schema>
+             |> Spout.ofExternal<Schema>
              |> withConf [ConfOption.TOPOLOGY_MAX_SPOUT_PENDING 1]
     let b3 = java "class" ["args"]
-             |> asBolt<Schema>
+             |> Bolt.ofExternal<Schema>
              |> withConf []
     yield s2 --> b3 |> All.on Nested
     yield s2 --> b3 |> All.on JustFields
@@ -77,13 +77,13 @@ let t2 = topology "test2" {
 
 let t3 = topology "test3" {
     let s1 = shell "cmd" ""
-             |> asSpout<Schema>
+             |> Spout.ofExternal<Schema>
              |> withConf []
     let b1 = java "class" ["args"]
-             |> asBolt<Schema>
+             |> Bolt.ofExternal<Schema>
              |> withConf []
     let b2 = java "class" ["args"]
-             |> asBolt<Schema>
+             |> Bolt.ofExternal<Schema>
              |> withConf []
     yield s1 --> b1 |> Shuffle.on Original
     yield s1 --> b2 |> Shuffle.on Original
@@ -95,16 +95,16 @@ type GenericSchema<'a> =
 
 let t4 = topology "test4" {
     let s1 = shell "cmd" ""
-             |> asSpout<GenericSchema<Schema>>
+             |> Spout.ofExternal<GenericSchema<Schema>>
              |> withConf []
     let b1 = java "class" ["args"]
-             |> asBolt<GenericSchema<Schema>>
+             |> Bolt.ofExternal<GenericSchema<Schema>>
              |> withConf []
     let b2 = java "class" ["args"]
-             |> asBolt<GenericSchema<Schema>>
+             |> Bolt.ofExternal<GenericSchema<Schema>>
              |> withConf []
     let b3 = java "class" ["args"]
-             |> asBolt<GenericSchema<Schema>>
+             |> Bolt.ofExternal<GenericSchema<Schema>>
              |> withConf []
     yield s1 --> b1 |> Shuffle.on Outer
     yield s1 --> b2 |> Shuffle.on (Inner << Original)
@@ -117,16 +117,16 @@ type GenericNestedSchema<'a> =
 
 let t5 = topology "test5" {
     let s1 = shell "cmd" ""
-             |> asSpout<GenericNestedSchema<Schema>>
+             |> Spout.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     let b1 = java "class" ["args"]
-             |> asBolt<GenericNestedSchema<Schema>>
+             |> Bolt.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     let b2 = java "class" ["args"]
-             |> asBolt<GenericNestedSchema<Schema>>
+             |> Bolt.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     let b3 = java "class" ["args"]
-             |> asBolt<GenericNestedSchema<Schema>>
+             |> Bolt.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     yield s1 --> b1 |> Shuffle.on Outer
     yield s1 --> b2 |> Shuffle.on (Inner << Original)
@@ -135,13 +135,13 @@ let t5 = topology "test5" {
 
 let t6 = topology "test6" {
     let s1 = shell "cmd" ""
-             |> asSpout<GenericNestedSchema<Schema>>
+             |> Spout.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     let b1 = java "class" ["args"]
-             |> asBolt<GenericNestedSchema<Schema>>
+             |> Bolt.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     let b2 = java "class" ["args"]
-             |> asBolt<GenericNestedSchema<Schema>>
+             |> Bolt.ofExternal<GenericNestedSchema<Schema>>
              |> withConf []
     yield s1 --> b1 |> Shuffle.on Outer
     yield s1 --> b2 |> Group.by (function Inner(Original n) -> n)

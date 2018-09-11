@@ -72,21 +72,21 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let sampleTopology = topology "Guaranteed" {
     let s1 = numbers
-             |> runReliableSpout (fun log cfg () -> source.PostAndReply Get)  // ignoring logging and cfg available
+             |> Spout.runReliable (fun log cfg () -> source.PostAndReply Get)  // ignoring logging and cfg available
                                  (fun _ -> Ack >> source.Post, Nack >> source.Post) 
-                                 ignore
+                                 ignore // no deactivation
     let b1 = addOne
-             |> runBolt (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
+             |> Bolt.run (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
              |> withParallelism 2
     
     let b2 = logResult
-             |> runBolt (fun log cfg ->
+             |> Bolt.run (fun log cfg ->
                             let mylog = Common.Logging.asyncLog ("odd")
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     let b3 = logResult
-             |> runBolt (fun log cfg -> 
+             |> Bolt.run (fun log cfg -> 
                             let mylog = Common.Logging.asyncLog ("even") 
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1

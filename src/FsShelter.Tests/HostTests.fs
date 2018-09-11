@@ -36,14 +36,14 @@ module Topologies =
     
     let t1 = topology "test" {
         let s1 = numbers
-                 |> runReliableSpout (fun log _ -> world )
+                 |> Spout.runReliable (fun log _ -> world )
                                      (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
                                      ignore                                    
         let b1 = split
-                 |> runBolt (fun log _ t emit -> (t,emit))
+                 |> Bolt.run (fun log _ t emit -> (t,emit))
                  |> withParallelism 2
         let b2 = printBolt
-                 |> runBolt (fun log _ t _ -> (log LogLevel.Info),t)
+                 |> Bolt.run (fun log _ t _ -> (log LogLevel.Info),t)
                  |> withActivation (Original {x=1})
                  |> withDeactivation (MaybeString None)
                  //|> withConf [Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1]

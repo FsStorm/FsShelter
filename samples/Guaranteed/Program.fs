@@ -13,6 +13,7 @@ let main argv =
     let topology = 
         sampleTopology
         |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer"
+                      TOPOLOGY_ACKER_EXECUTORS 2
                       TOPOLOGY_MAX_SPOUT_PENDING 123
                       TOPOLOGY_DEBUG false]
 
