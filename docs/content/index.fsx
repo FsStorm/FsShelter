@@ -119,10 +119,10 @@ Bolts can get a tuple on any number of streams, and so we pattern match:
 
 // add 1 bolt - consumes and emits messages to Incremented stream
 let addOne (input, emit) = 
-        match input with
-        | BasicSchema.Original(x) -> Incremented(x + 1)
-        | _ -> failwithf "unexpected input: %A" input
-        |> emit
+    match input with
+    | BasicSchema.Original(x) -> Incremented(x + 1)
+    | _ -> failwithf "unexpected input: %A" input
+    |> emit
 
 (**
 The bolt can also emit at any time, and we can hold on to the passed-in `emit` function (with caveats).
@@ -169,8 +169,8 @@ let sampleTopology =
             |> Bolt.run (fun log cfg tuple emit -> ((log LogLevel.Info), tuple)) // example of passing Info-level Storm logger into the bolt
             |> withParallelism 2
         
-        yield s1 --> b1 |> shuffle.on BasicSchema.Original // emit from s1 to b1 on Original stream
-        yield b1 --> b2 |> shuffle.on Incremented // emit from b1 to b2 on Incremented stream
+        yield s1 --> b1 |> Shuffle.on BasicSchema.Original // emit from s1 to b1 on Original stream
+        yield b1 --> b2 |> Shuffle.on Incremented // emit from b1 to b2 on Incremented stream
     }
 
 (**
