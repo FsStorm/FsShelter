@@ -10,10 +10,10 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 [<EntryPoint>]
 let main argv = 
     let topology = 
-        sampleTopology
-        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (has to be in Storm's classpath)
+        reliableTopology // | unreliableTopology
+        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (`Startup.submit` will try to include it for deployment)
                       TOPOLOGY_MAX_SPOUT_PENDING 123
-                      TOPOLOGY_DEBUG false] // setting topology.debug true tells Storm to log messages to and from this component in its worker logs
+                      TOPOLOGY_DEBUG false] // setting topology.debug true tells FsShelter and Storm to log messages to and from this component in respective logs
 
     match argv |> List.ofArray with
     | "submit"::address::[port] -> 

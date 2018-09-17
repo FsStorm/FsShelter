@@ -24,31 +24,25 @@ type Schema =
 
 // numbers spout - produces messages
 let numbers source =
-    async { 
-        let! (tupleId,number) = source()
-        return Some(tupleId, Original (number)) 
-    }
+    let (tupleId,number) = source()
+    Some(tupleId, Original (number)) 
 
 // add 1 bolt - consumes and emits messages to either Even or Odd stream
 let addOne (input,emit) =
-    async { 
-        match input with
-        | Original x -> 
-            match x % 2 with
-            | 1 -> Even (x+1)
-            | _ -> Odd (x+1)
-        | _ -> failwithf "unexpected input: %A" input
-        |> emit
-    }
+    match input with
+    | Original x -> 
+        match x % 2 with
+        | 1 -> Even (x+1)
+        | _ -> Odd (x+1)
+    | _ -> failwithf "unexpected input: %A" input
+    |> emit
 
 // terminating bolt - consumes messages
 let logResult (info,input) =
-    async { 
-        match input with
-        | Even x
-        | Odd x -> info (sprintf "Got: %A" input)
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | Even x
+    | Odd x -> info (sprintf "Got: %A" input)
+    | _ -> failwithf "unexpected input: %A" input
 
 (**
 Here we mimic an external source and implement all three possible cases: produce a new message, retry a failed one (indefinetely) and ack a successfully processed.
@@ -105,20 +99,21 @@ open FsShelter.DSL
 #nowarn "25" // for stream matching expressions
 let sampleTopology = topology "Guaranteed" {
     let s1 = numbers
-             |> runReliableSpout (fun log cfg () -> source.PostAndAsyncReply Get)  // ignoring logging and cfg available
-                                 (fun _ -> Ack >> source.Post, Nack >> source.Post)
+             |> Spout.runReliable (fun log cfg () -> source.PostAndReply Get)  // ignoring logging and cfg available
+                                  (fun _ -> Ack >> source.Post, Nack >> source.Post)
+                                  ignore                                       // no deactivation
     let b1 = addOne
-             |> runBolt (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
+             |> Bolt.run (fun log cfg tuple emit -> (tuple,emit)) // pass incoming tuple and emit function
              |> withParallelism 2
     
     let b2 = logResult
-             |> runBolt (fun log cfg ->
+             |> Bolt.run (fun log cfg ->
                             let mylog = Common.Logging.asyncLog ("odd.log")
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     let b3 = logResult
-             |> runBolt (fun log cfg -> 
+             |> Bolt.run (fun log cfg -> 
                             let mylog = Common.Logging.asyncLog ("even.log") 
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1

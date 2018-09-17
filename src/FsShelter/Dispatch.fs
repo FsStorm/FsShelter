@@ -6,7 +6,7 @@ open FsShelter.Multilang
 
 let private log out level msg = Log(msg, level) |> out
 
-/// Dispatch spout commands and handle retries
+/// Dispatch spout commands and handle acknowledgements
 let reliableSpout mkArgs mkAcker deactivate next getStream conf out = 
     let mutable current = ignore
     let rec inactive msg =

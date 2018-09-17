@@ -62,7 +62,7 @@ open FsShelter.DSL
 #nowarn "25" // for stream grouping expressions
 
 //define the storm topology
-let sampleTopology = 
+let unreliableTopology = 
     topology "WordCount" { 
         let sentencesSpout = 
             sentences

@@ -4,6 +4,7 @@ open FsShelter.Topology
 open FsShelter.Task
 open FsShelter.Multilang
 open Disruptor.Dsl
+open System.Threading
 
 [<AutoOpen>]
 module internal Types =
@@ -494,20 +495,25 @@ let runWith (startLog:int->Log) (topology:Topology<'t>) =
     let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
     let mutable rtt = None
     let rec restart (ex:exn) =
-        log(fun _ -> sprintf "Error running the topology: %A,\n restarting..." ex) 
-        stopAndShutdown ()
-        start ()
+        try
+            log(fun _ -> sprintf "Error running the topology: %A" ex) 
+            if Monitor.TryEnter rtt then
+                log(fun _ -> sprintf "restarting...") 
+                stopAndShutdown ()
+                start ()
+        finally
+            if Monitor.IsEntered rtt then Monitor.Exit rtt            
     and start () =
         rtt <- Some (topology |> RuntimeTopology.ofTopology startLog restart)
         log(fun _ -> sprintf "Hosting the topology: %s {%s},\n with configuration: %A" topology.Name (describe rtt.Value) topology.Conf)
-        System.Threading.Thread.Sleep (1000*timeout)
+        Thread.Sleep (1000*timeout)
         activate rtt.Value
     and stopAndShutdown () =
         match rtt with
         | Some rtt ->
             log(fun _ -> sprintf "Stopping topology: %s..." topology.Name) 
             stop rtt
-            System.Threading.Thread.Sleep (1000*timeout)
+            Thread.Sleep (1000*timeout)
             shutdown rtt
         | _ -> ()
 

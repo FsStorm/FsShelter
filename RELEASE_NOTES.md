@@ -1,4 +1,4 @@
-#### 2.0.0-beta-4 - Aug 2018
+#### 2.0.0 - Aug 2018
 * DSL modules for Spouts and Bolts
 * sync dispatch and disruptor-based self-hosting
 

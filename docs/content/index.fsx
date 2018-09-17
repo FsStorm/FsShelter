@@ -30,6 +30,20 @@ Bring your own, if you need it:
 - custom serializer
 
 
+Migrating to FsShelter 2.0
+-----------------------
+The largest change in this release is switch to synchronous signtatures for spout and bolt functions.
+Primarily, this was driven by the need to lower the footprint of self-hosting, but also a realization that things like back-pressure is much easier to implement correctly using synchronous primitives and the asynchrony can be easily added where needed at the topology level.
+Other breaking changes are:
+
+- statically-typed configuration (for a small subset of properties we use all the time) 
+- modularized `Bolt` and `Spout` DSL
+- Activate/Deactivate implementation for spouts
+
+Activation is now handled implicitly - the dispatcher will wait for activation command before constructing the arguments for the spout function.
+Deactivation is now an explicit argument into the spout DSL - use `ignore` if you don't have any deactivation semantics to implement.
+
+
 FsShelter topology schema
 -----------------------
 While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less. 
@@ -95,7 +109,7 @@ For exmple, FsShelter components are implemeted as simple functions:
 *)
 
 // numbers spout - produces messages
-let numbers source = async { return Some(Original(source())) }
+let numbers source = return Some(Original(source()))
 
 (**
 The async body of a spout is expected to return an option if there's a tuple to emit or None if there's nothing to emit at this time.
@@ -105,12 +119,10 @@ Bolts can get a tuple on any number of streams, and so we pattern match:
 
 // add 1 bolt - consumes and emits messages to Incremented stream
 let addOne (input, emit) = 
-    async { 
         match input with
         | BasicSchema.Original(x) -> Incremented(x + 1)
         | _ -> failwithf "unexpected input: %A" input
         |> emit
-    }
 
 (**
 The bolt can also emit at any time, and we can hold on to the passed emit function (with caveates).
@@ -119,11 +131,9 @@ Also, there can be as many arguments for the component functions as needed, the 
 
 // terminating bolt - consumes messages
 let logResult (info, input) = 
-    async { 
-        match input with
-        | BasicSchema.Incremented(x) -> info (sprintf "%A" x)
-        | _ -> failwithf "unexpected input: %A" input
-    }
+    match input with
+    | BasicSchema.Incremented(x) -> info (sprintf "%A" x)
+    | _ -> failwithf "unexpected input: %A" input
 
 (**
 
@@ -145,16 +155,18 @@ open FsShelter.Multilang
 //define the Storm topology
 let sampleTopology = 
     topology "Sample" { 
-        let s1 = numbers |> runUnreliably (fun log cfg -> source) // ignoring available Storm logging and cfg and passing our source function
-        
+        let s1 = 
+            numbers
+            |> Spout.runUnreliable (fun log cfg -> source) // ignoring available Storm logging and cfg and passing our source function
+                                   ignore                  // no deactivation
         let b1 = 
             addOne
-            |> runBolt (fun log cfg tuple emit -> (tuple, emit)) // pass incoming tuple and emit function
+            |> Bolt.run (fun log cfg tuple emit -> (tuple, emit)) // pass incoming tuple and emit function
             |> withParallelism 2 // override default parallelism of 1
         
         let b2 = 
             logResult
-            |> runBolt (fun log cfg tuple emit -> ((log LogLevel.Info), tuple)) // example of passing Info-level Storm logger into the bolt
+            |> Bolt.run (fun log cfg tuple emit -> ((log LogLevel.Info), tuple)) // example of passing Info-level Storm logger into the bolt
             |> withParallelism 2
         
         yield s1 --> b1 |> shuffle.on BasicSchema.Original // emit from s1 to b1 on Original stream
