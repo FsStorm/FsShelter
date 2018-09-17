@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Spout<'t> - FsShelter</title>
+    <title>Spout - FsShelter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eugene Tolmachev"/>
@@ -39,117 +39,85 @@
 
 
 
-<h1>Spout<'t></h1>
+<h1>Spout</h1>
 <p>
   <span>Namespace: FsShelter</span><br />
-  <span>Parent Module: <a href="fsshelter-topology.html">Topology</a></span>
+  <span>Parent Module: <a href="fsshelter-dsl.html">DSL</a></span>
 </p>
 <div class="xmldoc">
-<p>Storm Spout abstraction</p>
-
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
-            Conf
+          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
+            ofExternal comp
           </code>
-          <div class="tip" id="110">
-            <strong>Signature:</strong> Conf<br />
-                      </div>
+          <div class="tip" id="21">
+            <strong>Signature:</strong> comp:Component&lt;&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L32-32" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L280-280" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>define a spout for a (external) shell or java component</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
-            MkComp
+          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+            runReliable (...)
           </code>
-          <div class="tip" id="111">
-            <strong>Signature:</strong> unit -&gt; Component&lt;&#39;t&gt;<br />
-                      </div>
+          <div class="tip" id="22">
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;args) -&gt; mkAcker:(&#39;args -&gt; Acker) -&gt; deactivate:(&#39;args -&gt; unit) -&gt; next:Next&lt;&#39;args,(string * &#39;t)&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 'args, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L30-30" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L266-266" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>define a reliable spout
+mkArgs: one-time construction of arguments that will be passed into each next() call.
+mkAcker: one time construction of <code>Ack*Nack</code> handlers (using the args).
+next: spout function that returns an id*tuple option.</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
-            Parallelism
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            runUnreliable mkArgs deactivate next
           </code>
-          <div class="tip" id="112">
-            <strong>Signature:</strong> uint32<br />
-                      </div>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> mkArgs:((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;args) -&gt; deactivate:(&#39;args -&gt; unit) -&gt; next:Next&lt;&#39;args,&#39;t&gt; -&gt; Spout&lt;&#39;t&gt;<br />
+                          <strong>Type parameters:</strong> 'args, 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L31-31" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L274-274" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
+          <p>define spout with no processing guarantees
+mkArgs: one-time construction of arguments that will be passed into each next() call.
+next: spout function that returns a tuple option.</p>
 
-          <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
-            WithConf(s, conf)
-          </code>
-          <div class="tip" id="113">
-            <strong>Signature:</strong> (s:Spout&lt;&#39;?8232&gt; * conf:Conf) -&gt; Spout&lt;&#39;?8232&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L33-33" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
-            WithParallelism(s, p)
-          </code>
-          <div class="tip" id="114">
-            <strong>Signature:</strong> (s:Spout&lt;&#39;?8235&gt; * p:uint32) -&gt; Spout&lt;&#39;?8235&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/Topology.fs#L34-34" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
         </td>
       </tr>
     </tbody>

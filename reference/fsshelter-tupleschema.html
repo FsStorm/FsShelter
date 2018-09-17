@@ -26,6 +26,7 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
+          <li><a href="https://prolucid.github.io">prolucid</a></li>
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://github.com/Prolucid/FsShelter">github page</a></li>
         </ul>
@@ -85,15 +86,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
-            formatCaseName case
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            formatInnerCaseName 
           </code>
-          <div class="tip" id="46">
-            <strong>Signature:</strong> case:UnionCaseInfo -&gt; string<br />
+          <div class="tip" id="56">
+            <strong>Signature:</strong> UnionCaseInfo -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L32-32" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L53-53" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -105,15 +106,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
             formatName name _arg1
           </code>
-          <div class="tip" id="47">
+          <div class="tip" id="57">
             <strong>Signature:</strong> name:string -&gt; _arg1:string option -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L12-12" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L17-17" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -125,15 +126,35 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            formatNestedCaseName outer inner
+          </code>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> outer:UnionCaseInfo option -&gt; inner:UnionCaseInfo -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L37-37" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>format a case using its DisplayNameAttribute or name</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
             mapSchema ()
           </code>
-          <div class="tip" id="48">
+          <div class="tip" id="59">
             <strong>Signature:</strong> unit -&gt; (string * ((FieldReader -&gt; unit -&gt; &#39;t) * (FieldWriter -&gt; obj -&gt; unit))) []<br />
                           <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L69-69" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L114-114" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -145,15 +166,33 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
-            toNames case
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            mkTick ()
           </code>
-          <div class="tip" id="49">
-            <strong>Signature:</strong> case:UnionCaseInfo -&gt; string list<br />
-                      </div>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> unit -&gt; &#39;t option<br />
+                          <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L17-17" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L83-83" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+            toNames (case, arg2)
+          </code>
+          <div class="tip" id="61">
+            <strong>Signature:</strong> (case:UnionCaseInfo * &#39;?8092) -&gt; string list<br />
+                          <strong>Type parameters:</strong> '?8092          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L22-22" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -165,15 +204,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
             toStreamName 
           </code>
-          <div class="tip" id="50">
+          <div class="tip" id="62">
             <strong>Signature:</strong> &#39;t -&gt; string<br />
                           <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L40-40" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L56-56" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -185,19 +224,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
-            toTupleRW case
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+            toTupleRW case nested
           </code>
-          <div class="tip" id="51">
-            <strong>Signature:</strong> case:UnionCaseInfo -&gt; (FieldReader -&gt; unit -&gt; &#39;t) * (FieldWriter -&gt; obj -&gt; unit)<br />
+          <div class="tip" id="63">
+            <strong>Signature:</strong> case:UnionCaseInfo -&gt; nested:UnionCaseInfo option -&gt; (FieldReader -&gt; unit -&gt; &#39;t) * (FieldWriter -&gt; obj -&gt; unit)<br />
                           <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L51-51" class="github-link">
+            <a href="http://github.com/Prolucid/FsShelter/tree/master/src/FsShelter/DSL.fs#L95-95" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Map a union case to reader/writer functions</p>
+          <p>Map a [nested] union case to reader/writer functions</p>
 
 
         </td>
@@ -228,13 +267,16 @@
             <li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
-              <li>
-                  <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
-                  <ul>
-                      <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-                      <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
-                  </ul>
-              <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
+      <li>
+          <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+          <ul>
+              <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+              <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+          </ul>
+      <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
+      <li>
+          <a href="/FsShelter/self-hosting.html">Self-hosting</a>
+      <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
 			</li>
 
             <li class="nav-header">Documentation</li>

@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Nack - FsShelter</title>
+    <title>self-hosting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
+    <meta name="description" content="F# DSL and runtime for Storm topologies"/>
     <meta name="author" content="Eugene Tolmachev"/>
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -36,18 +36,40 @@
       <div class="row">
         <div class="span9" id="main">
           
+<h2><a name="Self-hosting" class="anchor" href="#Self-hosting">Self-hosting</a></h2>
+<p>We call running a FsShelter topology entirely inside a .NET process "self-hosting".
+The feature simulates Storm cluster and can be used for testing or production deployments where scale-out capability of Storm is not required.
+The 2.0 release of FsShelter reimplements this feature using the same technology Storm does - Disruptor queues, greatly improving the performance and further reducing overhead.</p>
+<p>Limitations:</p>
+<ul>
+<li>only FsShelter components can be self-hosted, no shell or java;</li>
+<li>tuple timeouts are not enforced;</li>
+<li>only does in-proc message passing - can't scale out.</li>
+</ul>
+<p>Benefits:</p>
+<ul>
+<li>Self-hosted F# components perform on par with native JVM components under Storm, while taking as little as 30MB and ~20 threads.</li>
+<li>no Storm, zookeeper or even JRE are required, while delivering the same processing guarantees.</li>
+</ul>
+<p>Start small then scale out to run on a cluster, with no changes to your code! Use the same building blocks that run in the cloud... anywhere!</p>
+<p>For details refer to the Guaranteed sample, which demonstrates how to run the topology either way.</p>
+<h2><a name="Diagnostics" class="anchor" href="#Diagnostics">Diagnostics</a></h2>
+<p>This release greately improves diagnostics when self-hosting a topology:</p>
+<ul>
+<li><code>TOPOLOGY_DEBUG</code> flag can be set on individual components to selectively analyse the traffic.</li>
+<li>settting the debug flag globally will also trace the system and acker components.</li>
+<li>setting the flag will also trace the time spend in the body of your function.</li>
+</ul>
+<h2><a name="Relevant-Configuration-options" class="anchor" href="#Relevant-Configuration-options">Relevant Configuration options</a></h2>
+<ul>
+<li><code>withParallelism</code> has the same effect as in Storm.</li>
+<li><code>TOPOLOGY_MULTILANG_SERIALIZER</code> has no effect, as self-hosting does not serialize.</li>
+<li><code>TOPOLOGY_MAX_SPOUT_PENDING</code> has the same effect as in Storm.</li>
+<li><code>TOPOLOGY_MESSAGE_TIMEOUT_SECS</code> determines how long the runtime will wait before starting the flow of tuples and after shutdown command.</li>
+<li><code>TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE</code> determins the size of the ring-buffers for your components. Higher backpressure water-mark, may need higher ring-buffer size to avoid deadlock.</li>
+<li><code>TOPOLOGY_ACKER_EXECUTORS</code> number has the same effect as in Storm - increasing this number may improve guaranteed throughput at the cost of increased resource consumption.</li>
+</ul>
 
-
-
-<h1>Nack</h1>
-<p>
-  <span>Namespace: FsShelter</span><br />
-  <span>Parent Module: <a href="fsshelter-dsl.html">DSL</a></span>
-</p>
-<div class="xmldoc">
-<p>nack signature</p>
-
-</div>
 
         </div>
         <div class="span3">
