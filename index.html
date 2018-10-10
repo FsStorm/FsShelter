@@ -37,17 +37,17 @@
         <div class="span9" id="main">
           
 <h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
-<p>FsShelter is a library for implementation of <a href="https://storm.apache.org/">Apache Storm</a> components and topologies in F#.
-FsShelter is based on and a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStorm in significant ways and therefore has been split into its own project.</p>
-<p>Overall, the library provides "batteries included" experience with wrappers for Nimbus API as well as support for packaging and exporting:</p>
+<p>FsShelter is a library that lets you implement <a href="https://storm.apache.org/">Apache Storm</a> components and topologies in F#.
+FsShelter is a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>. It departs from FsStorm in significant ways and therefore has been split into its own project.</p>
+<p>Overall, the library provides a "batteries included" experience with wrappers for the Nimbus API as well as support for packaging and exporting:</p>
 <ul>
-<li>bundle and submit a topology for execution w/o needing JDK or Storm CLI</li>
-<li>include Storm-side serializer along</li>
-<li>kill a running topology</li>
-<li>generate a topology graph as part of your build</li>
+<li>Bundle and submit a topology for execution without needing JDK or Storm CLI</li>
+<li>Includes Storm-side serializer</li>
+<li>Kill a running topology</li>
+<li>Generate a topology graph as part of your build</li>
 </ul>
-<p>The topology and the components could be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
-Corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improves throughput of FsShelter topologies as compared to default JSON.
+<p>The topology and the components can be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
+The corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.</p>
 <p>Bring your own, if you need it:</p>
 <ul>
@@ -56,20 +56,20 @@ See samples to learn how to bundle the assemblies and a serializer for upload to
 <li>custom serializer</li>
 </ul>
 <h2><a name="Migrating-to-FsShelter-2-0" class="anchor" href="#Migrating-to-FsShelter-2-0">Migrating to FsShelter 2.0</a></h2>
-<p>The largest change in this release is switch to synchronous signtatures for spout and bolt functions.
-Primarily, this was driven by the need to lower the footprint of self-hosting, but also a realization that things like back-pressure is much easier to implement correctly using synchronous primitives and the asynchrony can be easily added where needed at the topology level.
+<p>The largest change in this release is the switch to synchronous signatures for spout and bolt functions.
+Primarily, this was driven by the need to reduce the footprint of self-hosting, but also by a realization that things like back-pressure are much easier to implement correctly using synchronous primitives. Asynchrony can be easily added where needed at the topology level.
 Other breaking changes are:</p>
 <ul>
-<li>statically-typed configuration (for a small subset of properties we use all the time)</li>
-<li>modularized <code>Bolt</code> and <code>Spout</code> DSL</li>
+<li>Statically-typed configuration (for a small subset of properties we use all the time)</li>
+<li>Modularized <code>Bolt</code> and <code>Spout</code> DSL</li>
 <li>Activate/Deactivate implementation for spouts</li>
 </ul>
-<p>Activation is now handled implicitly - the dispatcher will wait for activation command before constructing the arguments for the spout function.
+<p>Activation is now handled implicitly - the dispatcher will wait for an activation command before constructing the arguments for the spout function.
 Deactivation is now an explicit argument into the spout DSL - use <code>ignore</code> if you don't have any deactivation semantics to implement.</p>
 <h2><a name="FsShelter-topology-schema" class="anchor" href="#FsShelter-topology-schema">FsShelter topology schema</a></h2>
-<p>While Storm tuples are dynamically typed and to a large extend the types are transparent to Storm itself, they are not types-less.
+<p>While Storm tuples are dynamically typed, and to a large extent the types are transparent to Storm itself, they are not type-less.
 Mistakes and inconsistencies between declared outputs and tuple consumers could easily lead to errors detectable at run-time only and may be frustrating to test, detect and fix.
-FsShelter introduces concept of topology schema, defined as F# discriminated union:</p>
+FsShelter introduces the concept of a topology schema, defined as an F# discriminated union:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -80,8 +80,8 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 </code></pre></td>
 </tr>
 </table>
-<p>where every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm streams.</p>
-<p>It is often handy to define a type that's shared across streams and FsShelter supports defining cases with records:</p>
+<p>Every DU case becomes a distinct stream in the topology. The fields of each DU case will become tuple fields in Storm streams.</p>
+<p>It is often handy to define a type that's shared across streams, and FsShelter supports defining cases with records:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -98,18 +98,18 @@ FsShelter introduces concept of topology schema, defined as F# discriminated uni
 </code></pre></td>
 </tr>
 </table>
-<p>It is also common to join/zip tuples from multiple streams and FsShelter supports defining cases with records adjoined:</p>
+<p>It is also common to join/zip tuples from multiple streams, and FsShelter supports defining cases with records adjoined:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 20)" onmouseover="showTip(event, 'fs3', 20)" class="t">RecordsSchema</span> <span class="o">=</span> 
     | <span onmouseout="hideTip(event, 'fs3', 21)" onmouseover="showTip(event, 'fs3', 21)" class="p">Original</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 22)" onmouseover="showTip(event, 'fs3', 22)" class="t">Number</span>
-    | <span onmouseout="hideTip(event, 'fs3', 23)" onmouseover="showTip(event, 'fs3', 23)" class="p">Doubled</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 24)" onmouseover="showTip(event, 'fs3', 24)" class="t">Number</span><span class="o">*</span><span onmouseout="hideTip(event, 'fs3', 25)" onmouseover="showTip(event, 'fs3', 25)" class="t">Number</span>
+    | <span onmouseout="hideTip(event, 'fs3', 23)" onmouseover="showTip(event, 'fs3', 23)" class="p">Doubled</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 24)" onmouseover="showTip(event, 'fs3', 24)" class="t">Number</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs3', 25)" onmouseover="showTip(event, 'fs3', 25)" class="t">Number</span>
 </code></pre></td>
 </tr>
 </table>
-<p>Other than safety of working with statically-verified schema the reason we care about structure of the tuple is because we reference them in Storm grouping definitions.
+<p>Other than the safety of working with a statically-verified schema, the reason we care about the structure of the tuples is because we reference them in Storm grouping definitions.
 FsShelter "flattens" the first immediate "layer" of the DU case so that all the fields, weither they come from the embedded record or the DU case itself, are available for grouping expressions.</p>
 <p>Generic or nested schemas are also supported. For example:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -133,7 +133,7 @@ FsShelter "flattens" the first immediate "layer" of the DU case so that all the 
 </tr>
 </table>
 <p>where a topology can be defined with the signature: <code>Topology&lt;NestedSchema&lt;BasicSchema&gt;&gt;</code>.
-This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped on by adding the NestedStreamAttribute to the Nested case. Without this attribute, nested streams will be treated as blobs.</p>
+This can be useful for implementing a base topology and extending it using a nested set of streams. Nested streams can be grouped on by adding the <code>NestedStreamAttribute</code> to the <code>Nested</code> case. Without this attribute, nested streams will be treated as blobs.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -145,7 +145,7 @@ This can be useful for implementing a base topology and extending it using a nes
 </tr>
 </table>
 <h2><a name="FsShelter-components" class="anchor" href="#FsShelter-components">FsShelter components</a></h2>
-<p>Some of the flexibility of Storm has been hidden to provide simple developer experience for authoring event-driven solutions.
+<p>Some of the flexibility of Storm has been hidden to provide a simple developer experience for authoring event-driven solutions.
 For exmple, FsShelter components are implemeted as simple functions:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
@@ -173,8 +173,8 @@ For exmple, FsShelter components are implemeted as simple functions:</p>
 </code></pre></td>
 </tr>
 </table>
-<p>The bolt can also emit at any time, and we can hold on to the passed emit function (with caveates).
-Also, there can be as many arguments for the component functions as needed, the specifics will be determined when the components are put together in a topology.</p>
+<p>The bolt can also emit at any time, and we can hold on to the passed-in <code>emit</code> function (with caveats).
+Also, there can be as many arguments for the component functions as needed; the specifics will be determined when the components are put together in a topology.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -190,7 +190,7 @@ Also, there can be as many arguments for the component functions as needed, the 
 </tr>
 </table>
 <h2><a name="Using-F-DSL-to-define-the-topology" class="anchor" href="#Using-F-DSL-to-define-the-topology">Using F# DSL to define the topology</a></h2>
-<p>Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows for mix and match of native Java, external shell and FsShell components:</p>
+<p>Storm topology is a graph of spouts and bolts connected via streams. FsShelter provides an embedded DSL for defining the topologies, which allows for mixing and matching of native Java, external shell, and FsShelter components:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -252,9 +252,9 @@ Also, there can be as many arguments for the component functions as needed, the 
 </tr>
 </table>
 <p>Storm will start (a copy of) the same EXE for every component instance in the topology and will assign each instance a task it supposed to execute.</p>
-<p>The topology can be packaged with all its dependecies and submitted using embedded Nimbus client, see the examples for details.</p>
+<p>The topology can be packaged with all its dependecies and submitted using the embedded Nimbus client; see the examples for details.</p>
 <h2><a name="Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts" class="anchor" href="#Exporting-the-topology-graph-in-DOT-format-GraphViz-using-F-scripts">Exporting the topology graph in DOT format (GraphViz) using F# scripts</a></h2>
-<p>Once the number of components grows beyond trivial it is often handy to be able to visualize them and FsShelter includes a simple way to export the topology into a graph:</p>
+<p>Once the number of components grows beyond a trivial number, it is often handy to be able to visualize them. FsShelter includes a simple way to export the topology into a graph:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 124)" onmouseover="showTip(event, 'fs3', 124)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 125)" onmouseover="showTip(event, 'fs3', 125)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 126)" onmouseover="showTip(event, 'fs14', 126)" class="f">writeToConsole</span>
@@ -264,8 +264,8 @@ Also, there can be as many arguments for the component functions as needed, the 
 <p>See the samples included for further details.</p>
 <h2><a name="Samples-amp-documentation" class="anchor" href="#Samples-amp-documentation">Samples &amp; documentation</a></h2>
 <ul>
-<li><p><a href="wordcount.html">WordCount</a> contains a "unreliable" spout example - emitted tuples do not require ack, could be lost in case of failure.</p></li>
-<li><p><a href="guaranteed.html">Guaranteed</a> contains a "reliable" spout example - emitted tuples have unique ID and require ack.</p></li>
+<li><p><a href="wordcount.html">WordCount</a> contains an "unreliable" spout example - emitted tuples do not require ack, and could be lost in case of failure.</p></li>
+<li><p><a href="guaranteed.html">Guaranteed</a> contains a "reliable" spout example - emitted tuples have a unique ID and require ack.</p></li>
 <li>
 <p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for public types, modules
 and functions in the library.</p>
