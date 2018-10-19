@@ -12,11 +12,11 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/FsShelter/content/style.css" />
+    <link type="text/css" rel="stylesheet" href="https://prolucid.github.io/FsShelter/content/style.css" />
     <link rel="icon"
             type="image/png"
-            href="/FsShelter/img/logo.png" />
-    <script type="text/javascript" src="/FsShelter/content/tips.js"></script>
+            href="https://prolucid.github.io/FsShelter/img/logo.png" />
+    <script type="text/javascript" src="https://prolucid.github.io/FsShelter/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -30,7 +30,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://github.com/Prolucid/FsShelter">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/FsShelter/index.html">FsShelter</a></h3>
+        <h3 class="muted"><a href="https://prolucid.github.io/FsShelter/index.html">FsShelter</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -48,13 +48,13 @@
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="t">Schema</span> <span class="o">=</span> 
     | <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="p">Sentence</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 5)" onmouseover="showTip(event, 'fs3', 5)" class="t">string</span>
     | <span onmouseout="hideTip(event, 'fs3', 6)" onmouseover="showTip(event, 'fs3', 6)" class="p">Word</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="t">string</span>
-    | <span onmouseout="hideTip(event, 'fs3', 8)" onmouseover="showTip(event, 'fs3', 8)" class="p">WordCount</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 9)" onmouseover="showTip(event, 'fs3', 9)" class="t">string</span><span class="o">*</span><span onmouseout="hideTip(event, 'fs3', 10)" onmouseover="showTip(event, 'fs3', 10)" class="t">int64</span>
+    | <span onmouseout="hideTip(event, 'fs3', 8)" onmouseover="showTip(event, 'fs3', 8)" class="p">WordCount</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs3', 9)" onmouseover="showTip(event, 'fs3', 9)" class="t">string</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs3', 10)" onmouseover="showTip(event, 'fs3', 10)" class="t">int64</span>
 </code></pre></td>
 </tr>
 </table>
 <h2><a name="Defining-unreliable-spouts" class="anchor" href="#Defining-unreliable-spouts">Defining unreliable spouts</a></h2>
 <p>FsShelter spouts can be implemented as "reliable" or "unreliable".
-Either implementation is a single function, returning async Option, where None indicates there's nothing to emit from this spout at this moment:</p>
+Either implementation is a single function, returning an <code>async option</code>, where <code>None</code> indicates there's nothing to emit from this spout at this moment:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -64,7 +64,7 @@ Either implementation is a single function, returning async Option, where None i
 </tr>
 </table>
 <h2><a name="Defining-bolts" class="anchor" href="#Defining-bolts">Defining bolts</a></h2>
-<p>A couple of examples of a FsShelter bolts that read a tuple and emit another one:</p>
+<p>A couple of examples of FsShelter bolts that read a tuple and emit another one:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -148,7 +148,7 @@ Either implementation is a single function, returning async Option, where None i
 </tr>
 </table>
 <h2><a name="Using-F-DSL-to-define-a-topology" class="anchor" href="#Using-F-DSL-to-define-a-topology">Using F# DSL to define a topology</a></h2>
-<p>A typical (event-streaming) Storm topology is a graph of spouts and bolts connected via streams that can be defined via <code>topology</code> computation expression:</p>
+<p>A typical (event-streaming) Storm topology is a graph of spouts and bolts connected via streams that can be defined via a <code>topology</code> computation expression:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -180,6 +180,8 @@ Either implementation is a single function, returning async Option, where None i
 <span class="l">29: </span>
 <span class="l">30: </span>
 <span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 90)" onmouseover="showTip(event, 'fs3', 90)" class="i">FsShelter</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 91)" onmouseover="showTip(event, 'fs19', 91)" class="i">DSL</span>
 <span class="prep">#nowarn</span> <span class="s">&quot;25&quot;</span> <span class="c">// for stream grouping expressions</span>
@@ -188,42 +190,44 @@ Either implementation is a single function, returning async Option, where None i
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 92)" onmouseover="showTip(event, 'fs3', 92)" class="i">sampleTopology</span> <span class="o">=</span> 
     <span onmouseout="hideTip(event, 'fs3', 93)" onmouseover="showTip(event, 'fs3', 93)" class="f">topology</span> <span class="s">&quot;WordCount&quot;</span> { 
         <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 94)" onmouseover="showTip(event, 'fs3', 94)" class="i">sentencesSpout</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs3', 95)" onmouseover="showTip(event, 'fs3', 95)" class="f">sentences</span> 
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 96)" onmouseover="showTip(event, 'fs3', 96)" class="t">Spout</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 97)" onmouseover="showTip(event, 'fs20', 97)" class="f">runUnreliable</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 98)" onmouseover="showTip(event, 'fs3', 98)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 99)" onmouseover="showTip(event, 'fs3', 99)" class="i">cfg</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs3', 100)" onmouseover="showTip(event, 'fs3', 100)" class="f">source</span>)        <span class="c">// make arguments: ignoring Storm logging and cfg, passing our source function</span>
-                                   <span onmouseout="hideTip(event, 'fs3', 101)" onmouseover="showTip(event, 'fs3', 101)" class="f">ignore</span>
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 102)" onmouseover="showTip(event, 'fs3', 102)" class="i">splitBolt</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs3', 103)" onmouseover="showTip(event, 'fs3', 103)" class="f">splitIntoWords</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 104)" onmouseover="showTip(event, 'fs3', 104)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 105)" onmouseover="showTip(event, 'fs21', 105)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 106)" onmouseover="showTip(event, 'fs3', 106)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 107)" onmouseover="showTip(event, 'fs3', 107)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs3', 108)" onmouseover="showTip(event, 'fs3', 108)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 109)" onmouseover="showTip(event, 'fs3', 109)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 110)" onmouseover="showTip(event, 'fs3', 110)" class="i">tuple</span>, <span onmouseout="hideTip(event, 'fs3', 111)" onmouseover="showTip(event, 'fs3', 111)" class="f">emit</span>)) <span class="c">// make arguments: pass incoming tuple and emit function</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 112)" onmouseover="showTip(event, 'fs3', 112)" class="f">withParallelism</span> <span class="n">2</span>
+            <span onmouseout="hideTip(event, 'fs3', 95)" onmouseover="showTip(event, 'fs3', 95)" class="f">sentences</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 96)" onmouseover="showTip(event, 'fs3', 96)" class="t">Spout</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 97)" onmouseover="showTip(event, 'fs20', 97)" class="f">runUnreliable</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 98)" onmouseover="showTip(event, 'fs3', 98)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 99)" onmouseover="showTip(event, 'fs3', 99)" class="i">cfg</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs3', 100)" onmouseover="showTip(event, 'fs3', 100)" class="f">source</span>)  <span class="c">// make arguments: ignoring Storm logging and cfg, passing our source function</span>
+                                   <span onmouseout="hideTip(event, 'fs3', 101)" onmouseover="showTip(event, 'fs3', 101)" class="f">ignore</span>                   <span class="c">// no deactivation</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 102)" onmouseover="showTip(event, 'fs3', 102)" class="f">withParallelism</span> <span class="n">4</span>
         
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 113)" onmouseover="showTip(event, 'fs3', 113)" class="i">countBolt</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs3', 114)" onmouseover="showTip(event, 'fs3', 114)" class="f">countWords</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 115)" onmouseover="showTip(event, 'fs3', 115)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 116)" onmouseover="showTip(event, 'fs21', 116)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 117)" onmouseover="showTip(event, 'fs3', 117)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 118)" onmouseover="showTip(event, 'fs3', 118)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs3', 119)" onmouseover="showTip(event, 'fs3', 119)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 120)" onmouseover="showTip(event, 'fs3', 120)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 121)" onmouseover="showTip(event, 'fs3', 121)" class="i">tuple</span>, <span onmouseout="hideTip(event, 'fs3', 122)" onmouseover="showTip(event, 'fs3', 122)" class="f">increment</span>, <span onmouseout="hideTip(event, 'fs3', 123)" onmouseover="showTip(event, 'fs3', 123)" class="f">emit</span>))
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 124)" onmouseover="showTip(event, 'fs3', 124)" class="f">withParallelism</span> <span class="n">2</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 103)" onmouseover="showTip(event, 'fs3', 103)" class="i">splitBolt</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs3', 104)" onmouseover="showTip(event, 'fs3', 104)" class="f">splitIntoWords</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 105)" onmouseover="showTip(event, 'fs3', 105)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 106)" onmouseover="showTip(event, 'fs21', 106)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 107)" onmouseover="showTip(event, 'fs3', 107)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 108)" onmouseover="showTip(event, 'fs3', 108)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs3', 109)" onmouseover="showTip(event, 'fs3', 109)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 110)" onmouseover="showTip(event, 'fs3', 110)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 111)" onmouseover="showTip(event, 'fs3', 111)" class="i">tuple</span>, <span onmouseout="hideTip(event, 'fs3', 112)" onmouseover="showTip(event, 'fs3', 112)" class="f">emit</span>)) <span class="c">// make arguments: pass incoming tuple and emit function</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 113)" onmouseover="showTip(event, 'fs3', 113)" class="f">withParallelism</span> <span class="n">4</span>
         
-        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 125)" onmouseover="showTip(event, 'fs3', 125)" class="i">logBolt</span> <span class="o">=</span> 
-            <span onmouseout="hideTip(event, 'fs3', 126)" onmouseover="showTip(event, 'fs3', 126)" class="f">logResult</span>
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 127)" onmouseover="showTip(event, 'fs3', 127)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 128)" onmouseover="showTip(event, 'fs21', 128)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 129)" onmouseover="showTip(event, 'fs3', 129)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 130)" onmouseover="showTip(event, 'fs3', 130)" class="i">cfg</span> <span class="k">-&gt;</span>                           <span class="c">// make arguments: pass PID-log and incoming tuple </span>
-                            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 131)" onmouseover="showTip(event, 'fs3', 131)" class="f">mylog</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs3', 132)" onmouseover="showTip(event, 'fs3', 132)" class="i">Common</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 133)" onmouseover="showTip(event, 'fs3', 133)" class="i">Logging</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 134)" onmouseover="showTip(event, 'fs3', 134)" class="i">asyncLog</span> (<span onmouseout="hideTip(event, 'fs3', 135)" onmouseover="showTip(event, 'fs3', 135)" class="i">Diagnostics</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 136)" onmouseover="showTip(event, 'fs22', 136)" class="i">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 137)" onmouseover="showTip(event, 'fs23', 137)" class="i">GetCurrentProcess</span>()<span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 138)" onmouseover="showTip(event, 'fs3', 138)" class="i">Id</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 139)" onmouseover="showTip(event, 'fs3', 139)" class="i">ToString</span>()<span class="o">+</span><span class="s">&quot;_count&quot;</span>)
-                            <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 140)" onmouseover="showTip(event, 'fs3', 140)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 141)" onmouseover="showTip(event, 'fs3', 141)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 142)" onmouseover="showTip(event, 'fs3', 142)" class="f">mylog</span>, <span onmouseout="hideTip(event, 'fs3', 143)" onmouseover="showTip(event, 'fs3', 143)" class="i">tuple</span>))
-            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 144)" onmouseover="showTip(event, 'fs3', 144)" class="f">withParallelism</span> <span class="n">2</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 114)" onmouseover="showTip(event, 'fs3', 114)" class="i">countBolt</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs3', 115)" onmouseover="showTip(event, 'fs3', 115)" class="f">countWords</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 116)" onmouseover="showTip(event, 'fs3', 116)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 117)" onmouseover="showTip(event, 'fs21', 117)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 118)" onmouseover="showTip(event, 'fs3', 118)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 119)" onmouseover="showTip(event, 'fs3', 119)" class="i">cfg</span> <span onmouseout="hideTip(event, 'fs3', 120)" onmouseover="showTip(event, 'fs3', 120)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 121)" onmouseover="showTip(event, 'fs3', 121)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 122)" onmouseover="showTip(event, 'fs3', 122)" class="i">tuple</span>, <span onmouseout="hideTip(event, 'fs3', 123)" onmouseover="showTip(event, 'fs3', 123)" class="f">increment</span>, <span onmouseout="hideTip(event, 'fs3', 124)" onmouseover="showTip(event, 'fs3', 124)" class="f">emit</span>))
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 125)" onmouseover="showTip(event, 'fs3', 125)" class="f">withParallelism</span> <span class="n">4</span>
         
-        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 145)" onmouseover="showTip(event, 'fs3', 145)" class="i">sentencesSpout</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 146)" onmouseover="showTip(event, 'fs3', 146)" class="i">splitBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 147)" onmouseover="showTip(event, 'fs3', 147)" class="t">Shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 148)" onmouseover="showTip(event, 'fs24', 148)" class="f">on</span> <span onmouseout="hideTip(event, 'fs3', 149)" onmouseover="showTip(event, 'fs3', 149)" class="p">Sentence</span>               <span class="c">// emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances</span>
-        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 150)" onmouseover="showTip(event, 'fs3', 150)" class="i">splitBolt</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 151)" onmouseover="showTip(event, 'fs3', 151)" class="i">countBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 152)" onmouseover="showTip(event, 'fs3', 152)" class="t">Group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 153)" onmouseover="showTip(event, 'fs25', 153)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs3', 154)" onmouseover="showTip(event, 'fs3', 154)" class="p">Word</span> <span onmouseout="hideTip(event, 'fs26', 155)" onmouseover="showTip(event, 'fs26', 155)" class="i">w</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 156)" onmouseover="showTip(event, 'fs26', 156)" class="i">w</span>)        <span class="c">// emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)</span>
-        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 157)" onmouseover="showTip(event, 'fs3', 157)" class="i">countBolt</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 158)" onmouseover="showTip(event, 'fs3', 158)" class="i">logBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 159)" onmouseover="showTip(event, 'fs3', 159)" class="t">Group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 160)" onmouseover="showTip(event, 'fs25', 160)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs3', 161)" onmouseover="showTip(event, 'fs3', 161)" class="p">WordCount</span> (<span onmouseout="hideTip(event, 'fs26', 162)" onmouseover="showTip(event, 'fs26', 162)" class="i">w</span>,_) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 163)" onmouseover="showTip(event, 'fs26', 163)" class="i">w</span>) <span class="c">// emit from countBolt into logBolt on WordCount stream, group by word value</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 126)" onmouseover="showTip(event, 'fs3', 126)" class="i">logBolt</span> <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs3', 127)" onmouseover="showTip(event, 'fs3', 127)" class="f">logResult</span>
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 128)" onmouseover="showTip(event, 'fs3', 128)" class="t">Bolt</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 129)" onmouseover="showTip(event, 'fs21', 129)" class="f">run</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 130)" onmouseover="showTip(event, 'fs3', 130)" class="f">log</span> <span onmouseout="hideTip(event, 'fs3', 131)" onmouseover="showTip(event, 'fs3', 131)" class="i">cfg</span> <span class="k">-&gt;</span>                           <span class="c">// make arguments: pass PID-log and incoming tuple </span>
+                            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 132)" onmouseover="showTip(event, 'fs3', 132)" class="f">mylog</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs3', 133)" onmouseover="showTip(event, 'fs3', 133)" class="i">Common</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 134)" onmouseover="showTip(event, 'fs3', 134)" class="i">Logging</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 135)" onmouseover="showTip(event, 'fs3', 135)" class="i">asyncLog</span> (<span onmouseout="hideTip(event, 'fs3', 136)" onmouseover="showTip(event, 'fs3', 136)" class="i">Diagnostics</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 137)" onmouseover="showTip(event, 'fs22', 137)" class="i">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 138)" onmouseover="showTip(event, 'fs23', 138)" class="i">GetCurrentProcess</span>()<span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 139)" onmouseover="showTip(event, 'fs3', 139)" class="i">Id</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 140)" onmouseover="showTip(event, 'fs3', 140)" class="i">ToString</span>()<span class="o">+</span><span class="s">&quot;_count&quot;</span>)
+                            <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs3', 141)" onmouseover="showTip(event, 'fs3', 141)" class="i">tuple</span> <span onmouseout="hideTip(event, 'fs3', 142)" onmouseover="showTip(event, 'fs3', 142)" class="f">emit</span> <span class="k">-&gt;</span> (<span onmouseout="hideTip(event, 'fs3', 143)" onmouseover="showTip(event, 'fs3', 143)" class="f">mylog</span>, <span onmouseout="hideTip(event, 'fs3', 144)" onmouseover="showTip(event, 'fs3', 144)" class="i">tuple</span>))
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 145)" onmouseover="showTip(event, 'fs3', 145)" class="f">withParallelism</span> <span class="n">2</span>
+        
+        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 146)" onmouseover="showTip(event, 'fs3', 146)" class="i">sentencesSpout</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 147)" onmouseover="showTip(event, 'fs3', 147)" class="i">splitBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 148)" onmouseover="showTip(event, 'fs3', 148)" class="t">Shuffle</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 149)" onmouseover="showTip(event, 'fs24', 149)" class="f">on</span> <span onmouseout="hideTip(event, 'fs3', 150)" onmouseover="showTip(event, 'fs3', 150)" class="p">Sentence</span>               <span class="c">// emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances</span>
+        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 151)" onmouseover="showTip(event, 'fs3', 151)" class="i">splitBolt</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 152)" onmouseover="showTip(event, 'fs3', 152)" class="i">countBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 153)" onmouseover="showTip(event, 'fs3', 153)" class="t">Group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 154)" onmouseover="showTip(event, 'fs25', 154)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs3', 155)" onmouseover="showTip(event, 'fs3', 155)" class="p">Word</span> <span onmouseout="hideTip(event, 'fs26', 156)" onmouseover="showTip(event, 'fs26', 156)" class="i">w</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 157)" onmouseover="showTip(event, 'fs26', 157)" class="i">w</span>)        <span class="c">// emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)</span>
+        <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs3', 158)" onmouseover="showTip(event, 'fs3', 158)" class="i">countBolt</span> <span class="o">--&gt;</span> <span onmouseout="hideTip(event, 'fs3', 159)" onmouseover="showTip(event, 'fs3', 159)" class="i">logBolt</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 160)" onmouseover="showTip(event, 'fs3', 160)" class="t">Group</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 161)" onmouseover="showTip(event, 'fs25', 161)" class="f">by</span> (<span class="k">function</span> <span onmouseout="hideTip(event, 'fs3', 162)" onmouseover="showTip(event, 'fs3', 162)" class="p">WordCount</span> (<span onmouseout="hideTip(event, 'fs26', 163)" onmouseover="showTip(event, 'fs26', 163)" class="i">w</span>,_) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 164)" onmouseover="showTip(event, 'fs26', 164)" class="i">w</span>) <span class="c">// emit from countBolt into logBolt on WordCount stream, group by word value</span>
     }
 </code></pre></td>
 </tr>
 </table>
 <p>Here we define the graph by declaring the components and connecting them with arrows.
-The lambda arguments for the "run" methods privde the opportunity to carry out construction of the arguments that will be passed into the component functions, where:</p>
+The lambda arguments for the "run" methods provide the opportunity to carry out construction of the arguments that will be passed into the component functions, where:</p>
 <ul>
 <li><code>log</code> is the Storm log factory</li>
 <li><code>cfg</code> is the runtime configuration passed in from Storm</li>
 <li><code>tuple</code> is the instance of the schema DU coming in</li>
 <li><code>emit</code> is the function to emit another tuple</li>
 </ul>
-<p><code>log</code> and <code>cfg</code> are fixed once (curried) and as demonstrated in the logBolt's mkArgs lambda, one time-initialization can be carried out by inserting arbitrary code before <code>tuple</code> and <code>emit</code> arguments.
+<p><code>log</code> and <code>cfg</code> are fixed once (curried) and as demonstrated in the <code>logBolt</code>'s <code>mkArgs</code> lambda, one time-initialization can be carried out by inserting arbitrary code before <code>tuple</code> and <code>emit</code> arguments.
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.</p>
 <h2><a name="Submitting-the-topology-for-execution" class="anchor" href="#Submitting-the-topology-for-execution">Submitting the topology for execution</a></h2>
 <p>Storm accepts JARs for code distribution and FsShelter provides functions to package our assemblies and upload them to Nimbus.
@@ -234,9 +238,9 @@ FsShelter's <code>Task</code> will perform the handshake that will determine whi
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 164)" onmouseover="showTip(event, 'fs3', 164)" class="i">sampleTopology</span>
-<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 165)" onmouseover="showTip(event, 'fs3', 165)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 166)" onmouseover="showTip(event, 'fs27', 166)" class="f">ofTopology</span>
-<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 167)" onmouseover="showTip(event, 'fs3', 167)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 168)" onmouseover="showTip(event, 'fs28', 168)" class="f">run</span> <span onmouseout="hideTip(event, 'fs3', 169)" onmouseover="showTip(event, 'fs3', 169)" class="t">ProtoIO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 170)" onmouseover="showTip(event, 'fs29', 170)" class="f">start</span> <span class="c">// here we specify which serializer to use when talking to Storm</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 165)" onmouseover="showTip(event, 'fs3', 165)" class="i">sampleTopology</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 166)" onmouseover="showTip(event, 'fs3', 166)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 167)" onmouseover="showTip(event, 'fs27', 167)" class="f">ofTopology</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 168)" onmouseover="showTip(event, 'fs3', 168)" class="t">Task</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 169)" onmouseover="showTip(event, 'fs28', 169)" class="f">run</span> <span onmouseout="hideTip(event, 'fs3', 170)" onmouseover="showTip(event, 'fs3', 170)" class="t">ProtoIO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 171)" onmouseover="showTip(event, 'fs29', 171)" class="f">start</span> <span class="c">// here we specify which serializer to use when talking to Storm</span>
 </code></pre></td>
 </tr>
 </table>
@@ -244,24 +248,44 @@ FsShelter's <code>Task</code> will perform the handshake that will determine whi
 <p>Keep in mind that:</p>
 <ul>
 <li>STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).</li>
-<li>out of the box Storm only supports JSON multilang, for faster IO consider <a href="https://github.com/prolucid/protoshell">ProtoShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
+<li>out of the box Storm only supports JSON multilang. For faster IO, consider <a href="https://github.com/prolucid/protoshell">ProtoShell</a>. The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.</li>
 </ul>
 <h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
-<p>FsShelter includes a completely customizable GraphViz (dot) export functionality, here's what the word count topology looks like with default renderers:</p>
+<p>FsShelter includes a completely customizable GraphViz (dot) export functionality. Here's what the word count topology looks like with default renderers:</p>
 <p><img src="svg/WordCount.svg" alt="SVG" title="WordCount (SVG)" /></p>
 <p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.
 This was achived by a simple export to console:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 171)" onmouseover="showTip(event, 'fs3', 171)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 172)" onmouseover="showTip(event, 'fs3', 172)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 173)" onmouseover="showTip(event, 'fs30', 173)" class="f">writeToConsole</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 172)" onmouseover="showTip(event, 'fs3', 172)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 173)" onmouseover="showTip(event, 'fs3', 173)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 174)" onmouseover="showTip(event, 'fs30', 174)" class="f">writeToConsole</span>
 </code></pre></td>
 </tr>
 </table>
-<p>Followed by further conversion into a desired format, piping the markup into GrapViz:</p>
+<p>Followed by further conversion into a desired format, piping the markup into GraphViz:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="bash">dotnet samples/WordCount/bin/Release/netcoreapp2.1/WordCount.dll graph | dot -Tsvg -o build/WordCount.svg
 </code></pre></td></tr></table>
+<p>It is also possible to generate graphs with colour-coded streams:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 175)" onmouseover="showTip(event, 'fs3', 175)" class="i">sampleTopology</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 176)" onmouseover="showTip(event, 'fs3', 176)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 177)" onmouseover="showTip(event, 'fs31', 177)" class="f">writeColourizedToConsole</span>
+</code></pre></td>
+</tr>
+</table>
+<p><img src="svg/WordCount_colourized.svg" alt="SVG" title="Colourized WordCount (SVG)" /></p>
+<p>Alternatively, you can provide your own X11 colour scheme:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 178)" onmouseover="showTip(event, 'fs3', 178)" class="i">customColours</span> <span class="o">=</span> [| <span class="s">&quot;purple&quot;</span>; <span class="s">&quot;dodgerblue&quot;</span>; <span class="s">&quot;springgreen&quot;</span>; <span class="s">&quot;olivedrab&quot;</span>; <span class="s">&quot;orange&quot;</span>; <span class="s">&quot;orangered&quot;</span>; <span class="s">&quot;maroon&quot;</span>; <span class="s">&quot;black&quot;</span> |]
+<span onmouseout="hideTip(event, 'fs3', 179)" onmouseover="showTip(event, 'fs3', 179)" class="i">sampleTopology</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 180)" onmouseover="showTip(event, 'fs3', 180)" class="t">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 181)" onmouseover="showTip(event, 'fs3', 181)" class="f">exportToDot</span> (<span onmouseout="hideTip(event, 'fs3', 182)" onmouseover="showTip(event, 'fs3', 182)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 183)" onmouseover="showTip(event, 'fs3', 183)" class="i">writeHeader</span>, <span onmouseout="hideTip(event, 'fs3', 184)" onmouseover="showTip(event, 'fs3', 184)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 185)" onmouseover="showTip(event, 'fs3', 185)" class="i">writeFooter</span>, <span onmouseout="hideTip(event, 'fs3', 186)" onmouseover="showTip(event, 'fs3', 186)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 187)" onmouseover="showTip(event, 'fs3', 187)" class="i">writeSpout</span>, <span onmouseout="hideTip(event, 'fs3', 188)" onmouseover="showTip(event, 'fs3', 188)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 189)" onmouseover="showTip(event, 'fs3', 189)" class="i">writeBolt</span>, <span onmouseout="hideTip(event, 'fs3', 190)" onmouseover="showTip(event, 'fs3', 190)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 191)" onmouseover="showTip(event, 'fs3', 191)" class="i">writeColourfulStream</span> <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs3', 192)" onmouseover="showTip(event, 'fs3', 192)" class="i">DotGraph</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 193)" onmouseover="showTip(event, 'fs32', 193)" class="i">getColour</span> <span onmouseout="hideTip(event, 'fs3', 194)" onmouseover="showTip(event, 'fs3', 194)" class="i">customColours</span>) <span onmouseout="hideTip(event, 'fs3', 195)" onmouseover="showTip(event, 'fs3', 195)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 196)" onmouseover="showTip(event, 'fs33', 196)" class="i">Console</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 197)" onmouseover="showTip(event, 'fs34', 197)" class="i">Out</span>
+</code></pre></td>
+</tr>
+</table>
+<p><img src="svg/WordCount_custom_colourized.svg" alt="SVG" title="Custom Colourized WordCount (SVG)" /></p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace FsShelter</div>
@@ -293,43 +317,47 @@ This was achived by a simple export to console:</p>
 <div class="tip" id="fs28">val run : mkIO:(Task.Log -&gt; Topology.IO&lt;&#39;t&gt;) -&gt; task:Task.Task&lt;&#39;t&gt; -&gt; unit<br /><br />Full name: FsShelter.Task.run</div>
 <div class="tip" id="fs29">val start : log:Task.Log -&gt; Topology.IO&lt;&#39;a&gt;<br /><br />Full name: FsShelter.ProtoIO.start</div>
 <div class="tip" id="fs30">val writeToConsole : t:Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: FsShelter.DotGraph.writeToConsole</div>
+<div class="tip" id="fs31">val writeColourizedToConsole : t:Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: FsShelter.DotGraph.writeColourizedToConsole</div>
+<div class="tip" id="fs32">val getColour : colours:string [] -&gt; (string -&gt; string)<br /><br />Full name: FsShelter.DotGraph.getColour</div>
+<div class="tip" id="fs33">type Console =<br />&#160;&#160;static member BackgroundColor : ConsoleColor with get, set<br />&#160;&#160;static member Beep : unit -&gt; unit + 1 overload<br />&#160;&#160;static member BufferHeight : int with get, set<br />&#160;&#160;static member BufferWidth : int with get, set<br />&#160;&#160;static member CapsLock : bool<br />&#160;&#160;static member Clear : unit -&gt; unit<br />&#160;&#160;static member CursorLeft : int with get, set<br />&#160;&#160;static member CursorSize : int with get, set<br />&#160;&#160;static member CursorTop : int with get, set<br />&#160;&#160;static member CursorVisible : bool with get, set<br />&#160;&#160;...<br /><br />Full name: System.Console</div>
+<div class="tip" id="fs34">property Console.Out: IO.TextWriter</div>
 
         </div>
         <div class="span3">
-          <img src="/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <img src="https://prolucid.github.io/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
             <li class="nav-header">FsShelter</li>
-            <li><a href="/FsShelter/index.html">Home page</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FsShelter">Get Library via NuGet</a></li>
             <li><a href="http://github.com/Prolucid/FsShelter">Source Code on GitHub</a></li>
-            <li><a href="/FsShelter/LICENSE.html">License</a></li>
-            <li><a href="/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/LICENSE.html">License</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
             
             <li class="nav-header">Getting started
-            <li><a href="/FsShelter/wordcount.html">WordCount topology</a>
+            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html">WordCount topology</a>
 			<ul>
-			<li><a href="/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
-            <li><a href="/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
-			<li><a href="/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
-			<li><a href="/FsShelter/wordcount.html#Using-F-DSL-to-define-a-topology">Topology</a></li>
-			<li><a href="/FsShelter/wordcount.html#Submitting-the-topology-for-execution">Submitting for execution</a></li>
-            <li><a href="/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
+			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
+			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
+			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Using-F-DSL-to-define-a-topology">Topology</a></li>
+			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Submitting-the-topology-for-execution">Submitting for execution</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
       <li>
-          <a href="/FsShelter/guaranteed.html">Guaranteed processing</a>
+          <a href="https://prolucid.github.io/FsShelter/guaranteed.html">Guaranteed processing</a>
           <ul>
-              <li><a href="/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-              <li><a href="/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+              <li><a href="https://prolucid.github.io/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+              <li><a href="https://prolucid.github.io/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
           </ul>
       <li>
-          <a href="/FsShelter/self-hosting.html">Self-hosting</a>
+          <a href="https://prolucid.github.io/FsShelter/self-hosting.html">Self-hosting</a>
 			</li>
-      <li><a href="/FsShelter/schema.html">Schema considerations</a></li>
+      <li><a href="https://prolucid.github.io/FsShelter/schema.html">Schema considerations</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/FsShelter/reference/index.html">API Reference</a></li>
+            <li><a href="https://prolucid.github.io/FsShelter/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
