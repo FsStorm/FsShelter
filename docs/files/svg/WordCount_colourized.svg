@@ -23,9 +23,9 @@
 </g>
 <!-- sentencesSpout&#45;&gt;splitBolt -->
 <g id="edge2" class="edge"><title>sentencesSpout&#45;&gt;splitBolt</title>
-<path fill="none" stroke="black" d="M147.284,-26.8701C172.566,-26.8701 200.444,-26.8701 223.907,-26.8701"/>
-<polygon fill="black" stroke="black" points="224.011,-30.3702 234.011,-26.8701 224.011,-23.3702 224.011,-30.3702"/>
-<text text-anchor="middle" x="190.578" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00">Sentence</text>
+<path fill="none" stroke="dimgray" d="M147.284,-26.8701C172.566,-26.8701 200.444,-26.8701 223.907,-26.8701"/>
+<polygon fill="dimgray" stroke="dimgray" points="224.011,-30.3702 234.011,-26.8701 224.011,-23.3702 224.011,-30.3702"/>
+<text text-anchor="start" x="165.078" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00" fill="dimgray">Sentence</text>
 </g>
 <!-- countBolt -->
 <g id="node2" class="node"><title>countBolt</title>
@@ -41,15 +41,15 @@
 </g>
 <!-- countBolt&#45;&gt;logBolt -->
 <g id="edge1" class="edge"><title>countBolt&#45;&gt;logBolt</title>
-<path fill="none" stroke="black" stroke-dasharray="1,5" d="M493.954,-26.8701C522.629,-26.8701 558.596,-26.8701 587.276,-26.8701"/>
-<polygon fill="black" stroke="black" points="587.486,-30.3702 597.486,-26.8701 587.486,-23.3702 587.486,-30.3702"/>
-<text text-anchor="middle" x="545.583" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00">WordCount</text>
+<path fill="none" stroke="red" stroke-dasharray="5,2" d="M493.954,-26.8701C522.629,-26.8701 558.596,-26.8701 587.276,-26.8701"/>
+<polygon fill="red" stroke="red" points="587.486,-30.3702 597.486,-26.8701 587.486,-23.3702 587.486,-30.3702"/>
+<text text-anchor="start" x="511.583" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00" fill="red">WordCount</text>
 </g>
 <!-- splitBolt&#45;&gt;countBolt -->
 <g id="edge3" class="edge"><title>splitBolt&#45;&gt;countBolt</title>
 <path fill="none" stroke="black" d="M323.241,-26.8701C341.522,-26.8701 363.071,-26.8701 382.779,-26.8701"/>
 <polygon fill="black" stroke="black" points="382.891,-30.3702 392.891,-26.8701 382.891,-23.3702 382.891,-30.3702"/>
-<text text-anchor="middle" x="358.174" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00">Word</text>
+<text text-anchor="start" x="341.174" y="-30.6701" font-family="Times New Roman,serif" font-size="14.00">Word</text>
 </g>
 </g>
 </svg>

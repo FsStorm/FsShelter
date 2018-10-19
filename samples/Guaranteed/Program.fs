@@ -28,6 +28,13 @@ let main argv =
     | ["graph"] ->
         topology
         |> DotGraph.writeToConsole
+    | ["colour-graph"] ->
+        topology
+        |> DotGraph.writeColourizedToConsole
+    | ["custom-colour-graph"] ->
+        let customColours = [| "purple"; "dodgerblue"; "springgreen"; "olivedrab"; "orange"; "orangered"; "maroon"; "black" |]
+        topology
+        |> DotGraph.exportToDot (DotGraph.writeHeader, DotGraph.writeFooter, DotGraph.writeSpout, DotGraph.writeBolt, DotGraph.writeColourfulStream <| DotGraph.getColour customColours) System.Console.Out
     | ["self-host"] ->
         let stop = 
             topology
