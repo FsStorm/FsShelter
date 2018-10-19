@@ -115,7 +115,7 @@ Target "GenerateReferenceDocs" (fun _ ->
       failwith "generating reference documentation failed"
 )
 
-let generateHelp' fail debug =
+let generateHelp fail debug =
     let args =
         if debug then ["--define:HELP"]
         else ["--define:RELEASE"; "--define:HELP"]
@@ -127,9 +127,6 @@ let generateHelp' fail debug =
         else
             traceImportant "generating help documentation failed"
 
-let generateHelp fail =
-    generateHelp' fail false
-
 Target "GenerateHelp" (fun _ ->
     DeleteFile "docs/content/release-notes.md"
     CopyFile "docs/content/" "RELEASE_NOTES.md"
@@ -137,28 +134,16 @@ Target "GenerateHelp" (fun _ ->
     DeleteFile "docs/content/license.md"
     CopyFile "docs/content/" "LICENSE.md"
 
-    generateHelp true
+    generateHelp true false
 )
 
-Target "GenerateHelpDebug" (fun _ ->
-    DeleteFile "docs/content/release-notes.md"
-    CopyFile "docs/content/" "RELEASE_NOTES.md"
-    Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
-
-    DeleteFile "docs/content/license.md"
-    CopyFile "docs/content/" "LICENSE.txt"
-    Rename "docs/content/license.md" "docs/content/LICENSE.txt"
-
-    generateHelp' true true
-)
-
-Target "KeepRunning" (fun _ ->    
+Target "WatchDocs" (fun _ ->    
     use watcher = new FileSystemWatcher(DirectoryInfo("docs/content").FullName,"*.*")
     watcher.EnableRaisingEvents <- true
-    watcher.Changed.Add(fun e -> generateHelp false)
-    watcher.Created.Add(fun e -> generateHelp false)
-    watcher.Renamed.Add(fun e -> generateHelp false)
-    watcher.Deleted.Add(fun e -> generateHelp false)
+    watcher.Changed.Add(fun e -> generateHelp true false)
+    watcher.Created.Add(fun e -> generateHelp true false)
+    watcher.Renamed.Add(fun e -> generateHelp true false)
+    watcher.Deleted.Add(fun e -> generateHelp true false)
 
     traceImportant "Waiting for help edits. Press any key to stop."
 
@@ -183,30 +168,6 @@ FsShelter ({0})
     let targetFile = targetDir @@ "index.fsx"
     ensureDirectory targetDir
     System.IO.File.WriteAllText(targetFile, System.String.Format(content, lang))
-
-Target "AddLangDocs" (fun _ ->
-    let args = System.Environment.GetCommandLineArgs()
-    if args.Length < 4 then
-        failwith "Language not specified."
-
-    args.[3..]
-    |> Seq.iter (fun lang ->
-        if lang.Length <> 2 && lang.Length <> 3 then
-            failwithf "Language must be 2 or 3 characters (ex. 'de', 'fr', 'ja', 'gsw', etc.): %s" lang
-
-        let templateFileName = "template.cshtml"
-        let templateDir = "docs/tools/templates"
-        let langTemplateDir = templateDir @@ lang
-        let langTemplateFileName = langTemplateDir @@ templateFileName
-
-        if System.IO.File.Exists(langTemplateFileName) then
-            failwithf "Documents for specified language '%s' have already been added." lang
-
-        ensureDirectory langTemplateDir
-        Copy langTemplateDir [ templateDir @@ templateFileName ]
-
-        createIndexFsx lang)
-)
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
@@ -288,60 +249,27 @@ Target "GenerateSources" DoNothing
 // --------------------------------------------------------------------------------------
 // graph gen tasks
 // GraphViz has to be installed and "dot" be in the path
-Target "WordCountSvg" (fun _ ->
+let exportGraph (app:string) (arg:string) fileName =
     Shell.Exec(
-#if MONO
             "dotnet",
-            ""+
-#else
-            Environment.GetEnvironmentVariable("ComSpec"),
-            "/c dotnet "+
-#endif
-            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
-            " graph | dot -Tsvg -o samples/WordCount/obj/WordCount.svg")
+            ("samples" @@ app @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ (sprintf "%s.dll" app)) +
+            (sprintf " %s | dot -Tsvg -o samples/%s/obj/%s.svg" arg app fileName))
     |> ignore
+
+Target "WordCountSvg" (fun _ ->
+    exportGraph "WordCount" "graph" "WordCount"
 )
 
 Target "WordCountColourSvg" (fun _ ->
-    Shell.Exec(
-#if MONO
-            "dotnet",
-            ""+
-#else
-            Environment.GetEnvironmentVariable("ComSpec"),
-            "/c dotnet "+
-#endif
-            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
-            " colour-graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount_colourized.svg")
-    |> ignore
+    exportGraph "WordCount" "colour-graph" "WordCount_colourized"
 )
 
 Target "WordCountCustomColourSvg" (fun _ ->
-    Shell.Exec(
-#if MONO
-            "dotnet",
-            ""+
-#else
-            Environment.GetEnvironmentVariable("ComSpec"),
-            "/c dotnet "+
-#endif
-            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
-            " custom-colour-graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount_custom_colourized.svg")
-    |> ignore
+    exportGraph "WordCount" "custom-colour-graph" "WordCount_custom_colourized"
 )
 
 Target "GuaranteedSvg" (fun _ ->
-    Shell.Exec(
-#if MONO
-            "dotnet",
-            ""+
-#else
-            Environment.GetEnvironmentVariable("ComSpec"),
-            "/c dotnet "+
-#endif
-            ("samples" @@ "Guaranteed" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "Guaranteed.dll") +
-            " graph | dot -Tsvg -o " + "samples/Guaranteed/obj/Guaranteed.svg")
-    |> ignore
+    exportGraph "Guaranteed" "graph" "Guaranteed"
 )
 
 Target "ExportGraphs" DoNothing
@@ -361,10 +289,10 @@ Target "All" DoNothing
   ==> "GenerateDocs"
 
 "Build"
-  ==> "GenerateHelpDebug"
+  ==> "GenerateHelp"
 
 "GenerateHelp"
-  ==> "KeepRunning"
+  ==> "WatchDocs"
     
 "Release"
   <== ["All"; "PublishNuget"; "ReleaseDocs"]
