@@ -291,34 +291,62 @@ Target "GenerateSources" DoNothing
 Target "WordCountSvg" (fun _ ->
     Shell.Exec(
 #if MONO
-            "mono",
+            "dotnet",
             ""+
 #else
             Environment.GetEnvironmentVariable("ComSpec"),
-            "/c "+
+            "/c dotnet "+
 #endif
-            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "WordCount.exe") +
-            " graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount.svg")
+            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
+            " graph | dot -Tsvg -o samples/WordCount/obj/WordCount.svg")
+    |> ignore
+)
+
+Target "WordCountColourSvg" (fun _ ->
+    Shell.Exec(
+#if MONO
+            "dotnet",
+            ""+
+#else
+            Environment.GetEnvironmentVariable("ComSpec"),
+            "/c dotnet "+
+#endif
+            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
+            " colour-graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount_colourized.svg")
+    |> ignore
+)
+
+Target "WordCountCustomColourSvg" (fun _ ->
+    Shell.Exec(
+#if MONO
+            "dotnet",
+            ""+
+#else
+            Environment.GetEnvironmentVariable("ComSpec"),
+            "/c dotnet "+
+#endif
+            ("samples" @@ "WordCount" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "WordCount.dll") +
+            " custom-colour-graph | dot -Tsvg -o " + "samples/WordCount/obj/WordCount_custom_colourized.svg")
     |> ignore
 )
 
 Target "GuaranteedSvg" (fun _ ->
     Shell.Exec(
 #if MONO
-            "mono",
+            "dotnet",
             ""+
 #else
             Environment.GetEnvironmentVariable("ComSpec"),
-            "/c "+
+            "/c dotnet "+
 #endif
-            ("samples" @@ "Guaranteed" @@ "bin" @@ "Release" @@ "Guaranteed.exe") +
+            ("samples" @@ "Guaranteed" @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ "Guaranteed.dll") +
             " graph | dot -Tsvg -o " + "samples/Guaranteed/obj/Guaranteed.svg")
     |> ignore
 )
 
 Target "ExportGraphs" DoNothing
 "ExportGraphs"
-    <== ["Build";"WordCountSvg";"GuaranteedSvg"]
+    <== ["Build"; "WordCountSvg"; "WordCountColourSvg"; "WordCountCustomColourSvg"; "GuaranteedSvg"]
 
 Target "All" DoNothing
 "All"
