@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prolucid.ProtoShell
+namespace FsStorm.ProtoShell
 {
     using Google.Protobuf;
 

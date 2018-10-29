@@ -26,7 +26,7 @@ let projects =
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
-let gitOwner = "Prolucid" 
+let gitOwner = "FsStorm" 
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
@@ -63,13 +63,13 @@ Target "Clean" (fun _ ->
 Target "Meta" (fun _ ->
     [ "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">"
       "<PropertyGroup>"
-      "<PackageProjectUrl>https://github.com/prolucid/FsShelter</PackageProjectUrl>"
-      "<PackageLicenseUrl>https://raw.githubusercontent.com/prolucid/FsShelter/master/LICENSE.md</PackageLicenseUrl>"
-      "<PackageIconUrl>https://raw.githubusercontent.com/prolucid/FsShelter/master/docs/files/img/logo.png</PackageIconUrl>"
-      "<RepositoryUrl>https://github.com/prolucid/FsShelter.git</RepositoryUrl>"
+      "<PackageProjectUrl>https://github.com/FsStorm/FsShelter</PackageProjectUrl>"
+      "<PackageLicenseUrl>https://raw.githubusercontent.com/FsStorm/FsShelter/master/LICENSE.md</PackageLicenseUrl>"
+      "<PackageIconUrl>https://raw.githubusercontent.com/FsStorm/FsShelter/master/docs/files/img/logo.png</PackageIconUrl>"
+      "<RepositoryUrl>https://github.com/FsStorm/FsShelter.git</RepositoryUrl>"
       "<PackageTags>storm;cep;event-driven;fsharp;distributed</PackageTags>"
       "<PackageDescription>F# DSL and runtime for Apache Storm topologies</PackageDescription>"
-      "<Authors>Prolucid</Authors>"
+      "<Authors>FsStorm</Authors>"
       sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes |> System.Web.HttpUtility.HtmlEncode)
       sprintf "<Version>%s</Version>" (string release.SemVer)
       "</PropertyGroup>"
@@ -217,8 +217,8 @@ Target "ProtoShell" (fun _ ->
             cli,
             "--csharp_out=" + generated 
             + " --proto_path=" + "packages" @@ "build" @@ "Google.Protobuf.Tools" @@ "tools"
-            + " --proto_path=" + "paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto"
-            + " paket-files" @@ "prolucid" @@ "protoshell" @@ "src" @@ "main" @@  "proto" @@ "multilang.proto")
+            + " --proto_path=" + "paket-files" @@ "FsStorm" @@ "protoshell" @@ "src" @@ "main" @@  "proto"
+            + " paket-files" @@ "FsStorm" @@ "protoshell" @@ "src" @@ "main" @@  "proto" @@ "multilang.proto")
     |> ignore
 )
 

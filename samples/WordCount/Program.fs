@@ -11,7 +11,7 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     let topology = 
         reliableTopology // | unreliableTopology
-        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer" // custom Multilang serializer (`Startup.submit` will try to include it for deployment)
+        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.FsStorm.protoshell.ProtoSerializer" // custom Multilang serializer (`Startup.submit` will try to include it for deployment)
                       TOPOLOGY_MAX_SPOUT_PENDING 123
                       TOPOLOGY_DEBUG false] // setting topology.debug true tells FsShelter and Storm to log messages to and from this component in respective logs
 

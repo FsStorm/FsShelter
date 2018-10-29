@@ -948,7 +948,7 @@ NUGET
     Unquote (4.0)
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard2.0
 GITHUB
-  remote: prolucid/protoshell
+  remote: FsStorm/protoshell
     src/main/proto/multilang.proto (c9dcb9e48ad4b7917b68a953901ab0e2ea92da5c)
   remote: et1975/storm
     storm-core/src/storm.thrift (f0de99597e5256428016a3a18982ec8e146427bb)
@@ -977,4 +977,4 @@ GROUP Run
 
 HTTP
   remote: https://github.com
-    protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar (/Prolucid/protoshell/releases/download/v1.1.0/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar)
+    protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar (/FsStorm/protoshell/releases/download/v1.1.0/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar)

@@ -5,7 +5,7 @@ open Multilang
 open System
 open Google.Protobuf
 open Google.Protobuf.WellKnownTypes
-open Prolucid.ProtoShell
+open FsStorm.ProtoShell
 open TupleSchema
 open System.IO
 

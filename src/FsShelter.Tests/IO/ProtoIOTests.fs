@@ -8,7 +8,7 @@ open System
 open System.IO
 open Google.Protobuf
 open Google.Protobuf.WellKnownTypes
-open Prolucid.ProtoShell
+open FsStorm.ProtoShell
 open TupleSchema
 open CommonTests
 

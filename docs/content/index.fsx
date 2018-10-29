@@ -20,7 +20,7 @@ Overall, the library provides a "batteries included" experience with wrappers fo
 - Generate a topology graph as part of your build
 
 The topology and the components can be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
-The corresponding [ProtoShell](https://github.com/prolucid/protoshell) Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
+The corresponding [ProtoShell](https://github.com/FsStorm/protoshell) Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.
 
 Bring your own, if you need it:
@@ -217,8 +217,8 @@ Getting FsShelter
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small">
-      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/prolucid/fsshelter-samples/">docker hub</a>:
-      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 prolucid/fsshelter-samples</pre>
+      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/FsStorm/fsshelter-samples/">docker hub</a>:
+      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 FsStorm/fsshelter-samples</pre>
     </div>
   </div>
   <div class="span1"></div>
@@ -240,12 +240,12 @@ Commercial support
 --------------------------
 
 Commercial training and support are available from the project sponsor: 
-<a href="http://prolucid.ca/" target="_blank"><img src="http://prolucid.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="Prolucid" style="height:30px" border="0" /></a>
+<a href="http://FsStorm.ca/" target="_blank"><img src="http://FsStorm.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="FsStorm" style="height:30px" border="0" /></a>
 
 
-  [content]: https://github.com/Prolucid/FsShelter/tree/master/docs/content
-  [gh]: https://github.com/Prolucid/FsShelter
-  [issues]: https://github.com/Prolucid/FsShelter/issues
-  [readme]: https://github.com/Prolucid/FsShelter/blob/master/README.md
-  [license]: https://github.com/Prolucid/FsShelter/blob/master/LICENSE.md
+  [content]: https://github.com/FsStorm/FsShelter/tree/master/docs/content
+  [gh]: https://github.com/FsStorm/FsShelter
+  [issues]: https://github.com/FsStorm/FsShelter/issues
+  [readme]: https://github.com/FsStorm/FsShelter/blob/master/README.md
+  [license]: https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md
 *)

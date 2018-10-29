@@ -28,8 +28,8 @@ group Main
 	nuget unquote
 	nuget Microsoft.NET.Test.Sdk
 	
-	github prolucid/protoshell src/main/proto/multilang.proto
+	github FsStorm/protoshell src/main/proto/multilang.proto
 	github et1975/storm storm-core/src/storm.thrift
 
 group Run
-	http https://github.com/Prolucid/protoshell/releases/download/v1.1.0/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar
+	http https://github.com/FsStorm/protoshell/releases/download/v1.1.0/protoshell-1.1.0-SNAPSHOT-jar-with-dependencies.jar

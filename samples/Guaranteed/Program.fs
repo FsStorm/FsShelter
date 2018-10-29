@@ -12,7 +12,7 @@ let exePath = System.Reflection.Assembly.GetEntryAssembly().Location
 let main argv = 
     let topology = 
         sampleTopology
-        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.prolucid.protoshell.ProtoSerializer"
+        |> withConf [ TOPOLOGY_MULTILANG_SERIALIZER "com.FsStorm.protoshell.ProtoSerializer"
                       TOPOLOGY_ACKER_EXECUTORS 2
                       TOPOLOGY_MAX_SPOUT_PENDING 123
                       TOPOLOGY_DEBUG false]

@@ -160,7 +160,7 @@ Then the execution will be handed over to one of the corresponding "dispatchers"
 Keep in mind that:
 
 * STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).
-* out of the box Storm only supports JSON multilang. For faster IO, consider [ProtoShell](https://github.com/prolucid/protoshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
+* out of the box Storm only supports JSON multilang. For faster IO, consider [ProtoShell](https://github.com/FsStorm/protoshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
 
 
 Exporting the topology graph

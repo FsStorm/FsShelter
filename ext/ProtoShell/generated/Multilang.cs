@@ -7,7 +7,7 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace Prolucid.ProtoShell.Messages {
+namespace FsStorm.ProtoShell.Messages {
 
   /// <summary>Holder for reflection information generated from multilang.proto</summary>
   public static partial class MultilangReflection {
@@ -68,26 +68,26 @@ namespace Prolucid.ProtoShell.Messages {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.Context), global::Prolucid.ProtoShell.Messages.Context.Parser, new[]{ "TaskId", "TaskComponents", "ComponentId" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.Handshake), global::Prolucid.ProtoShell.Messages.Handshake.Parser, new[]{ "PidDir", "Context", "Config" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.Variant), global::Prolucid.ProtoShell.Messages.Variant.Parser, new[]{ "StrVal", "Int32Val", "Int64Val", "FloatVal", "DoubleVal", "BoolVal", "BytesVal", "TimestampVal", "NoneVal" }, new[]{ "Kind" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.StreamIn), global::Prolucid.ProtoShell.Messages.StreamIn.Parser, new[]{ "Id", "Comp", "Stream", "Task", "Tuple" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.TaskIdsReply), global::Prolucid.ProtoShell.Messages.TaskIdsReply.Parser, new[]{ "TaskIds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.Heartbeat), global::Prolucid.ProtoShell.Messages.Heartbeat.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.NextCommand), global::Prolucid.ProtoShell.Messages.NextCommand.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.AckCommand), global::Prolucid.ProtoShell.Messages.AckCommand.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.NackCommand), global::Prolucid.ProtoShell.Messages.NackCommand.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.ActivateCommand), global::Prolucid.ProtoShell.Messages.ActivateCommand.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.DeactivateCommand), global::Prolucid.ProtoShell.Messages.DeactivateCommand.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.StormMsg), global::Prolucid.ProtoShell.Messages.StormMsg.Parser, new[]{ "Handshake", "NextCmd", "AckCmd", "NackCmd", "StreamIn", "TaskIds", "Heartbeat", "ActivateCmd", "DeactivateCmd" }, new[]{ "Msg" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.OkReply), global::Prolucid.ProtoShell.Messages.OkReply.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.FailReply), global::Prolucid.ProtoShell.Messages.FailReply.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.EmitCommand), global::Prolucid.ProtoShell.Messages.EmitCommand.Parser, new[]{ "Id", "Stream", "Tuple", "Anchors", "Task", "NeedTaskIds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.LogCommand), global::Prolucid.ProtoShell.Messages.LogCommand.Parser, new[]{ "Text", "Level" }, null, new[]{ typeof(global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.PidReply), global::Prolucid.ProtoShell.Messages.PidReply.Parser, new[]{ "Pid" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.SyncReply), global::Prolucid.ProtoShell.Messages.SyncReply.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.Metric), global::Prolucid.ProtoShell.Messages.Metric.Parser, new[]{ "Name", "Parameters" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Prolucid.ProtoShell.Messages.ShellMsg), global::Prolucid.ProtoShell.Messages.ShellMsg.Parser, new[]{ "Ok", "Fail", "Emit", "Pid", "Log", "Sync", "Metric" }, new[]{ "Msg" }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.Context), global::FsStorm.ProtoShell.Messages.Context.Parser, new[]{ "TaskId", "TaskComponents", "ComponentId" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.Handshake), global::FsStorm.ProtoShell.Messages.Handshake.Parser, new[]{ "PidDir", "Context", "Config" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.Variant), global::FsStorm.ProtoShell.Messages.Variant.Parser, new[]{ "StrVal", "Int32Val", "Int64Val", "FloatVal", "DoubleVal", "BoolVal", "BytesVal", "TimestampVal", "NoneVal" }, new[]{ "Kind" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.StreamIn), global::FsStorm.ProtoShell.Messages.StreamIn.Parser, new[]{ "Id", "Comp", "Stream", "Task", "Tuple" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.TaskIdsReply), global::FsStorm.ProtoShell.Messages.TaskIdsReply.Parser, new[]{ "TaskIds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.Heartbeat), global::FsStorm.ProtoShell.Messages.Heartbeat.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.NextCommand), global::FsStorm.ProtoShell.Messages.NextCommand.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.AckCommand), global::FsStorm.ProtoShell.Messages.AckCommand.Parser, new[]{ "Id" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.NackCommand), global::FsStorm.ProtoShell.Messages.NackCommand.Parser, new[]{ "Id" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.ActivateCommand), global::FsStorm.ProtoShell.Messages.ActivateCommand.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.DeactivateCommand), global::FsStorm.ProtoShell.Messages.DeactivateCommand.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.StormMsg), global::FsStorm.ProtoShell.Messages.StormMsg.Parser, new[]{ "Handshake", "NextCmd", "AckCmd", "NackCmd", "StreamIn", "TaskIds", "Heartbeat", "ActivateCmd", "DeactivateCmd" }, new[]{ "Msg" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.OkReply), global::FsStorm.ProtoShell.Messages.OkReply.Parser, new[]{ "Id" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.FailReply), global::FsStorm.ProtoShell.Messages.FailReply.Parser, new[]{ "Id" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.EmitCommand), global::FsStorm.ProtoShell.Messages.EmitCommand.Parser, new[]{ "Id", "Stream", "Tuple", "Anchors", "Task", "NeedTaskIds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.LogCommand), global::FsStorm.ProtoShell.Messages.LogCommand.Parser, new[]{ "Text", "Level" }, null, new[]{ typeof(global::FsStorm.ProtoShell.Messages.LogCommand.Types.LogLevel) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.PidReply), global::FsStorm.ProtoShell.Messages.PidReply.Parser, new[]{ "Pid" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.SyncReply), global::FsStorm.ProtoShell.Messages.SyncReply.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.Metric), global::FsStorm.ProtoShell.Messages.Metric.Parser, new[]{ "Name", "Parameters" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FsStorm.ProtoShell.Messages.ShellMsg), global::FsStorm.ProtoShell.Messages.ShellMsg.Parser, new[]{ "Ok", "Fail", "Emit", "Pid", "Log", "Sync", "Metric" }, new[]{ "Msg" }, null, null)
           }));
     }
     #endregion
@@ -101,7 +101,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[0]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -266,7 +266,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[1]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -306,9 +306,9 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "context" field.</summary>
     public const int ContextFieldNumber = 2;
-    private global::Prolucid.ProtoShell.Messages.Context context_;
+    private global::FsStorm.ProtoShell.Messages.Context context_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.Context Context {
+    public global::FsStorm.ProtoShell.Messages.Context Context {
       get { return context_; }
       set {
         context_ = value;
@@ -394,7 +394,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
       if (other.context_ != null) {
         if (context_ == null) {
-          context_ = new global::Prolucid.ProtoShell.Messages.Context();
+          context_ = new global::FsStorm.ProtoShell.Messages.Context();
         }
         Context.MergeFrom(other.Context);
       }
@@ -415,7 +415,7 @@ namespace Prolucid.ProtoShell.Messages {
           }
           case 18: {
             if (context_ == null) {
-              context_ = new global::Prolucid.ProtoShell.Messages.Context();
+              context_ = new global::FsStorm.ProtoShell.Messages.Context();
             }
             input.ReadMessage(context_);
             break;
@@ -437,7 +437,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[2]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -836,7 +836,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[3]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -911,11 +911,11 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "tuple" field.</summary>
     public const int TupleFieldNumber = 5;
-    private static readonly pb::FieldCodec<global::Prolucid.ProtoShell.Messages.Variant> _repeated_tuple_codec
-        = pb::FieldCodec.ForMessage(42, global::Prolucid.ProtoShell.Messages.Variant.Parser);
-    private readonly pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant>();
+    private static readonly pb::FieldCodec<global::FsStorm.ProtoShell.Messages.Variant> _repeated_tuple_codec
+        = pb::FieldCodec.ForMessage(42, global::FsStorm.ProtoShell.Messages.Variant.Parser);
+    private readonly pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> Tuple {
+    public pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant> Tuple {
       get { return tuple_; }
     }
 
@@ -1057,7 +1057,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[4]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1167,7 +1167,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[5]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1256,7 +1256,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[6]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1345,7 +1345,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[7]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1462,7 +1462,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[8]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1579,7 +1579,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[9]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1668,7 +1668,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[10]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1757,7 +1757,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[11]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1814,8 +1814,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "handshake" field.</summary>
     public const int HandshakeFieldNumber = 1;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.Handshake Handshake {
-      get { return msgCase_ == MsgOneofCase.Handshake ? (global::Prolucid.ProtoShell.Messages.Handshake) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.Handshake Handshake {
+      get { return msgCase_ == MsgOneofCase.Handshake ? (global::FsStorm.ProtoShell.Messages.Handshake) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Handshake;
@@ -1825,8 +1825,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "nextCmd" field.</summary>
     public const int NextCmdFieldNumber = 2;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.NextCommand NextCmd {
-      get { return msgCase_ == MsgOneofCase.NextCmd ? (global::Prolucid.ProtoShell.Messages.NextCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.NextCommand NextCmd {
+      get { return msgCase_ == MsgOneofCase.NextCmd ? (global::FsStorm.ProtoShell.Messages.NextCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.NextCmd;
@@ -1836,8 +1836,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "ackCmd" field.</summary>
     public const int AckCmdFieldNumber = 3;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.AckCommand AckCmd {
-      get { return msgCase_ == MsgOneofCase.AckCmd ? (global::Prolucid.ProtoShell.Messages.AckCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.AckCommand AckCmd {
+      get { return msgCase_ == MsgOneofCase.AckCmd ? (global::FsStorm.ProtoShell.Messages.AckCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.AckCmd;
@@ -1847,8 +1847,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "nackCmd" field.</summary>
     public const int NackCmdFieldNumber = 4;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.NackCommand NackCmd {
-      get { return msgCase_ == MsgOneofCase.NackCmd ? (global::Prolucid.ProtoShell.Messages.NackCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.NackCommand NackCmd {
+      get { return msgCase_ == MsgOneofCase.NackCmd ? (global::FsStorm.ProtoShell.Messages.NackCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.NackCmd;
@@ -1858,8 +1858,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "streamIn" field.</summary>
     public const int StreamInFieldNumber = 5;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.StreamIn StreamIn {
-      get { return msgCase_ == MsgOneofCase.StreamIn ? (global::Prolucid.ProtoShell.Messages.StreamIn) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.StreamIn StreamIn {
+      get { return msgCase_ == MsgOneofCase.StreamIn ? (global::FsStorm.ProtoShell.Messages.StreamIn) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.StreamIn;
@@ -1869,8 +1869,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "taskIds" field.</summary>
     public const int TaskIdsFieldNumber = 6;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.TaskIdsReply TaskIds {
-      get { return msgCase_ == MsgOneofCase.TaskIds ? (global::Prolucid.ProtoShell.Messages.TaskIdsReply) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.TaskIdsReply TaskIds {
+      get { return msgCase_ == MsgOneofCase.TaskIds ? (global::FsStorm.ProtoShell.Messages.TaskIdsReply) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.TaskIds;
@@ -1880,8 +1880,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "heartbeat" field.</summary>
     public const int HeartbeatFieldNumber = 7;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.Heartbeat Heartbeat {
-      get { return msgCase_ == MsgOneofCase.Heartbeat ? (global::Prolucid.ProtoShell.Messages.Heartbeat) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.Heartbeat Heartbeat {
+      get { return msgCase_ == MsgOneofCase.Heartbeat ? (global::FsStorm.ProtoShell.Messages.Heartbeat) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Heartbeat;
@@ -1891,8 +1891,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "activateCmd" field.</summary>
     public const int ActivateCmdFieldNumber = 8;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.ActivateCommand ActivateCmd {
-      get { return msgCase_ == MsgOneofCase.ActivateCmd ? (global::Prolucid.ProtoShell.Messages.ActivateCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.ActivateCommand ActivateCmd {
+      get { return msgCase_ == MsgOneofCase.ActivateCmd ? (global::FsStorm.ProtoShell.Messages.ActivateCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.ActivateCmd;
@@ -1902,8 +1902,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "deactivateCmd" field.</summary>
     public const int DeactivateCmdFieldNumber = 9;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.DeactivateCommand DeactivateCmd {
-      get { return msgCase_ == MsgOneofCase.DeactivateCmd ? (global::Prolucid.ProtoShell.Messages.DeactivateCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.DeactivateCommand DeactivateCmd {
+      get { return msgCase_ == MsgOneofCase.DeactivateCmd ? (global::FsStorm.ProtoShell.Messages.DeactivateCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.DeactivateCmd;
@@ -2102,7 +2102,7 @@ namespace Prolucid.ProtoShell.Messages {
             input.SkipLastField();
             break;
           case 10: {
-            global::Prolucid.ProtoShell.Messages.Handshake subBuilder = new global::Prolucid.ProtoShell.Messages.Handshake();
+            global::FsStorm.ProtoShell.Messages.Handshake subBuilder = new global::FsStorm.ProtoShell.Messages.Handshake();
             if (msgCase_ == MsgOneofCase.Handshake) {
               subBuilder.MergeFrom(Handshake);
             }
@@ -2111,7 +2111,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 18: {
-            global::Prolucid.ProtoShell.Messages.NextCommand subBuilder = new global::Prolucid.ProtoShell.Messages.NextCommand();
+            global::FsStorm.ProtoShell.Messages.NextCommand subBuilder = new global::FsStorm.ProtoShell.Messages.NextCommand();
             if (msgCase_ == MsgOneofCase.NextCmd) {
               subBuilder.MergeFrom(NextCmd);
             }
@@ -2120,7 +2120,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 26: {
-            global::Prolucid.ProtoShell.Messages.AckCommand subBuilder = new global::Prolucid.ProtoShell.Messages.AckCommand();
+            global::FsStorm.ProtoShell.Messages.AckCommand subBuilder = new global::FsStorm.ProtoShell.Messages.AckCommand();
             if (msgCase_ == MsgOneofCase.AckCmd) {
               subBuilder.MergeFrom(AckCmd);
             }
@@ -2129,7 +2129,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 34: {
-            global::Prolucid.ProtoShell.Messages.NackCommand subBuilder = new global::Prolucid.ProtoShell.Messages.NackCommand();
+            global::FsStorm.ProtoShell.Messages.NackCommand subBuilder = new global::FsStorm.ProtoShell.Messages.NackCommand();
             if (msgCase_ == MsgOneofCase.NackCmd) {
               subBuilder.MergeFrom(NackCmd);
             }
@@ -2138,7 +2138,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 42: {
-            global::Prolucid.ProtoShell.Messages.StreamIn subBuilder = new global::Prolucid.ProtoShell.Messages.StreamIn();
+            global::FsStorm.ProtoShell.Messages.StreamIn subBuilder = new global::FsStorm.ProtoShell.Messages.StreamIn();
             if (msgCase_ == MsgOneofCase.StreamIn) {
               subBuilder.MergeFrom(StreamIn);
             }
@@ -2147,7 +2147,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 50: {
-            global::Prolucid.ProtoShell.Messages.TaskIdsReply subBuilder = new global::Prolucid.ProtoShell.Messages.TaskIdsReply();
+            global::FsStorm.ProtoShell.Messages.TaskIdsReply subBuilder = new global::FsStorm.ProtoShell.Messages.TaskIdsReply();
             if (msgCase_ == MsgOneofCase.TaskIds) {
               subBuilder.MergeFrom(TaskIds);
             }
@@ -2156,7 +2156,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 58: {
-            global::Prolucid.ProtoShell.Messages.Heartbeat subBuilder = new global::Prolucid.ProtoShell.Messages.Heartbeat();
+            global::FsStorm.ProtoShell.Messages.Heartbeat subBuilder = new global::FsStorm.ProtoShell.Messages.Heartbeat();
             if (msgCase_ == MsgOneofCase.Heartbeat) {
               subBuilder.MergeFrom(Heartbeat);
             }
@@ -2165,7 +2165,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 66: {
-            global::Prolucid.ProtoShell.Messages.ActivateCommand subBuilder = new global::Prolucid.ProtoShell.Messages.ActivateCommand();
+            global::FsStorm.ProtoShell.Messages.ActivateCommand subBuilder = new global::FsStorm.ProtoShell.Messages.ActivateCommand();
             if (msgCase_ == MsgOneofCase.ActivateCmd) {
               subBuilder.MergeFrom(ActivateCmd);
             }
@@ -2174,7 +2174,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 74: {
-            global::Prolucid.ProtoShell.Messages.DeactivateCommand subBuilder = new global::Prolucid.ProtoShell.Messages.DeactivateCommand();
+            global::FsStorm.ProtoShell.Messages.DeactivateCommand subBuilder = new global::FsStorm.ProtoShell.Messages.DeactivateCommand();
             if (msgCase_ == MsgOneofCase.DeactivateCmd) {
               subBuilder.MergeFrom(DeactivateCmd);
             }
@@ -2195,7 +2195,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[12]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2312,7 +2312,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[13]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2429,7 +2429,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[14]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2483,11 +2483,11 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "tuple" field.</summary>
     public const int TupleFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::Prolucid.ProtoShell.Messages.Variant> _repeated_tuple_codec
-        = pb::FieldCodec.ForMessage(26, global::Prolucid.ProtoShell.Messages.Variant.Parser);
-    private readonly pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant>();
+    private static readonly pb::FieldCodec<global::FsStorm.ProtoShell.Messages.Variant> _repeated_tuple_codec
+        = pb::FieldCodec.ForMessage(26, global::FsStorm.ProtoShell.Messages.Variant.Parser);
+    private readonly pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant> tuple_ = new pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Prolucid.ProtoShell.Messages.Variant> Tuple {
+    public pbc::RepeatedField<global::FsStorm.ProtoShell.Messages.Variant> Tuple {
       get { return tuple_; }
     }
 
@@ -2670,7 +2670,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[15]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2709,9 +2709,9 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "level" field.</summary>
     public const int LevelFieldNumber = 2;
-    private global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel level_ = 0;
+    private global::FsStorm.ProtoShell.Messages.LogCommand.Types.LogLevel level_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel Level {
+    public global::FsStorm.ProtoShell.Messages.LogCommand.Types.LogLevel Level {
       get { return level_; }
       set {
         level_ = value;
@@ -2799,7 +2799,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 16: {
-            level_ = (global::Prolucid.ProtoShell.Messages.LogCommand.Types.LogLevel) input.ReadEnum();
+            level_ = (global::FsStorm.ProtoShell.Messages.LogCommand.Types.LogLevel) input.ReadEnum();
             break;
           }
         }
@@ -2830,7 +2830,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[16]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2947,7 +2947,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[17]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3036,7 +3036,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[18]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3173,7 +3173,7 @@ namespace Prolucid.ProtoShell.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Prolucid.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[19]; }
+      get { return global::FsStorm.ProtoShell.Messages.MultilangReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3222,8 +3222,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "ok" field.</summary>
     public const int OkFieldNumber = 1;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.OkReply Ok {
-      get { return msgCase_ == MsgOneofCase.Ok ? (global::Prolucid.ProtoShell.Messages.OkReply) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.OkReply Ok {
+      get { return msgCase_ == MsgOneofCase.Ok ? (global::FsStorm.ProtoShell.Messages.OkReply) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Ok;
@@ -3233,8 +3233,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "fail" field.</summary>
     public const int FailFieldNumber = 2;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.FailReply Fail {
-      get { return msgCase_ == MsgOneofCase.Fail ? (global::Prolucid.ProtoShell.Messages.FailReply) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.FailReply Fail {
+      get { return msgCase_ == MsgOneofCase.Fail ? (global::FsStorm.ProtoShell.Messages.FailReply) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Fail;
@@ -3244,8 +3244,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "emit" field.</summary>
     public const int EmitFieldNumber = 3;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.EmitCommand Emit {
-      get { return msgCase_ == MsgOneofCase.Emit ? (global::Prolucid.ProtoShell.Messages.EmitCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.EmitCommand Emit {
+      get { return msgCase_ == MsgOneofCase.Emit ? (global::FsStorm.ProtoShell.Messages.EmitCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Emit;
@@ -3255,8 +3255,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "pid" field.</summary>
     public const int PidFieldNumber = 4;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.PidReply Pid {
-      get { return msgCase_ == MsgOneofCase.Pid ? (global::Prolucid.ProtoShell.Messages.PidReply) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.PidReply Pid {
+      get { return msgCase_ == MsgOneofCase.Pid ? (global::FsStorm.ProtoShell.Messages.PidReply) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Pid;
@@ -3266,8 +3266,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "log" field.</summary>
     public const int LogFieldNumber = 5;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.LogCommand Log {
-      get { return msgCase_ == MsgOneofCase.Log ? (global::Prolucid.ProtoShell.Messages.LogCommand) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.LogCommand Log {
+      get { return msgCase_ == MsgOneofCase.Log ? (global::FsStorm.ProtoShell.Messages.LogCommand) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Log;
@@ -3277,8 +3277,8 @@ namespace Prolucid.ProtoShell.Messages {
     /// <summary>Field number for the "sync" field.</summary>
     public const int SyncFieldNumber = 6;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.SyncReply Sync {
-      get { return msgCase_ == MsgOneofCase.Sync ? (global::Prolucid.ProtoShell.Messages.SyncReply) msg_ : null; }
+    public global::FsStorm.ProtoShell.Messages.SyncReply Sync {
+      get { return msgCase_ == MsgOneofCase.Sync ? (global::FsStorm.ProtoShell.Messages.SyncReply) msg_ : null; }
       set {
         msg_ = value;
         msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Sync;
@@ -3287,9 +3287,9 @@ namespace Prolucid.ProtoShell.Messages {
 
     /// <summary>Field number for the "metric" field.</summary>
     public const int MetricFieldNumber = 7;
-    private global::Prolucid.ProtoShell.Messages.Metric metric_;
+    private global::FsStorm.ProtoShell.Messages.Metric metric_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Prolucid.ProtoShell.Messages.Metric Metric {
+    public global::FsStorm.ProtoShell.Messages.Metric Metric {
       get { return metric_; }
       set {
         metric_ = value;
@@ -3428,7 +3428,7 @@ namespace Prolucid.ProtoShell.Messages {
       }
       if (other.metric_ != null) {
         if (metric_ == null) {
-          metric_ = new global::Prolucid.ProtoShell.Messages.Metric();
+          metric_ = new global::FsStorm.ProtoShell.Messages.Metric();
         }
         Metric.MergeFrom(other.Metric);
       }
@@ -3464,7 +3464,7 @@ namespace Prolucid.ProtoShell.Messages {
             input.SkipLastField();
             break;
           case 10: {
-            global::Prolucid.ProtoShell.Messages.OkReply subBuilder = new global::Prolucid.ProtoShell.Messages.OkReply();
+            global::FsStorm.ProtoShell.Messages.OkReply subBuilder = new global::FsStorm.ProtoShell.Messages.OkReply();
             if (msgCase_ == MsgOneofCase.Ok) {
               subBuilder.MergeFrom(Ok);
             }
@@ -3473,7 +3473,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 18: {
-            global::Prolucid.ProtoShell.Messages.FailReply subBuilder = new global::Prolucid.ProtoShell.Messages.FailReply();
+            global::FsStorm.ProtoShell.Messages.FailReply subBuilder = new global::FsStorm.ProtoShell.Messages.FailReply();
             if (msgCase_ == MsgOneofCase.Fail) {
               subBuilder.MergeFrom(Fail);
             }
@@ -3482,7 +3482,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 26: {
-            global::Prolucid.ProtoShell.Messages.EmitCommand subBuilder = new global::Prolucid.ProtoShell.Messages.EmitCommand();
+            global::FsStorm.ProtoShell.Messages.EmitCommand subBuilder = new global::FsStorm.ProtoShell.Messages.EmitCommand();
             if (msgCase_ == MsgOneofCase.Emit) {
               subBuilder.MergeFrom(Emit);
             }
@@ -3491,7 +3491,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 34: {
-            global::Prolucid.ProtoShell.Messages.PidReply subBuilder = new global::Prolucid.ProtoShell.Messages.PidReply();
+            global::FsStorm.ProtoShell.Messages.PidReply subBuilder = new global::FsStorm.ProtoShell.Messages.PidReply();
             if (msgCase_ == MsgOneofCase.Pid) {
               subBuilder.MergeFrom(Pid);
             }
@@ -3500,7 +3500,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 42: {
-            global::Prolucid.ProtoShell.Messages.LogCommand subBuilder = new global::Prolucid.ProtoShell.Messages.LogCommand();
+            global::FsStorm.ProtoShell.Messages.LogCommand subBuilder = new global::FsStorm.ProtoShell.Messages.LogCommand();
             if (msgCase_ == MsgOneofCase.Log) {
               subBuilder.MergeFrom(Log);
             }
@@ -3509,7 +3509,7 @@ namespace Prolucid.ProtoShell.Messages {
             break;
           }
           case 50: {
-            global::Prolucid.ProtoShell.Messages.SyncReply subBuilder = new global::Prolucid.ProtoShell.Messages.SyncReply();
+            global::FsStorm.ProtoShell.Messages.SyncReply subBuilder = new global::FsStorm.ProtoShell.Messages.SyncReply();
             if (msgCase_ == MsgOneofCase.Sync) {
               subBuilder.MergeFrom(Sync);
             }
@@ -3519,7 +3519,7 @@ namespace Prolucid.ProtoShell.Messages {
           }
           case 58: {
             if (metric_ == null) {
-              metric_ = new global::Prolucid.ProtoShell.Messages.Metric();
+              metric_ = new global::FsStorm.ProtoShell.Messages.Metric();
             }
             input.ReadMessage(metric_);
             break;

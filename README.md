@@ -1,14 +1,14 @@
-FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter) [![Mono/OSX build](https://travis-ci.org/Prolucid/FsShelter.svg?branch=master)](https://travis-ci.org/Prolucid/FsShelter) [![NuGet version](https://badge.fury.io/nu/fsshelter.svg)](https://badge.fury.io/nu/fsshelter)
+FsShelter [![Windows Build](https://ci.appveyor.com/api/projects/status/c0oom3oyr8qnrsc8?svg=true)](https://ci.appveyor.com/project/et1975/fsshelter) [![Mono/OSX build](https://travis-ci.org/FsStorm/FsShelter.svg?branch=master)](https://travis-ci.org/FsStorm/FsShelter) [![NuGet version](https://badge.fury.io/nu/fsshelter.svg)](https://badge.fury.io/nu/fsshelter)
 =======
 
 FsShelter is a library for defining and running Apache Storm topologies in F# using statically typed streams.
 
 It is a complete rewrite of [FsStorm](https://github.com/FsStorm) with the goals of static typing, modularity, and pluggable serialization.
-It comes bundled with Json serialization and Protobuf (Protobuf requires corresponding Storm multilang serializer implementation  [Protoshell](https://github.com/prolucid/protoshell)). 
+It comes bundled with Json serialization and Protobuf (Protobuf requires corresponding Storm multilang serializer implementation  [Protoshell](https://github.com/FsStorm/protoshell)). 
 
 See [docs][docs] for for an intro and an overview.
 
-Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Prolucid/FsShelter)
+Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FsStorm/FsShelter)
 
 ## Limitations
 * At the moment FsShelter doesn't support direct emits.
@@ -45,6 +45,6 @@ Open [Storm UI](http://localhost:8080/) and see the Storm worker logs for runtim
 FsShelter is Apache 2.0 licensed and is free to use and modify.
 
 ## Commercial support
-Contact [Prolucid](http://prolucid.ca) for commercial support.
+Contact [FsStorm](http://FsStorm.ca) for commercial support.
 
-[docs]:https://prolucid.github.io/FsShelter/
+[docs]:https://FsStorm.github.io/FsShelter/
