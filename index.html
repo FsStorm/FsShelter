@@ -12,11 +12,11 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="https://prolucid.github.io/FsShelter/content/style.css" />
+    <link type="text/css" rel="stylesheet" href="https://FsStorm.github.io/FsShelter/content/style.css" />
     <link rel="icon"
             type="image/png"
-            href="https://prolucid.github.io/FsShelter/img/logo.png" />
-    <script type="text/javascript" src="https://prolucid.github.io/FsShelter/content/tips.js"></script>
+            href="https://FsStorm.github.io/FsShelter/img/logo.png" />
+    <script type="text/javascript" src="https://FsStorm.github.io/FsShelter/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,11 +26,10 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="https://prolucid.github.io">prolucid</a></li>
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/Prolucid/FsShelter">github page</a></li>
+          <li><a href="http://github.com/FsStorm/FsShelter">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="https://prolucid.github.io/FsShelter/index.html">FsShelter</a></h3>
+        <h3 class="muted"><a href="https://FsStorm.github.io/FsShelter/index.html">FsShelter</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -47,7 +46,7 @@ FsShelter is a major rewrite of <a href="https://github.com/FsStorm">FsStorm</a>
 <li>Generate a topology graph as part of your build</li>
 </ul>
 <p>The topology and the components can be implemented in a single EXE project and are executed by Storm via its <a href="https://storm.apache.org/documentation/Multilang-protocol.html">multilang</a> protocol as separate processes - one for each task/instance.
-The corresponding <a href="https://github.com/prolucid/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
+The corresponding <a href="https://github.com/FsStorm/protoshell">ProtoShell</a> Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
 See samples to learn how to bundle the assemblies and a serializer for upload to Storm.</p>
 <p>Bring your own, if you need it:</p>
 <ul>
@@ -286,23 +285,23 @@ and functions in the library.</p>
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small">
-      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/prolucid/fsshelter-samples/">docker hub</a>:
-      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 prolucid/fsshelter-samples</pre>
+      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/FsStorm/fsshelter-samples/">docker hub</a>:
+      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 FsStorm/fsshelter-samples</pre>
     </div>
   </div>
   <div class="span1"></div>
 </div>
 <h2><a name="Contributing-and-copyright" class="anchor" href="#Contributing-and-copyright">Contributing and copyright</a></h2>
-<p>The project is hosted on <a href="https://github.com/Prolucid/FsShelter">GitHub</a> where you can <a href="https://github.com/Prolucid/FsShelter/issues">report issues</a>, fork
+<p>The project is hosted on <a href="https://github.com/FsStorm/FsShelter">GitHub</a> where you can <a href="https://github.com/FsStorm/FsShelter/issues">report issues</a>, fork
 the project and submit pull requests. If you're adding a new public API, please also
-consider adding <a href="https://github.com/Prolucid/FsShelter/tree/master/docs/content">samples</a> that can be turned into a documentation. You might
-also want to read the <a href="https://github.com/Prolucid/FsShelter/blob/master/README.md">library design notes</a> to understand how it works.</p>
+consider adding <a href="https://github.com/FsStorm/FsShelter/tree/master/docs/content">samples</a> that can be turned into a documentation. You might
+also want to read the <a href="https://github.com/FsStorm/FsShelter/blob/master/README.md">library design notes</a> to understand how it works.</p>
 <p>The library is available under Apache 2.0 license, which allows modification and
 redistribution for both commercial and non-commercial purposes. For more information see the
-<a href="https://github.com/Prolucid/FsShelter/blob/master/LICENSE.md">License file</a> in the GitHub repository.</p>
+<a href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License file</a> in the GitHub repository.</p>
 <h2><a name="Commercial-support" class="anchor" href="#Commercial-support">Commercial support</a></h2>
 <p>Commercial training and support are available from the project sponsor:
-<a href="http://prolucid.ca/" target="_blank"><img src="http://prolucid.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="Prolucid" style="height:30px" border="0" /></a></p>
+<a href="http://FsStorm.ca/" target="_blank"><img src="http://FsStorm.ca/wp-content/uploads/2014/06/Logo-.jpg" alt="FsStorm" style="height:30px" border="0" /></a></p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace FsShelter</div>
@@ -321,44 +320,44 @@ redistribution for both commercial and non-commercial purposes. For more informa
 
         </div>
         <div class="span3">
-          <img src="https://prolucid.github.io/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <img src="https://FsStorm.github.io/FsShelter/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
             <li class="nav-header">FsShelter</li>
-            <li><a href="https://prolucid.github.io/FsShelter/index.html">Home page</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FsShelter">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/Prolucid/FsShelter">Source Code on GitHub</a></li>
-            <li><a href="https://prolucid.github.io/FsShelter/LICENSE.html">License</a></li>
-            <li><a href="https://prolucid.github.io/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
+            <li><a href="http://github.com/FsStorm/FsShelter">Source Code on GitHub</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/LICENSE.html">License</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/RELEASE_NOTES.html">Release Notes</a></li>
             
             <li class="nav-header">Getting started
-            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html">WordCount topology</a>
+            <li><a href="https://FsStorm.github.io/FsShelter/wordcount.html">WordCount topology</a>
 			<ul>
-			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
-            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
-			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
-			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Using-F-DSL-to-define-a-topology">Topology</a></li>
-			<li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Submitting-the-topology-for-execution">Submitting for execution</a></li>
-            <li><a href="https://prolucid.github.io/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
+			<li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Defining-the-schema">Schema</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Defining-unreliable-spouts">Spout</a></li>
+			<li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Defining-bolts">Bolt</a></li>
+			<li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Using-F-DSL-to-define-a-topology">Topology</a></li>
+			<li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Submitting-the-topology-for-execution">Submitting for execution</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/wordcount.html#Exporting-the-topology-graph">Topology graph</a></li>
 			</ul>
 			</li>
       <li>
-          <a href="https://prolucid.github.io/FsShelter/guaranteed.html">Guaranteed processing</a>
+          <a href="https://FsStorm.github.io/FsShelter/guaranteed.html">Guaranteed processing</a>
           <ul>
-              <li><a href="https://prolucid.github.io/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
-              <li><a href="https://prolucid.github.io/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
+              <li><a href="https://FsStorm.github.io/FsShelter/guaranteed.html#Defining-reliable-spouts">Reliable Spout</a></li>
+              <li><a href="https://FsStorm.github.io/FsShelter/guaranteed.html#Anchoring">Anchoring</a></li>
           </ul>
       <li>
-          <a href="https://prolucid.github.io/FsShelter/self-hosting.html">Self-hosting</a>
+          <a href="https://FsStorm.github.io/FsShelter/self-hosting.html">Self-hosting</a>
 			</li>
-      <li><a href="https://prolucid.github.io/FsShelter/schema.html">Schema considerations</a></li>
+      <li><a href="https://FsStorm.github.io/FsShelter/schema.html">Schema considerations</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="https://prolucid.github.io/FsShelter/reference/index.html">API Reference</a></li>
+            <li><a href="https://FsStorm.github.io/FsShelter/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="http://github.com/Prolucid/FsShelter"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+    <a href="http://github.com/FsStorm/FsShelter"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
   </body>
   </html>
