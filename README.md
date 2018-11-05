@@ -44,7 +44,4 @@ Open [Storm UI](http://localhost:8080/) and see the Storm worker logs for runtim
 ## License
 FsShelter is Apache 2.0 licensed and is free to use and modify.
 
-## Commercial support
-Contact [FsStorm](http://FsStorm.ca) for commercial support.
-
 [docs]:https://FsStorm.github.io/FsShelter/
