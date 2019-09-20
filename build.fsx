@@ -291,6 +291,10 @@ Target "All" DoNothing
 "Build"
   ==> "GenerateHelp"
 
+"Meta"
+  ==> "Build"
+  ==> "Package"
+
 "GenerateHelp"
   ==> "WatchDocs"
     

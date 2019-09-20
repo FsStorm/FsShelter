@@ -181,7 +181,7 @@ module internal Channel =
 
     let private createDisruptor<'msg> ringSize =
         // default is multi-producer + BlockingWait
-        Dsl.Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>>(Envelope),ringSize,TaskScheduler.Default)
+        Dsl.Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>>(Envelope),ringSize,TaskScheduler.Default)//,ProducerType.Multi,)
 
     let private publish (ringBuffer: RingBuffer<Envelope<'msg>>) (msg: 'msg) =
         let seqno = ringBuffer.Next()
@@ -210,7 +210,7 @@ module internal Channel =
         |> disruptor.SetDefaultExceptionHandler
         disruptor
 
-    let start ringSize onException onData =
+    let start log ringSize onException onData =
         let disruptor = createDisruptor ringSize
         disruptor
         |> withExceptionHandler onException
@@ -222,7 +222,6 @@ module internal Channel =
 
 module internal RuntimeTopology =
     open System
-    open System.Threading
     open System.Diagnostics
 
     let s n = 1000 * n
@@ -314,23 +313,70 @@ module internal RuntimeTopology =
             | cmd ->
                 log(fun _ -> sprintf "Unsupported command for system task: %A" cmd)
 
+    module Pump =
+        type private PumpMsg<'t> =
+            | Start of (InCommand<'t> -> unit)
+            | Stop
+            | Emitted
+            | Cmd of InCommand<'t>
+
+        let mkNew (comp:Spout<'t>) (topology:Topology<'t>) =
+            let next = Next
+            let mutable pending = 0
+            let inline throttled maxPending dispatch =
+                if pending < maxPending then
+                    next |> dispatch
+            let inline unthrottled dispatch = next |> dispatch
+            let maxPending = comp.Conf 
+                           |> Map.join topology.Conf 
+                           |> Conf.option TOPOLOGY_MAX_SPOUT_PENDING
+            let throttle = maxPending |> Option.map throttled |> Option.defaultValue unthrottled
+            let mb = MailboxProcessor.Start(fun mb ->
+                let rec started dispatch =
+                    async {
+                        match! mb.TryReceive 0 with
+                        | Some (Cmd (Nack _ as msg))
+                        | Some (Cmd (Ack _ as msg)) ->
+                            pending <- pending - 1
+                            msg |> dispatch
+                            return! started dispatch
+                        | Some (Cmd msg) ->
+                            msg |> dispatch
+                            return! started dispatch
+                        | Some Stop ->
+                            dispatch Deactivate
+                            return! stopped()
+                        | Some Emitted ->
+                            pending <- pending + 1                        
+                            return! started dispatch
+                        | _ ->
+                            throttle dispatch
+                            return! started dispatch
+                    }
+                and stopped () = 
+                    async {
+                        match! mb.Receive() with
+                        | Start dispatch ->
+                            dispatch Activate
+                            return! started dispatch
+                        | _ -> return! stopped()
+                    }
+                stopped())
+            (fun dispatch -> Start dispatch |> mb.Post),
+            (fun _ -> Stop |> mb.Post),
+            (fun _ -> Emitted |> mb.Post),
+            (fun msg -> Cmd msg |> mb.Post)
+     
     let private mkSpout log compId (comp:Spout<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
-        let next = Other Next
-        let mutable pending = 0
-        let inline throttled maxPending self =
-            if pending < maxPending then // TODO: Interlocked?
-                next |> self
-        let inline unthrottled self = next |> self
         let conf = comp.Conf |> Map.join topology.Conf
         let debug = conf |> Conf.optionOrDefault TOPOLOGY_DEBUG 
-        let maxPending = comp.Conf 
-                       |> Map.join topology.Conf 
-                       |> Conf.option TOPOLOGY_MAX_SPOUT_PENDING
-        let throttle = maxPending |> Option.map throttled |> Option.defaultValue unthrottled
         let trace = if debug then log else ignore
         let none = []
 
-        let mkOutput rtt issueNext =
+        let start,stop,emitted,out =
+            Pump.mkNew comp topology
+
+        let mkOutput rtt =
             let ackers = rtt.ackerTasks |> Map.toArray
             let mkIds = TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId
             let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
@@ -339,43 +385,34 @@ module internal RuntimeTopology =
                 let tuple = (none,tupleId,t,compId,stream,dstId)
                 emit tuple 
                 trace (fun _ -> sprintf "> %+A" tuple)
-                Interlocked.Increment &pending |> ignore
+                emitted()
             | Error (text,ex) -> log (fun _ -> sprintf "%+A\t%s%+A" LogLevel.Error text ex)
             | Log (text,level) -> log (fun _ -> sprintf "%+A\t%s" level text)
-            | Sync -> issueNext()
+            | Sync -> ()
             | cmd -> failwithf "Unexpected command from a spout: %+A" cmd
 
-        let mutable dispatcher = ignore
-        let mutable issueNext = ignore
         fun eob (cmd:TaskMsg<'t,InCommand<'t>>) ->
             match cmd with
             | Tick ->
                 ()
             | Start rtt -> 
                 let (_,(self,_)) = rtt.spoutTasks |> Map.find taskId
-                issueNext <- fun _ -> throttle self
                 log(fun _ -> sprintf "Starting %s..." compId)
-                let dispatch = runnable conf (mkOutput rtt issueNext)
+                let dispatch = runnable conf (mkOutput rtt)
                 if debug then
-                    dispatcher <- (fun msg ->
+                   (fun msg ->
+                        trace (fun _ -> sprintf "< %+A"  msg)
                         let sw = Stopwatch.StartNew()
                         dispatch msg
                         sw.Stop()
                         log(fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds))
                 else                
-                    dispatcher <- dispatch
-                dispatcher InCommand.Activate
+                    dispatch
+                |> start 
             | Stop -> 
-                dispatcher InCommand.Deactivate
-                issueNext <- ignore
-                dispatcher <- ignore
+                stop()
             | Other msg ->
-                trace (fun _ -> sprintf "< %+A" msg)
-                match msg with
-                | Ack _ | Nack _ -> Interlocked.Decrement &pending |> ignore
-                | _ -> ()
-                dispatcher msg
-            if eob then issueNext()
+                out msg
             
     let mkBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (runnable:Runnable<'t>) = 
         let conf = comp.Conf |> Map.join topology.Conf
@@ -435,25 +472,31 @@ module internal RuntimeTopology =
             fun _ -> s.MoveNext() |> ignore; s.Current
         let system taskId =
             taskId, 
-            mkSystem (startLog taskId) (TupleTree.mkIdGenerator()) topology taskId |> Channel.start 16 onException
+            mkSystem (startLog taskId) (TupleTree.mkIdGenerator()) topology taskId |> Channel.start ignore 16 onException
 
         let ackers = [| for i in 1..ackersCount -> 
                             fun taskId ->
-                                let channel = topology |> mkAcker (startLog taskId) ringSize |> Channel.start (ringSize*2) onException
+                                let log = startLog taskId
+                                let channel = topology |> mkAcker log ringSize |> Channel.start log (ringSize*2) onException
+                                // let channel = topology |> mkAcker (startLog taskId) ringSize |> Channel.start (ringSize*2) onException
                                 taskId, channel |]
         let bolts = topology.Bolts
                    |> Seq.collect (fun (KeyValue(compId,b)) -> 
                         let runnable = match b.MkComp (anchorOfStream,b.Activate,b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int b.Parallelism) ->
                                  fun taskId -> 
-                                    let channel = runnable |> mkBolt (startLog taskId) compId b topology taskId |> Channel.start ringSize onException
+                                    let log = startLog taskId
+                                    let channel = runnable |> mkBolt log compId b topology taskId |> Channel.start log ringSize onException
+                                    // let channel = runnable |> mkBolt (startLog taskId) compId b topology taskId |> Channel.start ringSize onException
                                     taskId, (compId, channel)})
         let spouts = topology.Spouts
                    |> Seq.collect (fun (KeyValue(compId,s)) -> 
                         let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable compId
                         seq { for i in 1..(int s.Parallelism) ->
                                  fun taskId -> 
-                                    let channel = runnable |> mkSpout (startLog taskId) compId s topology taskId |> Channel.start ringSize onException
+                                    let log = startLog taskId
+                                    let channel = runnable |> mkSpout log compId s topology taskId |> Channel.start log ringSize onException
+                                    // let channel = runnable |> mkSpout (startLog taskId) compId s topology taskId |> Channel.start ringSize onException
                                     taskId, (compId, channel)})
         
         { systemTask = nextTaskId() |> system

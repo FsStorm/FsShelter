@@ -1,3 +1,6 @@
+#### 2.1.0 - Aug 2018
+* rewriten spouts fix idle deadlocks
+
 #### 2.0.1 - Aug 2018
 * colorized graphs
 

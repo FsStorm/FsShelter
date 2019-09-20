@@ -57,13 +57,88 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-//     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
-     let log taskId = ignore
+    // let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+    let log taskId = ignore
+    
+    let stop = 
+        Topologies.t1 
+        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 20
+                      TOPOLOGY_ACKER_EXECUTORS 2]
+                      //TOPOLOGY_DEBUG true]
+        |> Hosting.runWith log 
+    let startedAt = DateTime.Now
+    let proc = System.Diagnostics.Process.GetCurrentProcess()
+    let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
+    let trace () =
+        let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
+        TraceLog.asyncLog (fun _ -> s)
+        let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
+        TraceLog.asyncLog (fun _ -> s)
+        let s = sprintf "-- CPU: %4.2f" (proc.TotalProcessorTime.TotalMilliseconds - procTime)
+        TraceLog.asyncLog (fun _ -> s)
+        procTime <- proc.TotalProcessorTime.TotalMilliseconds
+    for i in 1..50 do 
+        Threading.Thread.Sleep 10000
+        trace()
+    stop()
+     
+    trace()
+
+[<Test>]
+[<Category("interactive")>]
+let ``Several``() = 
+//     let log name taskId f = TraceLog.formatLine "{0}\t{1}:{2} {3}" [|DateTime.Now,name,taskId,f()|]
+     let log _ _ = ignore 
      
      let stop = 
-         Topologies.t1 
-         |> withConf [ConfOption.TOPOLOGY_MAX_SPOUT_PENDING 20
-                      ConfOption.TOPOLOGY_ACKER_EXECUTORS 2]
+         seq {
+             for i in 1..10 ->
+                 Topologies.t1 
+                 |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 20
+                               TOPOLOGY_ACKER_EXECUTORS 4]
+                 |> fun t -> { t with Name = sprintf "t%d" i } 
+                 |> fun t -> Hosting.runWith (log t.Name) t
+         } |> Seq.toArray
+
+     let startedAt = DateTime.Now
+     let trace () = 
+         TraceLog.asyncLog (fun _ -> sprintf  "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds))
+         TraceLog.asyncLog (fun _ -> sprintf  "-- GC: %d, %d/%d/%d" (GC.GetTotalMemory false) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2))
+
+     Threading.Thread.Sleep 10000
+
+     stop
+     |> Array.iter (fun s -> s())
+     
+     trace()
+
+
+[<Test>]
+[<Category("interactive")>]
+let ``No emits``() = 
+     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+     let none () : (string*Schema) option =
+        // let now = DateTime.Now
+        // match now.Millisecond % 20 with
+        // | 0 -> Some (string now, Original {x = now.Second})
+        // | _ -> 
+               System.Threading.Thread.Sleep 1000
+               None
+     let noop (_:Schema) = ()
+     let t = topology "test" {
+        let s1 = none
+                 |> Spout.runReliable (fun _ _ -> ()) (fun _ -> ignore, ignore) ignore
+        let b1 = noop
+                 |> Bolt.run (fun _ _ t emit -> t)
+                 |> withParallelism 2
+        yield s1 ==> b1 |> Shuffle.on Original
+     }
+     let stop = 
+         t
+         |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 1
+                       TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 8
+                       TOPOLOGY_ACKER_EXECUTORS 1
+                       TOPOLOGY_DEBUG true]
          |> Hosting.runWith log 
      let startedAt = DateTime.Now
      let proc = System.Diagnostics.Process.GetCurrentProcess()
@@ -82,33 +157,15 @@ let ``Hosts``() =
          trace()
 
      stop()
-     
-     trace()
 
-[<Test>]
-[<Category("interactive")>]
-let ``Several``() = 
-//     let log name taskId f = TraceLog.formatLine "{0}\t{1}:{2} {3}" [|DateTime.Now,name,taskId,f()|]
-     let log _ _ = ignore 
-     
-     let stop = 
-         seq {
-             for i in 1..10 ->
-                 Topologies.t1 
-                 |> withConf [ConfOption.TOPOLOGY_MAX_SPOUT_PENDING 20
-                              ConfOption.TOPOLOGY_ACKER_EXECUTORS 4]
-                 |> fun t -> { t with Name = sprintf "t%d" i } 
-                 |> fun t -> Hosting.runWith (log t.Name) t
-         } |> Seq.toArray
-
-     let startedAt = DateTime.Now
-     let trace () = 
-         TraceLog.asyncLog (fun _ -> sprintf  "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds))
-         TraceLog.asyncLog (fun _ -> sprintf  "-- GC: %d, %d/%d/%d" (GC.GetTotalMemory(false)) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2))
-
-     Threading.Thread.Sleep 10000
-
-     stop
-     |> Array.iter (fun s -> s())
-     
-     trace()
+// [<Test>]
+// let ``Just channels``() = 
+//     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+//     TraceLog.asyncLog (fun _ -> sprintf "%d: starting" System.Threading.Thread.CurrentThread.ManagedThreadId)
+//     let pumpNext =
+//         let (send,_) = Hosting.Channel.start (log 1) 8 ignore (fun eob (next,self) -> next |> self)
+//         fun next self -> send (next,self)
+//     let (send,_) = Hosting.Channel.start (log 2) 8 ignore (fun eob v -> Threading.Thread.Sleep 1000)
+//     for i in 1..100 do
+//         pumpNext i send
+ 
