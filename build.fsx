@@ -227,6 +227,7 @@ Target.create "Release" ignore
 "Meta"
   ==> "Build"
   ==> "Package"
+  ==> "PublishNuget"
     
 "Release"
   <== ["All"; "PublishNuget"; "ReleaseDocs"]

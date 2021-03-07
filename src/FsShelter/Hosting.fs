@@ -343,6 +343,7 @@ module internal RuntimeTopology =
             let dispatch = runnable conf (mkOutput rtt)
             dispatcher <-
                 if debug then (fun msg ->
+                    trace (fun _ -> sprintf "< %+A" msg)
                     let sw = Stopwatch.StartNew()
                     dispatch msg
                     sw.Stop()
@@ -355,7 +356,6 @@ module internal RuntimeTopology =
             issueNext <- ignore
             dispatcher <- ignore
         | ValueSome (Other msg) ->
-            trace (fun _ -> sprintf "< %+A" msg)
             match msg with
             | Ack _ | Nack _ ->
                 Interlocked.Decrement &pending |> ignore
