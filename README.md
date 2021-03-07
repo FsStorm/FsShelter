@@ -14,13 +14,9 @@ Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](htt
 * At the moment FsShelter doesn't support direct emits.
 
 # Building
-On Windows, from the cloned root:
 ```
-build
-```
-or on Linux/OSX:
-```
-./build.sh
+dotnet tool restore
+dotnet fake build 
 ```
 
 ## Running the tests
