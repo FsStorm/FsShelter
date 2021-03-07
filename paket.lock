@@ -7,7 +7,7 @@ NUGET
       System.IO.Pipes (>= 4.3) - restriction: >= netstandard1.4
       System.Net.Requests (>= 4.3) - restriction: >= netstandard1.4
       System.Runtime.Serialization.Primitives (>= 4.3) - restriction: >= netstandard1.4
-    Disruptor (3.4.2)
+    Disruptor (3.6.2)
       System.Reflection.Emit (>= 4.0.1) - restriction: && (< net452) (>= netstandard2.0)
     FSharp.Core (4.6.2)
       System.Collections (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
@@ -954,26 +954,23 @@ GITHUB
   remote: et1975/storm
     storm-core/src/storm.thrift (f0de99597e5256428016a3a18982ec8e146427bb)
 GROUP Build
-RESTRICTION: == net461
+RESTRICTION: || (== net50) (== netcoreapp2.1) (== netstandard2.0)
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.63.2)
-    FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Formatting (2.14.4)
-      FSharp.Compiler.Service (2.0.0.6)
-      FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpLint (0.2.8)
-    FSharpVSPowerTools.Core (2.3)
-      FSharp.Compiler.Service (>= 2.0.0.3)
-    Google.Protobuf (3.6.1)
-    Google.Protobuf.Tools (3.6.1)
-    Octokit (0.24)
-    SourceLink.Fake (1.1)
+    Google.Protobuf (3.15.5)
+      System.Memory (>= 4.5.3)
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.2)
+    Google.Protobuf.Tools (3.15.5)
+    System.Buffers (4.5.1) - restriction: || (&& (== net50) (>= monotouch)) (&& (== net50) (>= net461)) (&& (== net50) (< netcoreapp2.0)) (&& (== net50) (< netstandard1.1)) (&& (== net50) (< netstandard2.0)) (&& (== net50) (>= xamarinios)) (&& (== net50) (>= xamarinmac)) (&& (== net50) (>= xamarintvos)) (&& (== net50) (>= xamarinwatchos)) (&& (== netcoreapp2.1) (>= monotouch)) (&& (== netcoreapp2.1) (>= net461)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (< netstandard1.1)) (&& (== netcoreapp2.1) (< netstandard2.0)) (&& (== netcoreapp2.1) (>= xamarinios)) (&& (== netcoreapp2.1) (>= xamarinmac)) (&& (== netcoreapp2.1) (>= xamarintvos)) (&& (== netcoreapp2.1) (>= xamarinwatchos)) (== netstandard2.0)
+    System.Memory (4.5.4)
+      System.Buffers (>= 4.5.1) - restriction: || (&& (== net50) (>= monotouch)) (&& (== net50) (>= net461)) (&& (== net50) (< netcoreapp2.0)) (&& (== net50) (< netstandard1.1)) (&& (== net50) (< netstandard2.0)) (&& (== net50) (>= xamarinios)) (&& (== net50) (>= xamarinmac)) (&& (== net50) (>= xamarintvos)) (&& (== net50) (>= xamarinwatchos)) (&& (== netcoreapp2.1) (>= monotouch)) (&& (== netcoreapp2.1) (>= net461)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (< netstandard1.1)) (&& (== netcoreapp2.1) (< netstandard2.0)) (&& (== netcoreapp2.1) (>= xamarinios)) (&& (== netcoreapp2.1) (>= xamarinmac)) (&& (== netcoreapp2.1) (>= xamarintvos)) (&& (== netcoreapp2.1) (>= xamarinwatchos)) (== netstandard2.0)
+      System.Numerics.Vectors (>= 4.4) - restriction: || (&& (== net50) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (== netstandard2.0)
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.3) - restriction: || (&& (== net50) (>= monotouch)) (&& (== net50) (>= net461)) (&& (== net50) (< netcoreapp2.0)) (&& (== net50) (< netcoreapp2.1)) (&& (== net50) (< netstandard1.1)) (&& (== net50) (< netstandard2.0)) (&& (== net50) (>= uap10.1)) (&& (== net50) (>= xamarinios)) (&& (== net50) (>= xamarinmac)) (&& (== net50) (>= xamarintvos)) (&& (== net50) (>= xamarinwatchos)) (&& (== netcoreapp2.1) (>= monotouch)) (&& (== netcoreapp2.1) (>= net461)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (< netstandard1.1)) (&& (== netcoreapp2.1) (< netstandard2.0)) (&& (== netcoreapp2.1) (>= uap10.1)) (&& (== netcoreapp2.1) (>= xamarinios)) (&& (== netcoreapp2.1) (>= xamarinmac)) (&& (== netcoreapp2.1) (>= xamarintvos)) (&& (== netcoreapp2.1) (>= xamarinwatchos)) (== netstandard2.0)
+    System.Numerics.Vectors (4.5) - restriction: || (&& (== net50) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (== netstandard2.0)
+    System.Runtime.CompilerServices.Unsafe (5.0)
     Thrift (0.9.1.3)
-GITHUB
-  remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (7e6ab7004d39ecf4f83b317c15df9370fb3bddd4)
-      Octokit (>= 0.20)
+
 GROUP Run
 
 HTTP

@@ -1,17 +1,11 @@
 group Build
-	framework: Net4.6.1
+	framework: auto-detect
 	source https://nuget.org/api/v2
 
-	nuget FAKE
     nuget Google.Protobuf.Tools
-	nuget SourceLink.Fake
-	nuget Octokit
-	nuget FSharp.Formatting
 	nuget fsharplint
 	nuget Google.Protobuf
 	nuget thrift
-	
-	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Main
 	storage: none

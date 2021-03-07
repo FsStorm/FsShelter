@@ -1,3 +1,7 @@
+#### 2.2.0 - Mar 2021
+* autoNackBolt to always nack
+* better idle spouts handling 
+
 #### 2.1.0 - Aug 2018
 * rewriten spouts fix idle deadlocks
 

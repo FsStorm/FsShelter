@@ -31,11 +31,7 @@ IDE: Install the NUnit plugin for VS or MonoDevelop to see the unit tests in Tes
 ## Submitting the topology
 Have a local [Storm](https://storm.apache.org/releases.html) instance installed and running.
 ```
-samples\WordCount\bin\Release\WordCount submit-local
-```
-or, if running on Mono:
-```
-mono samples/WordCount/bin/Release/WordCount.exe submit-local
+dotnet samples/WordCount/bin/Release/WordCount.dll submit-local
 ```
 
 ## Seeing the topology in action

@@ -57,14 +57,14 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-    // let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+//    let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
     let log taskId = ignore
     
     let stop = 
         Topologies.t1 
-        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 20
+        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 2
                       TOPOLOGY_ACKER_EXECUTORS 2]
-                      //TOPOLOGY_DEBUG true]
+//                      TOPOLOGY_DEBUG true]
         |> Hosting.runWith log 
     let startedAt = DateTime.Now
     let proc = System.Diagnostics.Process.GetCurrentProcess()
@@ -157,6 +157,55 @@ let ``No emits``() =
          trace()
 
      stop()
+     
+     
+[<Test>]
+[<Category("interactive")>]
+let ``Long-running bolt``() = 
+     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+     let mutable t = Some ("", Original {x = 1})  
+     let one () : (string*Schema) option =
+           let ret = t
+           t <- None
+           System.Threading.Thread.Sleep 1000
+           ret
+     let sleep (t:Schema, emit) =
+         System.Threading.Thread.Sleep (TimeSpan.FromMinutes 5.)
+         emit t
+     let t = topology "test" {
+        let s1 = one
+                 |> Spout.runReliable (fun _ _ -> ()) (fun _ -> ignore, ignore) ignore
+        let b1 = sleep
+                 |> Bolt.run (fun _ _ t emit -> t, emit)
+        let b2 = sleep
+                 |> Bolt.run (fun _ _ t emit -> t, emit)
+        yield s1 ==> b1 |> Shuffle.on Original
+        yield b1 ==> b2 |> Shuffle.on Original
+     }
+     let stop = 
+         t
+         |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 1
+                       TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 8
+                       TOPOLOGY_ACKER_EXECUTORS 1
+                       TOPOLOGY_DEBUG true]
+         |> Hosting.runWith log 
+     let startedAt = DateTime.Now
+     let proc = System.Diagnostics.Process.GetCurrentProcess()
+     let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
+     let trace () =
+         let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
+         TraceLog.asyncLog (fun _ -> s)
+         let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
+         TraceLog.asyncLog (fun _ -> s)
+         let s = sprintf "-- CPU: %4.2f" (proc.TotalProcessorTime.TotalMilliseconds - procTime)
+         TraceLog.asyncLog (fun _ -> s)
+         procTime <- proc.TotalProcessorTime.TotalMilliseconds
+
+     for i in 1..50 do 
+         Threading.Thread.Sleep 10000
+         trace()
+
+     stop()
 
 // [<Test>]
 // let ``Just channels``() = 
@@ -169,3 +218,17 @@ let ``No emits``() =
 //     for i in 1..100 do
 //         pumpNext i send
  
+ //    let longWaitStrategy () =
+//        let gate = obj()
+//        { new IWaitStrategy with
+//            member __.SignalAllWhenBlocking () =
+//                lock gate (fun _ -> Monitor.PulseAll gate)
+//            member __.WaitFor (sequence: int64, cursor: Sequence, dependentSequence: ISequence, barrier: ISequenceBarrier) =
+//                if cursor.Value < sequence then
+//                    lock gate (fun _ -> barrier.CheckAlert(); Monitor.Wait gate |> ignore)
+//                let mutable availableSequence = dependentSequence.Value
+//                while availableSequence < sequence do
+//                    barrier.CheckAlert()
+//                    Thread.Sleep 1000
+//                    availableSequence <- dependentSequence.Value
+//                availableSequence }

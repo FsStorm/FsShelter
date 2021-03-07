@@ -18,13 +18,13 @@ let reliableSpout mkArgs mkAcker deactivate next getStream conf out =
                 function
                 | Next -> 
                     next args
-                    |> Option.iter (fun (tid, tuple) -> Emit(tuple, Some tid, [], (getStream tuple), None, None) |> out)
+                    |> Option.iter (fun (tid, tuple) -> Emit(tuple, Some tid, [], getStream tuple, None, None) |> out)
                 | Ack tid -> 
                     ack tid
                 | Nack tid ->
                     nack tid
                 | Activate ->
-                    log out LogLevel.Error ("Already active")
+                    log out LogLevel.Error ("The spout is already active")
                 | Deactivate ->
                     deactivate args
                     current <- inactive
@@ -47,11 +47,11 @@ let unreliableSpout mkArgs deactivate next getStream conf out =
                 function
                 | Next -> 
                     next args
-                    |> Option.iter (fun tuple -> Emit(tuple, None, [], (getStream tuple), None, None) |> out)
+                    |> Option.iter (fun tuple -> Emit(tuple, None, [], getStream tuple, None, None) |> out)
                 | Ack _ | Nack _ ->
                     ()
                 | Activate ->
-                    log out LogLevel.Error ("Already active")
+                    log out LogLevel.Error ("The spout is already active")
                 | Deactivate ->
                     deactivate args
                     current <- inactive
@@ -66,7 +66,7 @@ let unreliableSpout mkArgs deactivate next getStream conf out =
 /// Dispatch bolt commands and auto ack/nack handled messages
 let autoAckBolt mkArgs consume (getAnchors,act,deact) getStream conf out = 
     let args = mkArgs (log out) conf
-    let unanchoredEmit t = Emit(t, None, [], (getStream t), None, None) |> out
+    let unanchoredEmit t = Emit(t, None, [], getStream t, None, None) |> out
     function
     | Activate when Option.isNone act -> ()
     | Deactivate when Option.isNone deact -> ()
@@ -74,21 +74,21 @@ let autoAckBolt mkArgs consume (getAnchors,act,deact) getStream conf out =
         try
             consume (args act.Value unanchoredEmit)
         with ex -> 
-            Error("autoBoltRunner: ", ex) |> out
+            Error("autoAckBolt was unable to Activate: ", ex) |> out
     | Deactivate -> 
         try
             consume (args deact.Value unanchoredEmit)
         with ex -> 
-            Error("autoBoltRunner: ", ex) |> out
+            Error("autoAckBolt was unable to Deactivate: ", ex) |> out
     | Heartbeat -> Sync |> out
     | Tuple(tuple, id, src, stream, task) -> 
-        let emit t = Emit(t, None, getAnchors (src,stream) id, (getStream t), None, None) |> out
+        let emit t = Emit(t, None, getAnchors (src,stream) id, getStream t, None, None) |> out
         try
             consume (args tuple emit)
             Ok id
         with ex -> 
             Fail id |> out
-            Error("autoBoltRunner: ", ex)
+            Error(sprintf "autoAckBolt was unable to handle %A: " tuple, ex)
         |> out
     | msg -> failwithf "Unexpected command: %A" msg
 
@@ -102,6 +102,6 @@ let autoNackBolt mkArgs consume conf out =
         try
             consume (args tuple)
         with ex ->
-            Error("autoBoltRunner: ", ex) |> out
-            Fail id |> out
+            Error(sprintf "autoNackBolt was unable to handle %A: " tuple, ex) |> out
+        Fail id |> out
     | msg -> failwithf "Unexpected command: %A" msg

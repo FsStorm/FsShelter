@@ -12,6 +12,7 @@
 storm-local
 
 # Build results
+.fsdocs/
 .fake/
 temp/
 packages/
