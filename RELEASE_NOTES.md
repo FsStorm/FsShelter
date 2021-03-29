@@ -1,3 +1,6 @@
+#### 3.0.0 - Mar 2021
+* surface log level into the api 
+
 #### 2.2.1 - Mar 2021
 * autoNackBolt to always nack
 * better idle spouts handling 

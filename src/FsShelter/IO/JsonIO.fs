@@ -149,7 +149,7 @@ let private isMono() = not <| isNull (System.Type.GetType("Mono.Runtime"))
 /// Start IO parsers given specified TextReaders, output sychrnonization and logger
 let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topology.IO<'t> =
     let write (text:string) =
-        log (fun _ -> "> "+text)
+        log LogLevel.Trace (fun _ -> "> "+text)
         syncOut (fun () -> stdout.Write(text.Replace("\n","\\n")+END)
                            stdout.Flush())
 
@@ -171,7 +171,7 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Task.Log) :Topol
     let in' ():InCommand<'t> =
             let msg  = stdin.ReadLine()
             let term = stdin.ReadLine()
-            log (fun _ -> "< "+msg+term)
+            log LogLevel.Trace (fun _ -> "< "+msg+term)
             match msg,term with
             | msg,"end" when not <| String.IsNullOrEmpty msg -> toCommand findConstructor msg
             | _ -> failwithf "Unexpected input msg/term: %s/%s" msg term

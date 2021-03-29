@@ -57,14 +57,14 @@ module Topologies =
 [<Test>]
 [<Category("interactive")>]
 let ``Hosts``() = 
-//    let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
-    let log taskId = ignore
+    let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
+//    let log taskId lvl = ignore
     
     let stop = 
         Topologies.t1 
-        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 2
-                      TOPOLOGY_ACKER_EXECUTORS 2]
-//                      TOPOLOGY_DEBUG true]
+        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 1
+                      TOPOLOGY_ACKER_EXECUTORS 2
+                      TOPOLOGY_DEBUG true]
         |> Hosting.runWith log 
     let startedAt = DateTime.Now
     let proc = System.Diagnostics.Process.GetCurrentProcess()
@@ -77,9 +77,9 @@ let ``Hosts``() =
         let s = sprintf "-- CPU: %4.2f" (proc.TotalProcessorTime.TotalMilliseconds - procTime)
         TraceLog.asyncLog (fun _ -> s)
         procTime <- proc.TotalProcessorTime.TotalMilliseconds
-    for i in 1..50 do 
-        Threading.Thread.Sleep 10000
-        trace()
+//    for i in 1..50 do 
+    Threading.Thread.Sleep 10000
+    trace()
     stop()
      
     trace()
@@ -87,8 +87,8 @@ let ``Hosts``() =
 [<Test>]
 [<Category("interactive")>]
 let ``Several``() = 
-//     let log name taskId f = TraceLog.formatLine "{0}\t{1}:{2} {3}" [|DateTime.Now,name,taskId,f()|]
-     let log _ _ = ignore 
+//     let log name taskId lvl f = TraceLog.formatLine "{0}\t{1}:{2} {3}" [|DateTime.Now,name,taskId,f()|]
+     let log _ _ _ = ignore 
      
      let stop = 
          seq {
@@ -116,7 +116,7 @@ let ``Several``() =
 [<Test>]
 [<Category("interactive")>]
 let ``No emits``() = 
-     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+     let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
      let none () : (string*Schema) option =
         // let now = DateTime.Now
         // match now.Millisecond % 20 with
@@ -162,7 +162,7 @@ let ``No emits``() =
 [<Test>]
 [<Category("interactive")>]
 let ``Long-running bolt``() = 
-     let log taskId f = TraceLog.asyncLog (fun _ -> sprintf "%d: %s" taskId (f()))
+     let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
      let mutable t = Some ("", Original {x = 1})  
      let one () : (string*Schema) option =
            let ret = t

@@ -8,7 +8,7 @@ open System
 open System.Diagnostics
 
 /// Logger signature    
-type Log = (unit -> string) -> unit
+type Log = LogLevel -> (unit -> string) -> unit
 /// Task signature
 type Task<'t> = ComponentId -> Runnable<'t>
 
@@ -48,7 +48,7 @@ let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) =
     let log = startLog pid
     let (in', out) = mkIO log
     try 
-        log(fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
+        log LogLevel.Debug (fun _ -> sprintf "started in %s, waiting for handshake..." Environment.CurrentDirectory)
         let msg = in'()
         let (cfg, compId) = 
             match msg with
@@ -57,7 +57,7 @@ let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) =
                 Pid pid |> out
                 (cfg, context.ComponentId)
             | _ -> failwithf "Expected handshake, got: %A" msg
-        log(fun _ -> sprintf "running %s..." compId)
+        log LogLevel.Debug (fun _ -> sprintf "running %s..." compId)
         let dispatch = task compId cfg out
         let timedDispatch = 
             if cfg |> Conf.optionOrDefault TOPOLOGY_DEBUG then
@@ -65,7 +65,7 @@ let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) =
                     let sw = Stopwatch.StartNew()
                     dispatch msg
                     sw.Stop()
-                    log(fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds)
+                    log LogLevel.Trace (fun _ -> sprintf "processed in: %4.2fms" sw.Elapsed.TotalMilliseconds)
             else dispatch                        
 
         while true do
@@ -73,11 +73,11 @@ let runWith (startLog : int->Log) (mkIO : Log -> IO<'t>) (task : Task<'t>) =
             timedDispatch msg
     with ex -> 
         let msg = Exception.toString ex
-        log (fun _ -> msg)
+        log LogLevel.Error (fun _ -> msg)
         Log(msg, LogLevel.Error) |> out
         Threading.Thread.Sleep 1000
         Environment.Exit 1
 
 /// Reads the handshake and runs the specified task
-let run (mkIO : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ -> ignore) mkIO task
+let run (mkIO : Log -> IO<'t>) (task : Task<'t>) = runWith (fun _ _ -> ignore) mkIO task
 

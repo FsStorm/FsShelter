@@ -16,7 +16,7 @@ let ``reads handshake``() =
                         "conf":{"FsShelter.id":"Simple-2-1456522507","dev.zookeeper.path":"\/tmp\/dev-storm-zookeeper","topology.tick.tuple.freq.secs":30,"topology.classpath":null}}"""
                         .Replace("\r","").Replace("\n","")+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     let expected = InCommand<Schema>.Handshake(
                     Conf ["FsShelter.id",box "Simple-2-1456522507"; "dev.zookeeper.path", box "/tmp/dev-storm-zookeeper"; "topology.tick.tuple.freq.secs", box 30L; "topology.classpath", null],
@@ -29,7 +29,7 @@ let ``reads handshake``() =
 let ``reads next``() = 
     let sr = new System.IO.StringReader("""{"id":"","command":"next"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Next
 
@@ -38,7 +38,7 @@ let ``reads next``() =
 let ``reads ack``() = 
     let sr = new System.IO.StringReader("""{"id":"zzz","command":"ack"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Ack "zzz"
 
@@ -47,7 +47,7 @@ let ``reads ack``() =
 let ``reads nack``() = 
     let sr = new System.IO.StringReader("""{"id":"zzz","command":"fail"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Nack "zzz"
 
@@ -55,7 +55,7 @@ let ``reads nack``() =
 let ``reads activate``() = 
     let sr = new System.IO.StringReader("""{"id":"","command":"activate"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
    
     in'() =! InCommand<Schema>.Activate
 
@@ -63,7 +63,7 @@ let ``reads activate``() =
 let ``reads deactivate``() = 
     let sr = new System.IO.StringReader("""{"id":"","command":"deactivate"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Deactivate
 
@@ -71,7 +71,7 @@ let ``reads deactivate``() =
 let ``reads tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Original","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
@@ -80,7 +80,7 @@ let ``reads tuple``() =
 let ``writes tuple``() = 
     let sr = new System.IO.StringReader("")
     let sw = new System.IO.StringWriter()
-    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     out(Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None))
     Threading.Thread.Sleep(10)
@@ -90,7 +90,7 @@ let ``writes tuple``() =
 let ``reads generic tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"task":1,"stream":"Inner","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner",1)
 
@@ -99,7 +99,7 @@ let ``reads generic tuple``() =
 let ``writes generic tuple``() = 
     let sr = new System.IO.StringReader("")
     let sw = new System.IO.StringWriter()
-    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     out(Emit(GenericSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner",None,None))
     Threading.Thread.Sleep(10)
@@ -109,7 +109,7 @@ let ``writes generic tuple``() =
 let ``reads nested generic tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62],"task":1,"stream":"Inner+Original","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',_) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     in'() =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner+Original",1)
 
@@ -118,7 +118,7 @@ let ``reads nested generic tuple``() =
 let ``writes nested generic tuple``() = 
     let sr = new System.IO.StringReader("")
     let sw = new System.IO.StringWriter()
-    let (_,out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
     out(Emit(Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner+Original",None,None))
     Threading.Thread.Sleep(10)
@@ -128,7 +128,7 @@ let ``writes nested generic tuple``() =
 let ``rw complex tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[62,"a"],"task":1,"stream":"Even","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let even = Even({x=62},{str="a"})
     
     out(Emit(even,Some "2651792242051038370",[],"Even",None,None))
@@ -141,7 +141,7 @@ let ``rw complex tuple``() =
 let ``rw option tuple``() = 
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Some","Fields":["zzz"]}],"task":1,"stream":"MaybeString","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let t = MaybeString(Some "zzz")
     
     out(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
@@ -152,7 +152,7 @@ let ``rw option tuple``() =
 let ``rw generic tuple``() =
     let sr = new System.IO.StringReader("""{"comp":"AddOneBolt","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"task":1,"stream":"Inner","id":"2651792242051038370"}"""+END)
     let sw = new System.IO.StringWriter()
-    let (in',out) = JsonIO.startWith (sr,sw) syncOut ignore
+    let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let t = GenericSchema.Inner(Original({x=62}))
     
     out(Emit(t,Some "2651792242051038370",[],"Inner",None,None))
@@ -165,7 +165,7 @@ let ``rw generic tuple``() =
 let ``roundtrip throughput``() =
     let count = 10000 
     use mem = new IO.MemoryStream()
-    let (in',out') = JsonIO.startWith (new IO.StreamReader(mem), new IO.StreamWriter(mem)) syncOut ignore
+    let (in',out') = JsonIO.startWith (new IO.StreamReader(mem), new IO.StreamWriter(mem)) syncOut (fun _ -> ignore)
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     for i in {1..count} do

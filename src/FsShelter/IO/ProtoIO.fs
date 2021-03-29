@@ -155,7 +155,7 @@ let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:M
 
 let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO<'t> =
     let write (msg:Messages.ShellMsg) =
-        log (fun _ -> sprintf "> %A" msg)
+        log LogLevel.Trace (fun _ -> sprintf "> %A" msg)
         syncOut (fun () -> msg.WriteDelimitedTo stdout
                            stdout.Flush())
 
@@ -184,7 +184,7 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
 
     let in' ():InCommand<'t> =
         let msg = Messages.StormMsg.Parser.ParseDelimitedFrom stdin
-        log (fun _ -> sprintf "< %A" msg)
+        log LogLevel.Trace (fun _ -> sprintf "< %A" msg)
         toCommand log findConstructor msg
 
     (in',out')

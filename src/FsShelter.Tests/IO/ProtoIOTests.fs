@@ -64,7 +64,7 @@ let ``reads handshake``() =
         Messages.StormMsg(Handshake = handshake)
         |> toStreams (mkStreams())
         |> ProtoIO.startWith 
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
 
     let expected = InCommand<Schema>.Handshake(
                     Conf ["FsShelter.id",box "Simple-2-1456522507"
@@ -87,7 +87,7 @@ let ``reads next``() =
         Messages.StormMsg(NextCmd=Messages.NextCommand())
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Next
 
@@ -98,7 +98,7 @@ let ``reads ack``() =
         Messages.StormMsg(AckCmd=Messages.AckCommand(Id="zzz"))
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
 
     in'() =! InCommand<Schema>.Ack "zzz"
 
@@ -109,7 +109,7 @@ let ``reads nack``() =
         Messages.StormMsg(NackCmd=Messages.NackCommand(Id="zzz"))
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Nack "zzz"
 
@@ -120,7 +120,7 @@ let ``reads activate``() =
         Messages.StormMsg(ActivateCmd=Messages.ActivateCommand())
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Activate
 
@@ -131,7 +131,7 @@ let ``reads deactivate``() =
         Messages.StormMsg(DeactivateCmd=Messages.DeactivateCommand())
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     in'() =! InCommand<Schema>.Deactivate
 
@@ -150,7 +150,7 @@ let ``reads tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
 
     in'() =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
 
@@ -169,7 +169,7 @@ let ``reads generic tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
 
     in'() =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(t),"2651792242051038370","AddOneBolt","Inner",1)
 
@@ -188,7 +188,7 @@ let ``reads nested generic tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams (mkStreams())
         |> ProtoIO.startWith
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
 
     in'() =! InCommand<GenericNestedSchema<Schema>>.Tuple(GenericNestedSchema.Inner(t),"2651792242051038370","AddOneBolt","Inner+Original",1)
 
@@ -196,7 +196,7 @@ let ``reads nested generic tuple``() =
 [<Test>]
 let ``writes tuple``() = 
     let streams = mkStreams()
-    let (_,out) = ProtoIO.startWith streams syncOut ignore
+    let (_,out) = ProtoIO.startWith streams syncOut (fun _ -> ignore)
     
     out <| Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None)
     Threading.Thread.Sleep(10)
@@ -208,7 +208,7 @@ let ``writes tuple``() =
 [<Test>]
 let ``writes generic tuple``() = 
     let streams = mkStreams()
-    let (_,out) = ProtoIO.startWith streams syncOut ignore
+    let (_,out) = ProtoIO.startWith streams syncOut (fun _ -> ignore)
     
     out <| Emit(GenericSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner",None,None)
     Threading.Thread.Sleep(10)
@@ -220,7 +220,7 @@ let ``writes generic tuple``() =
 [<Test>]
 let ``writes nested generic tuple``() = 
     let streams = mkStreams()
-    let (_,out) = ProtoIO.startWith streams syncOut ignore
+    let (_,out) = ProtoIO.startWith streams syncOut (fun _ -> ignore)
     
     out <| Emit(GenericNestedSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner+Original",None,None)
     Threading.Thread.Sleep(10)
@@ -243,7 +243,7 @@ let ``rw complex tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams streams
         |> ProtoIO.startWith 
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     let even = Even({x=62},{str="a"})
     
@@ -258,7 +258,7 @@ let ``rw complex tuple``() =
 [<Test>]
 let ``roundtrip nested tuple``() = 
     use mem = new MemoryStream()
-    let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
+    let (_,out') = ProtoIO.startWith (mem,mem) syncOut (fun _ -> ignore)
 
     let nested = Nested(
                     {nested = {str="a"}
@@ -284,7 +284,7 @@ let ``roundtrip nested tuple``() =
 [<Test>]
 let ``roundtrip generic nested tuple``() = 
     use mem = new MemoryStream()
-    let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
+    let (_,out') = ProtoIO.startWith (mem,mem) syncOut (fun _ -> ignore)
 
     let nested =
         GenericNestedSchema<Schema>.Inner(
@@ -322,7 +322,7 @@ let ``rw option tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams streams
         |> ProtoIO.startWith 
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     let t = MaybeString(Some "zzz")
     
@@ -348,7 +348,7 @@ let ``rw Nullable tuple``() =
         Messages.StormMsg(StreamIn=tuple)
         |> toStreams streams
         |> ProtoIO.startWith 
-        <|| (syncOut,ignore)
+        <|| (syncOut,fun _ -> ignore)
     
     let t = NullableGuid(Nullable guid)
     
@@ -364,7 +364,7 @@ let ``rw Nullable tuple``() =
 let ``roundtrip throughput``() =
     let count = 1000000 
     use mem = new MemoryStream()
-    let (_,out') = ProtoIO.startWith (mem,mem) syncOut ignore
+    let (_,out') = ProtoIO.startWith (mem,mem) syncOut (fun _ -> ignore)
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     for i in 1..count do
