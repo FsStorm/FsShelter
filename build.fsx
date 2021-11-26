@@ -4,7 +4,6 @@ source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core 4.7.0.0
-nuget Octokit
 nuget Fake.DotNet.Cli
 nuget Fake.Tools.Git
 nuget Fake.Api.GitHub
@@ -61,7 +60,7 @@ Target.create "Meta" (fun _ ->
       "<RepositoryUrl>https://github.com/FsStorm/FsShelter.git</RepositoryUrl>"
       "<PackageTags>storm;cep;event-driven;fsharp;distributed</PackageTags>"
       "<PackageDescription>F# DSL and runtime for Apache Storm topologies</PackageDescription>"
-      "<Authors>FsStorm</Authors>"
+      "<Authors>Eugene Tolmachev</Authors>"
       sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes |> System.Web.HttpUtility.HtmlEncode)
       sprintf "<Version>%s</Version>" (string release.SemVer)
       "</PropertyGroup>"

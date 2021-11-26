@@ -16,7 +16,6 @@
     <Compile Include="IO\CommonTests.fs" />
     <Compile Include="IO\JsonIOTests.fs" />
     <Compile Include="IO\ProtoIOTests.fs" />
-    <None Include="App.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
@@ -24,6 +23,5 @@
     <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
     <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
   </ItemGroup>
-  <Import Project="netfx.props" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

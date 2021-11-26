@@ -1,3 +1,6 @@
+#### 3.0.1 - Nov 2021
+* bugix: anchor all new tuples before passing any of them to bolts 
+
 #### 3.0.0 - Mar 2021
 * surface log level into the api 
 

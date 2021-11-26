@@ -79,9 +79,9 @@ module internal Routing =
             let instances = sinksOfComp dstId
             let group = mkGroup instances streamDef.Grouping
             map |> Map.add streamId (fun mkIds tuple ->
+                                        let ids = mkIds ()
                                         f mkIds tuple
-                                        mkIds ()
-                                        |> Seq.iter (fun tupleId -> 
+                                        ids |> Seq.iter (fun tupleId -> 
                                                         let msg = Tuple(tuple, tupleId, fst streamId, snd streamId, taskId) |> Other
                                                         group tupleId tuple
                                                         |> Seq.apply msg))
@@ -158,8 +158,7 @@ module internal TupleTree =
             let anchoredIds = anchors |> List.map (fun a -> (a, tupleId))
             
             anchoredIds 
-            |> List.iter (fun ((aid, enqueue), id) ->
-                Anchor(aid, id) |> enqueue)
+            |> List.iter (fun ((aid, enqueue), id) -> Anchor(aid, id) |> enqueue)
             
             match anchoredIds with
             | [] -> [string tupleId]
@@ -255,20 +254,25 @@ module internal RuntimeTopology =
             if inFlight.Count > highWater then cleanup()
             inFlight.Add (tupleId, Pending(sid, taskId, 0L))
         | Other(Anchor (anchor, tupleId)) -> 
+            trace (fun _ -> sprintf "Anchoring: %A <- %A" anchor tupleId)
             inFlight.[anchor] <- xor tupleId anchor
-        | Other(Fail (anchor, tupleId)) ->
+        | Other(Fail (anchor, _)) ->
             match inFlight.TryGetValue anchor with
             | true, Pending(sourceId, taskId, _) ->
+                trace (fun _ -> sprintf "Failing anchor: %A" anchor)
                 Nack sourceId |> sendToSpout taskId
                 inFlight.[anchor] <- Done
-            | _ -> ()
+            | _ ->
+                trace (fun _ -> sprintf "Can't nack, not tracking: %A" anchor)
         | Other(Ok (anchor, tupleId)) ->
             let xored = xor tupleId anchor
             match xored with
             | Complete(sourceId, taskId) ->
+                trace (fun _ -> sprintf "Acking anchor: %A due to %A" anchor tupleId)
                 Ack sourceId |> sendToSpout taskId
                 inFlight.[anchor] <- Done
             | _ -> 
+                trace (fun _ -> sprintf "xoring anchor: %A with %A" anchor tupleId)
                 inFlight.[anchor] <- xored
 
     let private mkSystem log nextId (topology:Topology<'t>) taskId = 

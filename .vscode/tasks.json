@@ -1,21 +1,24 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
-    "command": "msbuild",
-    "args": [
-        "src/FsShelter.sln",
-        // Ask msbuild to generate full paths for file names.
-        "/property:GenerateFullPaths=true"
-    ],
-    "taskSelector": "/t:",
-    "showOutput": "silent",
+    "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "build",
-            // Show the output window only if unrecognized errors occur.
-            "showOutput": "silent",
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "label": "build",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "src/FsShelter.sln",
+                // Ask dotnet build to generate full paths for file names.
+                "/property:GenerateFullPaths=true",
+                // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]
