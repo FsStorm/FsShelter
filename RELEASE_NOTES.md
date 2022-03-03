@@ -1,3 +1,6 @@
+#### 3.0.2 - Mar 2022
+* dependencies update 
+
 #### 3.0.1 - Nov 2021
 * bugix: anchor all new tuples before passing any of them to bolts 
 
