@@ -180,7 +180,7 @@ sampleTopology |> DotGraph.writeToConsole
 Followed by further conversion into a desired format, piping the markup into GraphViz:
 
 ```bash
-dotnet samples/WordCount/bin/Release/netcoreapp2.1/WordCount.dll graph | dot -Tsvg -o build/WordCount.svg
+dotnet samples/WordCount/bin/Release/net6.0/WordCount.dll graph | dot -Tsvg -o build/WordCount.svg
 ```
 
 It is also possible to generate graphs with colour-coded streams:

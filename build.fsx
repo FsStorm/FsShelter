@@ -186,7 +186,7 @@ Target.create "GenerateSources" ignore
 let exportGraph (app:string) (arg:string) fileName =
     Shell.Exec(
             "dotnet",
-            ("samples" @@ app @@ "bin" @@ "Release" @@ "netcoreapp2.1" @@ (sprintf "%s.dll" app)) +
+            ("samples" @@ app @@ "bin" @@ "Release" @@ "net6.0" @@ (sprintf "%s.dll" app)) +
             (sprintf " %s | dot -Tsvg -o samples/%s/obj/%s.svg" arg app fileName),
             ".")
     |> ignore

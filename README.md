@@ -14,6 +14,8 @@ Join the conversation: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](htt
 * At the moment FsShelter doesn't support direct emits.
 
 # Building
+With .NET SDK 6 installed:
+
 ```
 dotnet tool restore
 dotnet fake build 

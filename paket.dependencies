@@ -12,7 +12,7 @@ group Main
 	source https://nuget.org/api/v2
 
 	nuget Disruptor
-	nuget FSharp.Core ~> 4.6.2
+	nuget FSharp.Core
 	nuget FsPickler
 	nuget Google.Protobuf
 	nuget apache-thrift-netcore

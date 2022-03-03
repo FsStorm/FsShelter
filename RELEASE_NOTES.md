@@ -1,3 +1,7 @@
+#### 4.0.0 - Mar 2022
+* target .NET 6 only 
+* add `Topology.runNoRestart` for supervised/containerized hosts
+
 #### 3.0.2 - Mar 2022
 * dependencies update 
 

@@ -14,7 +14,7 @@ module Includes =
     let private extSet = [".exe";".dll";".json";".config";".sh";".cmd"] |> Set.ofList
     
     /// filter: include most commmon .NET files only
-    let defaultExtensions fileName =
+    let defaultExtensions (fileName:string) =
             extSet |> Set.contains (Path.GetExtension(fileName).ToLower())
 
     /// generate list of files (from*to) using the given filter and the typical build output folder
@@ -171,6 +171,6 @@ module ThriftModel =
 /// Executable startup helpers
 module Startup =
     /// make arguments suitable for running shell components under Mono
-    let mkArgs args exe = 
+    let mkArgs args (exe:string) = 
         ("dotnet", (Path.GetFileName exe)::args)
 

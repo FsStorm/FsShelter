@@ -455,9 +455,7 @@ module internal RuntimeTopology =
           spoutTasks = spouts |> Seq.map (fun s -> nextTaskId() |> s ) |> Map.ofSeq
           boltTasks = bolts |> Seq.map (fun b -> nextTaskId() |> b ) |> Map.ofSeq }
 
-let runWith (startLog:int->Log) (topology:Topology<'t>) =
-    let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
-    let describe (rtt:RuntimeTopology<'t>) =
+    let describe (topology:Topology<'t>) (rtt:RuntimeTopology<'t>) =
         seq {
             yield sprintf "\n\t%d (__system)" (fst rtt.systemTask)
             for (KeyValue(taskId, _)) in rtt.ackerTasks do
@@ -486,8 +484,29 @@ let runWith (startLog:int->Log) (topology:Topology<'t>) =
         rtt.boltTasks |> Map.iter (fun _ (_, (_, shutdown)) -> shutdown())
         rtt.ackerTasks |> Map.iter (fun _ (_, shutdown) -> shutdown())
 
+let runNoRestart (startLog:int->Log) (topology:Topology<'t>) =
+    let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
     let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
-    let mutable rtt = None
+    let exit (exn: exn) =
+        log LogLevel.Error (fun _ -> sprintf "Unhandled exception: {%A}" exn)
+        System.Environment.Exit 1
+
+    let rtt = (topology |> RuntimeTopology.ofTopology startLog exit)
+    log LogLevel.Info (fun _ -> sprintf "Hosting the topology: %s {%s}, \n with configuration: %A" topology.Name (RuntimeTopology.describe topology rtt) topology.Conf)
+    Thread.Sleep (1000*timeout)
+    RuntimeTopology.activate rtt
+
+    fun () ->
+        log LogLevel.Info (fun _ -> sprintf "Stopping topology: %s..." topology.Name) 
+        RuntimeTopology.stop rtt
+        Thread.Sleep (1000*timeout)
+        RuntimeTopology.shutdown rtt
+
+let runWith (startLog:int->Log) (topology:Topology<'t>) =
+    let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
+
+    let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
+    let rtt = ref None
     let rec restart (ex:exn) =
         try
             log LogLevel.Error (fun _ -> sprintf "Error running the topology: %A" ex) 
@@ -498,17 +517,17 @@ let runWith (startLog:int->Log) (topology:Topology<'t>) =
         finally
             if Monitor.IsEntered rtt then Monitor.Exit rtt            
     and start () =
-        rtt <- Some (topology |> RuntimeTopology.ofTopology startLog restart)
-        log LogLevel.Info (fun _ -> sprintf "Hosting the topology: %s {%s}, \n with configuration: %A" topology.Name (describe rtt.Value) topology.Conf)
+        rtt.Value <- Some (topology |> RuntimeTopology.ofTopology startLog restart)
+        log LogLevel.Info (fun _ -> sprintf "Hosting the topology: %s {%s}, \n with configuration: %A" topology.Name (RuntimeTopology.describe topology rtt.Value.Value) topology.Conf)
         Thread.Sleep (1000*timeout)
-        activate rtt.Value
+        RuntimeTopology.activate rtt.Value.Value
     and stopAndShutdown () =
-        match rtt with
+        match rtt.Value with
         | Some rtt ->
             log LogLevel.Info (fun _ -> sprintf "Stopping topology: %s..." topology.Name) 
-            stop rtt
+            RuntimeTopology.stop rtt
             Thread.Sleep (1000*timeout)
-            shutdown rtt
+            RuntimeTopology.shutdown rtt
         | _ -> ()
 
     start ()
