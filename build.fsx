@@ -157,16 +157,17 @@ Target.create "ProtoShell" (fun _ ->
 
 Target.create "StormThriftNamespace" (fun _ ->
     "paket-files" @@ "et1975" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift"
-    |> Shell.regexReplaceInFileWithEncoding "namespace java org.apache.storm.generated" "namespace csharp StormThrift" Text.Encoding.ASCII
+    |> Shell.regexReplaceInFileWithEncoding "namespace java org.apache.storm.generated" "namespace netstd StormThrift" Text.Encoding.ASCII
 )
 
 Target.create "StormThrift" (fun _ ->
     let generated = "ext" @@ "StormThrift" @@ "StormThrift"
     Shell.cleanDir generated
     Shell.Exec(
-            "packages" @@ "build" @@ "Thrift" @@ "tools" @@ "thrift-0.9.1.exe",
+            // "packet-files" @@ "build" @@ "dlcdn.apache.org" @@ "thrift-0.16.0.exe",
+            "thrift",
             "-out " + generated @@ ".."
-            + " --gen csharp"
+            + " --gen netstd"
             + " paket-files" @@ "et1975" @@ "storm" @@ "storm-core" @@ "src" @@ "storm.thrift",
             ".")
     |> ignore

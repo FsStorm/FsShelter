@@ -1,3 +1,6 @@
+#### 4.1.0 - Jul 2022
+* update to latest Thrift (breaking Nimbus API) 
+
 #### 4.0.0 - Mar 2022
 * target .NET 6 only 
 * add `Topology.runNoRestart` for supervised/containerized hosts

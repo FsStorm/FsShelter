@@ -79,29 +79,33 @@ module Nimbus =
     
     /// upload the packaged jar to Nimbus and return the location on the server
     let uploadJar (nimbus : Nimbus.Client) jarFile = 
-        let file = nimbus.beginFileUpload()
-        use inStr = File.OpenRead(jarFile)
-        let chunkSz = 307200
-        let buffer = Array.zeroCreate (chunkSz)
-        let mutable read = inStr.Read(buffer, 0, buffer.Length)
-        while read > 0 do
-            nimbus.uploadChunk (file, buffer.[0..read - 1])
-            read <- inStr.Read(buffer, 0, buffer.Length)
-        printfn "uploaded %d bytes into: %s" inStr.Position file
-        nimbus.finishFileUpload (file)
-        file
+        task {
+            let! file = nimbus.beginFileUpload()
+            use inStr = File.OpenRead(jarFile)
+            let chunkSz = 307200
+            let buffer = Array.zeroCreate (chunkSz)
+            let mutable read = inStr.Read(buffer, 0, buffer.Length)
+            while read > 0 do
+                do! nimbus.uploadChunk (file, buffer.[0..read - 1])
+                read <- inStr.Read(buffer, 0, buffer.Length)
+            printfn "uploaded %d bytes into: %s" inStr.Position file
+            do! nimbus.finishFileUpload file
+            return file
+        }
     
     /// establish Nimbus (a storm service) connection over thrift protocol and execute the passed action using it
-    let withClient nimbusHost nimbusPort cont = 
-        use tx = new Thrift.Transport.TSocket(nimbusHost, nimbusPort)
-        use txf = new Thrift.Transport.TFramedTransport(tx)
-        txf.Open()
-        try 
-            use tp = new Thrift.Protocol.TBinaryProtocol(txf)
-            use client = new Nimbus.Client(tp)
-            cont client
-        finally
-            txf.Close()
+    let withClient (nimbusHost: string) nimbusPort (cont : _ -> System.Threading.Tasks.Task) = 
+        task {
+            use tx = new Thrift.Transport.Client.TSocketTransport(nimbusHost, nimbusPort, Thrift.TConfiguration())
+            use txf = new Thrift.Transport.TFramedTransport(tx)
+            do! txf.OpenAsync()
+            try 
+                use tp = new Thrift.Protocol.TBinaryProtocol(txf)
+                use client = new Nimbus.Client(tp)
+                do! cont client
+            finally
+                txf.Close()
+        }
 
 /// Converters into Nimbus (Thrift) model
 module ThriftModel = 

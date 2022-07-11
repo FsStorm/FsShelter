@@ -1,6 +1,6 @@
 FSharp.Core
 newtonsoft.json
-apache-thrift-netcore
+ApacheThrift
 Google.Protobuf
 FsPickler
 Disruptor

@@ -5,7 +5,7 @@ group Build
     nuget Google.Protobuf.Tools
 	nuget fsharplint
 	nuget Google.Protobuf
-	nuget thrift
+	http https://dlcdn.apache.org/thrift/0.16.0/thrift-0.16.0.exe
 
 group Main
 	storage: none
@@ -15,7 +15,7 @@ group Main
 	nuget FSharp.Core
 	nuget FsPickler
 	nuget Google.Protobuf
-	nuget apache-thrift-netcore
+	nuget ApacheThrift
 	nuget newtonsoft.json
 	nuget nunit
 	nuget NUnit3TestAdapter

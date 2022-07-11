@@ -21,8 +21,7 @@ let main argv =
     | ["submit-local"] -> 
         Startup.submit topology exePath (Startup.mkArgs []) "localhost" Nimbus.DefaultPort
     | "kill"::address::[port] ->
-        Nimbus.withClient address (int port) 
-            (fun client -> Nimbus.kill client topology.Name)
+        Nimbus.withClient address (int port) (fun client -> Nimbus.kill client topology.Name) |> Task.wait
     | ["graph"] ->
         topology
         |> DotGraph.writeToConsole
