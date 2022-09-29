@@ -1,4 +1,7 @@
-#### 4.1.0 - Jul 2022
+#### 4.1.2 - Sep 2023
+* update Google.Protobuf
+
+#### 4.1.2 - Jul 2022
 * update to latest Thrift (breaking Nimbus API) 
 
 #### 4.0.0 - Mar 2022

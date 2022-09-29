@@ -53,10 +53,16 @@ Target.create "Clean" (fun _ ->
 
 Target.create "Meta" (fun _ ->
     [ "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">"
+      "<ItemGroup>"
+      """<None Include="$(MSBuildThisFileDirectory)/docs/files/img/logo.png" Pack="true" PackagePath="\" />"""
+      """<None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" PackagePath="\" />"""
+      """<None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" PackagePath="\"/>"""
+      """<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>"""
+      "</ItemGroup>"
       "<PropertyGroup>"
       "<PackageProjectUrl>https://github.com/FsStorm/FsShelter</PackageProjectUrl>"
-      "<PackageLicenseUrl>https://raw.githubusercontent.com/FsStorm/FsShelter/master/LICENSE.md</PackageLicenseUrl>"
-      "<PackageIconUrl>https://raw.githubusercontent.com/FsStorm/FsShelter/master/docs/files/img/logo.png</PackageIconUrl>"
+      "<PackageLicenseFile>LICENSE.md</PackageLicenseFile>"
+      "<PackageIcon>logo.png</PackageIcon>"
       "<RepositoryUrl>https://github.com/FsStorm/FsShelter.git</RepositoryUrl>"
       "<PackageTags>storm;cep;event-driven;fsharp;distributed</PackageTags>"
       "<PackageDescription>F# DSL and runtime for Apache Storm topologies</PackageDescription>"
