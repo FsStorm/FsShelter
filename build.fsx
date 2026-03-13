@@ -1,22 +1,10 @@
-#r "paket:
-framework: auto-detect
-source https://www.nuget.org/api/v2
-source https://api.nuget.org/v3/index.json
-
-nuget FSharp.Core 4.7.0.0
-nuget Fake.DotNet.Cli
-nuget Fake.Tools.Git
-nuget Fake.Api.GitHub
-nuget Fake.Core.Environment
-nuget Fake.Core.Process
-nuget Fake.Core.ReleaseNotes
-nuget Fake.Core.SemVer
-nuget Fake.Core.String
-nuget Fake.Core.Target //"
-#load "./.fake/build.fsx/intellisense.fsx"
-#if !FAKE
-  #r "Facades/netstandard"
-#endif
+#!/usr/bin/env -S dotnet fsi
+#r "nuget: Fake.Core.Target, 5.23.1"
+#r "nuget: Fake.IO.FileSystem, 5.23.1"
+#r "nuget: Fake.DotNet.Cli, 5.23.1"
+#r "nuget: Fake.Core.ReleaseNotes, 5.23.1"
+#r "nuget: Fake.Tools.Git, 5.23.1"
+#r "nuget: MSBuild.StructuredLogger, 2.2.441"
 
 open System
 open System.IO
@@ -29,6 +17,12 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
+System.Environment.GetCommandLineArgs()
+|> Array.skip 2 // fsi.exe; build.fsx
+|> Array.toList
+|> Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Context.RuntimeContext.Fake
+|> Context.setExecutionContext
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted

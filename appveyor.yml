@@ -4,6 +4,6 @@ init:
   - git config --global core.autocrlf input
 
 build_script:
-  - cmd: dotnet tool restore && dotnet fake build
+  - cmd: dotnet tool restore && dotnet fsi build.fsx
 
 test: off
