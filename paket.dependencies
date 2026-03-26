@@ -11,7 +11,7 @@ group Main
 	storage: none
 	source https://nuget.org/api/v2
 
-	nuget Disruptor
+	nuget Disruptor ~> 6.0
 	nuget FSharp.Core
 	nuget FsPickler
 	nuget Google.Protobuf

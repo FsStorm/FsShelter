@@ -104,7 +104,7 @@ let fsdocParameters = [
 
 let fsdocProperties = [
   "Configuration=Release"
-  "TargetFramework=netstandard2.0"
+  "TargetFramework=net10.0"
 ]
 
 Target.create "GenerateDocs" (fun _ ->

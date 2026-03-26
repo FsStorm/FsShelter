@@ -185,15 +185,16 @@ module internal Channel =
         ringBuffer.Publish seqno
 
     let private withHandlers (onMsg: MsgProcessor<'msg voption>) (onExn: exn->unit) (disruptor: Disruptor<_>) =
-        { new IExceptionHandler<_> with
-            member __.HandleEventException(exn:exn, seqno, eob) = onExn exn
+        { new IExceptionHandler<Envelope<'msg>> with
+            member __.HandleEventException(exn:exn, seqno:int64, eob:Envelope<'msg>) = onExn exn
+            member __.HandleEventException(exn:exn, seqno:int64, batch:EventBatch<Envelope<'msg>>) = onExn exn
+            member __.HandleOnTimeoutException(exn:exn, seqno:int64) = onExn exn
             member __.HandleOnStartException(exn:exn) = onExn exn
             member __.HandleOnShutdownException(exn:exn) = onExn exn }
         |> disruptor.SetDefaultExceptionHandler
         { new MsgHandler<'msg> with
             member __.OnEvent(ev, _, _) = onMsg ev.Msg
-          interface ITimeoutHandler with
-            member __.OnTimeout seq = onMsg ValueNone }
+            member __.OnTimeout(_) = onMsg ValueNone }
         |> disruptor.HandleEventsWith
         |> ignore
 
