@@ -168,11 +168,11 @@ let ``roundtrip throughput``() =
     let (in',out') = JsonIO.startWith (new IO.StreamReader(mem), new IO.StreamWriter(mem)) syncOut (fun _ -> ignore)
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    for i in {1..count} do
+    for i in 1..count do
         Emit(justFields,Some "2651792242051038370",[],"JustFields",Some 1,None) |> out'
 
     mem.Seek(0L, IO.SeekOrigin.Begin) |> ignore
-    for i in {1..count} do
+    for i in 1..count do
         in'() |> ignore
     sw.Stop()
     printf "[Json] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)

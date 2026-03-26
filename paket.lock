@@ -818,8 +818,8 @@ NUGET
     Google.Protobuf (3.34)
     Google.Protobuf.Tools (3.34)
 HTTP
-  remote: https://dlcdn.apache.org
-    thrift-0.16.0.exe (/thrift/0.16.0/thrift-0.16.0.exe)
+  remote: https://archive.apache.org
+    thrift-0.16.0.exe (/dist/thrift/0.16.0/thrift-0.16.0.exe)
 GROUP Run
 
 HTTP

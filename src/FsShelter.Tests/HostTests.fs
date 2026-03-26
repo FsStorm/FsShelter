@@ -49,8 +49,8 @@ module Topologies =
                  //|> withConf [Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1]
 
         yield s1 ==> b1 |> Shuffle.on Original
-        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x)) 
-        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected") 
+        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
     }
 
 
