@@ -1,3 +1,6 @@
+#### 5.0.0 - Sep 2026
+* .net 10 and Disruptor 6
+
 #### 4.1.2 - Sep 2023
 * update Google.Protobuf
 
