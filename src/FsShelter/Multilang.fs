@@ -20,9 +20,9 @@ type Context =
 /// Storm messages
 type InCommand<'t> = 
     | Handshake of conf : Conf * pidDir : string * context : Context
-    | Ack of string
-    | Nack of string
-    | Tuple of tuple : 't * id : string * comp : string * stream : string * taskId : int
+    | Ack of TupleId
+    | Nack of TupleId
+    | Tuple of tuple : 't * id : TupleId * comp : string * stream : string * taskId : int
     | Next
     | TaskIds of int list
     | Heartbeat
@@ -32,9 +32,9 @@ type InCommand<'t> =
 /// Shell messages
 type OutCommand<'t> = 
     | Pid of int
-    | Ok of string
-    | Fail of string
-    | Emit of tuple : 't * id : string option * anchors : string list * stream : string * task : int option * needTaskIds : bool option
+    | Ok of TupleId
+    | Fail of TupleId
+    | Emit of tuple : 't * id : TupleId option * anchors : TupleId list * stream : string * task : int option * needTaskIds : bool option
     | Log of msg : string * level : LogLevel
     | Error of msg : string * ex : Exception
     | Sync

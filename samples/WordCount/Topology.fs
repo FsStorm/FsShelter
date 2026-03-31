@@ -1,6 +1,7 @@
 ﻿module Sample.Topology
 
 open System
+open FsShelter
 
 // data schema for the topology, every case is a unqiue stream
 type Schema = 
@@ -17,7 +18,7 @@ let sentences source =
 // so that it could be replayed in case of downstream failure
 let reliableSentences source = 
     let sentence = source()
-    Some(sentence, Sentence sentence) // we'll just pretend we've generated a unique Id
+    Some(Named sentence, Sentence sentence) // we'll just pretend we've generated a unique Id
 
 // split bolt - consumes sentences and emits words
 let splitIntoWords (input, emit) = 
@@ -58,7 +59,6 @@ let increment =
         let c = cache.GetOrAdd(word, ref 0L) 
         Threading.Interlocked.Increment &c.contents
 
-open FsShelter.DSL
 #nowarn "25" // for stream grouping expressions
 
 //define the storm topology

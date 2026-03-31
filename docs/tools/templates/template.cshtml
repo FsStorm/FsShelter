@@ -17,6 +17,20 @@
             type="image/png"
             href="@Root/img/logo.png" />
     <script type="text/javascript" src="@Root/content/tips.js"></script>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: false });
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+          var div = document.createElement('pre');
+          div.className = 'mermaid';
+          div.textContent = el.textContent;
+          var container = el.closest('table.pre') || el.closest('pre');
+          if (container) { container.parentNode.replaceChild(div, container); }
+        });
+        mermaid.run();
+      });
+    </script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -66,6 +80,11 @@
           </ul>
       <li>
           <a href="@Root/self-hosting.html">Self-hosting</a>
+          <ul>
+              <li><a href="@Root/message-flow.html">Message flow</a></li>
+              <li><a href="@Root/acker-algorithm.html">Acker algorithm</a></li>
+              <li><a href="@Root/routing.html">Routing</a></li>
+          </ul>
 			</li>
       <li><a href="@Root/schema.html">Schema considerations</a></li>
 

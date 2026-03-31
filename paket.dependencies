@@ -5,13 +5,13 @@ group Build
     nuget Google.Protobuf.Tools
 	nuget fsharplint
 	nuget Google.Protobuf
-	http https://dlcdn.apache.org/thrift/0.16.0/thrift-0.16.0.exe
+	http https://archive.apache.org/dist/thrift/0.16.0/thrift-0.16.0.exe
 
 group Main
 	storage: none
 	source https://nuget.org/api/v2
 
-	nuget Disruptor
+	nuget Disruptor ~> 6.0
 	nuget FSharp.Core
 	nuget FsPickler
 	nuget Google.Protobuf

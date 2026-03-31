@@ -29,7 +29,7 @@ let logResult (info,input) =
     | _ -> failwithf "unexpected input: %A" input
 
 /// In-memory "reliable" queue implementation
-open FsShelter.Topology
+open FsShelter
 open System
 open System.Collections.Generic
 
@@ -51,7 +51,7 @@ let source =
                 let! cmd = inbox.Receive()
                 return! loop <| match cmd, nacked with
                                 | Get rc, [] ->
-                                    let tupleId,number = string(nextId()), rnd.Next(0, 100)
+                                    let tupleId,number = Named(string(nextId())), rnd.Next(0, 100)
                                     pending.Add(tupleId,number)
                                     rc.Reply(tupleId,number)
                                     []

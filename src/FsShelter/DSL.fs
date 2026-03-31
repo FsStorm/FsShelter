@@ -235,7 +235,6 @@ module private Parsers =
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("NameConventions", "MemberNamesMustBePascalCase")>]
 [<AutoOpen>]
 module DSL =
-    open Multilang
     open Topology
     open Dispatch
     open FSharp.Quotations
@@ -265,7 +264,8 @@ module DSL =
         /// next: spout function that returns an id*tuple option.
         let runReliable mkArgs (mkAcker: 'args -> Acker) (deactivate: 'args -> unit) (next: Next<_, _*'t>) : Spout<'t> =
             { MkComp = fun () -> FuncRef (reliableSpout mkArgs mkAcker deactivate next TupleSchema.toStreamName<'t>)
-              Parallelism = 1u 
+              Parallelism = 1u
+              Executors = None
               Conf = Conf.empty }
 
         /// define spout with no processing guarantees
@@ -274,11 +274,12 @@ module DSL =
         let runUnreliable mkArgs (deactivate: 'args -> unit) (next: Next<_, 't>): Spout<'t> =
             { MkComp = fun () -> FuncRef (unreliableSpout mkArgs deactivate next TupleSchema.toStreamName<'t>)
               Parallelism = 1u
+              Executors = None
               Conf = Conf.empty }
 
         /// define a spout for a (external) shell or java component
         let ofExternal<'t> comp: Spout<'t> =
-            { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty }
+            { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Executors = None; Conf = Conf.empty }
 
     module Bolt =
         /// define a bolt that auto-acks
@@ -286,7 +287,8 @@ module DSL =
         /// consume: bolt function that will receive incoming tuples.
         let run mkArgs (consume: Consume<_>): Bolt<'t> =
             { MkComp = fun (toAnchors, act, deact) -> FuncRef (autoAckBolt mkArgs consume (toAnchors, act, deact) TupleSchema.toStreamName<'t>)
-              Parallelism = 1u 
+              Parallelism = 1u
+              Executors = None
               Conf = Conf.empty
               Activate = None
               Deactivate = None }
@@ -296,14 +298,15 @@ module DSL =
         /// consume: bolt function that will receive incoming tuples.
         let runTerminator mkArgs (consume: Consume<_>): Bolt<'t> =
             { MkComp = fun _ -> FuncRef (autoNackBolt mkArgs consume)
-              Parallelism = 1u 
+              Parallelism = 1u
+              Executors = None
               Conf = Conf.empty
               Activate = None
               Deactivate = None }
 
         /// define a bolt for a (external) shell or java component
         let ofExternal<'t> comp: Bolt<'t> =
-            { Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Conf = Conf.empty; Activate = None; Deactivate = None }
+            { Bolt.MkComp = (fun _ -> comp); Parallelism=1u; Executors = None; Conf = Conf.empty; Activate = None; Deactivate = None }
 
     open System
 
@@ -328,6 +331,10 @@ module DSL =
    /// override default parallelism
     let inline withParallelism parallelism (spec: ^s) =
         (^s : (static member WithParallelism : ^s*uint32 -> ^s) (spec, uint32 parallelism))
+
+    /// override default number of executors (threads) for tasks
+    let inline withExecutors executors (spec: ^s) =
+        (^s : (static member WithExecutors : ^s*uint32 -> ^s) (spec, uint32 executors))
 
     /// supply component configuration/overrides
     let inline withConf conf (spec: ^s) =

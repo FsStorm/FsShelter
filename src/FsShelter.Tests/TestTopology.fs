@@ -29,7 +29,7 @@ type World =
 
 /// numbers spout - produces messages
 let numbers (world : World) =
-    Some(string(Threading.Interlocked.Increment &world.count.contents), Original { x = world.rnd.Next(0, 100) }) 
+    Some(Named(string(Threading.Interlocked.Increment &world.count.contents)), Original { x = world.rnd.Next(0, 100) }) 
 
 /// split bolt - consumes and emits messages
 let split (input,emit) =
@@ -47,8 +47,6 @@ let resultBolt (info,input) =
     | Even ({x = x}, {str=str})
     | Odd ({x = x},str) -> info (sprintf "Got %A" input)
     | _ -> failwithf "unexpected input: %A" input
-
-open FsShelter.DSL
 
 #nowarn "25" // for stream matching expressions
 let t1 = topology "test" {

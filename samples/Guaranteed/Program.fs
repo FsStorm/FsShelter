@@ -47,7 +47,7 @@ let main argv =
         sw.Stop()
         printf "Stopped, getting counts...\n"
         let (count,_) = Topology.source.PostAndReply Get
-        printf "Count: %s, %d/s\n" count (1000L*(int64 count)/sw.ElapsedMilliseconds)
+        printf "Count: %s, %d/s\n" (count.ToString()) (1000L*(int64 <| count.ToString())/sw.ElapsedMilliseconds)
     | _ -> 
         topology
         |> Task.ofTopology

@@ -44,7 +44,8 @@ paket-files/
 # docs
 docs/content/LICENSE.md
 docs/content/RELEASE-NOTES.md
-docs/output
+output/
+tmp/
 
 # Enable "build/" folder in the NuGet Packages folder since
 # NuGet packages use it for MSBuild targets.

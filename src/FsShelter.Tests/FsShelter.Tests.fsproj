@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
@@ -13,6 +13,12 @@
     <Compile Include="TranslationTests.fs" />
     <Compile Include="TaskTests.fs" />
     <Compile Include="HostTests.fs" />
+    <Compile Include="AckerTests.fs" />
+    <Compile Include="SpoutTests.fs" />
+    <Compile Include="BoltAndGroupingTests.fs" />
+    <Compile Include="ResourceAndEdgeCaseTests.fs" />
+    <Compile Include="PerfBench.fs" />
+    <Compile Include="HotPathBench.fs" />
     <Compile Include="IO\CommonTests.fs" />
     <Compile Include="IO\JsonIOTests.fs" />
     <Compile Include="IO\ProtoIOTests.fs" />

@@ -23,7 +23,7 @@ module Topologies =
         //    return None
         //else 
             //return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
-        Some(string x, Original { x = world.rnd.Next(0, 100) }) 
+        Some(Named(string x), Original { x = world.rnd.Next(0, 100) }) 
     
     let printBolt (log,t) =
         match t with 
@@ -49,8 +49,8 @@ module Topologies =
                  //|> withConf [Conf.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1]
 
         yield s1 ==> b1 |> Shuffle.on Original
-        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x)) 
-        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected") 
+        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
     }
 
 
@@ -117,7 +117,7 @@ let ``Several``() =
 [<Category("interactive")>]
 let ``No emits``() = 
      let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
-     let none () : (string*Schema) option =
+     let none () : (TupleId*Schema) option =
         // let now = DateTime.Now
         // match now.Millisecond % 20 with
         // | 0 -> Some (string now, Original {x = now.Second})
@@ -163,8 +163,8 @@ let ``No emits``() =
 [<Category("interactive")>]
 let ``Long-running bolt``() = 
      let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
-     let mutable t = Some ("", Original {x = 1})  
-     let one () : (string*Schema) option =
+     let mutable t = Some (Named "", Original {x = 1})  
+     let one () : (TupleId*Schema) option =
            let ret = t
            t <- None
            System.Threading.Thread.Sleep 1000

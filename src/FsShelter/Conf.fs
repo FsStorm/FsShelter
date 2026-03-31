@@ -12,6 +12,8 @@ type ConfOption =
     | TOPOLOGY_MAX_TASK_PARALLELISM of int32
     | TOPOLOGY_MULTILANG_SERIALIZER of string
     | TOPOLOGY_DEBUG of bool
+    | TOPOLOGY_ACKER_TASKS of int32
+    | TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS of int32
     | Other of string * obj
     
 module ConfOption =
@@ -27,6 +29,8 @@ module ConfOption =
         | TOPOLOGY_MAX_TASK_PARALLELISM v -> "topology.max.task.parallelism", box v
         | TOPOLOGY_MULTILANG_SERIALIZER v -> "topology.multilang.serializer", box v
         | TOPOLOGY_DEBUG v -> "topology.debug", box v
+        | TOPOLOGY_ACKER_TASKS v -> "topology.acker.tasks", box v
+        | TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS v -> "topology.sleep.spout.wait.strategy.time.ms", box v
         | Other (k,v) -> k,v
 
 type Conf = Map<string,obj>
@@ -50,9 +54,11 @@ module Conf =
           TOPOLOGY_DEBUG false
           TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS true
           TOPOLOGY_ACKER_EXECUTORS 2
+          TOPOLOGY_ACKER_TASKS 4
           TOPOLOGY_MAX_SPOUT_PENDING 128
           TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 256
-          TOPOLOGY_MESSAGE_TIMEOUT_SECS 30 ]
+          TOPOLOGY_MESSAGE_TIMEOUT_SECS 30
+          TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 100 ]
         |> ofList
 
     let option (mkKey:'arg->ConfOption) conf =

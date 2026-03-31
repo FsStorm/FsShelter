@@ -140,15 +140,15 @@ let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:M
     let toConf conf = conf |> Seq.map (fun (x:Collections.Generic.KeyValuePair<string,VL>) -> x.Key, ofValue x.Value) |> Map
     let toContext (ctx:Messages.Context) = { ComponentId = ctx.ComponentId; TaskId = ctx.TaskId; Components = ctx.TaskComponents |> Seq.map (|KeyValue|) |> Map }
     match msg.MsgCase with
-    | Messages.StormMsg.MsgOneofCase.AckCmd -> Ack msg.AckCmd.Id
+    | Messages.StormMsg.MsgOneofCase.AckCmd -> Ack (Named msg.AckCmd.Id)
     | Messages.StormMsg.MsgOneofCase.Handshake -> Handshake (toConf msg.Handshake.Config, msg.Handshake.PidDir, (toContext msg.Handshake.Context))
     | Messages.StormMsg.MsgOneofCase.Heartbeat -> Heartbeat
-    | Messages.StormMsg.MsgOneofCase.NackCmd -> Nack msg.NackCmd.Id
+    | Messages.StormMsg.MsgOneofCase.NackCmd -> Nack (Named msg.NackCmd.Id)
     | Messages.StormMsg.MsgOneofCase.NextCmd -> Next
     | Messages.StormMsg.MsgOneofCase.TaskIds -> TaskIds (msg.TaskIds.TaskIds |> List.ofSeq)
     | Messages.StormMsg.MsgOneofCase.StreamIn ->
         let constr = findConstructor msg.StreamIn.Stream
-        InCommand.Tuple ((ofFields constr msg.StreamIn.Tuple)(), msg.StreamIn.Id, msg.StreamIn.Comp, msg.StreamIn.Stream, msg.StreamIn.Task)
+        InCommand.Tuple ((ofFields constr msg.StreamIn.Tuple)(), Named msg.StreamIn.Id, msg.StreamIn.Comp, msg.StreamIn.Stream, msg.StreamIn.Task)
     | Messages.StormMsg.MsgOneofCase.ActivateCmd -> Activate
     | Messages.StormMsg.MsgOneofCase.DeactivateCmd -> Deactivate
     | _ -> failwithf "Unexpected command: %A" msg
@@ -165,17 +165,17 @@ let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO
         match cmd with
         | Sync -> Messages.ShellMsg(Sync = Messages.SyncReply())
         | Pid pid -> Messages.ShellMsg(Pid = Messages.PidReply(Pid = pid))
-        | Fail tid -> Messages.ShellMsg(Fail = Messages.FailReply(Id = tid))
-        | Ok tid -> Messages.ShellMsg(Ok = Messages.OkReply(Id = tid))
+        | Fail tid -> Messages.ShellMsg(Fail = Messages.FailReply(Id = string tid))
+        | Ok tid -> Messages.ShellMsg(Ok = Messages.OkReply(Id = string tid))
         | Log (msg,lvl) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = msg, Level = enum (int lvl)))
         | Error (msg,ex) -> Messages.ShellMsg(Log = Messages.LogCommand(Text = (sprintf "%s: %s" msg (Exception.toString ex)), Level = Messages.LogCommand.Types.LogLevel.Error))
         | Emit (t,tid,anchors,stream,task,needTaskIds) -> 
             let (_,d) = streamRW |> Map.find stream
             let cmd = Messages.EmitCommand(Stream = stream)
             cmd.Tuple.Add (toFields d t)
-            if Option.isSome tid then cmd.Id <- tid.Value
+            if Option.isSome tid then cmd.Id <- string tid.Value
             if Option.isSome needTaskIds && needTaskIds.Value then cmd.NeedTaskIds <- needTaskIds.Value
-            if not (List.isEmpty anchors) then cmd.Anchors.Add (anchors)
+            if not (List.isEmpty anchors) then cmd.Anchors.Add (anchors |> List.map string)
             Messages.ShellMsg(Emit = cmd)
         |> write
 

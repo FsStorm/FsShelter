@@ -40,7 +40,7 @@ let ``reads ack``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    in'() =! InCommand<Schema>.Ack "zzz"
+    in'() =! InCommand<Schema>.Ack (Named "zzz")
 
 
 [<Test>]
@@ -49,7 +49,7 @@ let ``reads nack``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    in'() =! InCommand<Schema>.Nack "zzz"
+    in'() =! InCommand<Schema>.Nack (Named "zzz")
 
 [<Test>]
 let ``reads activate``() = 
@@ -73,7 +73,7 @@ let ``reads tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    in'() =! InCommand<Schema>.Tuple(Original {x=62},"2651792242051038370","AddOneBolt","Original",1)
+    in'() =! InCommand<Schema>.Tuple(Original {x=62},Named "2651792242051038370","AddOneBolt","Original",1)
 
 
 [<Test>]
@@ -82,7 +82,7 @@ let ``writes tuple``() =
     let sw = new System.IO.StringWriter()
     let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    out(Emit(Original {x=62},Some "2651792242051038370",["123"],"Original",None,None))
+    out(Emit(Original {x=62},Some (Named "2651792242051038370"),[Named "123"],"Original",None,None))
     Threading.Thread.Sleep(10)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Original","need_task_ids":false}"""+END
 
@@ -92,7 +92,7 @@ let ``reads generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    in'() =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner",1)
+    in'() =! InCommand<GenericSchema<Schema>>.Tuple(GenericSchema.Inner(Original {x=62}),Named "2651792242051038370","AddOneBolt","Inner",1)
 
 
 [<Test>]
@@ -101,7 +101,7 @@ let ``writes generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    out(Emit(GenericSchema.Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner",None,None))
+    out(Emit(GenericSchema.Inner(Original {x=62}),Some (Named "2651792242051038370"),[Named "123"],"Inner",None,None))
     Threading.Thread.Sleep(10)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"anchors":["123"],"stream":"Inner","need_task_ids":false}"""+END
 
@@ -111,7 +111,7 @@ let ``reads nested generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (in',_) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    in'() =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),"2651792242051038370","AddOneBolt","Inner+Original",1)
+    in'() =! InCommand<GenericNestedSchema<Schema>>.Tuple(Inner(Original {x=62}),Named "2651792242051038370","AddOneBolt","Inner+Original",1)
 
 
 [<Test>]
@@ -120,7 +120,7 @@ let ``writes nested generic tuple``() =
     let sw = new System.IO.StringWriter()
     let (_,out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     
-    out(Emit(Inner(Original {x=62}),Some "2651792242051038370",["123"],"Inner+Original",None,None))
+    out(Emit(Inner(Original {x=62}),Some (Named "2651792242051038370"),[Named "123"],"Inner+Original",None,None))
     Threading.Thread.Sleep(10)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62],"anchors":["123"],"stream":"Inner+Original","need_task_ids":false}"""+END
 
@@ -131,8 +131,8 @@ let ``rw complex tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let even = Even({x=62},{str="a"})
     
-    out(Emit(even,Some "2651792242051038370",[],"Even",None,None))
-    in'() =! InCommand<Schema>.Tuple(even,"2651792242051038370","AddOneBolt","Even",1)
+    out(Emit(even,Some (Named "2651792242051038370"),[],"Even",None,None))
+    in'() =! InCommand<Schema>.Tuple(even,Named "2651792242051038370","AddOneBolt","Even",1)
     Threading.Thread.Sleep 100
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[62,"a"],"stream":"Even","need_task_ids":false}"""+END
 
@@ -144,8 +144,8 @@ let ``rw option tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let t = MaybeString(Some "zzz")
     
-    out(Emit(t,Some "2651792242051038370",[],"MaybeString",None,None))
-    in'() =! InCommand<Schema>.Tuple(t,"2651792242051038370","AddOneBolt","MaybeString",1)
+    out(Emit(t,Some (Named "2651792242051038370"),[],"MaybeString",None,None))
+    in'() =! InCommand<Schema>.Tuple(t,Named "2651792242051038370","AddOneBolt","MaybeString",1)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Some","Fields":["zzz"]}],"stream":"MaybeString","need_task_ids":false}"""+END
 
 [<Test>]
@@ -155,8 +155,8 @@ let ``rw generic tuple``() =
     let (in',out) = JsonIO.startWith (sr,sw) syncOut (fun _ -> ignore)
     let t = GenericSchema.Inner(Original({x=62}))
     
-    out(Emit(t,Some "2651792242051038370",[],"Inner",None,None))
-    in'() =! InCommand<GenericSchema<Schema>>.Tuple(t,"2651792242051038370","AddOneBolt","Inner",1)
+    out(Emit(t,Some (Named "2651792242051038370"),[],"Inner",None,None))
+    in'() =! InCommand<GenericSchema<Schema>>.Tuple(t,Named "2651792242051038370","AddOneBolt","Inner",1)
     sw.ToString() =! """{"command":"emit","id":"2651792242051038370","tuple":[{"Case":"Original","Fields":[{"x":62}]}],"stream":"Inner","need_task_ids":false}"""+END
 
 
@@ -168,11 +168,11 @@ let ``roundtrip throughput``() =
     let (in',out') = JsonIO.startWith (new IO.StreamReader(mem), new IO.StreamWriter(mem)) syncOut (fun _ -> ignore)
 
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    for i in {1..count} do
-        Emit(justFields,Some "2651792242051038370",[],"JustFields",Some 1,None) |> out'
+    for i in 1..count do
+        Emit(justFields,Some (Named "2651792242051038370"),[],"JustFields",Some 1,None) |> out'
 
     mem.Seek(0L, IO.SeekOrigin.Begin) |> ignore
-    for i in {1..count} do
+    for i in 1..count do
         in'() |> ignore
     sw.Stop()
     printf "[Json] Ellapsed: %dms, %f/s\n" sw.ElapsedMilliseconds ((float count)/sw.Elapsed.TotalSeconds)

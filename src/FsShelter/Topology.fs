@@ -4,8 +4,6 @@
 module Topology =
     open Multilang
 
-    /// Tuple id
-    type TupleId = string
     /// Component id
     type ComponentId = string
     /// Stream id
@@ -29,9 +27,11 @@ module Topology =
     type Spout<'t> = {
         MkComp : unit -> Component<'t>
         Parallelism : uint32
+        Executors : uint32 option
         Conf : Conf
     } with static member WithConf (s, conf) = {s with Conf = conf}
            static member WithParallelism (s, p) = {s with Parallelism = p}
+           static member WithExecutors (s, e) = {s with Executors = Some e}
 
     /// Storm Bolt abstraction
     type Bolt<'t> = {
@@ -39,9 +39,11 @@ module Topology =
         Deactivate : 't option
         MkComp : (StreamId -> ToAnchors) * 't option * 't option -> Component<'t>
         Parallelism : uint32
+        Executors : uint32 option
         Conf : Conf 
     } with static member WithConf (s, conf) = {s with Bolt.Conf = conf}
            static member WithParallelism (s, p) = {s with Bolt.Parallelism = p}
+           static member WithExecutors (s, e) = {s with Bolt.Executors = Some e}
            static member WithActivation (s, t) = {s with Bolt.Activate = Some t}
            static member WithDeactivation (s, t) = {s with Bolt.Deactivate = Some t}
 
