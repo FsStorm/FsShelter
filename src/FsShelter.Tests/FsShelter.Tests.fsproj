@@ -19,16 +19,16 @@
     <Compile Include="ResourceAndEdgeCaseTests.fs" />
     <Compile Include="PerfBench.fs" />
     <Compile Include="HotPathBench.fs" />
-    <Compile Include="IO\CommonTests.fs" />
-    <Compile Include="IO\JsonIOTests.fs" />
-    <Compile Include="IO\ProtoIOTests.fs" />
+    <Compile Include="IO/CommonTests.fs" />
+    <Compile Include="IO/JsonIOTests.fs" />
+    <Compile Include="IO/ProtoIOTests.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsShelter\FsShelter.fsproj" />
     <ProjectReference Include="..\FsShelter.Multilang\FsShelter.Multilang.fsproj" />
-    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
-    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
+    <ProjectReference Include="../../ext/StormThrift/StormThrift.csproj" />
+    <ProjectReference Include="../../ext/ProtoShell/ProtoShell.csproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="../../.paket/Paket.Restore.targets" />
 </Project>

@@ -39,14 +39,15 @@ And when referenced in the grouping expressions, FsShelter will translate the fi
 *)
 
 open FsShelter.DSL
-// group tuples on Original stream, Item is implicit name used for the only `int` field on the case
-let ex1 = Group.by (function Original x -> x.Item)
-// group tuples on Described stream, flattened to [Item.X] for Storm
-let ex2 = Group.by (function Described x -> x.Item.X) 
+#nowarn "25" // for stream matching expressions
+// group tuples on Original stream, the `int` value is directly accessible
+let ex1 = Group.by (function Original x -> x)
+// group tuples on Described stream, flattened to [X] for Storm
+let ex2 = Group.by (function Described x -> x.X) 
 // group tuples on Translated stream, not flattened - the `X` and `Desc` fields will not be accessible to Storm
-let ex3 = Group.by (function Translated x -> x.Item)
-// group tuples on Complex stream, flattened to [Item.X] for Storm, `Item.X.Re` is not accessible
-let ex4 = Group.by (function Complex x -> x.Item.X)
+let ex3 = Group.by (function Translated x -> x)
+// group tuples on Complex stream, flattened to [X] for Storm, `X.Re` is not accessible
+let ex4 = Group.by (function Complex x -> x.X)
 
 (**
 As you can see this flattening of records is done only one layer deep. Also keep in mind that while use of collection types for fields is possible it doesn't provde any meaningful way to express that to Storm.

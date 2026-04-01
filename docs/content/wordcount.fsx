@@ -1,5 +1,6 @@
 (*** hide ***)
 #I "../../src/FsShelter/bin/Release/net10.0"
+#I "../../src/FsShelter.Multilang/bin/Release/net10.0"
 #r "FsShelter.dll"
 #r "FsShelter.Multilang.dll"
 
@@ -7,6 +8,11 @@ open System
 open FsShelter
 
 (**
+Word Count
+-------
+This tutorial walks through a complete fire-and-forget word count topology. We'll define a schema, implement components, wire them together, and visualize the result. For background on the concepts used here, see [Core Concepts](concepts.html).
+
+
 Defining the schema
 --------------------
 
@@ -121,7 +127,7 @@ let sampleTopology =
         let logBolt = 
             logResult
             |> Bolt.run (fun log cfg ->                           // make arguments: pass PID-log and incoming tuple 
-                            let mylog = Common.Logging.asyncLog (Diagnostics.Process.GetCurrentProcess().Id.ToString()+"_count")
+                            let mylog text = log LogLevel.Info text
                             fun tuple emit -> (mylog, tuple))
             |> withParallelism 2
         
@@ -143,25 +149,16 @@ The lambda arguments for the "run" methods provide the opportunity to carry out 
 This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.
 
 
-Submitting the topology for execution
+Deploying to Storm
 --------------
-Storm accepts JARs for code distribution and `FsShelter.Multilang` provides functions to package our assemblies and upload them to Nimbus.
-Once the code is uploaded, Storm needs to be told how to run it and `FsShelter.Multilang` has functions that convert the above representation into that of Nimbus API.
-Storm then starts the supervising processes across the cluster and spins up a copy of our executable for each task instance in our topology. 
-`FsShelter.Multilang`'s `Task` will perform the handshake that will determine which component a given process instance has been assigned to execute:
+To deploy to an Apache Storm cluster, the `FsShelter.Multilang` package provides functions to package assemblies, upload to Nimbus, and run the multilang handshake:
 *)
 sampleTopology
 |> Task.ofTopology
-|> Task.run ProtoIO.start // here we specify which serializer to use when talking to Storm
+|> Task.run ProtoIO.start
 
 (**
-
-Then the execution will be handed over to one of the corresponding "dispatchers", which will handle the subsequent interaction between Storm and the component function.
-
-Keep in mind that:
-
-* STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).
-* out of the box Storm only supports JSON multilang. For faster IO, consider [ProtoShell](https://github.com/FsStorm/protoshell). The serializer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand. Both `JsonIO` and `ProtoIO` serializers are provided in the `FsShelter.Multilang` package.
+Both `JsonIO` and `ProtoIO` serializers are provided. For faster IO, consider [ProtoShell](https://github.com/FsStorm/protoshell). Note that STDIN/STDOUT are reserved for Storm communications when running as a multilang component.
 
 
 Exporting the topology graph

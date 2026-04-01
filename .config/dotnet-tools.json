@@ -9,8 +9,8 @@
       ],
       "rollForward": false
     },
-    "fsharp.formatting.commandtool": {
-      "version": "9.0.1",
+    "fsdocs-tool": {
+      "version": "22.0.0-alpha.2",
       "commands": [
         "fsdocs"
       ],

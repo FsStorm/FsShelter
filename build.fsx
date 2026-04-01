@@ -54,7 +54,7 @@ Target.create "Meta" (fun _ ->
       """<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>"""
       "</ItemGroup>"
       "<PropertyGroup>"
-      "<PackageProjectUrl>https://github.com/FsStorm/FsShelter</PackageProjectUrl>"
+      "<PackageProjectUrl>https://FsStorm.github.io/FsShelter/</PackageProjectUrl>"
       "<PackageLicenseFile>LICENSE.md</PackageLicenseFile>"
       "<PackageIcon>logo.png</PackageIcon>"
       "<RepositoryUrl>https://github.com/FsStorm/FsShelter.git</RepositoryUrl>"
@@ -63,6 +63,10 @@ Target.create "Meta" (fun _ ->
       "<Authors>Eugene Tolmachev</Authors>"
       sprintf "<PackageReleaseNotes>%s</PackageReleaseNotes>" (List.head release.Notes |> System.Web.HttpUtility.HtmlEncode)
       sprintf "<Version>%s</Version>" (string release.SemVer)
+      "<FsDocsLogoSource>files/img/logo.png</FsDocsLogoSource>"
+      "<FsDocsFaviconSource>files/img/logo.png</FsDocsFaviconSource>"
+      "<FsDocsLicenseLink>https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md</FsDocsLicenseLink>"
+      "<FsDocsReleaseNotesLink>https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md</FsDocsReleaseNotesLink>"
       "</PropertyGroup>"
       "</Project>"]
     |> File.write false "Directory.Build.props"
@@ -99,12 +103,6 @@ Target.create "PublishNuget" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
-let fsdocParameters = [
-  sprintf "fsdocs-release-notes-link %s/FsShelter/blob/master/RELEASE_NOTES.md" gitHome
-  sprintf "fsdocs-license-link %s/FsShelter/blob/master/LICENSE.md" gitHome
-  "fsdocs-navbar-position fixed-left"
-]
-
 let fsdocProperties = [
   "Configuration=Release"
   "TargetFramework=net10.0"
@@ -114,16 +112,14 @@ Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "fsdocs" ("build --strict --eval --clean"
       + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
-      + " --properties " + String.Join(" ",fsdocProperties) 
-      + " --parameters " + String.Join(" ", fsdocParameters)) |> ignore
+      + " --properties " + String.Join(" ",fsdocProperties)) |> ignore
 )
 
 Target.create "WatchDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "fsdocs" ("watch --eval"
       + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
-      + " --properties " + String.Join(" ",fsdocProperties) 
-      + " --parameters " + String.Join(" ", fsdocParameters)) |> ignore
+      + " --properties " + String.Join(" ",fsdocProperties)) |> ignore
 )
 
 Target.create "ReleaseDocs" (fun _ ->

@@ -5,10 +5,10 @@
     <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\..\paket-files\et1975\storm\storm-core\src\storm.thrift">
+    <Content Include="../../paket-files/et1975/storm/storm-core/src/storm.thrift">
       <Paket>True</Paket>
       <Link>paket-files/storm.thrift</Link>
     </Content>
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="../../.paket/Paket.Restore.targets" />
 </Project>

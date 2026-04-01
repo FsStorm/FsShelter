@@ -12,9 +12,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.fsproj" />
-    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
-    <ProjectReference Include="..\..\src\FsShelter\FsShelter.fsproj" />
-    <ProjectReference Include="..\..\src\FsShelter.Multilang\FsShelter.Multilang.fsproj" />
+    <ProjectReference Include="../../ext/StormThrift/StormThrift.csproj" />
+    <ProjectReference Include="../../src/FsShelter/FsShelter.fsproj" />
+    <ProjectReference Include="../../src/FsShelter.Multilang/FsShelter.Multilang.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="../../.paket/Paket.Restore.targets" />
 </Project>

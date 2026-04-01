@@ -9,10 +9,16 @@ open System
 open System.Collections.Generic
 
 (**
+Guaranteed Delivery
+-------
+Reliable message processing ensures every tuple emitted by a spout is either fully processed through the entire DAG or retried on failure. This tutorial shows how to implement a spout backed by an external queue with ack/nack callbacks.
+
+For background on how this works internally, see [Message Flow](message-flow.html) and [Acker Algorithm](acker-algorithm.html).
+
+
 Defining reliable spouts
 --------------------
-[Processing guarantees](https://storm.apache.org/documentation/Guaranteeing-message-processing.html) are the biggest selling point of Storm, please see the official docs for the details.
-The reliable spout implementation for a source like a peristent queue (RabbitMQ, Kafka, etc) needs to obtain the event id from the source and forward Storm's acks and nacks back to the source.
+Reliable spouts need to obtain an event ID from the source and forward acks/nacks back — so the source knows whether to commit or re-enqueue.
 The obtained Id has to be passed along with the tuple from the spout function:
 *)
 
@@ -58,7 +64,7 @@ type QueueCmd =
 let source = 
     let rnd = Random()
     let count = ref 0L
-    let pending = Dictionary()
+    let pending = Dictionary<TupleId,int>()
     let nextId() = Threading.Interlocked.Increment &count.contents
 
     MailboxProcessor.Start (fun inbox -> 
@@ -68,7 +74,7 @@ let source =
                 return! loop <|
                        match cmd, nacked with
                        | Get rc, [] ->
-                            let tupleId,number = string(nextId()), rnd.Next(0, 100)
+                            let tupleId,number = Named(string(nextId())), rnd.Next(0, 100)
                             pending.Add(tupleId,number)
                             rc.Reply(tupleId,number)
                             []
@@ -108,13 +114,13 @@ let sampleTopology = topology "Guaranteed" {
     
     let b2 = logResult
              |> Bolt.run (fun log cfg ->
-                            let mylog = Common.Logging.asyncLog ("odd.log")
+                            let mylog text = log LogLevel.Info text
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
     let b3 = logResult
              |> Bolt.run (fun log cfg -> 
-                            let mylog = Common.Logging.asyncLog ("even.log") 
+                            let mylog text = log LogLevel.Info text
                             fun tuple emit -> (mylog,tuple))
              |> withParallelism 1
 
@@ -129,4 +135,6 @@ Resulting topology graph:
 ![SVG](svg/Guaranteed.svg "Guaranteed (SVG)")
 
 The solid lines represent "anchoring" streams and the dotted lines indicate the outer limits of the processing guarantees: a tuple emitted along a dotted line is only anchored if the line leading to it is solid.
+
+For a detailed walkthrough of the XOR-tree tracking that powers this, see [Acker Algorithm](acker-algorithm.html). For end-to-end message flow scenarios including backpressure and timeouts, see [Message Flow](message-flow.html).
 *)
