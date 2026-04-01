@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://FsStorm.github.io/FsShelter/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Eugene Tolmachev" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FsShelter">
+    <meta property="og:title" content="wordcount" />
+    <meta property="og:url" content="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://FsStorm.github.io/FsShelter/">
+    <meta name="twitter:title" content="wordcount">
+    
+    <title>wordcount | FsShelter</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/files/img/logo.png" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+                    Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://FsStorm.github.io/FsShelter/">
+            <img alt="Logo" src="https://FsStorm.github.io/FsShelter/files/img/logo.png">
+            <strong>FsShelter</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/FsStorm/FsShelter.git/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+            Repository</a></li>
+        <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h2><a name="Word-Count" class="anchor" href="#Word-Count">Word Count</a></h2>
+<p>This tutorial walks through a complete fire-and-forget word count topology. We'll define a schema, implement components, wire them together, and visualize the result. For background on the concepts used here, see <a href="concepts.html">Core Concepts</a>.</p>
+<h2><a name="Defining-the-schema" class="anchor" href="#Defining-the-schema">Defining the schema</a></h2>
+<p>FsShelter uses F# discriminated unions to statically type streams:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// data schema for the topology, every case is a unqiue stream</span>
+<span class="k">type</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="rt">Schema</span> <span class="o">=</span> 
+    <span class="pn">|</span> <span class="uc">Sentence</span> <span class="k">of</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="rt">string</span>
+    <span class="pn">|</span> <span class="uc">Word</span> <span class="k">of</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="5" class="rt">string</span>
+    <span class="pn">|</span> <span class="uc">WordCount</span> <span class="k">of</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="6" class="rt">string</span> <span class="pn">*</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="7" class="vt">int64</span>
+</code></pre>
+<h2><a name="Defining-unreliable-spouts" class="anchor" href="#Defining-unreliable-spouts">Defining unreliable spouts</a></h2>
+<p>FsShelter spouts can be implemented as "reliable" or "unreliable".
+Either implementation is a single function, returning an <code>async option</code>, where <code>None</code> indicates there's nothing to emit from this spout at this moment:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// sentences spout - feeds messages into the topology</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="8" class="fn">sentences</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="9" class="fn">source</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="10" class="fn">source</span><span class="pn">(</span><span class="pn">)</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="11" class="uc">Sentence</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="12" class="uc">Some</span>
+</code></pre>
+<h2><a name="Defining-bolts" class="anchor" href="#Defining-bolts">Defining bolts</a></h2>
+<p>A couple of examples of FsShelter bolts that read a tuple and emit another one:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// split bolt - consumes sentences and emits words</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="13" class="fn">splitIntoWords</span> <span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="14" class="fn">input</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="15" class="fn">emit</span><span class="pn">)</span> <span class="o">=</span> 
+    <span class="k">match</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="16" class="fn">input</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="17" class="uc">Sentence</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="18" class="fn">s</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="19" class="fn">s</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="20" class="id">Split</span><span class="pn">(</span><span class="pn">[|</span><span class="s">&#39; &#39;</span><span class="pn">|]</span><span class="pn">,</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="21" class="en">StringSplitOptions</span><span class="pn">.</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="22" class="id">RemoveEmptyEntries</span><span class="pn">)</span> 
+                    <span class="o">|&gt;</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="23" class="m">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="24" class="id">map</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="25" class="uc">Word</span> 
+                    <span class="o">|&gt;</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="26" class="m">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="27" class="id">iter</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="28" class="fn">emit</span>
+    <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="29" class="fn">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="30" class="fn">input</span>
+
+<span class="c">// count words bolt </span>
+<span class="k">let</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="31" class="fn">countWords</span> <span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="32" class="fn">input</span><span class="pn">,</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="33" class="fn">increment</span><span class="pn">,</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="34" class="fn">emit</span><span class="pn">)</span> <span class="o">=</span> 
+    <span class="k">match</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="35" class="fn">input</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="36" class="uc">Word</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="37" class="fn">word</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="38" class="uc">WordCount</span> <span class="pn">(</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="39" class="fn">word</span><span class="pn">,</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="40" class="fn">increment</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="41" class="fn">word</span><span class="pn">)</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="42" class="fn">emit</span>
+    <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="43" class="fn">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="44" class="fn">input</span>
+</code></pre>
+<p>And a terminating bolt that reads a tuple, but doesn't emit anything:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// log word count - terminating bolt </span>
+<span class="k">let</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="45" class="fn">logResult</span> <span class="pn">(</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="46" class="fn">log</span><span class="pn">,</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="47" class="fn">input</span><span class="pn">)</span> <span class="o">=</span> 
+    <span class="k">match</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="48" class="fn">input</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="49" class="uc">WordCount</span> <span class="pn">(</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="50" class="fn">word</span><span class="pn">,</span><span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="51" class="fn">count</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="52" class="fn">log</span> <span class="pn">(</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="53" class="fn">sprintf</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">: </span><span class="pf">%d</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="54" class="fn">word</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="55" class="fn">count</span><span class="pn">)</span>
+    <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="56" class="fn">failwithf</span> <span class="s">&quot;unexpected input: </span><span class="pf">%A</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="57" class="fn">input</span>
+</code></pre>
+<p>We will pass these implementations into the component functions when we put things together in a topology definition.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="58" class="fn">source</span> <span class="o">=</span> 
+    <span class="k">let</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="59" class="fn">rnd</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="60" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="61" class="id">Random</span><span class="pn">(</span><span class="pn">)</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="62" class="fn">sentences</span> <span class="o">=</span> <span class="pn">[</span> <span class="s">&quot;the cow jumped over the moon&quot;</span>
+                      <span class="s">&quot;an apple a day keeps the doctor away&quot;</span>
+                      <span class="s">&quot;four score and seven years ago&quot;</span>
+                      <span class="s">&quot;snow white and the seven dwarfs&quot;</span>
+                      <span class="s">&quot;i am at two with nature&quot;</span> <span class="pn">]</span>
+
+    <span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="63" class="fn">sentences</span><span class="pn">.</span><span class="pn">[</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="64" class="fn">rnd</span><span class="pn">.</span><span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="65" class="id">Next</span><span class="pn">(</span><span class="n">0</span><span class="pn">,</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="66" class="fn">sentences</span><span class="pn">.</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="67" class="id">Length</span><span class="pn">)</span> <span class="pn">]</span>
+
+<span class="c">// increment word count and return new value</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="68" class="fn">increment</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="69" class="fn">cache</span> <span class="o">=</span> <span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="70" class="id">Collections</span><span class="pn">.</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="71" class="id">Concurrent</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="72" class="id">ConcurrentDictionary</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="73" class="rt">string</span><span class="pn">,</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="74" class="vt">int64</span> <span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="75" class="rt">ref</span><span class="pn">&gt;</span><span class="pn">(</span><span class="pn">)</span>
+    <span class="k">fun</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="76" class="fn">word</span> <span class="k">-&gt;</span> 
+        <span class="k">let</span> <span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="77" class="mv">c</span> <span class="o">=</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="78" class="fn">cache</span><span class="pn">.</span><span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="79" class="id">GetOrAdd</span><span class="pn">(</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="80" class="fn">word</span><span class="pn">,</span> <span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="81" class="fn">ref</span> <span class="n">0L</span><span class="pn">)</span> 
+        <span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="82" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="83" class="rt">Interlocked</span><span class="pn">.</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="84" class="id">Increment</span> <span class="o">&amp;</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="85" class="mv">c</span><span class="pn">.</span><span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="86" class="id">contents</span>
+</code></pre>
+<h2><a name="Using-F-DSL-to-define-a-topology" class="anchor" href="#Using-F-DSL-to-define-a-topology">Using F# DSL to define a topology</a></h2>
+<p>A typical (event-streaming) Storm topology is a graph of spouts and bolts connected via streams that can be defined via a <code>topology</code> computation expression:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="87" class="id">FsShelter</span><span class="pn">.</span><span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="88" class="m">DSL</span>
+<span class="pp">#nowarn &quot;25&quot; /</span><span class="c"> // for stream grouping expressions</span>
+
+<span class="c">//define the storm topology</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="89" class="id">sampleTopology</span> <span class="o">=</span> 
+    <span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="90" class="k">topology</span> <span class="s">&quot;WordCount&quot;</span> <span class="pn">{</span> 
+        <span class="k">let</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="91" class="fn">sentencesSpout</span> <span class="o">=</span> 
+            <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="92" class="fn">sentences</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="93" class="m">Spout</span><span class="pn">.</span><span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="94" class="id">runUnreliable</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="95" class="fn">log</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="96" class="fn">cfg</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="97" class="fn">source</span><span class="pn">)</span>  <span class="c">// make arguments: ignoring Storm logging and cfg, passing our source function</span>
+                                   <span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="98" class="fn">ignore</span>                   <span class="c">// no deactivation</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="99" class="fn">withParallelism</span> <span class="n">4</span>
+        
+        <span class="k">let</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="100" class="fn">splitBolt</span> <span class="o">=</span> 
+            <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="101" class="fn">splitIntoWords</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="102" class="m">Bolt</span><span class="pn">.</span><span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="103" class="id">run</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="104" class="fn">log</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="105" class="fn">cfg</span> <span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="106" class="fn">tuple</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="107" class="fn">emit</span> <span class="k">-&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="108" class="fn">tuple</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="109" class="fn">emit</span><span class="pn">)</span><span class="pn">)</span> <span class="c">// make arguments: pass incoming tuple and emit function</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="110" class="fn">withParallelism</span> <span class="n">4</span>
+        
+        <span class="k">let</span> <span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="111" class="fn">countBolt</span> <span class="o">=</span> 
+            <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="112" class="fn">countWords</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="113" class="m">Bolt</span><span class="pn">.</span><span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="114" class="id">run</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="115" class="fn">log</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="116" class="fn">cfg</span> <span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="117" class="fn">tuple</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="118" class="fn">emit</span> <span class="k">-&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="119" class="fn">tuple</span><span class="pn">,</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="120" class="fn">increment</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="121" class="fn">emit</span><span class="pn">)</span><span class="pn">)</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="122" class="fn">withParallelism</span> <span class="n">4</span>
+        
+        <span class="k">let</span> <span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="123" class="fn">logBolt</span> <span class="o">=</span> 
+            <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="124" class="fn">logResult</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="125" class="m">Bolt</span><span class="pn">.</span><span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="126" class="id">run</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="127" class="fn">log</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="128" class="fn">cfg</span> <span class="k">-&gt;</span>                           <span class="c">// make arguments: pass PID-log and incoming tuple </span>
+                            <span class="k">let</span> <span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="129" class="fn">mylog</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="130" class="fn">text</span> <span class="o">=</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="131" class="fn">log</span> <span data-fsdocs-tip="fs65" data-fsdocs-tip-unique="132" class="en">LogLevel</span><span class="pn">.</span><span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="133" class="id">Info</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="134" class="fn">text</span>
+                            <span class="k">fun</span> <span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="135" class="fn">tuple</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="136" class="fn">emit</span> <span class="k">-&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="137" class="fn">mylog</span><span class="pn">,</span> <span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="138" class="fn">tuple</span><span class="pn">)</span><span class="pn">)</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="139" class="fn">withParallelism</span> <span class="n">2</span>
+        
+        <span class="k">yield</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="140" class="fn">sentencesSpout</span> <span class="o">--&gt;</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="141" class="fn">splitBolt</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="142" class="rt">Shuffle</span><span class="pn">.</span><span data-fsdocs-tip="fs68" data-fsdocs-tip-unique="143" class="id">on</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="144" class="uc">Sentence</span>               <span class="c">// emit from sentencesSpout to splitBolt on Sentence stream, shuffle among target task instances</span>
+        <span class="k">yield</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="145" class="fn">splitBolt</span> <span class="o">--&gt;</span> <span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="146" class="fn">countBolt</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="147" class="rt">Group</span><span class="pn">.</span><span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="148" class="id">by</span> <span class="pn">(</span><span class="k">function</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="149" class="uc">Word</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="150" class="fn">w</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="151" class="fn">w</span><span class="pn">)</span>        <span class="c">// emit from splitBolt into countBolt on Word stream, group by word (into the same task instance)</span>
+        <span class="k">yield</span> <span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="152" class="fn">countBolt</span> <span class="o">--&gt;</span> <span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="153" class="fn">logBolt</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="154" class="rt">Group</span><span class="pn">.</span><span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="155" class="id">by</span> <span class="pn">(</span><span class="k">function</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="156" class="uc">WordCount</span> <span class="pn">(</span><span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="157" class="fn">w</span><span class="pn">,</span><span class="id">_</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="158" class="fn">w</span><span class="pn">)</span> <span class="c">// emit from countBolt into logBolt on WordCount stream, group by word value</span>
+    <span class="pn">}</span>
+</code></pre>
+<p>Here we define the graph by declaring the components and connecting them with arrows.
+The lambda arguments for the "run" methods provide the opportunity to carry out construction of the arguments that will be passed into the component functions, where:</p>
+<ul>
+<li><code>log</code> is the Storm log factory</li>
+<li><code>cfg</code> is the runtime configuration passed in from Storm</li>
+<li><code>tuple</code> is the instance of the schema DU coming in</li>
+<li><code>emit</code> is the function to emit another tuple</li>
+</ul>
+<p><code>log</code> and <code>cfg</code> are fixed once (curried) and as demonstrated in the <code>logBolt</code>'s <code>mkArgs</code> lambda, one time-initialization can be carried out by inserting arbitrary code before <code>tuple</code> and <code>emit</code> arguments.
+This initialization will not be triggered unless the task execution is actually requested by Storm for this specific instance of the process.</p>
+<h2><a name="Deploying-to-Storm" class="anchor" href="#Deploying-to-Storm">Deploying to Storm</a></h2>
+<p>To deploy to an Apache Storm cluster, the <code>FsShelter.Multilang</code> package provides functions to package assemblies, upload to Nimbus, and run the multilang handshake:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="159" class="id">sampleTopology</span>
+<span class="o">|&gt;</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="160" class="m">Task</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="161" class="id">ofTopology</span>
+<span class="o">|&gt;</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="162" class="m">Task</span><span class="pn">.</span><span data-fsdocs-tip="fs74" data-fsdocs-tip-unique="163" class="id">run</span> <span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="164" class="m">ProtoIO</span><span class="pn">.</span><span data-fsdocs-tip="fs76" data-fsdocs-tip-unique="165" class="id">start</span>
+</code></pre>
+<p>Both <code>JsonIO</code> and <code>ProtoIO</code> serializers are provided. For faster IO, consider <a href="https://github.com/FsStorm/protoshell">ProtoShell</a>. Note that STDIN/STDOUT are reserved for Storm communications when running as a multilang component.</p>
+<h2><a name="Exporting-the-topology-graph" class="anchor" href="#Exporting-the-topology-graph">Exporting the topology graph</a></h2>
+<p>FsShelter includes a completely customizable GraphViz (dot) export functionality. Here's what the word count topology looks like with default renderers:</p>
+<p><img src="svg/WordCount.svg" alt="SVG" title="WordCount (SVG)" /></p>
+<p>The dotted lines represent "unanchored" streams and the number inside the <code>[]</code> shows the parallelism hint.
+This was achived by a simple export to console:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="166" class="id">sampleTopology</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="167" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="168" class="id">writeToConsole</span>
+</code></pre>
+<p>Followed by further conversion into a desired format, piping the markup into GraphViz:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="bash">dotnet samples/WordCount/bin/Release/net6.0/WordCount.dll graph | dot -Tsvg -o build/WordCount.svg
+</code></pre></td></tr></table>
+<p>It is also possible to generate graphs with colour-coded streams:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="169" class="id">sampleTopology</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="170" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="171" class="id">writeColourizedToConsole</span>
+</code></pre>
+<p><img src="svg/WordCount_colourized.svg" alt="SVG" title="Colourized WordCount (SVG)" /></p>
+<p>Alternatively, you can provide your own X11 colour scheme:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="172" class="id">customColours</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;purple&quot;</span><span class="pn">;</span> <span class="s">&quot;dodgerblue&quot;</span><span class="pn">;</span> <span class="s">&quot;springgreen&quot;</span><span class="pn">;</span> <span class="s">&quot;olivedrab&quot;</span><span class="pn">;</span> <span class="s">&quot;orange&quot;</span><span class="pn">;</span> <span class="s">&quot;orangered&quot;</span><span class="pn">;</span> <span class="s">&quot;maroon&quot;</span><span class="pn">;</span> <span class="s">&quot;black&quot;</span> <span class="pn">|]</span>
+<span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="173" class="id">sampleTopology</span>
+<span class="o">|&gt;</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="174" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="175" class="id">exportToDot</span> <span class="pn">(</span><span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="176" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="177" class="id">writeHeader</span><span class="pn">,</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="178" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="179" class="id">writeFooter</span><span class="pn">,</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="180" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="181" class="id">writeSpout</span><span class="pn">,</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="182" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="183" class="id">writeBolt</span><span class="pn">,</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="184" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="185" class="id">writeColourfulStream</span> <span class="o">&lt;|</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="186" class="m">DotGraph</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="187" class="id">getColour</span> <span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="188" class="id">customColours</span><span class="pn">)</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="189" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs88" data-fsdocs-tip-unique="190" class="rt">Console</span><span class="pn">.</span><span data-fsdocs-tip="fs89" data-fsdocs-tip-unique="191" class="id">Out</span>
+</code></pre>
+<p><img src="svg/WordCount_custom_colourized.svg" alt="SVG" title="Custom Colourized WordCount (SVG)" /></p>
+
+        <div popover class="fsdocs-tip" id="fs1">namespace System</div>
+<div popover class="fsdocs-tip" id="fs2">namespace FsShelter</div>
+<div popover class="fsdocs-tip" id="fs3">type Schema =
+  | Sentence of string
+  | Word of string
+  | WordCount of string * int64</div>
+<div popover class="fsdocs-tip" id="fs4">Multiple items<br />val string: value: &#39;T -&gt; string<br /><br />--------------------<br />type string = String</div>
+<div popover class="fsdocs-tip" id="fs5">Multiple items<br />val int64: value: &#39;T -&gt; int64 (requires member op_Explicit)<br /><br />--------------------<br />type int64 = Int64<br /><br />--------------------<br />type int64&lt;&#39;Measure&gt; =
+  int64</div>
+<div popover class="fsdocs-tip" id="fs6">val sentences: source: (unit -&gt; string) -&gt; Schema option</div>
+<div popover class="fsdocs-tip" id="fs7">val source: (unit -&gt; string)</div>
+<div popover class="fsdocs-tip" id="fs8">union case Schema.Sentence: string -&gt; Schema</div>
+<div popover class="fsdocs-tip" id="fs9">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs10">val splitIntoWords: input: Schema * emit: (Schema -&gt; unit) -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs11">val input: Schema</div>
+<div popover class="fsdocs-tip" id="fs12">val emit: (Schema -&gt; unit)</div>
+<div popover class="fsdocs-tip" id="fs13">val s: string</div>
+<div popover class="fsdocs-tip" id="fs14">String.Split(separator: ReadOnlySpan&lt;char&gt;) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split( separator: char array) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: string array, options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: string, ?options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: char array, options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: char array, count: int) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: char, ?options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: string array, count: int, options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: string, count: int, ?options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />String.Split(separator: char array, count: int, options: StringSplitOptions) : string array<br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
+<div popover class="fsdocs-tip" id="fs15">
+type StringSplitOptions =
+  | None = 0
+  | RemoveEmptyEntries = 1
+  | TrimEntries = 2<br /><em>&lt;summary&gt;Specifies options for applicable &lt;see cref=&quot;Overload:System.String.Split&quot; /&gt; method overloads, such as whether to omit empty substrings from the returned array or trim whitespace from substrings.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs16">field StringSplitOptions.RemoveEmptyEntries: StringSplitOptions = 1</div>
+<div popover class="fsdocs-tip" id="fs17">module Seq
+
+from Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs18">val map: mapping: (&#39;T -&gt; &#39;U) -&gt; source: &#39;T seq -&gt; &#39;U seq</div>
+<div popover class="fsdocs-tip" id="fs19">union case Schema.Word: string -&gt; Schema</div>
+<div popover class="fsdocs-tip" id="fs20">val iter: action: (&#39;T -&gt; unit) -&gt; source: &#39;T seq -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs21">val failwithf: format: Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs22">val countWords: input: Schema * increment: (string -&gt; int64) * emit: (Schema -&gt; &#39;a) -&gt; &#39;a</div>
+<div popover class="fsdocs-tip" id="fs23">val increment: (string -&gt; int64)</div>
+<div popover class="fsdocs-tip" id="fs24">val emit: (Schema -&gt; &#39;a)</div>
+<div popover class="fsdocs-tip" id="fs25">val word: string</div>
+<div popover class="fsdocs-tip" id="fs26">union case Schema.WordCount: string * int64 -&gt; Schema</div>
+<div popover class="fsdocs-tip" id="fs27">val logResult: log: (string -&gt; &#39;a) * input: Schema -&gt; &#39;a</div>
+<div popover class="fsdocs-tip" id="fs28">val log: (string -&gt; &#39;a)</div>
+<div popover class="fsdocs-tip" id="fs29">val count: int64</div>
+<div popover class="fsdocs-tip" id="fs30">val sprintf: format: Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs31">val rnd: Random</div>
+<div popover class="fsdocs-tip" id="fs32">Multiple items<br />type Random =
+  new: unit -&gt; unit + 1 overload
+  member GetHexString: stringLength: int * ?lowercase: bool -&gt; string + 1 overload
+  member GetItems&lt;&#39;T&gt; : choices: ReadOnlySpan&lt;&#39;T&gt; * length: int -&gt; &#39;T array + 2 overloads
+  member GetString: choices: ReadOnlySpan&lt;char&gt; * length: int -&gt; string
+  member Next: unit -&gt; int + 2 overloads
+  member NextBytes: buffer: byte array -&gt; unit + 1 overload
+  member NextDouble: unit -&gt; float
+  member NextInt64: unit -&gt; int64 + 2 overloads
+  member NextSingle: unit -&gt; float32
+  member Shuffle&lt;&#39;T&gt; : values: Span&lt;&#39;T&gt; -&gt; unit + 1 overload
+  ...<br /><em>&lt;summary&gt;Represents a pseudo-random number generator, which is an algorithm that produces a sequence of numbers that meet certain statistical requirements for randomness.&lt;/summary&gt;</em><br /><br />--------------------<br />Random() : Random<br />Random(Seed: int) : Random</div>
+<div popover class="fsdocs-tip" id="fs33">val sentences: string list</div>
+<div popover class="fsdocs-tip" id="fs34">Random.Next() : int<br />Random.Next(maxValue: int) : int<br />Random.Next(minValue: int, maxValue: int) : int</div>
+<div popover class="fsdocs-tip" id="fs35">property List.Length: int with get</div>
+<div popover class="fsdocs-tip" id="fs36">val cache: Collections.Concurrent.ConcurrentDictionary&lt;string,int64 ref&gt;</div>
+<div popover class="fsdocs-tip" id="fs37">Multiple items<br />namespace System.Collections<br /><br />--------------------<br />namespace Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs38">namespace System.Collections.Concurrent</div>
+<div popover class="fsdocs-tip" id="fs39">Multiple items<br />type ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt; =
+  interface ICollection&lt;KeyValuePair&lt;&#39;TKey,&#39;TValue&gt;&gt;
+  interface seq&lt;KeyValuePair&lt;&#39;TKey,&#39;TValue&gt;&gt;
+  interface IEnumerable
+  interface IDictionary&lt;&#39;TKey,&#39;TValue&gt;
+  interface IReadOnlyCollection&lt;KeyValuePair&lt;&#39;TKey,&#39;TValue&gt;&gt;
+  interface IReadOnlyDictionary&lt;&#39;TKey,&#39;TValue&gt;
+  interface ICollection
+  interface IDictionary
+  new: unit -&gt; unit + 6 overloads
+  member AddOrUpdate: key: &#39;TKey * addValueFactory: Func&lt;&#39;TKey,&#39;TValue&gt; * updateValueFactory: Func&lt;&#39;TKey,&#39;TValue,&#39;TValue&gt; -&gt; &#39;TValue + 2 overloads
+  ...<br /><em>&lt;summary&gt;Represents a thread-safe collection of key/value pairs that can be accessed by multiple threads concurrently.&lt;/summary&gt;<br />&lt;typeparam name=&quot;TKey&quot;&gt;The type of the keys in the dictionary.&lt;/typeparam&gt;<br />&lt;typeparam name=&quot;TValue&quot;&gt;The type of the values in the dictionary.&lt;/typeparam&gt;</em><br /><br />--------------------<br />Collections.Concurrent.ConcurrentDictionary() : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(collection: Collections.Generic.KeyValuePair&lt;&#39;TKey,&#39;TValue&gt; seq) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(comparer: Collections.Generic.IEqualityComparer&lt;&#39;TKey&gt;) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(collection: Collections.Generic.KeyValuePair&lt;&#39;TKey,&#39;TValue&gt; seq, comparer: Collections.Generic.IEqualityComparer&lt;&#39;TKey&gt;) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(concurrencyLevel: int, capacity: int) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(concurrencyLevel: int, collection: Collections.Generic.KeyValuePair&lt;&#39;TKey,&#39;TValue&gt; seq, comparer: Collections.Generic.IEqualityComparer&lt;&#39;TKey&gt;) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;<br />Collections.Concurrent.ConcurrentDictionary(concurrencyLevel: int, capacity: int, comparer: Collections.Generic.IEqualityComparer&lt;&#39;TKey&gt;) : Collections.Concurrent.ConcurrentDictionary&lt;&#39;TKey,&#39;TValue&gt;</div>
+<div popover class="fsdocs-tip" id="fs40">Multiple items<br />val ref: value: &#39;T -&gt; &#39;T ref<br /><br />--------------------<br />type &#39;T ref = Ref&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs41">val c: int64 ref</div>
+<div popover class="fsdocs-tip" id="fs42">Collections.Concurrent.ConcurrentDictionary.GetOrAdd(key: string, value: int64 ref) : int64 ref<br />Collections.Concurrent.ConcurrentDictionary.GetOrAdd(key: string, valueFactory: Func&lt;string,int64 ref&gt;) : int64 ref<br />Collections.Concurrent.ConcurrentDictionary.GetOrAdd&lt;&#39;TArg (allows ref struct)&gt;(key: string, valueFactory: Func&lt;string,&#39;TArg,int64 ref&gt;, factoryArgument: &#39;TArg) : int64 ref</div>
+<div popover class="fsdocs-tip" id="fs43">namespace System.Threading</div>
+<div popover class="fsdocs-tip" id="fs44">type Interlocked =
+  static member Add: location1: byref&lt;int&gt; * value: int -&gt; int + 3 overloads
+  static member And: location1: byref&lt;int&gt; * value: int -&gt; int + 3 overloads
+  static member CompareExchange: location1: byref&lt;float&gt; * value: float * comparand: float -&gt; float + 13 overloads
+  static member Decrement: location: byref&lt;int&gt; -&gt; int + 3 overloads
+  static member Exchange: location1: byref&lt;float&gt; * value: float -&gt; float + 13 overloads
+  static member Increment: location: byref&lt;int&gt; -&gt; int + 3 overloads
+  static member MemoryBarrier: unit -&gt; unit
+  static member MemoryBarrierProcessWide: unit -&gt; unit
+  static member Or: location1: byref&lt;int&gt; * value: int -&gt; int + 3 overloads
+  static member Read: location: inref&lt;int64&gt; -&gt; int64 + 1 overload<br /><em>&lt;summary&gt;Provides atomic operations for variables that are shared by multiple threads.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs45">Threading.Interlocked.Increment(location: byref&lt;uint64&gt;) : uint64<br />Threading.Interlocked.Increment(location: byref&lt;uint32&gt;) : uint32<br />Threading.Interlocked.Increment(location: byref&lt;int64&gt;) : int64<br />Threading.Interlocked.Increment(location: byref&lt;int&gt;) : int</div>
+<div popover class="fsdocs-tip" id="fs46">Ref.contents: int64</div>
+<div popover class="fsdocs-tip" id="fs47">module DSL
+
+from FsShelter<br /><em>&lt;summary&gt;
+ Embedded DSL for defining the topologies
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs48">val sampleTopology: Topology.Topology&lt;Schema&gt;</div>
+<div popover class="fsdocs-tip" id="fs49">val topology: name: string -&gt; TopologyBuilder<br /><em>&lt;summary&gt;
+ topology builder instance
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs50">val sentencesSpout: Topology.Spout&lt;Schema&gt;</div>
+<div popover class="fsdocs-tip" id="fs51">module Spout
+
+from FsShelter.DSL</div>
+<div popover class="fsdocs-tip" id="fs52">val runUnreliable: mkArgs: ((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;args) -&gt; deactivate: (&#39;args -&gt; unit) -&gt; next: Next&lt;&#39;args,&#39;t&gt; -&gt; Topology.Spout&lt;&#39;t&gt;<br /><em>&lt;summary&gt;
+ define spout with no processing guarantees
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ next: spout function that returns a tuple option.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs53">val log: (LogLevel -&gt; string -&gt; unit)</div>
+<div popover class="fsdocs-tip" id="fs54">val cfg: Conf</div>
+<div popover class="fsdocs-tip" id="fs55">val ignore: value: &#39;T -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs56">val withParallelism: parallelism: &#39;a -&gt; spec: &#39;s -&gt; &#39;s (requires member op_Explicit and member WithParallelism)<br /><em>&lt;summary&gt;
+ override default parallelism
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs57">val splitBolt: Topology.Bolt&lt;Schema&gt;</div>
+<div popover class="fsdocs-tip" id="fs58">module Bolt
+
+from FsShelter.DSL</div>
+<div popover class="fsdocs-tip" id="fs59">val run: mkArgs: ((LogLevel -&gt; string -&gt; unit) -&gt; Conf -&gt; &#39;t -&gt; (&#39;t -&gt; unit) -&gt; &#39;a) -&gt; consume: Consume&lt;&#39;a&gt; -&gt; Topology.Bolt&lt;&#39;t&gt;<br /><em>&lt;summary&gt;
+ define a bolt that auto-acks
+ mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
+ consume: bolt function that will receive incoming tuples.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs60">val tuple: Schema</div>
+<div popover class="fsdocs-tip" id="fs61">val countBolt: Topology.Bolt&lt;Schema&gt;</div>
+<div popover class="fsdocs-tip" id="fs62">val logBolt: Topology.Bolt&lt;Schema&gt;</div>
+<div popover class="fsdocs-tip" id="fs63">val mylog: text: string -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs64">val text: string</div>
+<div popover class="fsdocs-tip" id="fs65">
+type LogLevel =
+  | Trace = 0
+  | Debug = 1
+  | Info = 2
+  | Warn = 3
+  | Error = 4<br /><em>&lt;summary&gt;
+ Storm log levels
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs66">LogLevel.Info: LogLevel = 2</div>
+<div popover class="fsdocs-tip" id="fs67">type Shuffle =
+  static member on: case: Expr&lt;(&#39;a -&gt; &#39;t)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)<br /><em>&lt;summary&gt;
+ define shuffle grouping
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs68">static member Shuffle.on: case: Quotations.Expr&lt;(&#39;a -&gt; &#39;t)&gt; -&gt; (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;&#39;t&gt;)</div>
+<div popover class="fsdocs-tip" id="fs69">type Group =
+  static member by: select: Expr&lt;(&#39;t -&gt; &#39;p)&gt; -&gt; (bool -&gt; ComponentId -&gt; ComponentId -&gt; Stream&lt;&#39;t&gt;)<br /><em>&lt;summary&gt;
+ define fields grouping
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs70">static member Group.by: select: Quotations.Expr&lt;(&#39;t -&gt; &#39;p)&gt; -&gt; (bool -&gt; Topology.ComponentId -&gt; Topology.ComponentId -&gt; Topology.Stream&lt;&#39;t&gt;)</div>
+<div popover class="fsdocs-tip" id="fs71">val w: string</div>
+<div popover class="fsdocs-tip" id="fs72">module Task
+
+from FsShelter<br /><em>&lt;summary&gt;
+ Task execution
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs73">val ofTopology: t: Topology.Topology&lt;&#39;t&gt; -&gt; compId: Topology.ComponentId -&gt; Topology.Runnable&lt;&#39;t&gt;<br /><em>&lt;summary&gt;
+ converts topology to a runnable task
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs74">val run: mkIO: (Log -&gt; Topology.IO&lt;&#39;t&gt;) -&gt; task: Task.Task&lt;&#39;t&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ Reads the handshake and runs the specified task
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs75">module ProtoIO
+
+from FsShelter<br /><em>&lt;summary&gt;
+ Protobuf IO implementation
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs76">val start: log: Log -&gt; Topology.IO&lt;&#39;a&gt;<br /><em>&lt;summary&gt;
+ Start IO over STDIN/STDOUT and serialized sychrnonization using specifed logger
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs77">module DotGraph
+
+from FsShelter<br /><em>&lt;summary&gt;
+ Converters into GraphViz
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs78">val writeToConsole: t: Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ put together default implementations to write to STDOUT
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs79">val writeColourizedToConsole: t: Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ put together default implementations with colour to write to STDOUT
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs80">val customColours: string array</div>
+<div popover class="fsdocs-tip" id="fs81">val exportToDot: writeHeader: (&#39;a -&gt; Topology.Topology&lt;&#39;b&gt; -&gt; unit) * writeFooter: (&#39;a -&gt; Topology.Topology&lt;&#39;b&gt; -&gt; &#39;c) * writeSpout: (&#39;a -&gt; Topology.ComponentId -&gt; Topology.Spout&lt;&#39;b&gt; -&gt; unit) * writeBolt: (&#39;a -&gt; Topology.ComponentId -&gt; Topology.Bolt&lt;&#39;b&gt; -&gt; unit) * writeStream: (&#39;a -&gt; Topology.StreamId * Topology.ComponentId -&gt; Topology.Stream&lt;&#39;b&gt; -&gt; unit) -&gt; writer: &#39;a -&gt; topology: Topology.Topology&lt;&#39;b&gt; -&gt; &#39;c (requires &#39;a :&gt; IO.TextWriter)<br /><em>&lt;summary&gt;
+ send the topology to a given writer in GraphViz DOT format
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs82">val writeHeader: writer: IO.TextWriter -&gt; t: Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ opening graph statement
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs83">val writeFooter: writer: IO.TextWriter -&gt; Topology.Topology&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ closing graph statement
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs84">val writeSpout: writer: IO.TextWriter -&gt; id: string -&gt; s: Topology.Spout&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ node statement for a spout
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs85">val writeBolt: writer: IO.TextWriter -&gt; id: string -&gt; b: Topology.Bolt&lt;&#39;a&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ node statement for a bolt
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs86">val writeColourfulStream: getColour: (string -&gt; string) -&gt; writer: IO.TextWriter -&gt; (&#39;a * string) * &#39;b -&gt; st: Topology.Stream&lt;&#39;c&gt; -&gt; unit<br /><em>&lt;summary&gt;
+ colourized edge statement for a stream
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs87">val getColour: colours: string array -&gt; (string -&gt; string)<br /><em>&lt;summary&gt;
+ lookup a colour based on a stream id
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs88">type Console =
+  static member Beep: unit -&gt; unit + 1 overload
+  static member Clear: unit -&gt; unit
+  static member GetCursorPosition: unit -&gt; struct (int * int)
+  static member MoveBufferArea: sourceLeft: int * sourceTop: int * sourceWidth: int * sourceHeight: int * targetLeft: int * targetTop: int -&gt; unit + 1 overload
+  static member OpenStandardError: unit -&gt; Stream + 1 overload
+  static member OpenStandardInput: unit -&gt; Stream + 1 overload
+  static member OpenStandardOutput: unit -&gt; Stream + 1 overload
+  static member Read: unit -&gt; int
+  static member ReadKey: unit -&gt; ConsoleKeyInfo + 1 overload
+  static member ReadLine: unit -&gt; string
+  ...<br /><em>&lt;summary&gt;Represents the standard input, output, and error streams for console applications. This class cannot be inherited.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs89">property Console.Out: IO.TextWriter with get<br /><em>&lt;summary&gt;Gets the standard output stream.&lt;/summary&gt;<br />&lt;returns&gt;A &lt;see cref=&quot;T:System.IO.TextWriter&quot; /&gt; that represents the standard output stream.&lt;/returns&gt;</em></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2">
+    <a href="#Word-Count">
+      Word Count
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Defining-the-schema">
+      Defining the schema
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Defining-unreliable-spouts">
+      Defining unreliable spouts
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Defining-bolts">
+      Defining bolts
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Using-F-DSL-to-define-a-topology">
+      Using F# DSL to define a topology
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Deploying-to-Storm">
+      Deploying to Storm
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Exporting-the-topology-graph">
+      Exporting the topology graph
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-tips.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-search.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-copy-button.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    function isDark() {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Move code blocks into mermaid-renderable <pre> elements, stash source
+    document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+        var pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.textContent = el.textContent;
+        pre.setAttribute('data-mermaid-src', el.textContent);
+        var container = el.closest('table.pre') || el.closest('pre');
+        if (container) { container.parentNode.replaceChild(pre, container); }
+    });
+
+    async function renderMermaid() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark() ? 'dark' : 'default'
+        });
+        document.querySelectorAll('pre.mermaid').forEach(el => {
+            el.removeAttribute('data-processed');
+            el.textContent = el.getAttribute('data-mermaid-src');
+        });
+        await mermaid.run();
+    }
+
+    await renderMermaid();
+
+    // Re-render when the theme toggle fires
+    new MutationObserver(() => renderMermaid())
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+</body>
+</html>

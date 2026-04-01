@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://FsStorm.github.io/FsShelter/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Eugene Tolmachev" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FsShelter">
+    <meta property="og:title" content="routing" />
+    <meta property="og:url" content="https://FsStorm.github.io/FsShelter/content/routing.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://FsStorm.github.io/FsShelter/">
+    <meta name="twitter:title" content="routing">
+    
+    <title>routing | FsShelter</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/files/img/logo.png" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+                    Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://FsStorm.github.io/FsShelter/">
+            <img alt="Logo" src="https://FsStorm.github.io/FsShelter/files/img/logo.png">
+            <strong>FsShelter</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/FsStorm/FsShelter.git/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+            Repository</a></li>
+        <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h2><a name="Routing" class="anchor" href="#Routing">Routing</a></h2>
+<p>The routing layer determines how tuples emitted by a component reach the appropriate downstream bolt instances. It supports four grouping strategies and handles stream-based fan-out.</p>
+<h2><a name="Grouping-strategies" class="anchor" href="#Grouping-strategies">Grouping strategies</a></h2>
+<p>When defining a topology, each stream connection specifies a grouping that controls how tuples are distributed across bolt instances:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="rt">Grouping</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">t</span><span class="pn">&gt;</span> <span class="o">=</span>
+    <span class="pn">|</span> <span class="uc">Shuffle</span>                               <span class="c">// Hash-based distribution</span>
+    <span class="pn">|</span> <span class="uc">Fields</span> <span class="k">of</span> <span class="pn">(</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="3" class="id">t</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="4" class="rt">obj</span><span class="pn">)</span> <span class="pn">*</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="5" class="rt">string</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="6" class="rt">list</span>   <span class="c">// Key-based affinity</span>
+    <span class="pn">|</span> <span class="uc">All</span>                                   <span class="c">// Broadcast to all instances</span>
+    <span class="pn">|</span> <span class="uc">Direct</span>                                <span class="c">// Caller-specified target</span>
+</code></pre>
+<h3><a name="Shuffle" class="anchor" href="#Shuffle">Shuffle</a></h3>
+<p>Distributes tuples across bolt instances by hashing the tuple ID:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span class="id">Shuffle</span> <span class="k">when</span> <span class="id">instances</span><span class="pn">.</span><span class="id">Length</span> <span class="o">=</span> <span class="n">1</span> <span class="k">-&gt;</span>
+    <span class="k">fun</span> <span class="id">_</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="id">instances</span> <span class="o">:&gt;</span> <span class="id">_</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="7" class="id">seq</span>          <span class="c">// Optimization: skip hash for single instance</span>
+<span class="pn">|</span> <span class="id">Shuffle</span> <span class="k">-&gt;</span>
+    <span class="k">let</span> <span class="id">ix</span> <span class="id">tupleId</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="8" class="id">abs</span><span class="pn">(</span><span class="id">tupleId</span><span class="pn">.</span><span class="id">GetHashCode</span><span class="pn">(</span><span class="pn">)</span> <span class="o">%</span> <span class="id">instances</span><span class="pn">.</span><span class="id">Length</span><span class="pn">)</span>
+    <span class="k">fun</span> <span class="id">tupleId</span> <span class="id">_</span> <span class="k">-&gt;</span>
+        <span class="id">instances</span><span class="pn">.</span><span class="pn">[</span><span class="id">ix</span> <span class="id">tupleId</span><span class="pn">]</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="9" class="id">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="10" class="id">singleton</span>
+</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph LR
+    SP[Spout] --&gt;|"hash mod 3 = 0"| B0[Bolt 0]
+    SP --&gt;|"hash mod 3 = 1"| B1[Bolt 1]
+    SP --&gt;|"hash mod 3 = 2"| B2[Bolt 2]
+</code></pre></td></tr></table>
+<h3><a name="Fields" class="anchor" href="#Fields">Fields</a></h3>
+<p>Routes tuples to a specific instance based on a key extracted from the tuple. Guarantees that tuples with the same key always go to the same bolt instance:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span class="id">Fields</span> <span class="pn">(</span><span class="id">map</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="k">fun</span> <span class="id">_</span> <span class="id">tuple</span> <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="id">ix</span> <span class="o">=</span> <span class="pn">(</span><span class="id">map</span> <span class="id">tuple</span><span class="pn">)</span><span class="pn">.</span><span class="id">GetHashCode</span><span class="pn">(</span><span class="pn">)</span> <span class="o">%</span> <span class="id">instances</span><span class="pn">.</span><span class="id">Length</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="11" class="id">abs</span>
+        <span class="id">instances</span><span class="pn">.</span><span class="pn">[</span><span class="id">ix</span><span class="pn">]</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="12" class="id">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="13" class="id">singleton</span>
+</code></pre>
+<p>DSL usage:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">yield</span> <span class="id">b1</span> <span class="o">--&gt;</span> <span class="id">b2</span> <span class="o">|&gt;</span> <span class="id">Group</span><span class="pn">.</span><span class="id">by</span> <span class="pn">(</span><span class="k">function</span> <span class="id">Odd</span><span class="pn">(</span><span class="id">n</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="id">n</span><span class="pn">.</span><span class="id">x</span> <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="14" class="id">failwith</span> <span class="s">&quot;unexpected&quot;</span><span class="pn">)</span>
+</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph LR
+    B1[Bolt 1] --&gt;|"key=apple, hash mod 2 = 0"| B2a[Bolt 2a]
+    B1 --&gt;|"key=banana, hash mod 2 = 1"| B2b[Bolt 2b]
+</code></pre></td></tr></table>
+<h3><a name="All" class="anchor" href="#All">All</a></h3>
+<p>Broadcasts every tuple to all instances of the downstream bolt:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span class="id">All</span> <span class="k">-&gt;</span>
+    <span class="k">fun</span> <span class="id">_</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="id">instances</span> <span class="o">:&gt;</span> <span class="id">_</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="15" class="id">seq</span>
+</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph LR
+    SP[Spout] --&gt; B0[Bolt 0]
+    SP --&gt; B1[Bolt 1]
+    SP --&gt; B2[Bolt 2]
+</code></pre></td></tr></table>
+<h3><a name="Direct" class="anchor" href="#Direct">Direct</a></h3>
+<p>Allows the emitter to specify the target task ID explicitly. Returns an empty sequence from the group function — routing is handled separately via a direct lookup:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span class="id">Direct</span> <span class="k">-&gt;</span>
+    <span class="k">fun</span> <span class="id">_</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="16" class="id">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="17" class="id">empty</span>
+
+<span class="c">// Direct routing bypasses the distributor:</span>
+<span class="k">let</span> <span class="id">direct</span> <span class="o">=</span>
+    <span class="id">memoize</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">dstId</span> <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="pn">(</span><span class="id">send</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span><span class="pn">)</span> <span class="o">=</span> <span class="id">boltTasks</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="18" class="id">Map</span><span class="pn">.</span><span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="19" class="id">find</span> <span class="id">dstId</span>
+        <span class="k">in</span> <span class="id">Other</span> <span class="pn">&gt;</span><span class="pn">&gt;</span> <span class="id">send</span><span class="pn">)</span>
+</code></pre>
+<h2><a name="Tuple-router-construction" class="anchor" href="#Tuple-router-construction">Tuple router construction</a></h2>
+<p><code>Routing.mkTupleRouter</code> builds the complete routing function for a task. It combines:</p>
+<ol>
+<li><strong>Stream definitions</strong> — which components subscribe to which streams</li>
+<li><strong>Grouping functions</strong> — how to select target instances</li>
+<li><strong>ID generation</strong> — <code>mkIds</code> for tuple tracking</li>
+</ol>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph TB
+    subgraph mkTupleRouter
+        EM["Emit(tuple, anchors, srcId, compId, stream, dstId)"]
+
+        EM --&gt;|"dstId = Some id"| DIRECT["Direct Send"]
+        EM --&gt;|"dstId = None"| DIST["Distributor Lookup"]
+
+        DIST --&gt; GROUP["Grouping Function"]
+        GROUP --&gt; INST["Target Instance(s)"]
+        INST --&gt; SEND["Send to Disruptor ring buffer"]
+
+        DIRECT --&gt; SEND
+    end
+</code></pre></td></tr></table>
+<h3><a name="Distributor-construction" class="anchor" href="#Distributor-construction">Distributor construction</a></h3>
+<p>For each <code>(streamId, componentId)</code> pair in the topology's stream definitions, a distributor function is created at startup:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="id">mkDistributors</span> <span class="id">taskId</span> <span class="id">map</span> <span class="pn">(</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="20" class="id">KeyValue</span><span class="pn">(</span><span class="pn">(</span><span class="id">streamId</span><span class="pn">,</span> <span class="id">dstId</span><span class="pn">)</span><span class="pn">,</span> <span class="id">streamDef</span><span class="pn">)</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="id">instances</span> <span class="o">=</span> <span class="id">sinksOfComp</span> <span class="id">dstId</span>
+    <span class="k">let</span> <span class="id">group</span> <span class="o">=</span> <span class="id">mkGroup</span> <span class="id">instances</span> <span class="id">streamDef</span><span class="pn">.</span><span class="id">Grouping</span>
+    <span class="id">map</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="21" class="id">Map</span><span class="pn">.</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="22" class="id">add</span> <span class="id">streamId</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">mkIds</span> <span class="id">tuple</span> <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="id">ids</span> <span class="o">=</span> <span class="id">mkIds</span> <span class="pn">(</span><span class="pn">)</span>
+        <span class="id">ids</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="23" class="id">Seq</span><span class="pn">.</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="24" class="id">iter</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">tupleId</span> <span class="k">-&gt;</span>
+            <span class="k">let</span> <span class="id">msg</span> <span class="o">=</span> <span class="id">Tuple</span><span class="pn">(</span><span class="id">tuple</span><span class="pn">,</span> <span class="id">tupleId</span><span class="pn">,</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="25" class="id">fst</span> <span class="id">streamId</span><span class="pn">,</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="26" class="id">snd</span> <span class="id">streamId</span><span class="pn">,</span> <span class="id">taskId</span><span class="pn">)</span> <span class="o">|&gt;</span> <span class="id">Other</span>
+            <span class="id">group</span> <span class="id">tupleId</span> <span class="id">tuple</span>
+            <span class="o">|&gt;</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="27" class="id">Seq</span><span class="pn">.</span><span class="id">apply</span> <span class="id">msg</span><span class="pn">)</span><span class="pn">)</span>
+</code></pre>
+<h3><a name="Instance-resolution" class="anchor" href="#Instance-resolution">Instance resolution</a></h3>
+<p>Bolt instances are grouped by component ID using memoization:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="id">sinksOfComp</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="id">bolts</span> <span class="o">=</span> <span class="id">boltTasks</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="28" class="id">Map</span><span class="pn">.</span><span class="id">groupBy</span>
+        <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="pn">(</span><span class="id">compId</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="id">compId</span><span class="pn">)</span>
+        <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="pn">(</span><span class="id">send</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="id">send</span><span class="pn">)</span>
+    <span class="id">memoize</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">compId</span> <span class="k">-&gt;</span> <span class="id">bolts</span><span class="pn">.</span><span class="pn">[</span><span class="id">compId</span><span class="pn">]</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="29" class="id">Array</span><span class="pn">.</span><span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="30" class="id">ofSeq</span><span class="pn">)</span>
+</code></pre>
+<h2><a name="Stream-based-fan-out" class="anchor" href="#Stream-based-fan-out">Stream-based fan-out</a></h2>
+<p>A single component can emit to multiple streams, each routed to different downstream bolts:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph LR
+    A[Bolt A] --&gt;|"Odd stream Shuffle"| B1[Bolt B logOdd]
+    A --&gt;|"Even stream Shuffle"| B2[Bolt C logEven]
+</code></pre></td></tr></table>
+<p>DSL definition:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">yield</span> <span class="id">b1</span> <span class="o">--&gt;</span> <span class="id">b2</span> <span class="o">|&gt;</span> <span class="id">Shuffle</span><span class="pn">.</span><span class="id">on</span> <span class="id">Odd</span>    <span class="c">// Odd stream from b1 to b2</span>
+<span class="k">yield</span> <span class="id">b1</span> <span class="o">--&gt;</span> <span class="id">b3</span> <span class="o">|&gt;</span> <span class="id">Shuffle</span><span class="pn">.</span><span class="id">on</span> <span class="id">Even</span>   <span class="c">// Even stream from b1 to b3</span>
+</code></pre>
+<p>Each stream has its own distributor entry in the routing map. When a bolt emits, the <code>getStream</code> function (derived from the DU case) determines which distributor handles it.</p>
+<h2><a name="Anchored-vs-unanchored-routing" class="anchor" href="#Anchored-vs-unanchored-routing">Anchored vs unanchored routing</a></h2>
+<p>The routing function receives a <code>mkIds</code> parameter that differs based on context:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Context</p></th>
+<th><p>mkIds Source</p></th>
+<th><p>Behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Spout emit</p></td>
+<td><p><code>TupleTree.track</code></p></td>
+<td><p>Generates <code>anchorId</code>, sends <code>Track</code> + <code>Anchor</code> to acker</p></td>
+</tr>
+<tr class="even">
+<td><p>Bolt emit (anchored)</p></td>
+<td><p><code>TupleTree.anchor</code></p></td>
+<td><p>Sends <code>Anchor</code> to existing tree, returns <code>"anchorId:tupleId"</code></p></td>
+</tr>
+<tr class="odd">
+<td><p>Bolt emit (unanchored)</p></td>
+<td><p>Identity</p></td>
+<td><p>Returns plain tuple IDs (no acker interaction)</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The <code>==&gt;</code> operator in the DSL creates anchored streams; <code>--&gt;</code> creates streams that continue existing anchors:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">yield</span> <span class="id">s1</span> <span class="o">==&gt;</span> <span class="id">b1</span> <span class="o">|&gt;</span> <span class="id">Shuffle</span><span class="pn">.</span><span class="id">on</span> <span class="id">Original</span>   <span class="c">// New anchor tree</span>
+<span class="k">yield</span> <span class="id">b1</span> <span class="o">--&gt;</span> <span class="id">b2</span> <span class="o">|&gt;</span> <span class="id">Shuffle</span><span class="pn">.</span><span class="id">on</span> <span class="id">Odd</span>         <span class="c">// Continue anchor</span>
+<span class="k">yield</span> <span class="id">b1</span> <span class="o">--&gt;</span> <span class="id">b3</span> <span class="o">|&gt;</span> <span class="id">Shuffle</span><span class="pn">.</span><span class="id">on</span> <span class="id">Even</span>        <span class="c">// Continue anchor</span>
+</code></pre>
+<h2><a name="Complete-routing-example" class="anchor" href="#Complete-routing-example">Complete routing example</a></h2>
+<p>For the Guaranteed sample topology:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph TB
+    S1["numbers (1 instance)"]
+    B1a["addOne (instance 0)"]
+    B1b["addOne (instance 1)"]
+    B2["logOdd (1 instance)"]
+    B3["logEven (1 instance)"]
+
+    S1 --&gt;|"Original Shuffle"| B1a
+    S1 --&gt;|"Original Shuffle"| B1b
+    B1a --&gt;|"Odd Shuffle"| B2
+    B1b --&gt;|"Odd Shuffle"| B2
+    B1a --&gt;|"Even Shuffle"| B3
+    B1b --&gt;|"Even Shuffle"| B3
+
+    A1["Acker 1"]
+    A2["Acker 2"]
+
+    S1 -. "Track" .-&gt; A1
+    S1 -. "Track" .-&gt; A2
+    B1a -. "Anchor + Ok" .-&gt; A1
+    B1b -. "Anchor + Ok" .-&gt; A2
+    B2 -. "Ok" .-&gt; A1
+    B3 -. "Ok" .-&gt; A2
+</code></pre></td></tr></table>
+<p>Routing decisions:</p>
+<ul>
+<li>Spout → addOne: <code>Shuffle</code> across 2 instances → <code>hash(tupleId) % 2</code></li>
+<li>addOne → logOdd: <code>Shuffle</code> across 1 instance → always instance 0</li>
+<li>addOne → logEven: <code>Shuffle</code> across 1 instance → always instance 0</li>
+<li>Acker assignment: <code>anchorId % 2</code> determines which acker handles the tree</li>
+</ul>
+
+        <div popover class="fsdocs-tip" id="fs1">type Grouping&lt;&#39;t&gt; =
+  | Shuffle
+  | Fields of (&#39;t -&gt; obj) * string list
+  | All
+  | Direct</div>
+<div popover class="fsdocs-tip" id="fs2">&#39;t</div>
+<div popover class="fsdocs-tip" id="fs3">type obj = System.Object</div>
+<div popover class="fsdocs-tip" id="fs4">Multiple items<br />val string: value: &#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div popover class="fsdocs-tip" id="fs5">type &#39;T list = List&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs6">Multiple items<br />val seq: sequence: &#39;T seq -&gt; &#39;T seq<br /><br />--------------------<br />type &#39;T seq = System.Collections.Generic.IEnumerable&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs7">val abs: value: &#39;T -&gt; &#39;T (requires member Abs)</div>
+<div popover class="fsdocs-tip" id="fs8">module Seq
+
+from Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs9">val singleton: value: &#39;T -&gt; &#39;T seq</div>
+<div popover class="fsdocs-tip" id="fs10">val failwith: message: string -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs11">val empty&lt;&#39;T&gt; : &#39;T seq</div>
+<div popover class="fsdocs-tip" id="fs12">Multiple items<br />module Map
+
+from Microsoft.FSharp.Collections<br /><br />--------------------<br />type Map&lt;&#39;Key,&#39;Value (requires comparison)&gt; =
+  interface IReadOnlyDictionary&lt;&#39;Key,&#39;Value&gt;
+  interface IReadOnlyCollection&lt;KeyValuePair&lt;&#39;Key,&#39;Value&gt;&gt;
+  interface IEnumerable
+  interface IStructuralEquatable
+  interface IComparable
+  interface IEnumerable&lt;KeyValuePair&lt;&#39;Key,&#39;Value&gt;&gt;
+  interface ICollection&lt;KeyValuePair&lt;&#39;Key,&#39;Value&gt;&gt;
+  interface IDictionary&lt;&#39;Key,&#39;Value&gt;
+  new: elements: (&#39;Key * &#39;Value) seq -&gt; Map&lt;&#39;Key,&#39;Value&gt;
+  member Add: key: &#39;Key * value: &#39;Value -&gt; Map&lt;&#39;Key,&#39;Value&gt;
+  ...<br /><br />--------------------<br />new: elements: (&#39;Key * &#39;Value) seq -&gt; Map&lt;&#39;Key,&#39;Value&gt;</div>
+<div popover class="fsdocs-tip" id="fs13">val find: key: &#39;Key -&gt; table: Map&lt;&#39;Key,&#39;T&gt; -&gt; &#39;T (requires comparison)</div>
+<div popover class="fsdocs-tip" id="fs14">active recognizer KeyValue: System.Collections.Generic.KeyValuePair&lt;&#39;Key,&#39;Value&gt; -&gt; &#39;Key * &#39;Value</div>
+<div popover class="fsdocs-tip" id="fs15">val add: key: &#39;Key -&gt; value: &#39;T -&gt; table: Map&lt;&#39;Key,&#39;T&gt; -&gt; Map&lt;&#39;Key,&#39;T&gt; (requires comparison)</div>
+<div popover class="fsdocs-tip" id="fs16">val iter: action: (&#39;T -&gt; unit) -&gt; source: &#39;T seq -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs17">val fst: tuple: (&#39;T1 * &#39;T2) -&gt; &#39;T1</div>
+<div popover class="fsdocs-tip" id="fs18">val snd: tuple: (&#39;T1 * &#39;T2) -&gt; &#39;T2</div>
+<div popover class="fsdocs-tip" id="fs19">module Array
+
+from Microsoft.FSharp.Collections</div>
+<div popover class="fsdocs-tip" id="fs20">val ofSeq: source: &#39;T seq -&gt; &#39;T array</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2">
+    <a href="#Routing">
+      Routing
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Grouping-strategies">
+      Grouping strategies
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Shuffle">
+      Shuffle
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Fields">
+      Fields
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#All">
+      All
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Direct">
+      Direct
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Tuple-router-construction">
+      Tuple router construction
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Distributor-construction">
+      Distributor construction
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Instance-resolution">
+      Instance resolution
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Stream-based-fan-out">
+      Stream-based fan-out
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Anchored-vs-unanchored-routing">
+      Anchored vs unanchored routing
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Complete-routing-example">
+      Complete routing example
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-tips.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-search.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-copy-button.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    function isDark() {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Move code blocks into mermaid-renderable <pre> elements, stash source
+    document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+        var pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.textContent = el.textContent;
+        pre.setAttribute('data-mermaid-src', el.textContent);
+        var container = el.closest('table.pre') || el.closest('pre');
+        if (container) { container.parentNode.replaceChild(pre, container); }
+    });
+
+    async function renderMermaid() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark() ? 'dark' : 'default'
+        });
+        document.querySelectorAll('pre.mermaid').forEach(el => {
+            el.removeAttribute('data-processed');
+            el.textContent = el.getAttribute('data-mermaid-src');
+        });
+        await mermaid.run();
+    }
+
+    await renderMermaid();
+
+    // Re-render when the theme toggle fires
+    new MutationObserver(() => renderMermaid())
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+</body>
+</html>

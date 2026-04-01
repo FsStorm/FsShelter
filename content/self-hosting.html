@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://FsStorm.github.io/FsShelter/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Eugene Tolmachev" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FsShelter">
+    <meta property="og:title" content="self-hosting" />
+    <meta property="og:url" content="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://FsStorm.github.io/FsShelter/">
+    <meta name="twitter:title" content="self-hosting">
+    
+    <title>self-hosting | FsShelter</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/files/img/logo.png" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+                    Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://FsStorm.github.io/FsShelter/">
+            <img alt="Logo" src="https://FsStorm.github.io/FsShelter/files/img/logo.png">
+            <strong>FsShelter</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/FsStorm/FsShelter.git/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+            Repository</a></li>
+        <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h2><a name="Running-Topologies" class="anchor" href="#Running-Topologies">Running Topologies</a></h2>
+<p>We call running a FsShelter topology entirely inside a .NET process "self-hosting".
+The feature simulates Storm cluster and can be used for testing or production deployments where scale-out capability of Storm is not required.
+The 2.0 release of FsShelter reimplements this feature using the same technology Storm does - Disruptor queues, greatly improving the performance and further reducing overhead.</p>
+<p>Limitations:</p>
+<ul>
+<li>only FsShelter components can be self-hosted, no shell or java;</li>
+<li>only does in-proc message passing - can't scale out.</li>
+</ul>
+<p>Benefits:</p>
+<ul>
+<li>Self-hosted F# components perform on par with native JVM components under Storm, while taking as little as 30MB and ~20 threads.</li>
+<li>no Storm, zookeeper or even JRE are required, while delivering the same processing guarantees including tuple timeouts.</li>
+</ul>
+<p>Start small then scale out to run on a cluster, with no changes to your code! Use the same building blocks that run in the cloud... anywhere!</p>
+<p>For details refer to the Guaranteed sample, which demonstrates how to run the topology either way.</p>
+<p>See also:</p>
+<ul>
+<li><a href="architecture.html">Architecture</a> — Internal runtime structure: tasks, executors, channels, topology construction, and lifecycle.</li>
+<li><a href="message-flow.html">Message flow</a> — End-to-end processing scenarios with diagrams: reliable/unreliable delivery, backpressure, timeouts, failures, and restarts.</li>
+<li><a href="acker-algorithm.html">Acker algorithm</a> — XOR-tree tuple tracking: how anchoring, acking, and nacking work to provide guaranteed message processing.</li>
+<li><a href="routing.html">Routing</a> — Tuple routing between components: grouping strategies (Shuffle, Fields, All, Direct) and stream-based fan-out.</li>
+</ul>
+<h2><a name="Entry-points" class="anchor" href="#Entry-points">Entry points</a></h2>
+<h3><a name="header" class="anchor" href="#header"><code>Hosting.run</code></a></h3>
+<p>Simplest entry point. No logging, with auto-restart (delegates to <code>runWith</code>). Returns a shutdown function:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="fn">run</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="fn">topology</span> <span class="o">=</span> <span class="id">runWith</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">_</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">ignore</span><span class="pn">)</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="4" class="id">topology</span>
+</code></pre>
+<h3><a name="auto-restart-with-backoff" class="anchor" href="#auto-restart-with-backoff"><code>Hosting.runWith</code> (auto-restart with backoff)</a></h3>
+<p>Production entry point. Accepts a logging factory and auto-restarts on unhandled exceptions with exponential backoff and a maximum restart count:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="5" class="fn">runWith</span> <span class="pn">(</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="6" class="fn">startLog</span><span class="pn">:</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="7" class="vt">int</span> <span class="k">-&gt;</span> <span class="id">Log</span><span class="pn">)</span> <span class="pn">(</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="8" class="fn">topology</span><span class="pn">:</span> <span class="id">Topology</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">t</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="9" class="fn">maxRestarts</span> <span class="o">=</span> <span class="n">5</span>
+    <span class="k">let</span> <span class="k">mutable</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="10" class="mv">restartCount</span> <span class="o">=</span> <span class="n">0</span>
+    <span class="k">let</span> <span class="k">rec</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="11" class="fn">restart</span> <span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="12" class="fn">ex</span><span class="pn">:</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="13" class="rt">exn</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="k">if</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="14" class="mv">restartCount</span> <span class="o">&gt;</span><span class="o">=</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="15" class="fn">maxRestarts</span> <span class="k">then</span>
+            <span class="c">// give up after maxRestarts</span>
+        <span class="k">else</span>
+            <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="16" class="mv">restartCount</span> <span class="k">&lt;-</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="17" class="mv">restartCount</span> <span class="o">+</span> <span class="n">1</span>
+            <span class="k">let</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="18" class="fn">backoffMs</span> <span class="o">=</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="19" class="fn">min</span> <span class="pn">(</span><span class="n">1000</span> <span class="o">*</span> <span class="pn">(</span><span class="n">1</span> <span class="o">&lt;&lt;&lt;</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="20" class="mv">restartCount</span><span class="pn">)</span><span class="pn">)</span> <span class="n">30000</span>
+            <span class="id">Thread</span><span class="pn">.</span><span class="id">Sleep</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="21" class="id">backoffMs</span>
+            <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="22" class="fn">stopAndShutdown</span><span class="pn">(</span><span class="pn">)</span><span class="pn">;</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="23" class="fn">start</span><span class="pn">(</span><span class="pn">)</span>
+    <span class="k">and</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="24" class="fn">start</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="k">let</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="25" class="fn">r</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="26" class="fn">topology</span> <span class="o">|&gt;</span> <span class="id">RuntimeTopology</span><span class="pn">.</span><span class="id">ofTopology</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="27" class="id">startLog</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="28" class="id">restart</span>
+        <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="29" class="mv">restartCount</span> <span class="k">&lt;-</span> <span class="n">0</span>  <span class="c">// reset on successful start</span>
+        <span class="c">// activate...</span>
+    <span class="k">and</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="30" class="fn">stopAndShutdown</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span> <span class="o">..</span><span class="pn">.</span>
+    <span class="fn">start</span><span class="pn">(</span><span class="pn">)</span>
+    <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="31" class="fn">stopAndShutdown</span>  <span class="c">// returns the shutdown function</span>
+</code></pre>
+<p>The <code>restart</code> function is passed as the <code>onException</code> handler to every Disruptor channel. When any component throws, the topology is torn down and rebuilt with increasing delay between attempts.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant Caller
+    participant runWith
+    participant RT as RuntimeTopology
+    participant Component
+
+    Caller-&gt;&gt;runWith: topology
+    runWith-&gt;&gt;RT: ofTopology(startLog, restart)
+    RT--&gt;&gt;runWith: rtt
+    runWith-&gt;&gt;RT: activate(rtt)
+    Note over runWith: Running (restartCount = 0)
+
+    Component-&gt;&gt;runWith: Unhandled exception
+    Note over runWith: restartCount++ (1/5)
+    Note over runWith: Backoff: 2000ms
+    runWith-&gt;&gt;RT: stop(timeout, rtt)
+    runWith-&gt;&gt;RT: shutdown(rtt)
+    runWith-&gt;&gt;RT: ofTopology(startLog, restart)
+    RT--&gt;&gt;runWith: new rtt
+    runWith-&gt;&gt;RT: activate(new rtt)
+    Note over runWith: Running (restartCount = 0)
+
+    Component-&gt;&gt;runWith: Another exception
+    Note over runWith: restartCount++ (1/5)
+    Note over runWith: Backoff: 2000ms
+    runWith-&gt;&gt;RT: stop + shutdown + restart
+
+    Note over runWith: ... up to 5 restarts max ...
+
+    Caller-&gt;&gt;runWith: invoke shutdown fn
+    runWith-&gt;&gt;RT: stop + shutdown
+</code></pre></td></tr></table>
+<p>Key details:</p>
+<ul>
+<li><code>Monitor.TryEnter</code> prevents concurrent restart attempts — if a restart is already in progress, additional exceptions are logged as warnings and ignored</li>
+<li>Exponential backoff: <code>min(1000 * 2^attempt, 30000)</code> milliseconds between attempts</li>
+<li><code>restartCount</code> resets to 0 after each successful start</li>
+<li>After <code>maxRestarts</code> (5) consecutive failures, the topology stays down</li>
+<li><code>runNoRestart</code> uses <code>Environment.Exit(1)</code> instead, delegating restart to the process supervisor</li>
+</ul>
+<h2><a name="Diagnostics" class="anchor" href="#Diagnostics">Diagnostics</a></h2>
+<p>Self-hosted topologies emit diagnostics via standard .NET APIs:</p>
+<h3><a name="OpenTelemetry-integration" class="anchor" href="#OpenTelemetry-integration">OpenTelemetry integration</a></h3>
+<p>The <code>FsShelter.Hosting</code> namespace exposes an <code>ActivitySource</code> and a <code>Meter</code> for distributed tracing and metrics collection.</p>
+<p><strong>Tracing</strong> (<code>ActivitySource: "FsShelter.Hosting"</code>):</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Activity</p></th>
+<th><p>Kind</p></th>
+<th><p>Tags</p></th>
+<th><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>channel.process</code></p></td>
+<td><p>Internal</p></td>
+<td><p>—</p></td>
+<td><p>Wraps each Disruptor event; propagates parent context via <code>Envelope.ParentContext</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>spout.emit</code></p></td>
+<td><p>Producer</p></td>
+<td><p><code>component.id</code>, <code>task.id</code></p></td>
+<td><p>Wraps spout dispatch (Next, Ack/Nack handling)</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>bolt.process</code></p></td>
+<td><p>Consumer</p></td>
+<td><p><code>component.id</code>, <code>task.id</code></p></td>
+<td><p>Wraps bolt dispatch (Tuple processing)</p></td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Metrics</strong> (<code>Meter: "FsShelter.Hosting"</code>):</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Instrument</p></th>
+<th><p>Type</p></th>
+<th><p>Unit</p></th>
+<th><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>fsshelter.tuples.emitted</code></p></td>
+<td><p>Counter<int64></p></td>
+<td><p>—</p></td>
+<td><p>Tuples emitted by spouts</p></td>
+</tr>
+<tr class="even">
+<td><p><code>fsshelter.tuples.acked</code></p></td>
+<td><p>Counter<int64></p></td>
+<td><p>—</p></td>
+<td><p>Tuples acked (XOR tree completed)</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsshelter.tuples.nacked</code></p></td>
+<td><p>Counter<int64></p></td>
+<td><p>—</p></td>
+<td><p>Tuples nacked (explicit failure)</p></td>
+</tr>
+<tr class="even">
+<td><p><code>fsshelter.tuples.expired</code></p></td>
+<td><p>Counter<int64></p></td>
+<td><p>—</p></td>
+<td><p>Tuples expired by acker bucket rotation</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsshelter.task.processing_time</code></p></td>
+<td><p>Histogram<float></p></td>
+<td><p>ms</p></td>
+<td><p>Per-message processing time (tagged by <code>component.id</code>, <code>task.id</code>)</p></td>
+</tr>
+<tr class="even">
+<td><p><code>fsshelter.spout.pending</code></p></td>
+<td><p>UpDownCounter<int></p></td>
+<td><p>—</p></td>
+<td><p>Current number of unacked spout tuples</p></td>
+</tr>
+</tbody>
+</table>
+
+<h3><a name="Debug-logging" class="anchor" href="#Debug-logging">Debug logging</a></h3>
+<ul>
+<li><code>TOPOLOGY_DEBUG</code> flag can be set on individual components to selectively trace the traffic.</li>
+<li>Setting the debug flag globally will also trace the system and acker components.</li>
+<li>Setting the flag will also trace the time spent in the body of your function.</li>
+</ul>
+<h2><a name="Configuration" class="anchor" href="#Configuration">Configuration</a></h2>
+<h3><a name="Topology-level-options" class="anchor" href="#Topology-level-options">Topology-level options</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Option</p></th>
+<th><p>Default</p></th>
+<th><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>TOPOLOGY_MAX_SPOUT_PENDING</code></p></td>
+<td><p>128</p></td>
+<td><p>Maximum unacked tuples per spout task before backpressure kicks in</p></td>
+</tr>
+<tr class="even">
+<td><p><code>TOPOLOGY_ACKER_TASKS</code></p></td>
+<td><p>4</p></td>
+<td><p>Number of acker task instances (logical units with independent state)</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>TOPOLOGY_ACKER_EXECUTORS</code></p></td>
+<td><p>2</p></td>
+<td><p>Number of acker executor threads (tasks are distributed round-robin)</p></td>
+</tr>
+<tr class="even">
+<td><p><code>TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE</code></p></td>
+<td><p>256</p></td>
+<td><p>Base Disruptor ring buffer size (scaled by tasks per executor)</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>TOPOLOGY_MESSAGE_TIMEOUT_SECS</code></p></td>
+<td><p>30</p></td>
+<td><p>Timeout for tuple completion; controls acker bucket rotation interval and drain window during shutdown</p></td>
+</tr>
+<tr class="even">
+<td><p><code>TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS</code></p></td>
+<td><p>100</p></td>
+<td><p>Spout executor timeout: how often the spout wakes to poll for new tuples when idle</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>TOPOLOGY_DEBUG</code></p></td>
+<td><p>false</p></td>
+<td><p>Enable trace-level logging with timing</p></td>
+</tr>
+<tr class="even">
+<td><p><code>TOPOLOGY_TICK_TUPLE_FREQ_SECS</code></p></td>
+<td><p>(none)</p></td>
+<td><p>Per-bolt tick tuple interval in seconds</p></td>
+</tr>
+</tbody>
+</table>
+
+<h3><a name="Component-level-DSL" class="anchor" href="#Component-level-DSL">Component-level DSL</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Function</p></th>
+<th><p>Applies to</p></th>
+<th><p>Default</p></th>
+<th><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>withParallelism n</code></p></td>
+<td><p>Spout, Bolt</p></td>
+<td><p>1</p></td>
+<td><p>Number of tasks (independent processing units with their own state)</p></td>
+</tr>
+<tr class="even">
+<td><p><code>withExecutors n</code></p></td>
+<td><p>Spout, Bolt</p></td>
+<td><p>= Parallelism</p></td>
+<td><p>Number of executor threads; tasks are distributed round-robin across executors</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>withConf [...]</code></p></td>
+<td><p>Spout, Bolt, Topology</p></td>
+<td><p>—</p></td>
+<td><p>Configuration overrides (component-level merged with topology-level)</p></td>
+</tr>
+<tr class="even">
+<td><p><code>withActivation tuple</code></p></td>
+<td><p>Bolt</p></td>
+<td><p>None</p></td>
+<td><p>Send this tuple to the bolt on activation</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>withDeactivation tuple</code></p></td>
+<td><p>Bolt</p></td>
+<td><p>None</p></td>
+<td><p>Send this tuple to the bolt on deactivation</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>Example:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 4 bolt tasks served by 2 executor threads (2 tasks per thread)</span>
+<span class="k">let</span> <span class="id">counter</span> <span class="o">=</span> <span class="id">countWords</span>
+              <span class="o">|&gt;</span> <span class="id">Bolt</span><span class="pn">.</span><span class="id">run</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">_</span> <span class="id">_</span> <span class="id">t</span> <span class="id">emit</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="id">t</span><span class="pn">,</span> <span class="id">emit</span><span class="pn">)</span><span class="pn">)</span>
+              <span class="o">|&gt;</span> <span class="id">withParallelism</span> <span class="n">4</span>
+              <span class="o">|&gt;</span> <span class="id">withExecutors</span> <span class="n">2</span>
+</code></pre>
+<h3><a name="Parameter-relationships" class="anchor" href="#Parameter-relationships">Parameter relationships</a></h3>
+<p>The configuration parameters interact in important ways. Understanding these relationships helps with tuning.</p>
+<p><strong>Parallelism vs Executors:</strong></p>
+<ul>
+<li><code>Parallelism</code> sets the number of <strong>tasks</strong> — independent logical units with their own state, pending counters, and handlers.</li>
+<li><code>Executors</code> sets the number of <strong>threads</strong> serving those tasks. When <code>Executors &lt; Parallelism</code>, multiple tasks share a Disruptor thread and their messages are dispatched by <code>TaskId</code>.</li>
+<li>The runtime enforces <code>Executors = min(Executors, Parallelism)</code> — you can't have more threads than tasks.</li>
+<li>Default is 1:1 (each task gets its own thread).</li>
+</ul>
+<p><strong>Ring buffer sizing:</strong></p>
+<p>The ring buffer per executor is: <code>TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE * tasks_per_executor</code>.</p>
+<p>When sharing executors (e.g., 4 tasks on 2 executors), each executor's buffer is <code>256 * 2 = 512</code> slots. This automatic scaling prevents starvation when multiple tasks share a thread.</p>
+<p>The ring buffer must also be large enough to hold <code>TOPOLOGY_MAX_SPOUT_PENDING</code> in-flight tuples. If <code>maxPending</code> exceeds the ring buffer capacity, spout publishes can block and deadlock the drain on shutdown.</p>
+<p><strong>Spout wait strategy:</strong></p>
+<p><code>TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS</code> controls how often an idle spout wakes to call <code>next</code>. Lower values mean faster response to available work but higher CPU utilisation when idle. Values below ~10ms cause measurable overhead from frequent wake-ups with no throughput benefit.</p>
+<p><strong>Message timeout and shutdown:</strong></p>
+<p><code>TOPOLOGY_MESSAGE_TIMEOUT_SECS</code> serves three roles:</p>
+<ol>
+<li><strong>Acker bucket rotation</strong> — tuples older than this are expired</li>
+<li><strong>Shutdown drain window</strong> — the system sleeps this long between stopping spouts and stopping bolts</li>
+<li><strong>Restart backoff ceiling</strong> — indirectly affects how long restarts take</li>
+</ol>
+<p>Lower values speed up shutdown and failure detection, but risk false-expiring tuples that are merely slow to process.</p>
+<p><strong>Acker capacity:</strong></p>
+<p><code>TOPOLOGY_ACKER_TASKS</code> controls the number of independent acker state machines.
+<code>TOPOLOGY_ACKER_EXECUTORS</code> controls the threads serving them.
+Acker tasks are stateless relative to each other (each tracks a disjoint set of tuples via hash partitioning), so more tasks reduce lock contention. More executors reduce thread contention when acker throughput is the bottleneck.</p>
+<h3><a name="Tuning-summary" class="anchor" href="#Tuning-summary">Tuning summary</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Goal</p></th>
+<th><p>Adjust</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Increase throughput (CPU-bound bolts)</p></td>
+<td><p>Increase bolt <code>withParallelism</code></p></td>
+</tr>
+<tr class="even">
+<td><p>Reduce thread count</p></td>
+<td><p>Set <code>withExecutors</code> lower than <code>withParallelism</code> (share threads)</p></td>
+</tr>
+<tr class="odd">
+<td><p>Handle slow consumers</p></td>
+<td><p>Increase <code>TOPOLOGY_MAX_SPOUT_PENDING</code> and <code>TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE</code> proportionally</p></td>
+</tr>
+<tr class="even">
+<td><p>Faster failure detection</p></td>
+<td><p>Lower <code>TOPOLOGY_MESSAGE_TIMEOUT_SECS</code> (but ensure it exceeds your slowest bolt processing time)</p></td>
+</tr>
+<tr class="odd">
+<td><p>Reduce idle CPU</p></td>
+<td><p>Increase <code>TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS</code> (default 100ms is usually fine)</p></td>
+</tr>
+<tr class="even">
+<td><p>Handle high acker load</p></td>
+<td><p>Increase <code>TOPOLOGY_ACKER_TASKS</code> and/or <code>TOPOLOGY_ACKER_EXECUTORS</code></p></td>
+</tr>
+</tbody>
+</table>
+
+
+        <div popover class="fsdocs-tip" id="fs1">val run: topology: &#39;a -&gt; &#39;b</div>
+<div popover class="fsdocs-tip" id="fs2">val topology: &#39;a</div>
+<div popover class="fsdocs-tip" id="fs3">val ignore: value: &#39;T -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs4">val runWith: startLog: (int -&gt; &#39;a) -&gt; topology: &#39;b -&gt; (unit -&gt; unit)</div>
+<div popover class="fsdocs-tip" id="fs5">val startLog: (int -&gt; &#39;a)</div>
+<div popover class="fsdocs-tip" id="fs6">Multiple items<br />val int: value: &#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; =
+  int</div>
+<div popover class="fsdocs-tip" id="fs7">val topology: &#39;b</div>
+<div popover class="fsdocs-tip" id="fs8">val maxRestarts: int</div>
+<div popover class="fsdocs-tip" id="fs9">val mutable restartCount: int</div>
+<div popover class="fsdocs-tip" id="fs10">val restart: ex: exn -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs11">val ex: exn</div>
+<div popover class="fsdocs-tip" id="fs12">type exn = System.Exception</div>
+<div popover class="fsdocs-tip" id="fs13">val backoffMs: int</div>
+<div popover class="fsdocs-tip" id="fs14">val min: e1: &#39;T -&gt; e2: &#39;T -&gt; &#39;T (requires comparison)</div>
+<div popover class="fsdocs-tip" id="fs15">val stopAndShutdown: unit -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs16">val start: unit -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs17">val r: obj</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2">
+    <a href="#Running-Topologies">
+      Running Topologies
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Entry-points">
+      Entry points
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Diagnostics">
+      Diagnostics
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#OpenTelemetry-integration">
+      OpenTelemetry integration
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Debug-logging">
+      Debug logging
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Configuration">
+      Configuration
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Topology-level-options">
+      Topology-level options
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Component-level-DSL">
+      Component-level DSL
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Parameter-relationships">
+      Parameter relationships
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Tuning-summary">
+      Tuning summary
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-tips.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-search.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-copy-button.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    function isDark() {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Move code blocks into mermaid-renderable <pre> elements, stash source
+    document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+        var pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.textContent = el.textContent;
+        pre.setAttribute('data-mermaid-src', el.textContent);
+        var container = el.closest('table.pre') || el.closest('pre');
+        if (container) { container.parentNode.replaceChild(pre, container); }
+    });
+
+    async function renderMermaid() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark() ? 'dark' : 'default'
+        });
+        document.querySelectorAll('pre.mermaid').forEach(el => {
+            el.removeAttribute('data-processed');
+            el.textContent = el.getAttribute('data-mermaid-src');
+        });
+        await mermaid.run();
+    }
+
+    await renderMermaid();
+
+    // Re-render when the theme toggle fires
+    new MutationObserver(() => renderMermaid())
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+</body>
+</html>
