@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsShelter\FsShelter.fsproj" />
+    <ProjectReference Include="..\FsShelter.Multilang\FsShelter.Multilang.fsproj" />
     <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" />
     <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" />
   </ItemGroup>

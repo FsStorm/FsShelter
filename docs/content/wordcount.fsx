@@ -1,6 +1,7 @@
 (*** hide ***)
-#I "../../src/FsShelter/bin/Release/netstandard2.0"
+#I "../../src/FsShelter/bin/Release/net10.0"
 #r "FsShelter.dll"
+#r "FsShelter.Multilang.dll"
 
 open System
 open FsShelter
@@ -144,10 +145,10 @@ This initialization will not be triggered unless the task execution is actually 
 
 Submitting the topology for execution
 --------------
-Storm accepts JARs for code distribution and FsShelter provides functions to package our assemblies and upload them to Nimbus.
-Once the code is uploaded, Storm needs to be told how to run it and FsShelter has functions that convert the above representation into that of Nimbus API.
+Storm accepts JARs for code distribution and `FsShelter.Multilang` provides functions to package our assemblies and upload them to Nimbus.
+Once the code is uploaded, Storm needs to be told how to run it and `FsShelter.Multilang` has functions that convert the above representation into that of Nimbus API.
 Storm then starts the supervising processes across the cluster and spins up a copy of our executable for each task instance in our topology. 
-FsShelter's `Task` will perform the handshake that will determine which component a given process instance has been assigned to execute:
+`FsShelter.Multilang`'s `Task` will perform the handshake that will determine which component a given process instance has been assigned to execute:
 *)
 sampleTopology
 |> Task.ofTopology
@@ -160,7 +161,7 @@ Then the execution will be handed over to one of the corresponding "dispatchers"
 Keep in mind that:
 
 * STDIN/STDOUT are reserved for communications with Storm and any IO the component is going to do has to go through some other channel (no console logging!).
-* out of the box Storm only supports JSON multilang. For faster IO, consider [ProtoShell](https://github.com/FsStorm/protoshell). The serilizer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand.
+* out of the box Storm only supports JSON multilang. For faster IO, consider [ProtoShell](https://github.com/FsStorm/protoshell). The serializer JAR can be bundled along with the submitted topology or deployed in Storm's classpath beforehand. Both `JsonIO` and `ProtoIO` serializers are provided in the `FsShelter.Multilang` package.
 
 
 Exporting the topology graph

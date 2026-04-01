@@ -13,6 +13,17 @@ type TupleId =
         | Anchored(a, l) -> sprintf "%d:%d" a l
         | Unanchored l -> string l
 
+/// Storm log levels
+type LogLevel = 
+    | Trace = 0
+    | Debug = 1
+    | Info = 2
+    | Warn = 3
+    | Error = 4
+
+/// Logger signature    
+type Log = LogLevel -> (unit -> string) -> unit
+
 [<AutoOpen>]
 module internal Prelude =
 

@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsShelter", "FsShelter\FsShelter.fsproj", "{BE537B3C-1636-46A5-8FA4-635D0842BAB1}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsShelter.Multilang", "FsShelter.Multilang\FsShelter.Multilang.fsproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WordCount", "..\samples\WordCount\WordCount.fsproj", "{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B77C3AD-21BC-4545-9C30-B6B94136EA65}"
@@ -50,6 +52,10 @@ Global
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE537B3C-1636-46A5-8FA4-635D0842BAB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3077BAF-3EC1-4C7D-BD05-0C08DE30C4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU

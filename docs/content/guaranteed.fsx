@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/FsShelter/bin/Release/netstandard2.0"
+#I "../../src/FsShelter/bin/Release/net10.0"
 #r "FsShelter.dll"
 
 open FsShelter

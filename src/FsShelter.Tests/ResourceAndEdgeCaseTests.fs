@@ -26,7 +26,7 @@ type ResTracker =
 let mkSimpleTopology (tracker: ResTracker) maxPending timeout =
     let numbers (t: ResTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let t = topology "resource-test" {
         let s1 = numbers
@@ -80,7 +80,7 @@ let ``Steady-state memory does not grow unbounded`` () =
     test <@ ratio < 3.0 @>
 
     // verify topology actually ran
-    test <@ !tracker.acked > 0L @>
+    test <@ tracker.acked.Value > 0L @>
 
 // ---------------------------------------------------------------------------
 // Storm WorkerTest: testWorkerIsolation
@@ -106,11 +106,11 @@ let ``Multi-topology isolation`` () =
     Thread.Sleep 500
 
     // both topologies should have produced acks independently
-    test <@ !tracker1.acked > 0L @>
-    test <@ !tracker2.acked > 0L @>
+    test <@ tracker1.acked.Value > 0L @>
+    test <@ tracker2.acked.Value > 0L @>
     // nacks should be zero under normal processing
-    test <@ !tracker1.nacked = 0L @>
-    test <@ !tracker2.nacked = 0L @>
+    test <@ tracker1.nacked.Value = 0L @>
+    test <@ tracker2.nacked.Value = 0L @>
 
 // ---------------------------------------------------------------------------
 // Storm WorkerTest: testWorkerShutdown
@@ -130,7 +130,7 @@ let ``Graceful shutdown completes within timeout`` () =
 
     // shutdown should complete within a reasonable time (< 10s with 1s timeout)
     test <@ sw.Elapsed.TotalSeconds < 10.0 @>
-    test <@ !tracker.acked > 0L @>
+    test <@ tracker.acked.Value > 0L @>
 
 // ---------------------------------------------------------------------------
 // Storm TopologyValidatorTest: testTickTupleDelivery
@@ -171,7 +171,7 @@ let ``Tick tuples are delivered to bolts`` () =
     stop()
     Thread.Sleep 500
 
-    test <@ !ticksReceived >= 1L @>
+    test <@ ticksReceived.Value >= 1L @>
 
 // ---------------------------------------------------------------------------
 // Minimal topology: simplest possible (spout → 1 bolt)
@@ -200,13 +200,13 @@ let ``Minimal topology runs end-to-end`` () =
     let stop = Hosting.runWith (fun _ _ -> ignore) topo
 
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !acked < 5L && DateTime.UtcNow < deadline do
+    while acked.Value < 5L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
-    test <@ !acked >= 5L @>
+    test <@ acked.Value >= 5L @>
 
 // ---------------------------------------------------------------------------
 // Empty spout: always returns None, topology should handle gracefully
@@ -246,12 +246,12 @@ let ``Rapid ack-nack keeps pending counter consistent`` () =
     
     let numbers (t: ResTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let sometimesFails (input: Schema, emit: Schema -> unit) =
         match input with
         | Original { x = x } ->
-            if (!tracker.emitted % 3L) = 0L then
+            if (tracker.emitted.Value % 3L) = 0L then
                 failwith "periodic failure"
             else
                 emit input
@@ -279,7 +279,7 @@ let ``Rapid ack-nack keeps pending counter consistent`` () =
 
     // let it run with mixed success/failure
     let deadline = DateTime.UtcNow.AddSeconds 15.
-    while (!tracker.acked + !tracker.nacked) < 20L && DateTime.UtcNow < deadline do
+    while (tracker.acked.Value + tracker.nacked.Value) < 20L && DateTime.UtcNow < deadline do
         Thread.Sleep 100
 
     stop()
@@ -287,6 +287,6 @@ let ``Rapid ack-nack keeps pending counter consistent`` () =
 
     // acked + nacked should account for a good portion of emitted
     // (some may still be in-flight at shutdown)
-    let totalResolved = !tracker.acked + !tracker.nacked
+    let totalResolved = tracker.acked.Value + tracker.nacked.Value
     test <@ totalResolved > 0L @>
-    test <@ !tracker.emitted >= totalResolved @>
+    test <@ tracker.emitted.Value >= totalResolved @>

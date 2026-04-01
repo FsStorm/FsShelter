@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/FsShelter/bin/Release/netstandard2.0"
+#I "../../src/FsShelter/bin/Release/net10.0"
 #r "FsShelter.dll"
 
 open System
@@ -60,7 +60,7 @@ In summary:
 Implementation details and performance considerations
 -----------------------
 FsShelter will serialize most schemata exactly as you would imagine, but there are always "interesting" scenarios. 
-Here are some of the implementation details to keep in mind:
+Here are some of the implementation details to keep in mind (the serializers below are provided in the `FsShelter.Multilang` package):
 
 * Json serialization is implemented with Newtonsoft.Json, F# types are mostly serializable, but might look odd on the wire (Option is a DU, think about that for a second).
 * Binary serializer (Protobuf) uses [FsPickler](https://github.com/nessos/FsPickler) and you might be able to optimize the payload via its APIs accordingly.

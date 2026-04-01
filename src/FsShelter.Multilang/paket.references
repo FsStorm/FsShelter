@@ -1,0 +1,5 @@
+FSharp.Core
+newtonsoft.json
+ApacheThrift
+Google.Protobuf
+FsPickler

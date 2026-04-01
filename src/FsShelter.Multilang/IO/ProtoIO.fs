@@ -153,7 +153,7 @@ let private toCommand log (findConstructor:string->FieldReader->unit->'t) (msg:M
     | Messages.StormMsg.MsgOneofCase.DeactivateCmd -> Deactivate
     | _ -> failwithf "Unexpected command: %A" msg
 
-let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Task.Log) :Topology.IO<'t> =
+let startWith (stdin:#Stream,stdout:#Stream) syncOut (log:Log) :Topology.IO<'t> =
     let write (msg:Messages.ShellMsg) =
         log LogLevel.Trace (fun _ -> sprintf "> %A" msg)
         syncOut (fun () -> msg.WriteDelimitedTo stdout

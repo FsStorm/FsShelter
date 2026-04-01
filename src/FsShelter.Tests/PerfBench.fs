@@ -67,7 +67,7 @@ module Bench =
 
     let benchNumbers (world : BenchWorld) =
         Interlocked.Increment &world.count.contents |> ignore
-        Some(Named(string !world.count), Original { x = world.rnd.Next(0, 100) }) 
+        Some(Named(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
 
     let run durationMs maxPending spoutWaitMs boltParallelism boltExecutors =
         let world = { rnd = Random(42); count = ref 0L; acked = ref 0L }
@@ -111,8 +111,8 @@ module Bench =
         Thread.Sleep(durationMs: int)
         sw.Stop()
 
-        let emitted = !world.count
-        let acked = !world.acked
+        let emitted = world.count.Value
+        let acked = world.acked.Value
         let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
         let memAfter = GC.GetTotalMemory(false)
         let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
@@ -155,7 +155,7 @@ module BackpressureBench =
 
     let bpNumbers (world : BPWorld) =
         Interlocked.Increment &world.count.contents |> ignore
-        Some(Named(string !world.count), Original { x = world.rnd.Next(0, 100) }) 
+        Some(Named(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
 
     /// A split bolt that introduces a fixed delay to simulate slow processing
     let slowSplit (delayMs: int) (input, emit) =
@@ -217,9 +217,9 @@ module BackpressureBench =
         Thread.Sleep(durationMs: int)
         sw.Stop()
 
-        let emitted = !world.count
-        let acked = !world.acked
-        let nacked = !world.nacked
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let nacked = world.nacked.Value
         let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
         let memAfter = GC.GetTotalMemory(false)
         let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
@@ -359,9 +359,9 @@ let ``Backpressure benchmark - random latency bolts`` () =
         Thread.Sleep(durationMs: int)
         sw.Stop()
 
-        let emitted = !world.count
-        let acked = !world.acked
-        let nacked = !world.nacked
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let nacked = world.nacked.Value
         let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
         let memAfter = GC.GetTotalMemory(false)
         let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
@@ -421,7 +421,7 @@ let ``Spout latency benchmark - random sleep in spout`` () =
         let slowNumbers (w : BackpressureBench.BPWorld) =
             Thread.Sleep(w.rnd.Next(minMs, maxMs))
             Interlocked.Increment &w.count.contents |> ignore
-            Some(Named(string !w.count), Original { x = w.rnd.Next(0, 100) })
+            Some(Named(string w.count.Value), Original { x = w.rnd.Next(0, 100) })
 
         let t = topology "slow-spout-bench" {
             let s1 = slowNumbers
@@ -458,9 +458,9 @@ let ``Spout latency benchmark - random sleep in spout`` () =
         Thread.Sleep(durationMs: int)
         sw.Stop()
 
-        let emitted = !world.count
-        let acked = !world.acked
-        let nacked = !world.nacked
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let nacked = world.nacked.Value
         let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
         let memAfter = GC.GetTotalMemory(false)
         let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),

@@ -5,6 +5,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="FsShelter.Multilang" />
+    <InternalsVisibleTo Include="FsShelter.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Conf.fs" />
@@ -12,27 +16,8 @@
     <Compile Include="Dispatch.fs" />
     <Compile Include="Topology.fs" />
     <Compile Include="DSL.fs" />
-    <Compile Include="Task.fs" />
     <Compile Include="Hosting.fs" />
-    <Compile Include="Management.fs" />
     <Compile Include="DotGraph.fs" />
-    <Compile Include="IO\Common.fs" />
-    <Compile Include="IO\JsonIO.fs" />
-    <Compile Include="IO\ProtoIO.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\ext\StormThrift\StormThrift.csproj" PrivateAssets="All" />
-    <ProjectReference Include="..\..\ext\ProtoShell\ProtoShell.csproj" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(OutputPath)\StormThrift.dll">
-      <Pack>true</Pack>
-      <PackagePath>lib\$(TargetFramework)</PackagePath>
-    </Content>
-    <Content Include="$(OutputPath)\ProtoShell.dll">
-      <Pack>true</Pack>
-      <PackagePath>lib\$(TargetFramework)</PackagePath>
-    </Content>
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

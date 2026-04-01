@@ -77,18 +77,21 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "Tests" (fun _ ->
-    let args = "--no-restore --filter \"TestCategory!=interactive\""
+    let args = "--no-restore --filter \"TestCategory!=interactive&TestCategory!=perf\""
     DotNet.test (fun a -> a.WithCommon (fun c -> { c with CustomParams = Some args})) "src/FsShelter.Tests"
 )
 
 Target.create "Package" (fun _ ->
     let args = sprintf "/p:Version=%s --no-restore" (string release.SemVer)
     DotNet.pack (fun a -> a.WithCommon (fun c -> { c with CustomParams = Some args })) "src/FsShelter"
+    DotNet.pack (fun a -> a.WithCommon (fun c -> { c with CustomParams = Some args })) "src/FsShelter.Multilang"
 )
 
 Target.create "PublishNuget" (fun _ ->
     let exec dir = DotNet.exec (fun a -> a.WithCommon (fun c -> { c with WorkingDirectory=dir }))
     let result = exec "src/FsShelter" "nuget" (sprintf "push bin/Release/FsShelter.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
+    if (not result.OK) then failwithf "%A" result.Errors
+    let result = exec "src/FsShelter.Multilang" "nuget" (sprintf "push bin/Release/FsShelter.Multilang.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
     if (not result.OK) then failwithf "%A" result.Errors
 )
 
@@ -110,7 +113,7 @@ let fsdocProperties = [
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "fsdocs" ("build --strict --eval --clean"
-      + " --projects src/FsShelter/FsShelter.fsproj" 
+      + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
       + " --properties " + String.Join(" ",fsdocProperties) 
       + " --parameters " + String.Join(" ", fsdocParameters)) |> ignore
 )
@@ -118,7 +121,7 @@ Target.create "GenerateDocs" (fun _ ->
 Target.create "WatchDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "fsdocs" ("watch --eval"
-      + " --projects src/FsShelter/FsShelter.fsproj" 
+      + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
       + " --properties " + String.Join(" ",fsdocProperties) 
       + " --parameters " + String.Join(" ", fsdocParameters)) |> ignore
 )

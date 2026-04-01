@@ -70,7 +70,7 @@ let ``Hosts``() =
     let proc = System.Diagnostics.Process.GetCurrentProcess()
     let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
     let trace () =
-        let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
+        let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" Topologies.world.count.Value Topologies.world.acked.Value (Topologies.world.count.Value - Topologies.world.acked.Value) ((float Topologies.world.acked.Value)/(DateTime.Now - startedAt).TotalSeconds) 
         TraceLog.asyncLog (fun _ -> s)
         let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
         TraceLog.asyncLog (fun _ -> s)
@@ -102,7 +102,7 @@ let ``Several``() =
 
      let startedAt = DateTime.Now
      let trace () = 
-         TraceLog.asyncLog (fun _ -> sprintf  "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds))
+         TraceLog.asyncLog (fun _ -> sprintf  "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" Topologies.world.count.Value Topologies.world.acked.Value (Topologies.world.count.Value - Topologies.world.acked.Value) ((float Topologies.world.acked.Value)/(DateTime.Now - startedAt).TotalSeconds))
          TraceLog.asyncLog (fun _ -> sprintf  "-- GC: %d, %d/%d/%d" (GC.GetTotalMemory false) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2))
 
      Threading.Thread.Sleep 10000
@@ -144,7 +144,7 @@ let ``No emits``() =
      let proc = System.Diagnostics.Process.GetCurrentProcess()
      let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
      let trace () =
-         let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
+         let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" Topologies.world.count.Value Topologies.world.acked.Value (Topologies.world.count.Value - Topologies.world.acked.Value) ((float Topologies.world.acked.Value)/(DateTime.Now - startedAt).TotalSeconds) 
          TraceLog.asyncLog (fun _ -> s)
          let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
          TraceLog.asyncLog (fun _ -> s)
@@ -193,7 +193,7 @@ let ``Long-running bolt``() =
      let proc = System.Diagnostics.Process.GetCurrentProcess()
      let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
      let trace () =
-         let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" !Topologies.world.count !Topologies.world.acked (!Topologies.world.count - !Topologies.world.acked) ((float !Topologies.world.acked)/(DateTime.Now - startedAt).TotalSeconds) 
+         let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" Topologies.world.count.Value Topologies.world.acked.Value (Topologies.world.count.Value - Topologies.world.acked.Value) ((float Topologies.world.acked.Value)/(DateTime.Now - startedAt).TotalSeconds) 
          TraceLog.asyncLog (fun _ -> s)
          let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
          TraceLog.asyncLog (fun _ -> s)

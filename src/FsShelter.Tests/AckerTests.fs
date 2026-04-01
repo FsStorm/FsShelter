@@ -30,7 +30,7 @@ type Tracker =
 let mkTrackedTopology (tracker: Tracker) maxPending timeout =
     let numbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let t = topology "acker-test" {
         let s1 = numbers
@@ -63,14 +63,14 @@ let ``Acker tracks and acks a single tuple`` () =
 
     // wait for at least 1 ack
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !tracker.acked < 1L && DateTime.UtcNow < deadline do
+    while tracker.acked.Value < 1L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.acked >= 1L @>
-    test <@ !tracker.nacked = 0L @>
+    test <@ tracker.acked.Value >= 1L @>
+    test <@ tracker.nacked.Value = 0L @>
 
 // ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerHandlesTupleTree
@@ -85,16 +85,16 @@ let ``Acker tracks multi-hop tuple tree`` () =
 
     // wait for several acks to confirm multi-hop tree completion
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !tracker.acked < 5L && DateTime.UtcNow < deadline do
+    while tracker.acked.Value < 5L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.acked >= 5L @>
-    test <@ !tracker.nacked = 0L @>
+    test <@ tracker.acked.Value >= 5L @>
+    test <@ tracker.nacked.Value = 0L @>
     // every emitted tuple that was acked means the full tree completed
-    test <@ !tracker.emitted >= !tracker.acked @>
+    test <@ tracker.emitted.Value >= tracker.acked.Value @>
 
 // ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerFailsOnBoltFailure
@@ -107,7 +107,7 @@ let ``Acker nacks on bolt failure`` () =
 
     let failNumbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let failingBolt (input: Schema, emit: Schema -> unit) =
         Interlocked.Increment failCount |> ignore
@@ -134,13 +134,13 @@ let ``Acker nacks on bolt failure`` () =
 
     // wait for nacks (bolt failures cause either immediate Fail or timeout)
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !tracker.nacked < 1L && DateTime.UtcNow < deadline do
+    while tracker.nacked.Value < 1L && DateTime.UtcNow < deadline do
         Thread.Sleep 100
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.nacked >= 1L @>
+    test <@ tracker.nacked.Value >= 1L @>
 
 // ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerTimesOutTuples
@@ -154,10 +154,10 @@ let ``Acker expires timed-out tuples`` () =
     let emittedOnce = ref false
 
     let oneNumber (t: Tracker) =
-        if not !emittedOnce then
+        if not emittedOnce.Value then
             emittedOnce := true
             Interlocked.Increment &t.emitted.contents |> ignore
-            Some(Named(string !t.emitted), Original { x = 42 })
+            Some(Named(string t.emitted.Value), Original { x = 42 })
         else
             None
 
@@ -188,14 +188,14 @@ let ``Acker expires timed-out tuples`` () =
     // With self-hosted mode, the acker gets Tick from the system timer at 30s intervals.
     // For a 1s timeout, we may need to wait up to 30s for the tick to fire expiry check.
     let deadline = DateTime.UtcNow.AddSeconds 35.
-    while !tracker.nacked < 1L && DateTime.UtcNow < deadline do
+    while tracker.nacked.Value < 1L && DateTime.UtcNow < deadline do
         Thread.Sleep 200
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.emitted >= 1L @>
-    test <@ !tracker.nacked >= 1L @>
+    test <@ tracker.emitted.Value >= 1L @>
+    test <@ tracker.nacked.Value >= 1L @>
 
 // ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerBackpressure
@@ -210,7 +210,7 @@ let ``Acker capacity overflow nacks tuples`` () =
 
     let fastNumbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     // bot that never acks - will cause acker inFlight to grow
     let blackHole (input: Schema, _: Schema -> unit) = ()
@@ -236,10 +236,10 @@ let ``Acker capacity overflow nacks tuples`` () =
 
     // let the acker fill up and either expire or overflow
     let deadline = DateTime.UtcNow.AddSeconds 35.
-    while !tracker.nacked < 1L && DateTime.UtcNow < deadline do
+    while tracker.nacked.Value < 1L && DateTime.UtcNow < deadline do
         Thread.Sleep 200
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.nacked >= 1L @>
+    test <@ tracker.nacked.Value >= 1L @>

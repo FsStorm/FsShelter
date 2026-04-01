@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/FsShelter/bin/Release/netstandard2.0"
+#I "../../src/FsShelter/bin/Release/net10.0"
 #r "FsShelter.dll"
 
 open System
@@ -12,16 +12,19 @@ Overview
 FsShelter is a library that lets you implement [Apache Storm](https://storm.apache.org/) components and topologies in F#.
 FsShelter is a major rewrite of [FsStorm](https://github.com/FsStorm). It departs from FsStorm in significant ways and therefore has been split into its own project.
 
-Overall, the library provides a "batteries included" experience with wrappers for the Nimbus API as well as support for packaging and exporting:
+The library is split into two packages:
+
+- **FsShelter** — the core library for defining topologies and running them in-process (self-hosting). Depends only on Disruptor for high-performance message passing.
+- **FsShelter.Multilang** — Storm cluster integration: task execution via the [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol, Nimbus client for topology submission, and JSON/Protobuf serializers. Depends on Protobuf, Thrift, Newtonsoft.Json, and FsPickler.
+
+Use `FsShelter` alone for [self-hosted](self-hosting.html) topologies. Add `FsShelter.Multilang` when deploying to a Storm cluster.
+
+With the Multilang package, the library provides a "batteries included" experience:
 
 - Bundle and submit a topology for execution without needing JDK or Storm CLI
-- Includes Storm-side serializer
+- Includes Storm-side serializer ([ProtoShell](https://github.com/FsStorm/protoshell))
 - Kill a running topology
 - Generate a topology graph as part of your build
-
-The topology and the components can be implemented in a single EXE project and are executed by Storm via its [multilang](https://storm.apache.org/documentation/Multilang-protocol.html) protocol as separate processes - one for each task/instance.
-The corresponding [ProtoShell](https://github.com/FsStorm/protoshell) Storm-side library facilitates Protobuf serialization, which improves the throughput of FsShelter topologies as compared to default JSON.
-See samples to learn how to bundle the assemblies and a serializer for upload to Storm.
 
 Bring your own, if you need it:
 
@@ -29,19 +32,6 @@ Bring your own, if you need it:
 - logging
 - custom serializer
 
-
-Migrating to FsShelter 2.0
------------------------
-The largest change in this release is the switch to synchronous signatures for spout and bolt functions.
-Primarily, this was driven by the need to reduce the footprint of self-hosting, but also by a realization that things like back-pressure are much easier to implement correctly using synchronous primitives. Asynchrony can be easily added where needed at the topology level.
-Other breaking changes are:
-
-- Statically-typed configuration (for a small subset of properties we use all the time) 
-- Modularized `Bolt` and `Spout` DSL
-- Activate/Deactivate implementation for spouts
-
-Activation is now handled implicitly - the dispatcher will wait for an activation command before constructing the arguments for the spout function.
-Deactivation is now an explicit argument into the spout DSL - use `ignore` if you don't have any deactivation semantics to implement.
 
 
 FsShelter topology schema
@@ -196,6 +186,8 @@ Samples & documentation
 
  * [Guaranteed](guaranteed.html) contains a "reliable" spout example - emitted tuples have a unique ID and require ack.
 
+ * [Self-hosting](self-hosting.html) describes the in-process runtime that lets you run topologies without Storm.
+
  * [API Reference](reference/index.html) contains automatically generated documentation for public types, modules
    and functions in the library. 
  
@@ -206,7 +198,7 @@ Getting FsShelter
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The FsShelter library can be installed from <a href="https://nuget.org/packages/FsShelter">NuGet</a> or <a href="https://www.myget.org/F/FsShelter/">MyGet</a>:
+      The core library (topology DSL, self-hosting runtime) can be installed from <a href="https://nuget.org/packages/FsShelter">NuGet</a>:
       <pre>PM> Install-Package FsShelter</pre>
     </div>
   </div>
@@ -217,8 +209,8 @@ Getting FsShelter
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small">
-      The library can also be tried out quickly as a Docker container, downloaded from <a href="https://hub.docker.com/r/FsStorm/fsshelter-samples/">docker hub</a>:
-      <pre>$ docker run --name fsshelter-samples -d -p 8080:8080 FsStorm/fsshelter-samples</pre>
+      For Storm cluster deployment, add the multilang package from <a href="https://nuget.org/packages/FsShelter.Multilang">NuGet</a>:
+      <pre>PM> Install-Package FsShelter.Multilang</pre>
     </div>
   </div>
   <div class="span1"></div>

@@ -48,14 +48,14 @@ let ``Shuffle grouping distributes across instances`` () =
     let stop = Hosting.runWith (fun _ _ -> ignore) topo
 
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !acked < 100L && DateTime.UtcNow < deadline do
+    while acked.Value < 100L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
     // Verify tuples were distributed - at least 2 distinct instances got work
-    test <@ !acked >= 100L @>
+    test <@ acked.Value >= 100L @>
     test <@ instanceCounts.Count >= 1 @>  // Disruptor may use fewer threads; just verify it ran
 
 // ---------------------------------------------------------------------------
@@ -109,13 +109,13 @@ let ``Fields grouping routes same key to same instance`` () =
     let stop = Hosting.runWith (fun _ _ -> ignore) topo
 
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !acked < 200L && DateTime.UtcNow < deadline do
+    while acked.Value < 200L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
-    test <@ !acked >= 50L @>
+    test <@ acked.Value >= 50L @>
 
     // For each key, verify all tuples went to the same thread (= same bolt instance)
     for KeyValue(key, bag) in keyToThread do
@@ -165,7 +165,7 @@ let ``All grouping broadcasts to all instances`` () =
     Thread.Sleep 500
 
     // At least one instance should have received the tuple
-    let totalReceived = receivedByInstance.Values |> Seq.sumBy (fun r -> !r)
+    let totalReceived = receivedByInstance.Values |> Seq.sumBy (fun r -> r.Value)
     test <@ totalReceived >= 1L @>
 
 // ---------------------------------------------------------------------------
@@ -237,7 +237,7 @@ let ``Anchored emit preserves tuple lineage`` () =
 
     let numbers (t: AckerTests.Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let anchoredPassthrough (input: Schema, emit: Schema -> unit) =
         match input with
@@ -267,12 +267,12 @@ let ``Anchored emit preserves tuple lineage`` () =
     let stop = Hosting.runWith (fun _ _ -> ignore) topo
 
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !tracker.acked < 10L && DateTime.UtcNow < deadline do
+    while tracker.acked.Value < 10L && DateTime.UtcNow < deadline do
         Thread.Sleep 50
 
     stop()
     Thread.Sleep 500
 
     // if anchoring works, acker will complete the tree and spout gets acks
-    test <@ !tracker.acked >= 10L @>
-    test <@ !tracker.nacked = 0L @>
+    test <@ tracker.acked.Value >= 10L @>
+    test <@ tracker.nacked.Value = 0L @>

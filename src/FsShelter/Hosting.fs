@@ -1,7 +1,6 @@
 module FsShelter.Hosting
 
 open FsShelter.Topology
-open FsShelter.Task
 open FsShelter.Multilang
 open Disruptor.Dsl
 open System.Threading

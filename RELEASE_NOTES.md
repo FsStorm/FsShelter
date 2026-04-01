@@ -1,6 +1,7 @@
 #### 5.0.0 - Mar 2026
+* split Multilang support into a separate package
 * .net 10 and Disruptor 6
-* self-hosting: executor abstraction and switch to standard .net telemetry
+* self-hosting: executor abstraction and standard .net telemetry
 
 #### 4.1.2 - Sep 2023
 * update Google.Protobuf

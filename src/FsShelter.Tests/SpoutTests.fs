@@ -37,7 +37,7 @@ let ``Spout respects maxPending backpressure`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let slowBolt (input: Schema, emit: Schema -> unit) =
         Thread.Sleep 100
@@ -66,12 +66,12 @@ let ``Spout respects maxPending backpressure`` () =
     Thread.Sleep 3000
 
     // sample in-flight: should be bounded by maxPending (+ small margin for non-atomic check)
-    let inFlight = !tracker.emitted - !tracker.acked
+    let inFlight = tracker.emitted.Value - tracker.acked.Value
     stop()
     Thread.Sleep 500
 
     // with maxPending=2, in-flight should be bounded — allow margin for timing
-    test <@ !tracker.acked > 0L @>
+    test <@ tracker.acked.Value > 0L @>
     test <@ inFlight <= int64 (maxPending + 5) @>
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ let ``Spout nack callback fires on failure`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let failingBolt (input: Schema, _: Schema -> unit) =
         failwith "bolt failure for nack test"
@@ -107,13 +107,13 @@ let ``Spout nack callback fires on failure`` () =
     let stop = Hosting.runWith (fun _ _ -> ignore) topo
 
     let deadline = DateTime.UtcNow.AddSeconds 10.
-    while !tracker.nacked < 1L && DateTime.UtcNow < deadline do
+    while tracker.nacked.Value < 1L && DateTime.UtcNow < deadline do
         Thread.Sleep 100
 
     stop()
     Thread.Sleep 500
 
-    test <@ !tracker.nacked >= 1L @>
+    test <@ tracker.nacked.Value >= 1L @>
     test <@ tracker.nackIds.Count >= 1 @>
 
 // ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ let ``Spout handles activate-deactivate cycle via topology restart`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string !t.emitted), Original { x = 1 })
+        Some(Named(string t.emitted.Value), Original { x = 1 })
 
     let sinkBolt (input: Schema, _: Schema -> unit) = ()
 
@@ -147,7 +147,7 @@ let ``Spout handles activate-deactivate cycle via topology restart`` () =
     // start, let it run, stop, check state progressed, start again
     let stop1 = Hosting.runWith (fun _ _ -> ignore) topo
     Thread.Sleep 2000
-    let countAfterFirst = !tracker.emitted
+    let countAfterFirst = tracker.emitted.Value
     stop1()
     Thread.Sleep 500
 
@@ -156,7 +156,7 @@ let ``Spout handles activate-deactivate cycle via topology restart`` () =
     // second run resumes
     let stop2 = Hosting.runWith (fun _ _ -> ignore) topo
     Thread.Sleep 2000
-    let countAfterSecond = !tracker.emitted
+    let countAfterSecond = tracker.emitted.Value
     stop2()
     Thread.Sleep 500
 
@@ -199,7 +199,7 @@ let ``Idle spout does not leak resources`` () =
     let memAfter = GC.GetTotalMemory(true)
 
     // spout should have been called many times but produced nothing
-    test <@ !emitAttempts > 0L @>
+    test <@ emitAttempts.Value > 0L @>
     // memory should not grow significantly (< 10MB for 5 seconds of idle)
     let growth = (memAfter - memBefore) / 1024L / 1024L
     test <@ growth < 10L @>
