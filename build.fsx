@@ -93,10 +93,9 @@ Target.create "Package" (fun _ ->
 
 Target.create "PublishNuget" (fun _ ->
     let exec dir = DotNet.exec (fun a -> a.WithCommon (fun c -> { c with WorkingDirectory=dir }))
-    let result = exec "src/FsShelter" "nuget" (sprintf "push bin/Release/FsShelter.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
-    if (not result.OK) then failwithf "%A" result.Errors
-    let result = exec "src/FsShelter.Multilang" "nuget" (sprintf "push bin/Release/FsShelter.Multilang.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
-    if (not result.OK) then failwithf "%A" result.Errors
+    [exec "src/FsShelter" "nuget" (sprintf "push bin/Release/FsShelter.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
+     exec "src/FsShelter.Multilang" "nuget" (sprintf "push bin/Release/FsShelter.Multilang.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))]
+    |> List.iter (fun result -> if (not result.OK) then failwithf "%A" result.Errors)
 )
 
 
