@@ -767,10 +767,11 @@ Bolt emit (unanchored)
 Identity
 Returns plain tuple IDs (no acker interaction)
 
-The ==> operator in the DSL creates anchored streams; --> creates streams that continue existing anchors:
-yield s1 ==> b1 |> Shuffle.on Original   // New anchor tree
-yield b1 --> b2 |> Shuffle.on Odd         // Continue anchor
-yield b1 --> b3 |> Shuffle.on Even        // Continue anchor
+The ==> operator in the DSL creates anchored streams where emitted tuples are tracked in the anchor tree.
+The --> operator creates unanchored streams where emitted tuples are not tracked:
+yield s1 ==> b1 |> Shuffle.on Original   // Anchored: b1's emits are tracked
+yield b1 ==> b2 |> Shuffle.on Odd        // Anchored: b2's emits are tracked
+yield b1 --> b3 |> Shuffle.on Even       // Unanchored: b3's emits are not tracked
 
 Complete routing example
 For the Guaranteed sample topology:
@@ -2435,24 +2436,24 @@ Components
 
 InCommand<'t> 
  Storm messages 
-InCommand<'t>.IsAck 
-IsAck 
-InCommand<'t>.IsNack 
-IsNack 
-InCommand<'t>.IsDeactivate 
-IsDeactivate 
-InCommand<'t>.IsTaskIds 
-IsTaskIds 
 InCommand<'t>.IsHeartbeat 
 IsHeartbeat 
-InCommand<'t>.IsHandshake 
-IsHandshake 
-InCommand<'t>.IsTuple 
-IsTuple 
 InCommand<'t>.IsNext 
 IsNext 
+InCommand<'t>.IsNack 
+IsNack 
+InCommand<'t>.IsTuple 
+IsTuple 
+InCommand<'t>.IsDeactivate 
+IsDeactivate 
 InCommand<'t>.IsActivate 
 IsActivate 
+InCommand<'t>.IsHandshake 
+IsHandshake 
+InCommand<'t>.IsAck 
+IsAck 
+InCommand<'t>.IsTaskIds 
+IsTaskIds 
 InCommand<'t>.Handshake 
 Handshake 
 InCommand<'t>.Ack 
@@ -2472,50 +2473,50 @@ Activate
 InCommand<'t>.Deactivate 
 Deactivate
 
-### [InCommand<'t>.IsAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsAck)
-
-InCommand<'t>.IsAck 
-IsAck
-
-### [InCommand<'t>.IsNack](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNack)
-
-InCommand<'t>.IsNack 
-IsNack
-
-### [InCommand<'t>.IsDeactivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsDeactivate)
-
-InCommand<'t>.IsDeactivate 
-IsDeactivate
-
-### [InCommand<'t>.IsTaskIds](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTaskIds)
-
-InCommand<'t>.IsTaskIds 
-IsTaskIds
-
 ### [InCommand<'t>.IsHeartbeat](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHeartbeat)
 
 InCommand<'t>.IsHeartbeat 
 IsHeartbeat
-
-### [InCommand<'t>.IsHandshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHandshake)
-
-InCommand<'t>.IsHandshake 
-IsHandshake
-
-### [InCommand<'t>.IsTuple](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTuple)
-
-InCommand<'t>.IsTuple 
-IsTuple
 
 ### [InCommand<'t>.IsNext](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNext)
 
 InCommand<'t>.IsNext 
 IsNext
 
+### [InCommand<'t>.IsNack](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNack)
+
+InCommand<'t>.IsNack 
+IsNack
+
+### [InCommand<'t>.IsTuple](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTuple)
+
+InCommand<'t>.IsTuple 
+IsTuple
+
+### [InCommand<'t>.IsDeactivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsDeactivate)
+
+InCommand<'t>.IsDeactivate 
+IsDeactivate
+
 ### [InCommand<'t>.IsActivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsActivate)
 
 InCommand<'t>.IsActivate 
 IsActivate
+
+### [InCommand<'t>.IsHandshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHandshake)
+
+InCommand<'t>.IsHandshake 
+IsHandshake
+
+### [InCommand<'t>.IsAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsAck)
+
+InCommand<'t>.IsAck 
+IsAck
+
+### [InCommand<'t>.IsTaskIds](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTaskIds)
+
+InCommand<'t>.IsTaskIds 
+IsTaskIds
 
 ### [InCommand<'t>.Handshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#Handshake)
 
@@ -2568,16 +2569,16 @@ OutCommand<'t>
  Shell messages 
 OutCommand<'t>.IsPid 
 IsPid 
-OutCommand<'t>.IsSync 
-IsSync 
-OutCommand<'t>.IsEmit 
-IsEmit 
-OutCommand<'t>.IsError 
-IsError 
 OutCommand<'t>.IsOk 
 IsOk 
+OutCommand<'t>.IsEmit 
+IsEmit 
 OutCommand<'t>.IsLog 
 IsLog 
+OutCommand<'t>.IsError 
+IsError 
+OutCommand<'t>.IsSync 
+IsSync 
 OutCommand<'t>.IsFail 
 IsFail 
 OutCommand<'t>.Pid 
@@ -2600,30 +2601,30 @@ Sync
 OutCommand<'t>.IsPid 
 IsPid
 
-### [OutCommand<'t>.IsSync](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsSync)
+### [OutCommand<'t>.IsOk](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsOk)
 
-OutCommand<'t>.IsSync 
-IsSync
+OutCommand<'t>.IsOk 
+IsOk
 
 ### [OutCommand<'t>.IsEmit](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsEmit)
 
 OutCommand<'t>.IsEmit 
 IsEmit
 
+### [OutCommand<'t>.IsLog](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsLog)
+
+OutCommand<'t>.IsLog 
+IsLog
+
 ### [OutCommand<'t>.IsError](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsError)
 
 OutCommand<'t>.IsError 
 IsError
 
-### [OutCommand<'t>.IsOk](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsOk)
+### [OutCommand<'t>.IsSync](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsSync)
 
-OutCommand<'t>.IsOk 
-IsOk
-
-### [OutCommand<'t>.IsLog](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsLog)
-
-OutCommand<'t>.IsLog 
-IsLog
+OutCommand<'t>.IsSync 
+IsSync
 
 ### [OutCommand<'t>.IsFail](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsFail)
 
@@ -2782,10 +2783,10 @@ Component<'t>
  Storm Componend abstraction 
 Component<'t>.IsJava 
 IsJava 
-Component<'t>.IsFuncRef 
-IsFuncRef 
 Component<'t>.IsShell 
 IsShell 
+Component<'t>.IsFuncRef 
+IsFuncRef 
 Component<'t>.FuncRef 
 FuncRef 
 Component<'t>.Shell 
@@ -2798,15 +2799,15 @@ Java
 Component<'t>.IsJava 
 IsJava
 
-### [Component<'t>.IsFuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsFuncRef)
-
-Component<'t>.IsFuncRef 
-IsFuncRef
-
 ### [Component<'t>.IsShell](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsShell)
 
 Component<'t>.IsShell 
 IsShell
+
+### [Component<'t>.IsFuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsFuncRef)
+
+Component<'t>.IsFuncRef 
+IsFuncRef
 
 ### [Component<'t>.FuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#FuncRef)
 
@@ -2851,14 +2852,14 @@ Dispatcher<'t>
 
 Grouping<'t> 
  Storm stream grouping abstraction 
-Grouping<'t>.IsShuffle 
-IsShuffle 
 Grouping<'t>.IsDirect 
 IsDirect 
-Grouping<'t>.IsFields 
-IsFields 
+Grouping<'t>.IsShuffle 
+IsShuffle 
 Grouping<'t>.IsAll 
 IsAll 
+Grouping<'t>.IsFields 
+IsFields 
 Grouping<'t>.Shuffle 
 Shuffle 
 Grouping<'t>.Fields 
@@ -2868,25 +2869,25 @@ All
 Grouping<'t>.Direct 
 Direct
 
-### [Grouping<'t>.IsShuffle](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsShuffle)
-
-Grouping<'t>.IsShuffle 
-IsShuffle
-
 ### [Grouping<'t>.IsDirect](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsDirect)
 
 Grouping<'t>.IsDirect 
 IsDirect
 
-### [Grouping<'t>.IsFields](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsFields)
+### [Grouping<'t>.IsShuffle](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsShuffle)
 
-Grouping<'t>.IsFields 
-IsFields
+Grouping<'t>.IsShuffle 
+IsShuffle
 
 ### [Grouping<'t>.IsAll](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsAll)
 
 Grouping<'t>.IsAll 
 IsAll
+
+### [Grouping<'t>.IsFields](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsFields)
+
+Grouping<'t>.IsFields 
+IsFields
 
 ### [Grouping<'t>.Shuffle](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#Shuffle)
 
@@ -3190,16 +3191,21 @@ FieldWriter
 
 Conf 
  
+Conf.Values 
+Values 
 Conf.Count 
 Count 
 Conf.IsEmpty 
 IsEmpty 
-Conf.Values 
-Values 
-Conf.Item 
-Item 
 Conf.Keys 
-Keys
+Keys 
+Conf.Item 
+Item
+
+### [Conf.Values](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Values)
+
+Conf.Values 
+Values
 
 ### [Conf.Count](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Count)
 
@@ -3211,51 +3217,46 @@ Count
 Conf.IsEmpty 
 IsEmpty
 
-### [Conf.Values](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Values)
+### [Conf.Keys](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Keys)
 
-Conf.Values 
-Values
+Conf.Keys 
+Keys
 
 ### [Conf.Item](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Item)
 
 Conf.Item 
 Item
 
-### [Conf.Keys](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Keys)
-
-Conf.Keys 
-Keys
-
 ### [ConfOption](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html)
 
 ConfOption 
  Storm configuration options 
-ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
-IsTOPOLOGY_MULTILANG_SERIALIZER 
-ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
-IsTOPOLOGY_MAX_SPOUT_PENDING 
-ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
-IsTOPOLOGY_MAX_TASK_PARALLELISM 
-ConfOption.IsOther 
-IsOther 
 ConfOption.IsTOPOLOGY_DEBUG 
 IsTOPOLOGY_DEBUG 
-ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
-IsTOPOLOGY_ACKER_EXECUTORS 
-ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
-IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
 ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
 IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
-ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
-IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+ConfOption.IsOther 
+IsOther 
 ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
 IsTOPOLOGY_BACKPRESSURE_ENABLE 
+ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
+IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
 ConfOption.IsTOPOLOGY_ACKER_TASKS 
 IsTOPOLOGY_ACKER_TASKS 
+ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
+IsTOPOLOGY_MAX_SPOUT_PENDING 
+ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
+IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
+ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
+IsTOPOLOGY_MULTILANG_SERIALIZER 
+ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
+IsTOPOLOGY_ACKER_EXECUTORS 
+ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
+IsTOPOLOGY_MAX_TASK_PARALLELISM 
+ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
+IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
 ConfOption.TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
 TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
 ConfOption.TOPOLOGY_MESSAGE_TIMEOUT_SECS 
@@ -3283,70 +3284,70 @@ TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS
 ConfOption.Other 
 Other
 
-### [ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE)
-
-ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
-
-### [ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MULTILANG_SERIALIZER)
-
-ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
-IsTOPOLOGY_MULTILANG_SERIALIZER
-
-### [ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_SPOUT_PENDING)
-
-ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
-IsTOPOLOGY_MAX_SPOUT_PENDING
-
-### [ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_TASK_PARALLELISM)
-
-ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
-IsTOPOLOGY_MAX_TASK_PARALLELISM
-
-### [ConfOption.IsOther](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsOther)
-
-ConfOption.IsOther 
-IsOther
-
 ### [ConfOption.IsTOPOLOGY_DEBUG](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_DEBUG)
 
 ConfOption.IsTOPOLOGY_DEBUG 
 IsTOPOLOGY_DEBUG
-
-### [ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MESSAGE_TIMEOUT_SECS)
-
-ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-IsTOPOLOGY_MESSAGE_TIMEOUT_SECS
-
-### [ConfOption.IsTOPOLOGY_ACKER_EXECUTORS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_EXECUTORS)
-
-ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
-IsTOPOLOGY_ACKER_EXECUTORS
-
-### [ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_TICK_TUPLE_FREQ_SECS)
-
-ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
-IsTOPOLOGY_TICK_TUPLE_FREQ_SECS
 
 ### [ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS)
 
 ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
 IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS
 
-### [ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
+### [ConfOption.IsOther](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsOther)
 
-ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
-IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS
+ConfOption.IsOther 
+IsOther
 
 ### [ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_BACKPRESSURE_ENABLE)
 
 ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
 IsTOPOLOGY_BACKPRESSURE_ENABLE
 
+### [ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE)
+
+ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
+IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
+
 ### [ConfOption.IsTOPOLOGY_ACKER_TASKS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_TASKS)
 
 ConfOption.IsTOPOLOGY_ACKER_TASKS 
 IsTOPOLOGY_ACKER_TASKS
+
+### [ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_SPOUT_PENDING)
+
+ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
+IsTOPOLOGY_MAX_SPOUT_PENDING
+
+### [ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_TICK_TUPLE_FREQ_SECS)
+
+ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
+IsTOPOLOGY_TICK_TUPLE_FREQ_SECS
+
+### [ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MULTILANG_SERIALIZER)
+
+ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
+IsTOPOLOGY_MULTILANG_SERIALIZER
+
+### [ConfOption.IsTOPOLOGY_ACKER_EXECUTORS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_EXECUTORS)
+
+ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
+IsTOPOLOGY_ACKER_EXECUTORS
+
+### [ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
+
+ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS
+
+### [ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_TASK_PARALLELISM)
+
+ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
+IsTOPOLOGY_MAX_TASK_PARALLELISM
+
+### [ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MESSAGE_TIMEOUT_SECS)
+
+ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
+IsTOPOLOGY_MESSAGE_TIMEOUT_SECS
 
 ### [ConfOption.TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
 
@@ -3477,10 +3478,10 @@ TupleId
  Tuple id - opaque identifier for tuple tracking. 
 TupleId.IsAnchored 
 IsAnchored 
-TupleId.IsNamed 
-IsNamed 
 TupleId.IsUnanchored 
 IsUnanchored 
+TupleId.IsNamed 
+IsNamed 
 TupleId.Anchored 
 Anchored 
 TupleId.Unanchored 
@@ -3493,15 +3494,15 @@ Named
 TupleId.IsAnchored 
 IsAnchored
 
-### [TupleId.IsNamed](https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html#IsNamed)
-
-TupleId.IsNamed 
-IsNamed
-
 ### [TupleId.IsUnanchored](https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html#IsUnanchored)
 
 TupleId.IsUnanchored 
 IsUnanchored
+
+### [TupleId.IsNamed](https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html#IsNamed)
+
+TupleId.IsNamed 
+IsNamed
 
 ### [TupleId.Anchored](https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html#Anchored)
 
