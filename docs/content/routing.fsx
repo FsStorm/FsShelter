@@ -160,11 +160,12 @@ The routing function receives a `mkIds` parameter that differs based on context:
 | Bolt emit (anchored) | `TupleTree.anchor` | Sends `Anchor` to existing tree, returns `"anchorId:tupleId"` |
 | Bolt emit (unanchored) | Identity | Returns plain tuple IDs (no acker interaction) |
 
-The `==>` operator in the DSL creates anchored streams; `-->` creates streams that continue existing anchors:
+The `==>` operator in the DSL creates anchored streams where emitted tuples are tracked in the anchor tree.
+The `-->` operator creates unanchored streams where emitted tuples are not tracked:
 
-    yield s1 ==> b1 |> Shuffle.on Original   // New anchor tree
-    yield b1 --> b2 |> Shuffle.on Odd         // Continue anchor
-    yield b1 --> b3 |> Shuffle.on Even        // Continue anchor
+    yield s1 ==> b1 |> Shuffle.on Original   // Anchored: b1's emits are tracked
+    yield b1 ==> b2 |> Shuffle.on Odd        // Anchored: b2's emits are tracked
+    yield b1 --> b3 |> Shuffle.on Even       // Unanchored: b3's emits are not tracked
 
 
 Complete routing example

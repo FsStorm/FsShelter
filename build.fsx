@@ -112,6 +112,9 @@ Target.create "GenerateDocs" (fun _ ->
     DotNet.exec id "fsdocs" ("build --strict --eval --clean"
       + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
       + " --properties " + String.Join(" ",fsdocProperties)) |> ignore
+    // GitHub Pages needs a root index.html to serve the landing page
+    File.writeString false ("output" @@ "index.html")
+        """<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=content/index.html"></head><body></body></html>"""
 )
 
 Target.create "WatchDocs" (fun _ ->
@@ -185,7 +188,7 @@ Target.create "GenerateSources" ignore
 let exportGraph (app:string) (arg:string) fileName =
     Shell.Exec(
             "dotnet",
-            ("samples" @@ app @@ "bin" @@ "Release" @@ "net6.0" @@ (sprintf "%s.dll" app)) +
+            ("samples" @@ app @@ "bin" @@ "Release" @@ "net10.0" @@ (sprintf "%s.dll" app)) +
             (sprintf " %s | dot -Tsvg -o samples/%s/obj/%s.svg" arg app fileName),
             ".")
     |> ignore
