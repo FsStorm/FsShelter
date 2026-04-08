@@ -67,7 +67,7 @@ module Bench =
 
     let benchNumbers (world : BenchWorld) =
         Interlocked.Increment &world.count.contents |> ignore
-        Some(Named(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
+        Some(TupleId.ofString(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
 
     let run durationMs maxPending spoutWaitMs boltParallelism boltExecutors =
         let world = { rnd = Random(42); count = ref 0L; acked = ref 0L }
@@ -155,7 +155,7 @@ module BackpressureBench =
 
     let bpNumbers (world : BPWorld) =
         Interlocked.Increment &world.count.contents |> ignore
-        Some(Named(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
+        Some(TupleId.ofString(string world.count.Value), Original { x = world.rnd.Next(0, 100) }) 
 
     /// A split bolt that introduces a fixed delay to simulate slow processing
     let slowSplit (delayMs: int) (input, emit) =
@@ -421,7 +421,7 @@ let ``Spout latency benchmark - random sleep in spout`` () =
         let slowNumbers (w : BackpressureBench.BPWorld) =
             Thread.Sleep(w.rnd.Next(minMs, maxMs))
             Interlocked.Increment &w.count.contents |> ignore
-            Some(Named(string w.count.Value), Original { x = w.rnd.Next(0, 100) })
+            Some(TupleId.ofString(string w.count.Value), Original { x = w.rnd.Next(0, 100) })
 
         let t = topology "slow-spout-bench" {
             let s1 = slowNumbers

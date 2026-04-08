@@ -26,7 +26,7 @@ type ResTracker =
 let mkSimpleTopology (tracker: ResTracker) maxPending timeout =
     let numbers (t: ResTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let t = topology "resource-test" {
         let s1 = numbers
@@ -142,7 +142,7 @@ let ``Tick tuples are delivered to bolts`` () =
     let acked = ref 0L
 
     let numbers (_: unit) =
-        Some(Named(string (Guid.NewGuid())), Original { x = 1 })
+        Some(TupleId.ofString(string (Guid.NewGuid())), Original { x = 1 })
 
     let tickAwareBolt (input: Schema, _: Schema -> unit) =
         match input with
@@ -181,7 +181,7 @@ let ``Minimal topology runs end-to-end`` () =
     let acked = ref 0L
 
     let numbers (_: unit) =
-        Some(Named(string (Guid.NewGuid())), Original { x = 1 })
+        Some(TupleId.ofString(string (Guid.NewGuid())), Original { x = 1 })
 
     let sinkBolt (input: Schema, _: Schema -> unit) = ()
 
@@ -246,7 +246,7 @@ let ``Rapid ack-nack keeps pending counter consistent`` () =
     
     let numbers (t: ResTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let sometimesFails (input: Schema, emit: Schema -> unit) =
         match input with

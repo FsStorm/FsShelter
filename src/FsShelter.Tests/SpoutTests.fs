@@ -37,7 +37,7 @@ let ``Spout respects maxPending backpressure`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let slowBolt (input: Schema, emit: Schema -> unit) =
         Thread.Sleep 100
@@ -84,7 +84,7 @@ let ``Spout nack callback fires on failure`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let failingBolt (input: Schema, _: Schema -> unit) =
         failwith "bolt failure for nack test"
@@ -126,7 +126,7 @@ let ``Spout handles activate-deactivate cycle via topology restart`` () =
 
     let numbers (t: SpoutTracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let sinkBolt (input: Schema, _: Schema -> unit) = ()
 

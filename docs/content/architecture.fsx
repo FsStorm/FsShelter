@@ -150,7 +150,7 @@ stateDiagram-v2
 
 1. **System** — stop timers
 2. **Spouts** — stop generating messages (deactivate)
-3. **Sleep(timeout)** — allow in-flight tuples to drain through the bolt DAG
+3. **Sleep(timeout)** — allow in-flight tuples to drain through the bolt DAG (`SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS`, defaults to `TOPOLOGY_MESSAGE_TIMEOUT_SECS`)
 4. **Bolts** — stop processing (deactivate)
 5. **Ackers** — stop tracking (last, so late acks can still be processed)
 

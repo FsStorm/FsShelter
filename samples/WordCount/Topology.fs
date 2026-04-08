@@ -18,7 +18,7 @@ let sentences source =
 // so that it could be replayed in case of downstream failure
 let reliableSentences source = 
     let sentence = source()
-    Some(Named sentence, Sentence sentence) // we'll just pretend we've generated a unique Id
+    Some(TupleId.ofString sentence, Sentence sentence) // we'll just pretend we've generated a unique Id
 
 // split bolt - consumes sentences and emits words
 let splitIntoWords (input, emit) = 

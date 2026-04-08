@@ -24,7 +24,7 @@ let ``Shuffle grouping distributes across instances`` () =
     let acked = ref 0L
 
     let numbers (_: unit) =
-        Some(Named(string (Guid.NewGuid())), Original { x = 1 })
+        Some(TupleId.ofString(string (Guid.NewGuid())), Original { x = 1 })
 
     let countingBolt (input: Schema, _: Schema -> unit) =
         let tid = Thread.CurrentThread.ManagedThreadId
@@ -72,7 +72,7 @@ let ``Fields grouping routes same key to same instance`` () =
     let numbersWithKeys (_: unit) =
         let x = int (Interlocked.Increment emitted)
         let key = x % 5  // 5 distinct keys
-        Some(Named(string x), Original { x = key })
+        Some(TupleId.ofString(string x), Original { x = key })
 
     let split' (input, emit) =
         match input with
@@ -135,7 +135,7 @@ let ``All grouping broadcasts to all instances`` () =
 
     let oneNumber (_: unit) =
         if not (Interlocked.Exchange(emittedOnce, true)) then
-            Some(Named "1", Original { x = 42 })
+            Some(TupleId.ofString "1", Original { x = 42 })
         else
             None
 
@@ -194,10 +194,10 @@ let ``Auto-ack bolt sends Ok on success`` () =
                     Map.empty
                     out
 
-    dispatch (InCommand.Tuple(Original {x = 1}, Named "tuple-1", "s1", "Original", 0))
+    dispatch (InCommand.Tuple(Original {x = 1}, TupleId.ofString "tuple-1", "s1", "Original", 0))
 
     let oks = outMsgs |> Seq.choose (function OutCommand.Ok id -> Some id | _ -> None) |> Seq.toList
-    test <@ oks = [Named "tuple-1"] @>
+    test <@ oks = [TupleId.ofString "tuple-1"] @>
 
 // ---------------------------------------------------------------------------
 // Storm BoltTest: testBoltFailOnException
@@ -221,10 +221,10 @@ let ``Auto-ack bolt sends Fail on exception`` () =
                     Map.empty
                     out
 
-    dispatch (InCommand.Tuple(Original {x = 1}, Named "tuple-1", "s1", "Original", 0))
+    dispatch (InCommand.Tuple(Original {x = 1}, TupleId.ofString "tuple-1", "s1", "Original", 0))
 
     let fails = outMsgs |> Seq.choose (function OutCommand.Fail id -> Some id | _ -> None) |> Seq.toList
-    test <@ fails = [Named "tuple-1"] @>
+    test <@ fails = [TupleId.ofString "tuple-1"] @>
 
 // ---------------------------------------------------------------------------
 // Storm BoltTest: testBoltAnchoredEmit
@@ -237,7 +237,7 @@ let ``Anchored emit preserves tuple lineage`` () =
 
     let numbers (t: AckerTests.Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let anchoredPassthrough (input: Schema, emit: Schema -> unit) =
         match input with

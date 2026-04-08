@@ -704,9 +704,14 @@ module internal RuntimeTopology =
         rtt.boltTasks |> Map.iter (fun _ (_, (_, halt)) -> haltOnce halt)
         rtt.ackerTasks |> Map.iter (fun _ (_, halt) -> haltOnce halt)
 
+let private shutdownTimeout (conf:Conf) =
+    conf
+    |> Conf.option SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS
+    |> Option.defaultWith (fun () -> conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS)
+
 let runNoRestart (startLog:int->Log) (topology:Topology<'t>) =
     let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
-    let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
+    let timeout = shutdownTimeout topology.Conf
     let exit (exn: exn) =
         log LogLevel.Error (fun _ -> sprintf "Unhandled exception: {%A}" exn)
         System.Environment.Exit 1
@@ -723,7 +728,7 @@ let runNoRestart (startLog:int->Log) (topology:Topology<'t>) =
 let runWith (startLog:int->Log) (topology:Topology<'t>) =
     let log = System.Diagnostics.Process.GetCurrentProcess().Id |> startLog 
 
-    let timeout = topology.Conf |> Conf.optionOrDefault TOPOLOGY_MESSAGE_TIMEOUT_SECS
+    let timeout = shutdownTimeout topology.Conf
     let maxRestarts = 5
     let sync = obj()
     let mutable rtt : RuntimeTopology<'t> option = None

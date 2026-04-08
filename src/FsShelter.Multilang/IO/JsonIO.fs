@@ -31,14 +31,14 @@ let private toEmit streamRW t (tid:TupleId option,anchors:TupleId list,stream:st
         if not (List.isEmpty anchors) then
             w.WritePropertyName("anchors")
             w.WriteStartArray()
-            anchors |> List.iter (fun a -> w.WriteValue(string a))
+            anchors |> List.iter (fun a -> w.WriteValue(TupleId.toString a))
             w.WriteEndArray()
 
     let writeId (w:JsonTextWriter) =
         match tid with
         | Some tid -> 
             w.WritePropertyName("id")
-            w.WriteValue(string tid)
+            w.WriteValue(TupleId.toString tid)
         | _ -> ()
 
     let writeTask (w:JsonTextWriter) =
@@ -117,8 +117,8 @@ let private (|Control|_|) (o:JObject) =
     | true, Some p ->
         match p.ToObject() with
         | "next" -> Some (Next)
-        | "ack" -> Some (Ack (Named (o.["id"].ToObject())))
-        | "fail" -> Some (Nack (Named (o.["id"].ToObject())))
+        | "ack" -> Some (Ack (TupleId.ofString (o.["id"].ToObject())))
+        | "fail" -> Some (Nack (TupleId.ofString (o.["id"].ToObject())))
         | "activate" -> Some(Activate)
         | "deactivate" -> Some(Deactivate)
         | _ -> None
@@ -133,7 +133,7 @@ let private (|Stream|_|) findConstructor (o:JObject) =
              let xs = o.["tuple"].Children().GetEnumerator()
              let constr = findConstructor streamId <| fun t -> xs.MoveNext() |> ignore; xs.Current.ToObject(t)
              let comp = if isNull o.["comp"] then "" else o.["comp"].ToObject()
-             Some (InCommand.Tuple(constr(), Named (o.["id"].ToObject()), comp, streamId, o.["task"].ToObject()))
+             Some (InCommand.Tuple(constr(), TupleId.ofString (o.["id"].ToObject()), comp, streamId, o.["task"].ToObject()))
     | _ -> None
 
 let private toCommand (findConstructor:string->FieldReader->unit->'t) str : InCommand<'t> =
@@ -159,8 +159,8 @@ let startWith (stdin:TextReader,stdout:TextWriter) syncOut (log:Log) :Topology.I
         match cmd with
         | Sync -> """{"command":"sync"}"""
         | Pid pid -> sprintf """{"pid":%d}""" pid
-        | Fail tid -> sprintf """{"command":"fail","id":"%s"}""" (string tid)
-        | Ok tid -> sprintf """{"command":"ack","id":"%s"}""" (string tid)
+        | Fail tid -> sprintf """{"command":"fail","id":"%s"}""" (TupleId.toString tid)
+        | Ok tid -> sprintf """{"command":"ack","id":"%s"}""" (TupleId.toString tid)
         | Log (msg,lvl) -> toLog msg (int lvl)
         | Error (msg,ex) -> toLog (sprintf "%s: %s" msg (Exception.toString ex)) (int LogLevel.Error)
         | Emit (t,tid,anchors,stream, task, needTaskIds) -> toEmit streamRW t (tid, anchors, stream, task, needTaskIds)

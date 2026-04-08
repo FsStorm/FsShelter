@@ -3,15 +3,19 @@ namespace FsShelter
 /// Tuple id - opaque identifier for tuple tracking.
 [<Struct>]
 type TupleId =
+    internal
     | Anchored of anchor: int64 * local: int64
     | Unanchored of id: int64
-    | Named of name: string
+    | External of name: string
 
-    override this.ToString() =
-        match this with
-        | Named s -> s
+module TupleId =
+    let toString (tid: TupleId) =
+        match tid with
+        | External s -> s
         | Anchored(a, l) -> sprintf "%d:%d" a l
         | Unanchored l -> string l
+
+    let ofString (name: string) = External name
 
 /// Storm log levels
 type LogLevel = 
