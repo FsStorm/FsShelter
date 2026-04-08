@@ -1,6 +1,11 @@
+#### 5.1.0 - Apr 2026
+* Breaking: hide TupleId as internal
+* introduce SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS that defaults to TOPOLOGY_MESSAGE_TIMEOUT_SECS
+
 #### 5.0.0 - Mar 2026
 * split Multilang support into a separate package
 * .net 10 and Disruptor 6
+* Timeout setting now affects the tuple expiry
 * self-hosting: executor abstraction and standard .net telemetry
 
 #### 4.1.2 - Sep 2023

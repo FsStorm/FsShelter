@@ -23,7 +23,7 @@ module Topologies =
         //    return None
         //else 
             //return Some(string x, Original { x = world.rnd.Next(0, 100) }) 
-        Some(Named(string x), Original { x = world.rnd.Next(0, 100) }) 
+        Some(TupleId.ofString(string x), Original { x = world.rnd.Next(0, 100) }) 
     
     let printBolt (log,t) =
         match t with 
@@ -163,7 +163,7 @@ let ``No emits``() =
 [<Category("interactive")>]
 let ``Long-running bolt``() = 
      let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
-     let mutable t = Some (Named "", Original {x = 1})  
+     let mutable t = Some (TupleId.ofString "", Original {x = 1})  
      let one () : (TupleId*Schema) option =
            let ret = t
            t <- None

@@ -29,7 +29,7 @@ type World =
 
 /// numbers spout - produces messages
 let numbers (world : World) =
-    Some(Named(string(Threading.Interlocked.Increment &world.count.contents)), Original { x = world.rnd.Next(0, 100) }) 
+    Some(TupleId.ofString(string(Threading.Interlocked.Increment &world.count.contents)), Original { x = world.rnd.Next(0, 100) }) 
 
 /// split bolt - consumes and emits messages
 let split (input,emit) =

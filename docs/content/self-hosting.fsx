@@ -150,7 +150,8 @@ Configuration
 | `TOPOLOGY_ACKER_TASKS` | 4 | Number of acker task instances (logical units with independent state) |
 | `TOPOLOGY_ACKER_EXECUTORS` | 2 | Number of acker executor threads (tasks are distributed round-robin) |
 | `TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE` | 256 | Base Disruptor ring buffer size (scaled by tasks per executor) |
-| `TOPOLOGY_MESSAGE_TIMEOUT_SECS` | 30 | Timeout for tuple completion; controls acker bucket rotation interval and drain window during shutdown |
+| `TOPOLOGY_MESSAGE_TIMEOUT_SECS` | 30 | Timeout for tuple completion; controls acker bucket rotation interval |
+| `SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS` | = `TOPOLOGY_MESSAGE_TIMEOUT_SECS` | Drain window during shutdown (time between stopping spouts and stopping bolts) |
 | `TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS` | 100 | Spout executor timeout: how often the spout wakes to poll for new tuples when idle |
 | `TOPOLOGY_DEBUG` | false | Enable trace-level logging with timing |
 | `TOPOLOGY_TICK_TUPLE_FREQ_SECS` | (none) | Per-bolt tick tuple interval in seconds |
@@ -198,13 +199,14 @@ The ring buffer must also be large enough to hold `TOPOLOGY_MAX_SPOUT_PENDING` i
 
 **Message timeout and shutdown:**
 
-`TOPOLOGY_MESSAGE_TIMEOUT_SECS` serves three roles:
+`TOPOLOGY_MESSAGE_TIMEOUT_SECS` serves two roles:
 
 1. **Acker bucket rotation** — tuples older than this are expired
-2. **Shutdown drain window** — the system sleeps this long between stopping spouts and stopping bolts
-3. **Restart backoff ceiling** — indirectly affects how long restarts take
+2. **Restart backoff ceiling** — indirectly affects how long restarts take
 
-Lower values speed up shutdown and failure detection, but risk false-expiring tuples that are merely slow to process.
+`SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS` controls the **shutdown drain window** — the sleep between stopping spouts and stopping bolts. It defaults to `TOPOLOGY_MESSAGE_TIMEOUT_SECS` when not set, so existing configurations behave identically. Set it independently when you need a long message timeout (for slow processing) but a fast shutdown.
+
+Lower `TOPOLOGY_MESSAGE_TIMEOUT_SECS` speeds up failure detection but risks false-expiring tuples that are merely slow to process.
 
 **Acker capacity:**
 
@@ -220,6 +222,7 @@ Acker tasks are stateless relative to each other (each tracks a disjoint set of 
 | Reduce thread count | Set `withExecutors` lower than `withParallelism` (share threads) |
 | Handle slow consumers | Increase `TOPOLOGY_MAX_SPOUT_PENDING` and `TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE` proportionally |
 | Faster failure detection | Lower `TOPOLOGY_MESSAGE_TIMEOUT_SECS` (but ensure it exceeds your slowest bolt processing time) |
+| Faster shutdown | Set `SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS` independently of message timeout |
 | Reduce idle CPU | Increase `TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS` (default 100ms is usually fine) |
 | Handle high acker load | Increase `TOPOLOGY_ACKER_TASKS` and/or `TOPOLOGY_ACKER_EXECUTORS` |
 

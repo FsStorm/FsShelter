@@ -30,7 +30,7 @@ type Tracker =
 let mkTrackedTopology (tracker: Tracker) maxPending timeout =
     let numbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let t = topology "acker-test" {
         let s1 = numbers
@@ -107,7 +107,7 @@ let ``Acker nacks on bolt failure`` () =
 
     let failNumbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     let failingBolt (input: Schema, emit: Schema -> unit) =
         Interlocked.Increment failCount |> ignore
@@ -157,7 +157,7 @@ let ``Acker expires timed-out tuples`` () =
         if not emittedOnce.Value then
             emittedOnce := true
             Interlocked.Increment &t.emitted.contents |> ignore
-            Some(Named(string t.emitted.Value), Original { x = 42 })
+            Some(TupleId.ofString(string t.emitted.Value), Original { x = 42 })
         else
             None
 
@@ -210,7 +210,7 @@ let ``Acker capacity overflow nacks tuples`` () =
 
     let fastNumbers (t: Tracker) =
         Interlocked.Increment &t.emitted.contents |> ignore
-        Some(Named(string t.emitted.Value), Original { x = 1 })
+        Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
 
     // bot that never acks - will cause acker inFlight to grow
     let blackHole (input: Schema, _: Schema -> unit) = ()

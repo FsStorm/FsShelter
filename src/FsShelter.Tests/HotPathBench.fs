@@ -76,7 +76,7 @@ let ``Hot path component benchmarks`` () =
     // TupleTree.track: ID generation + Track to acker + returns closure
     let nextId = TupleTree.mkIdGenerator()
     measure "TupleTree.track" iterations (fun () ->
-        let mkIds = TupleTree.track nextId ackers 0 () (Some (Named "src"))
+        let mkIds = TupleTree.track nextId ackers 0 () (Some (TupleId.ofString "src"))
         mkIds() |> ignore)
 
     // TupleTree.anchor: re-anchor from parent tuple

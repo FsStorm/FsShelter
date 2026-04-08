@@ -14,6 +14,7 @@ type ConfOption =
     | TOPOLOGY_DEBUG of bool
     | TOPOLOGY_ACKER_TASKS of int32
     | TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS of int32
+    | SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS of int32
     | Other of string * obj
     
 module ConfOption =
@@ -31,6 +32,7 @@ module ConfOption =
         | TOPOLOGY_DEBUG v -> "topology.debug", box v
         | TOPOLOGY_ACKER_TASKS v -> "topology.acker.tasks", box v
         | TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS v -> "topology.sleep.spout.wait.strategy.time.ms", box v
+        | SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS v -> "supervisor.worker.shutdown.sleep.secs", box v
         | Other (k,v) -> k,v
 
 type Conf = Map<string,obj>

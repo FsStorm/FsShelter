@@ -51,7 +51,7 @@ let source =
                 let! cmd = inbox.Receive()
                 return! loop <| match cmd, nacked with
                                 | Get rc, [] ->
-                                    let tupleId,number = Named(string(nextId())), rnd.Next(0, 100)
+                                    let tupleId,number = TupleId.ofString(string(nextId())), rnd.Next(0, 100)
                                     pending.Add(tupleId,number)
                                     rc.Reply(tupleId,number)
                                     []
