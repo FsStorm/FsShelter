@@ -38,6 +38,10 @@ let gitRaw = Environment.environVarOrDefault "gitRaw" "https://raw.github.com/"+
 // Read additional information from the release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
+module ProcessResult =
+    let assertSuccess (r: ProcessResult) = 
+        if( not r.OK ) then failwithf "Error while executing process: %A" r
+
 Target.create "Clean" (fun _ ->
     !! "./**/bin"
     ++ "./**/obj"
@@ -95,7 +99,7 @@ Target.create "PublishNuget" (fun _ ->
     let exec dir = DotNet.exec (fun a -> a.WithCommon (fun c -> { c with WorkingDirectory=dir }))
     [exec "src/FsShelter" "nuget" (sprintf "push bin/Release/FsShelter.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))
      exec "src/FsShelter.Multilang" "nuget" (sprintf "push bin/Release/FsShelter.Multilang.%s.nupkg -s nuget.org -k %s" release.NugetVersion (Environment.environVar "nugetkey"))]
-    |> List.iter (fun result -> if (not result.OK) then failwithf "%A" result.Errors)
+    |> List.iter ProcessResult.assertSuccess
 )
 
 
@@ -111,7 +115,8 @@ Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "fsdocs" ("build --strict --eval --clean"
       + " --projects src/FsShelter/FsShelter.fsproj src/FsShelter.Multilang/FsShelter.Multilang.fsproj" 
-      + " --properties " + String.Join(" ",fsdocProperties)) |> ignore
+      + " --properties " + String.Join(" ",fsdocProperties))
+    |> ProcessResult.assertSuccess
     // GitHub Pages needs a root index.html to serve the landing page
     File.writeString false ("output" @@ "index.html")
         """<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=content/index.html"></head><body></body></html>"""
