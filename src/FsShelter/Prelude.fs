@@ -8,12 +8,14 @@ type TupleId =
     | Unanchored of id: int64
     | External of name: string
 
-module TupleId =
-    let toString (tid: TupleId) =
-        match tid with
+    override this.ToString() =
+        match this with
         | External s -> s
         | Anchored(a, l) -> sprintf "%d:%d" a l
         | Unanchored l -> string l
+
+module TupleId =
+    let toString (tid: TupleId) = tid.ToString()
 
     let ofString (name: string) = External name
 

@@ -1,5 +1,5 @@
-#### 5.1.0 - Apr 2026
-* Breaking: hide TupleId as internal
+#### 5.1.1 - Apr 2026
+* Breaking: hide TupleId cases as internal, offer toString/ofString for source implementors
 * introduce SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS that defaults to TOPOLOGY_MESSAGE_TIMEOUT_SECS
 
 #### 5.0.0 - Mar 2026
