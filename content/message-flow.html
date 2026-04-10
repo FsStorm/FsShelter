@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://FsStorm.github.io/FsShelter/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Eugene Tolmachev" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FsShelter">
+    <meta property="og:title" content="message-flow" />
+    <meta property="og:url" content="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://FsStorm.github.io/FsShelter/">
+    <meta name="twitter:title" content="message-flow">
+    
+    <title>message-flow | FsShelter</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/files/img/logo.png" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+                    Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://FsStorm.github.io/FsShelter/">
+            <img alt="Logo" src="https://FsStorm.github.io/FsShelter/files/img/logo.png">
+            <strong>FsShelter</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/FsStorm/FsShelter.git/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+            Repository</a></li>
+        <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h2><a name="Message-flow" class="anchor" href="#Message-flow">Message flow</a></h2>
+<p>End-to-end message processing scenarios in the FsShelter self-hosting runtime. Each scenario includes a processing graph showing the exact flow of messages between components.</p>
+<h2><a name="Protocol-types" class="anchor" href="#Protocol-types">Protocol types</a></h2>
+<p>Messages flowing between components use Storm's multilang protocol types:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Inbound messages to spouts/bolts</span>
+<span class="k">type</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="rt">InCommand</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">t</span><span class="pn">&gt;</span> <span class="o">=</span>
+    <span class="pn">|</span> <span class="uc">Activate</span> <span class="pn">|</span> <span class="uc">Deactivate</span>
+    <span class="pn">|</span> <span class="uc">Next</span>                                          <span class="c">// Spout: request next tuple</span>
+    <span class="pn">|</span> <span class="uc">Ack</span> <span class="k">of</span> <span class="id">TupleId</span> <span class="pn">|</span> <span class="uc">Nack</span> <span class="k">of</span> <span class="id">TupleId</span>              <span class="c">// Spout: acker feedback</span>
+    <span class="pn">|</span> <span class="uc">Tuple</span> <span class="k">of</span> <span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="3" class="id">t</span> <span class="pn">*</span> <span class="id">TupleId</span> <span class="pn">*</span> <span class="id">ComponentId</span> <span class="pn">*</span> <span class="id">StreamId</span> <span class="pn">*</span> <span class="id">TaskId</span>  <span class="c">// Bolt: incoming tuple</span>
+    <span class="pn">|</span> <span class="uc">Heartbeat</span>
+
+<span class="c">// Outbound messages from spouts/bolts</span>
+<span class="k">type</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="4" class="rt">OutCommand</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="5" class="id">t</span><span class="pn">&gt;</span> <span class="o">=</span>
+    <span class="pn">|</span> <span class="uc">Emit</span> <span class="k">of</span> <span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="6" class="id">t</span> <span class="pn">*</span> <span class="id">TupleId</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="7" class="rt">option</span> <span class="pn">*</span> <span class="id">TupleId</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="8" class="rt">list</span> <span class="pn">*</span> <span class="id">StreamId</span> <span class="pn">*</span> <span class="id">TaskId</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="9" class="rt">option</span> <span class="pn">*</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="10" class="vt">bool</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="11" class="rt">option</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="12" class="uc">Ok</span> <span class="k">of</span> <span class="id">TupleId</span> <span class="pn">|</span> <span class="uc">Fail</span> <span class="k">of</span> <span class="id">TupleId</span>               <span class="c">// Bolt: ack/nack tuple</span>
+    <span class="pn">|</span> <span class="uc">Log</span> <span class="k">of</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="13" class="rt">string</span> <span class="pn">*</span> <span class="id">LogLevel</span> <span class="pn">|</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="14" class="uc">Error</span> <span class="k">of</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="15" class="rt">string</span> <span class="pn">*</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="16" class="rt">exn</span>
+    <span class="pn">|</span> <span class="uc">Sync</span>
+</code></pre>
+<p>Within the hosting runtime, these are wrapped in <code>TaskMsg</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="17" class="rt">TaskMsg</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="18" class="id">t</span><span class="pn">,</span> <span class="ta">&#39;</span><span class="id">msg</span><span class="pn">&gt;</span> <span class="o">=</span> <span class="uc">Start</span> <span class="k">of</span> <span class="id">RuntimeTopology</span><span class="pn">&lt;</span><span class="id">&#39;</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="19" class="id">t</span><span class="pn">&gt;</span> <span class="pn">|</span> <span class="uc">Stop</span> <span class="pn">|</span> <span class="uc">Tick</span> <span class="pn">|</span> <span class="uc">Other</span> <span class="k">of</span> <span class="ta">&#39;</span><span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="20" class="id">msg</span>
+</code></pre>
+<h2><a name="Dispatch-functions" class="anchor" href="#Dispatch-functions">Dispatch functions</a></h2>
+<p>The dispatch layer (<code>Dispatch.fs</code>) converts protocol messages into component-specific behavior:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Function</p></th>
+<th><p>Used By</p></th>
+<th><p>Ack Behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>reliableSpout</code></p></td>
+<td><p>Spouts with tuple IDs</p></td>
+<td><p>Emits with <code>Some tupleId</code>; handles <code>Ack</code>/<code>Nack</code> callbacks</p></td>
+</tr>
+<tr class="even">
+<td><p><code>unreliableSpout</code></p></td>
+<td><p>Fire-and-forget spouts</p></td>
+<td><p>Emits with <code>None</code>; ignores <code>Ack</code>/<code>Nack</code></p></td>
+</tr>
+<tr class="odd">
+<td><p><code>autoAckBolt</code></p></td>
+<td><p>Standard bolts</p></td>
+<td><p>Sends <code>Ok id</code> after successful processing; <code>Fail id</code> on exception</p></td>
+</tr>
+<tr class="even">
+<td><p><code>autoNackBolt</code></p></td>
+<td><p>Terminating bolts</p></td>
+<td><p>Always sends <code>Fail id</code> (used for sinks that don't continue the DAG)</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2><a name="Scenario-A-Unreliable-spout-pipeline" class="anchor" href="#Scenario-A-Unreliable-spout-pipeline">Scenario A: Unreliable spout pipeline</a></h2>
+<p>Fire-and-forget message flow with no tuple tracking. The simplest scenario.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant SP as Spout
+    participant RT as Router
+    participant B1 as Bolt
+
+    Note over SP: Activated, pending &lt; maxPending
+    SP-&gt;&gt;SP: Next
+    SP-&gt;&gt;SP: unreliableSpout.next() → Some tuple
+    SP-&gt;&gt;RT: Emit(tuple, None, [], stream, None)
+    RT-&gt;&gt;B1: Tuple(tuple, id, comp, stream, taskId)
+    B1-&gt;&gt;B1: consume(args, tuple, emit)
+    B1-&gt;&gt;B1: Ok id (auto-ack, sent to output)
+    Note over B1: Ok goes nowhere meaningful
+</code></pre></td></tr></table>
+<p>Key points:</p>
+<ul>
+<li>No <code>Track</code> message to acker (no source tuple ID)</li>
+<li><code>Ok</code>/<code>Fail</code> from bolts has no effect since tuples aren't anchored</li>
+<li>Spout's pending counter still increments on emit and times out naturally</li>
+<li>Backpressure still applies via <code>maxPending</code></li>
+</ul>
+<h2><a name="Scenario-B-Reliable-tuple-flow-guaranteed-delivery" class="anchor" href="#Scenario-B-Reliable-tuple-flow-guaranteed-delivery">Scenario B: Reliable tuple flow (guaranteed delivery)</a></h2>
+<p>Full round-trip with acker tracking. This is the core guaranteed delivery scenario.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant SP as Spout
+    participant TT as TupleTree
+    participant ACK as Acker
+    participant RT as Router
+    participant B1 as Bolt 1
+    participant B2 as Bolt 2
+
+    Note over SP: Activated, issues Next
+
+    SP-&gt;&gt;SP: reliableSpout.next()
+    SP-&gt;&gt;TT: track(taskId, srcTupleId)
+    TT-&gt;&gt;TT: Generate anchorId (random int64)
+    TT-&gt;&gt;ACK: Track(spoutTaskId, srcTupleId, anchorId)
+    Note over ACK: buckets[current][anchorId] = Pending(srcTupleId, taskId, 0, 0)
+
+    TT--&gt;&gt;SP: mkIds function
+    SP-&gt;&gt;RT: Emit(tuple, srcTupleId, [], stream)
+    RT-&gt;&gt;TT: mkIds()
+    TT-&gt;&gt;ACK: Anchor(anchorId, tupleId1)
+    Note over ACK: XOR: v = 0 ^^^ tupleId1
+    RT-&gt;&gt;B1: Tuple(tuple, "anchorId:tupleId1", ...)
+    SP-&gt;&gt;SP: pending++
+
+    Note over B1: Processing tuple...
+    B1-&gt;&gt;TT: anchor(["anchorId:tupleId1"])
+    B1-&gt;&gt;B1: consume(args, tuple, emit)
+    B1-&gt;&gt;RT: Emit(result, None, ["anchorId:tupleId1"], stream2)
+    RT-&gt;&gt;TT: mkIds()
+    TT-&gt;&gt;ACK: Anchor(anchorId, tupleId2)
+    RT-&gt;&gt;B2: Tuple(result, "anchorId:tupleId2", ...)
+
+    B1-&gt;&gt;ACK: Ok(anchorId, tupleId1)
+    Note over ACK: XOR: v = v ^^^ tupleId1
+
+    Note over B2: Processing tuple...
+    B2-&gt;&gt;ACK: Ok(anchorId, tupleId2)
+    Note over ACK: XOR: v = v ^^^ tupleId2 = 0
+
+    ACK-&gt;&gt;SP: Ack(srcTupleId)
+    SP-&gt;&gt;SP: pending--
+    SP-&gt;&gt;SP: reliableSpout.ack(srcTupleId)
+    Note over SP: Issues Next (pending &lt; maxPending)
+</code></pre></td></tr></table>
+<p><strong>XOR accumulation:</strong></p>
+<ol>
+<li>Track: <code>v = 0</code></li>
+<li>Anchor tupleId1: <code>v = 0 ⊕ tupleId1</code></li>
+<li>Anchor tupleId2: <code>v = 0 ⊕ tupleId1 ⊕ tupleId2</code></li>
+<li>Ok tupleId1: <code>v = 0 ⊕ tupleId2</code></li>
+<li>Ok tupleId2: <code>v = 0</code> → <strong>Complete!</strong></li>
+</ol>
+<p>For a detailed walkthrough of the XOR-tree algorithm, see <a href="acker-algorithm.html">Acker algorithm</a>.</p>
+<h2><a name="Scenario-C-Spout-backpressure" class="anchor" href="#Scenario-C-Spout-backpressure">Scenario C: Spout backpressure</a></h2>
+<p>The spout self-throttles based on unacknowledged tuple count.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant SP as Spout
+    participant ACK as Acker
+    participant B as Bolt
+
+    Note over SP: maxPending = 3, pending = 0
+
+    SP-&gt;&gt;SP: Next, emit tuple 1
+    Note over SP: pending = 1
+    SP-&gt;&gt;SP: Next, emit tuple 2
+    Note over SP: pending = 2
+    SP-&gt;&gt;SP: Next, emit tuple 3
+    Note over SP: pending = 3
+
+    rect rgb(255, 230, 230)
+        Note over SP: pending &gt;= maxPending STOP issuing Next
+        SP-&gt;&gt;SP: (timeout, check pending, skip)
+        SP-&gt;&gt;SP: (timeout, check pending, skip)
+    end
+
+    B-&gt;&gt;ACK: Ok(tupleId)
+    ACK-&gt;&gt;SP: Ack(srcTupleId)
+    Note over SP: pending = 2
+
+    rect rgb(230, 255, 230)
+        Note over SP: pending &lt; maxPending RESUME issuing Next
+        SP-&gt;&gt;SP: Next, emit tuple 4
+        Note over SP: pending = 3
+    end
+</code></pre></td></tr></table>
+<p>Implementation detail from <code>mkSpout</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">inline</span> <span class="id">dispatchNext</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">if</span> <span class="id">pending</span> <span class="pn">&lt;</span> <span class="id">maxPending</span> <span class="k">then</span>
+        <span class="id">dispatcher</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="21" class="id">InCommand</span><span class="pn">.</span><span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="22" class="id">Next</span>
+
+<span class="c">// On timeout (ValueNone from Disruptor):</span>
+<span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="id">issueNext</span><span class="pn">(</span><span class="pn">)</span>
+
+<span class="c">// On Ack/Nack:</span>
+<span class="pn">|</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="23" class="id">Other</span> <span class="id">msg</span> <span class="k">-&gt;</span>
+    <span class="k">match</span> <span class="id">msg</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="24" class="id">Ack</span> <span class="id">_</span> <span class="pn">|</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="25" class="id">Nack</span> <span class="id">_</span> <span class="k">-&gt;</span>
+        <span class="id">Interlocked</span><span class="pn">.</span><span class="id">Decrement</span> <span class="o">&amp;</span><span class="id">pending</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="26" class="id">ignore</span>
+        <span class="id">issueNext</span><span class="pn">(</span><span class="pn">)</span>
+        <span class="id">dispatcher</span> <span class="id">msg</span>
+</code></pre>
+<p>The spout channel uses <code>TimeoutBlockingWaitStrategy(100ms)</code>. When the timeout fires with no message, the spout calls <code>issueNext()</code>, which checks the pending count before dispatching <code>Next</code>.</p>
+<h2><a name="Scenario-D-Tuple-timeout-and-nack" class="anchor" href="#Scenario-D-Tuple-timeout-and-nack">Scenario D: Tuple timeout and nack</a></h2>
+<p>When a tuple isn't fully acked before its acker bucket rotates out, the acker expires it and nacks the source spout. The acker uses <code>numBuckets = 3</code> with a 30-second tick, so entries survive between 30 and 90 seconds.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant SP as Spout
+    participant ACK as Acker
+    participant B as Bolt
+    participant SYS as System Timer
+
+    SP-&gt;&gt;ACK: Track(spoutTaskId, srcTupleId, anchorId)
+    Note over ACK: buckets[current][anchorId] = Pending(srcTupleId, taskId, 0, 0)
+
+    SP-&gt;&gt;B: Tuple(tuple, "anchorId:tupleId1", ...)
+    B-&gt;&gt;ACK: Anchor(anchorId, tupleId1)
+    Note over ACK: XOR: v = tupleId1
+
+    Note over B: Bolt is slow or stuck... Never sends Ok
+
+    SYS-&gt;&gt;ACK: Tick
+    Note over ACK: rotate(): oldest = (current+1) % 3
+
+    rect rgb(255, 230, 230)
+        Note over ACK: Scan oldest bucket, anchorId is Pending
+        ACK-&gt;&gt;SP: Nack(srcTupleId)
+        Note over ACK: Clear oldest bucket, advance currentBucket
+    end
+
+    SP-&gt;&gt;SP: pending--
+    SP-&gt;&gt;SP: reliableSpout.nack(srcTupleId)
+    Note over SP: Re-enqueue or discard (application-specific)
+</code></pre></td></tr></table>
+<p>The system timer sends <code>Tick</code> to ackers every 30 seconds, triggering bucket rotation via <code>rotate()</code>.</p>
+<h2><a name="Scenario-E-Bolt-failure" class="anchor" href="#Scenario-E-Bolt-failure">Scenario E: Bolt failure</a></h2>
+<p>When a bolt throws an exception during tuple processing, the auto-ack dispatch sends <code>Fail</code> instead of <code>Ok</code>:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant SP as Spout
+    participant ACK as Acker
+    participant B as Bolt
+
+    SP-&gt;&gt;ACK: Track(spoutTaskId, srcTupleId, anchorId)
+    SP-&gt;&gt;B: Tuple(tuple, "anchorId:tupleId1", ...)
+    B-&gt;&gt;ACK: Anchor(anchorId, tupleId1)
+
+    rect rgb(255, 230, 230)
+        Note over B: consume() throws exception!
+        B-&gt;&gt;B: Error(message, ex) to log
+        B-&gt;&gt;ACK: Fail(anchorId, tupleId1)
+    end
+
+    Note over ACK: Fail path, immediate nack
+    ACK-&gt;&gt;ACK: Lookup inFlight[anchorId]
+    ACK-&gt;&gt;SP: Nack(srcTupleId)
+    Note over ACK: Remove anchorId from inFlight
+
+    SP-&gt;&gt;SP: pending--
+    SP-&gt;&gt;SP: reliableSpout.nack(srcTupleId)
+    Note over SP: Re-enqueue for retry
+</code></pre></td></tr></table>
+<p>The <code>autoAckBolt</code> dispatch:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="27" class="id">Tuple</span><span class="pn">(</span><span class="id">tuple</span><span class="pn">,</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="28" class="id">id</span><span class="pn">,</span> <span class="id">src</span><span class="pn">,</span> <span class="id">stream</span><span class="pn">,</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="29" class="id">task</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="k">let</span> <span class="id">emit</span> <span class="id">t</span> <span class="o">=</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="30" class="id">Emit</span><span class="pn">(</span><span class="id">t</span><span class="pn">,</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="31" class="id">None</span><span class="pn">,</span> <span class="id">getAnchors</span> <span class="pn">(</span><span class="id">src</span><span class="pn">,</span><span class="id">stream</span><span class="pn">)</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="32" class="id">id</span><span class="pn">,</span> <span class="id">getStream</span> <span class="id">t</span><span class="pn">,</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="33" class="id">None</span><span class="pn">,</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="34" class="id">None</span><span class="pn">)</span> <span class="o">|&gt;</span> <span class="id">out</span>
+    <span class="k">try</span>
+        <span class="id">consume</span> <span class="pn">(</span><span class="id">args</span> <span class="id">tuple</span> <span class="id">emit</span><span class="pn">)</span>
+        <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="35" class="id">Ok</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="36" class="id">id</span>           <span class="c">// success → ack</span>
+    <span class="k">with</span> <span class="id">ex</span> <span class="k">-&gt;</span>
+        <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="37" class="id">Fail</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="38" class="id">id</span> <span class="o">|&gt;</span> <span class="id">out</span>  <span class="c">// failure → nack</span>
+        <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="39" class="id">Error</span><span class="pn">(</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="40" class="id">sprintf</span> <span class="s">&quot;autoAckBolt was unable to handle: &quot;</span><span class="pn">,</span> <span class="id">ex</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span class="id">out</span>
+</code></pre>
+<h2><a name="Scenario-F-Topology-restart-on-unhandled-exception" class="anchor" href="#Scenario-F-Topology-restart-on-unhandled-exception">Scenario F: Topology restart on unhandled exception</a></h2>
+<p>When <code>Hosting.runWith</code> is used, unhandled exceptions in any Disruptor channel trigger a full topology restart with exponential backoff:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">sequenceDiagram
+    participant EH as Exception Handler
+    participant RW as runWith
+    participant RT1 as RuntimeTopology (old)
+    participant RT2 as RuntimeTopology (new)
+
+    Note over RT1: Component throws unhandled exception
+    RT1-&gt;&gt;EH: exn
+    EH-&gt;&gt;RW: restart(exn)
+
+    rect rgb(255, 245, 230)
+        Note over RW: Monitor.TryEnter(sync)
+        RW-&gt;&gt;RW: Log error
+        Note over RW: restartCount++ (1/5)
+        Note over RW: Backoff: min(1000 * 2^1, 30000) = 2000ms
+        RW-&gt;&gt;RW: Thread.Sleep(2000)
+        RW-&gt;&gt;RT1: stop(timeout, rtt)
+        RW-&gt;&gt;RT1: shutdown(rtt)
+        Note over RT1: All Disruptors halted
+
+        RW-&gt;&gt;RT2: ofTopology(startLog, restart)
+        Note over RT2: Fresh channels created
+        RW-&gt;&gt;RT2: activate(rtt)
+        Note over RW: restartCount = 0 (reset on success)
+        Note over RT2: All components restarted
+    end
+
+    Note over RW: Monitor.Exit(sync)
+</code></pre></td></tr></table>
+<p>Key details:</p>
+<ul>
+<li><code>Monitor.TryEnter</code> prevents concurrent restart attempts — if a restart is already in progress, additional exceptions are logged as warnings and ignored</li>
+<li>Exponential backoff: <code>min(1000 * 2^attempt, 30000)</code> milliseconds between attempts</li>
+<li><code>restartCount</code> resets to 0 after each successful start</li>
+<li>After <code>maxRestarts</code> (5) consecutive failures, the topology stays down</li>
+<li>The exception handler is passed to <code>Disruptor.SetDefaultExceptionHandler</code>, catching exceptions from <code>IEventHandler.OnEvent</code></li>
+<li>If restart itself throws, the error is logged but the topology remains down</li>
+<li><code>runNoRestart</code> uses <code>Environment.Exit(1)</code> instead, delegating restart to the process supervisor</li>
+</ul>
+<h2><a name="Message-flow-summary" class="anchor" href="#Message-flow-summary">Message flow summary</a></h2>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">graph TB
+    subgraph Happy Path
+        direction LR
+        A1[Next] --&gt; A2[Emit + Track]
+        A2 --&gt; A3[Route to Bolt]
+        A3 --&gt; A4[Consume + Anchor]
+        A4 --&gt; A5[Ok to Acker]
+        A5 --&gt; A6["XOR == 0, Ack"]
+    end
+
+    subgraph Failure Paths
+        direction LR
+        F1[Bolt Exception] --&gt; F2[Fail to Acker]
+        F2 --&gt; F3[Nack to Spout]
+        T1[Timeout Expired] --&gt; T2[Nack to Spout]
+        C1["Acker Capacity Exceeded"] --&gt; C2[Nack to Spout]
+    end
+
+    subgraph Backpressure
+        direction LR
+        BP1["pending &gt;= max"] --&gt; BP2[Stop Next]
+        BP2 --&gt; BP3["Ack/Nack arrives"]
+        BP3 --&gt; BP4[Resume Next]
+    end
+</code></pre></td></tr></table>
+
+        <div popover class="fsdocs-tip" id="fs1">type InCommand&lt;&#39;t&gt; =
+  | Activate
+  | Deactivate
+  | Next
+  | Ack of obj
+  | Nack of obj
+  | Tuple of &#39;t * obj * obj * obj * obj
+  | Heartbeat</div>
+<div popover class="fsdocs-tip" id="fs2">&#39;t</div>
+<div popover class="fsdocs-tip" id="fs3">type OutCommand&lt;&#39;t&gt; =
+  | Emit of &#39;t * obj * obj * obj * obj * bool option
+  | Ok of obj
+  | Fail of obj
+  | Log of string * obj
+  | Error of string * exn
+  | Sync</div>
+<div popover class="fsdocs-tip" id="fs4">type &#39;T option = Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs5">type &#39;T list = List&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs6">type bool = System.Boolean</div>
+<div popover class="fsdocs-tip" id="fs7">union case Result.Ok: ResultValue: &#39;T -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div popover class="fsdocs-tip" id="fs8">Multiple items<br />val string: value: &#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div popover class="fsdocs-tip" id="fs9">union case Result.Error: ErrorValue: &#39;TError -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div popover class="fsdocs-tip" id="fs10">type exn = System.Exception</div>
+<div popover class="fsdocs-tip" id="fs11">type TaskMsg&lt;&#39;t,&#39;msg&gt; =
+  | Start of obj
+  | Stop
+  | Tick
+  | Other of &#39;msg</div>
+<div popover class="fsdocs-tip" id="fs12">&#39;msg</div>
+<div popover class="fsdocs-tip" id="fs13">union case InCommand.Next: InCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs14">union case TaskMsg.Other: &#39;msg -&gt; TaskMsg&lt;&#39;t,&#39;msg&gt;</div>
+<div popover class="fsdocs-tip" id="fs15">union case InCommand.Ack: obj -&gt; InCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs16">union case InCommand.Nack: obj -&gt; InCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs17">val ignore: value: &#39;T -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs18">union case InCommand.Tuple: &#39;t * obj * obj * obj * obj -&gt; InCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs19">val id: x: &#39;T -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs20">val task: TaskBuilder</div>
+<div popover class="fsdocs-tip" id="fs21">union case OutCommand.Emit: &#39;t * obj * obj * obj * obj * bool option -&gt; OutCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs22">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs23">union case OutCommand.Ok: obj -&gt; OutCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs24">union case OutCommand.Fail: obj -&gt; OutCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs25">union case OutCommand.Error: string * exn -&gt; OutCommand&lt;&#39;t&gt;</div>
+<div popover class="fsdocs-tip" id="fs26">val sprintf: format: Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2">
+    <a href="#Message-flow">
+      Message flow
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Protocol-types">
+      Protocol types
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Dispatch-functions">
+      Dispatch functions
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-A-Unreliable-spout-pipeline">
+      Scenario A: Unreliable spout pipeline
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-B-Reliable-tuple-flow-guaranteed-delivery">
+      Scenario B: Reliable tuple flow (guaranteed delivery)
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-C-Spout-backpressure">
+      Scenario C: Spout backpressure
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-D-Tuple-timeout-and-nack">
+      Scenario D: Tuple timeout and nack
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-E-Bolt-failure">
+      Scenario E: Bolt failure
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Scenario-F-Topology-restart-on-unhandled-exception">
+      Scenario F: Topology restart on unhandled exception
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Message-flow-summary">
+      Message flow summary
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-tips.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-search.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-copy-button.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    function isDark() {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Move code blocks into mermaid-renderable <pre> elements, stash source
+    document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+        var pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.textContent = el.textContent;
+        pre.setAttribute('data-mermaid-src', el.textContent);
+        var container = el.closest('table.pre') || el.closest('pre');
+        if (container) { container.parentNode.replaceChild(pre, container); }
+    });
+
+    async function renderMermaid() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark() ? 'dark' : 'default'
+        });
+        document.querySelectorAll('pre.mermaid').forEach(el => {
+            el.removeAttribute('data-processed');
+            el.textContent = el.getAttribute('data-mermaid-src');
+        });
+        await mermaid.run();
+    }
+
+    await renderMermaid();
+
+    // Re-render when the theme toggle fires
+    new MutationObserver(() => renderMermaid())
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+</body>
+</html>

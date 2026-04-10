@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://FsStorm.github.io/FsShelter/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Eugene Tolmachev" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FsShelter">
+    <meta property="og:title" content="Spout (FsShelter)" />
+    <meta property="og:url" content="https://FsStorm.github.io/FsShelter/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://FsStorm.github.io/FsShelter/">
+    <meta name="twitter:title" content="Spout (FsShelter)">
+    
+    <title>Spout (FsShelter) | FsShelter</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/files/img/logo.png" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+                    Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://FsStorm.github.io/FsShelter/">
+            <img alt="Logo" src="https://FsStorm.github.io/FsShelter/files/img/logo.png">
+            <strong>FsShelter</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/FsStorm/FsShelter.git/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/FsStorm/FsShelter/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/FsStorm/FsShelter.git/">Source
+            Repository</a></li>
+        <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
+    concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
+    guaranteed
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/self-hosting.html">
+    self-hosting
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/routing.html">
+    routing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/acker-algorithm.html">
+    acker-algorithm
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/schema.html">
+    schema
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/message-flow.html">
+    message-flow
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/wordcount.html">
+    wordcount
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/architecture.html">
+    architecture
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2>
+    Spout Module
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://FsStorm.github.io/FsShelter/reference/fsshelter.html">
+        FsShelter
+      </a>
+    </dt>
+    <dt>
+      Assembly: FsShelter.dll
+    </dt>
+    <dt>
+      Parent Module: 
+      <a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl.html">
+        DSL
+      </a>
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <div class="fsdocs-summary-contents">
+        <p class="fsdocs-summary">
+          
+        </p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3>
+      Functions and values
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Function or value
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+            <fsdocs-details-toggle></fsdocs-details-toggle>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code data-fsdocs-tip="22" data-fsdocs-tip-unique="22">
+                <p>
+                  <a id="ofExternal">
+                    <a href="#ofExternal">
+                      <code><span>ofExternal&#32;<span>comp</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div popover="" class="fsdocs-tip" id="22">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ofExternal&#32;<span>comp</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        comp
+                      </b>
+                      :
+                      <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html">Component</a>&lt;'t&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                  </span>
+                  <br/>
+                  Type parameters: 
+                  &#39;t
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       define a spout for a (external) shell or java component
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L281-281" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.ofExternal``1\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:FsShelter.DSL.Spout.ofExternal``1```')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-params">
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    comp
+                  </span>
+                  :
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html">Component</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+              </dl>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code data-fsdocs-tip="23" data-fsdocs-tip-unique="23">
+                <p>
+                  <a id="runReliable">
+                    <a href="#runReliable">
+                      <code><span>runReliable&#32;<span>mkArgs&#32;mkAcker&#32;deactivate&#32;next</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div popover="" class="fsdocs-tip" id="23">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>runReliable&#32;<span>mkArgs&#32;mkAcker&#32;deactivate&#32;next</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        mkArgs
+                      </b>
+                      :
+                      <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        mkAcker
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-acker.html">Acker</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        deactivate
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        next
+                      </b>
+                      :
+                      <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-next-2.html">Next</a>&lt;<span>'args,&#32;<span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html">TupleId</a>&#32;*&#32;'t</span>)</span></span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                  </span>
+                  <br/>
+                  Type parameters: 
+                  &#39;args, &#39;t
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       define a reliable spout
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ mkAcker: one time construction of `Ack*Nack` handlers (using the args).
+ next: spout function that returns an id*tuple option.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L265-265" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runReliable``2\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:FsShelter.DSL.Spout.runReliable``2```')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-params">
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkArgs
+                  </span>
+                  :
+                  <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkAcker
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-acker.html">Acker</a></span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    deactivate
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;unit</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    next
+                  </span>
+                  :
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-next-2.html">Next</a>&lt;<span>'args,&#32;<span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html">TupleId</a>&#32;*&#32;'t</span>)</span></span>&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+              </dl>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code data-fsdocs-tip="24" data-fsdocs-tip-unique="24">
+                <p>
+                  <a id="runUnreliable">
+                    <a href="#runUnreliable">
+                      <code><span>runUnreliable&#32;<span>mkArgs&#32;deactivate&#32;next</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div popover="" class="fsdocs-tip" id="24">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>runUnreliable&#32;<span>mkArgs&#32;deactivate&#32;next</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        mkArgs
+                      </b>
+                      :
+                      <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        deactivate
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        next
+                      </b>
+                      :
+                      <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-next-2.html">Next</a>&lt;<span>'args,&#32;'t</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                  </span>
+                  <br/>
+                  Type parameters: 
+                  &#39;args, &#39;t
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       define spout with no processing guarantees
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ next: spout function that returns a tuple option.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L274-274" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runUnreliable``2\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:FsShelter.DSL.Spout.runUnreliable``2```')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-params">
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkArgs
+                  </span>
+                  :
+                  <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    deactivate
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;unit</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    next
+                  </span>
+                  :
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-next-2.html">Next</a>&lt;<span>'args,&#32;'t</span>&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+              </dl>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <div class="empty"></div>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-tips.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-theme.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-search.js"></script>
+<script type="module" src="https://FsStorm.github.io/FsShelter/content/fsdocs-copy-button.js"></script>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    function isDark() {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Move code blocks into mermaid-renderable <pre> elements, stash source
+    document.querySelectorAll('code[lang="mermaid"]').forEach(function(el) {
+        var pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.textContent = el.textContent;
+        pre.setAttribute('data-mermaid-src', el.textContent);
+        var container = el.closest('table.pre') || el.closest('pre');
+        if (container) { container.parentNode.replaceChild(pre, container); }
+    });
+
+    async function renderMermaid() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: isDark() ? 'dark' : 'default'
+        });
+        document.querySelectorAll('pre.mermaid').forEach(el => {
+            el.removeAttribute('data-processed');
+            el.textContent = el.getAttribute('data-mermaid-src');
+        });
+        await mermaid.run();
+    }
+
+    await renderMermaid();
+
+    // Re-render when the theme toggle fires
+    new MutationObserver(() => renderMermaid())
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+</body>
+</html>
