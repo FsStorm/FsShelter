@@ -1,3 +1,6 @@
+#### 5.2.0 - Apr 2026
+* Self-hosting Supervisor for Master/Standby deployments
+
 #### 5.1.1 - Apr 2026
 * Breaking: hide TupleId cases as internal, offer toString/ofString for source implementors
 * introduce SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS that defaults to TOPOLOGY_MESSAGE_TIMEOUT_SECS

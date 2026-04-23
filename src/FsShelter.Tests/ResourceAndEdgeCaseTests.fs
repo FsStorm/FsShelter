@@ -13,9 +13,7 @@ open System.Threading
 
 #nowarn "25"
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 type ResTracker =
     { emitted : int64 ref
       acked : int64 ref
@@ -48,10 +46,8 @@ let mkSimpleTopology (tracker: ResTracker) maxPending timeout =
                     TOPOLOGY_MESSAGE_TIMEOUT_SECS (max 1 timeout)
                     TOPOLOGY_DEBUG false ]
 
-// ---------------------------------------------------------------------------
 // Storm WorkerTest: testWorkerMemoryStability
 // Run topology for duration, sample memory, assert no monotonic growth
-// ---------------------------------------------------------------------------
 [<Test>]
 [<Category("integration")>]
 let ``Steady-state memory does not grow unbounded`` () =
@@ -82,10 +78,8 @@ let ``Steady-state memory does not grow unbounded`` () =
     // verify topology actually ran
     test <@ tracker.acked.Value > 0L @>
 
-// ---------------------------------------------------------------------------
 // Storm WorkerTest: testWorkerIsolation
 // Run 2 topologies with separate counters, verify no cross-talk
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Multi-topology isolation`` () =
     let tracker1 = ResTracker.Create()
@@ -112,10 +106,8 @@ let ``Multi-topology isolation`` () =
     test <@ tracker1.nacked.Value = 0L @>
     test <@ tracker2.nacked.Value = 0L @>
 
-// ---------------------------------------------------------------------------
 // Storm WorkerTest: testWorkerShutdown
 // Graceful shutdown: topology stops without hanging
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Graceful shutdown completes within timeout`` () =
     let tracker = ResTracker.Create()
@@ -132,10 +124,8 @@ let ``Graceful shutdown completes within timeout`` () =
     test <@ sw.Elapsed.TotalSeconds < 10.0 @>
     test <@ tracker.acked.Value > 0L @>
 
-// ---------------------------------------------------------------------------
 // Storm TopologyValidatorTest: testTickTupleDelivery
 // Configure TICK_TUPLE_FREQ_SECS → bolt receives __tick tuples
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Tick tuples are delivered to bolts`` () =
     let ticksReceived = ref 0L
@@ -173,9 +163,7 @@ let ``Tick tuples are delivered to bolts`` () =
 
     test <@ ticksReceived.Value >= 1L @>
 
-// ---------------------------------------------------------------------------
 // Minimal topology: simplest possible (spout → 1 bolt)
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Minimal topology runs end-to-end`` () =
     let acked = ref 0L
@@ -208,9 +196,7 @@ let ``Minimal topology runs end-to-end`` () =
 
     test <@ acked.Value >= 5L @>
 
-// ---------------------------------------------------------------------------
 // Empty spout: always returns None, topology should handle gracefully
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Empty spout runs without errors`` () =
     let noneSpout (_: unit) =
@@ -236,10 +222,8 @@ let ``Empty spout runs without errors`` () =
     Thread.Sleep 500
     Assert.Pass("Empty spout topology ran without errors")
 
-// ---------------------------------------------------------------------------
 // Storm SpoutPendingCounterConsistency
 // Rapid ack/nack → verify pending counter stays consistent
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Rapid ack-nack keeps pending counter consistent`` () =
     let tracker = ResTracker.Create()

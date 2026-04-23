@@ -22,6 +22,12 @@
     <Compile Include="IO/CommonTests.fs" />
     <Compile Include="IO/JsonIOTests.fs" />
     <Compile Include="IO/ProtoIOTests.fs" />
+    <Compile Include="Cluster/TypesTests.fs" />
+    <Compile Include="Cluster/PeerStoreTests.fs" />
+    <Compile Include="Cluster/TransportTests.fs" />
+    <Compile Include="Cluster/MembershipTests.fs" />
+    <Compile Include="Cluster/ElectionTests.fs" />
+    <Compile Include="Cluster/SupervisorTests.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
