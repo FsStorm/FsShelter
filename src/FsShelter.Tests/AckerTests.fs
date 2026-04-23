@@ -13,9 +13,7 @@ open System.Threading
 
 #nowarn "25"
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 type Tracker =
     { emitted : int64 ref
@@ -52,9 +50,7 @@ let mkTrackedTopology (tracker: Tracker) maxPending timeout =
                     TOPOLOGY_MESSAGE_TIMEOUT_SECS (max 1 timeout)
                     TOPOLOGY_DEBUG false ]
 
-// ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerAcksSingleTuple
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Acker tracks and acks a single tuple`` () =
     let tracker = Tracker.Create()
@@ -72,11 +68,9 @@ let ``Acker tracks and acks a single tuple`` () =
     test <@ tracker.acked.Value >= 1L @>
     test <@ tracker.nacked.Value = 0L @>
 
-// ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerHandlesTupleTree
 // Multi-hop: spout → bolt1 (anchored emit) → bolt2 (ack)
 // Verify full tree completes — acker XORs to zero
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Acker tracks multi-hop tuple tree`` () =
     let tracker = Tracker.Create()
@@ -96,10 +90,8 @@ let ``Acker tracks multi-hop tuple tree`` () =
     // every emitted tuple that was acked means the full tree completed
     test <@ tracker.emitted.Value >= tracker.acked.Value @>
 
-// ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerFailsOnBoltFailure
 // Bolt throws → acker receives Fail → spout gets Nack
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Acker nacks on bolt failure`` () =
     let tracker = Tracker.Create()
@@ -142,11 +134,9 @@ let ``Acker nacks on bolt failure`` () =
 
     test <@ tracker.nacked.Value >= 1L @>
 
-// ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerTimesOutTuples
 // Emit tuple, bolt never acks, wait > timeout → spout gets Nack
 // NOTE: The system timer ticks every 30s, so expiry check requires ~30s wait
-// ---------------------------------------------------------------------------
 [<Test>]
 [<Category("interactive")>]
 let ``Acker expires timed-out tuples`` () =
@@ -197,12 +187,10 @@ let ``Acker expires timed-out tuples`` () =
     test <@ tracker.emitted.Value >= 1L @>
     test <@ tracker.nacked.Value >= 1L @>
 
-// ---------------------------------------------------------------------------
 // Storm AckerTest: testAckerBackpressure
 // Exceed highWater*2 → acker nacks overflow tuples
 // Uses a very small buffer to trigger capacity limit
 // NOTE: Requires system timer tick (30s) to trigger nack via timeout
-// ---------------------------------------------------------------------------
 [<Test>]
 [<Category("interactive")>]
 let ``Acker capacity overflow nacks tuples`` () =

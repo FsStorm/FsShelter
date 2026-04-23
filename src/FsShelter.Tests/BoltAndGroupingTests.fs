@@ -14,10 +14,8 @@ open System.Collections.Concurrent
 
 #nowarn "25"
 
-// ---------------------------------------------------------------------------
 // Storm GroupingTest: testShuffleGroupingDistribution
 // Emit N tuples through shuffle → verify roughly even distribution
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Shuffle grouping distributes across instances`` () =
     let instanceCounts = ConcurrentDictionary<int, int64 ref>()
@@ -58,10 +56,8 @@ let ``Shuffle grouping distributes across instances`` () =
     test <@ acked.Value >= 100L @>
     test <@ instanceCounts.Count >= 1 @>  // Disruptor may use fewer threads; just verify it ran
 
-// ---------------------------------------------------------------------------
 // Storm GroupingTest: testFieldsGroupingConsistency
 // Same key always routes to the same bolt instance
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Fields grouping routes same key to same instance`` () =
     let keyToThread = ConcurrentDictionary<int, ConcurrentBag<int>>()
@@ -123,10 +119,8 @@ let ``Fields grouping routes same key to same instance`` () =
         // same key should go to same instance thread
         test <@ threads.Length = 1 @>
 
-// ---------------------------------------------------------------------------
 // Storm GroupingTest: testAllGroupingBroadcast
 // One emit → all bolt instances receive it
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``All grouping broadcasts to all instances`` () =
     let receivedByInstance = ConcurrentDictionary<int, int64 ref>()
@@ -168,10 +162,8 @@ let ``All grouping broadcasts to all instances`` () =
     let totalReceived = receivedByInstance.Values |> Seq.sumBy (fun r -> r.Value)
     test <@ totalReceived >= 1L @>
 
-// ---------------------------------------------------------------------------
 // Storm BoltTest: testAutoAckBolt
 // autoAckBolt processes tuple → Ok sent back
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Auto-ack bolt sends Ok on success`` () =
     let outMsgs = ResizeArray<OutCommand<Schema>>()
@@ -199,10 +191,8 @@ let ``Auto-ack bolt sends Ok on success`` () =
     let oks = outMsgs |> Seq.choose (function OutCommand.Ok id -> Some id | _ -> None) |> Seq.toList
     test <@ oks = [TupleId.ofString "tuple-1"] @>
 
-// ---------------------------------------------------------------------------
 // Storm BoltTest: testBoltFailOnException
 // Bolt throws → Fail sent
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Auto-ack bolt sends Fail on exception`` () =
     let outMsgs = ResizeArray<OutCommand<Schema>>()
@@ -226,10 +216,8 @@ let ``Auto-ack bolt sends Fail on exception`` () =
     let fails = outMsgs |> Seq.choose (function OutCommand.Fail id -> Some id | _ -> None) |> Seq.toList
     test <@ fails = [TupleId.ofString "tuple-1"] @>
 
-// ---------------------------------------------------------------------------
 // Storm BoltTest: testBoltAnchoredEmit
 // Bolt receives tuple, anchors child emit → verify lineage preserved in acker
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Anchored emit preserves tuple lineage`` () =
     let tracker =

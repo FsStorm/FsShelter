@@ -13,9 +13,7 @@ open System.Threading
 
 #nowarn "25"
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 type SpoutTracker =
     { emitted : int64 ref
@@ -26,10 +24,8 @@ type SpoutTracker =
         { emitted = ref 0L; acked = ref 0L; nacked = ref 0L
           nackIds = ResizeArray() }
 
-// ---------------------------------------------------------------------------
 // Storm SpoutOutputCollectorTest: testMaxSpoutPending
 // With MAX_SPOUT_PENDING=N, verify pending never significantly exceeds N
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Spout respects maxPending backpressure`` () =
     let tracker = SpoutTracker.Create()
@@ -74,10 +70,8 @@ let ``Spout respects maxPending backpressure`` () =
     test <@ tracker.acked.Value > 0L @>
     test <@ inFlight <= int64 (maxPending + 5) @>
 
-// ---------------------------------------------------------------------------
 // Storm SpoutOutputCollectorTest: testSpoutReplayOnFail
 // Nack a tuple → verify spout nack callback fires
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Spout nack callback fires on failure`` () =
     let tracker = SpoutTracker.Create()
@@ -116,10 +110,8 @@ let ``Spout nack callback fires on failure`` () =
     test <@ tracker.nacked.Value >= 1L @>
     test <@ tracker.nackIds.Count >= 1 @>
 
-// ---------------------------------------------------------------------------
 // Storm SpoutOutputCollectorTest: testSpoutActivateDeactivate
 // Verify spout stops and resumes correctly through activate/deactivate cycle
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Spout handles activate-deactivate cycle via topology restart`` () =
     let tracker = SpoutTracker.Create()
@@ -162,10 +154,8 @@ let ``Spout handles activate-deactivate cycle via topology restart`` () =
 
     test <@ countAfterSecond > countAfterFirst @>
 
-// ---------------------------------------------------------------------------
 // Storm SpoutOutputCollectorTest: testSpoutIdleHandling
 // Spout returns None → no crash, no unbounded resource growth
-// ---------------------------------------------------------------------------
 [<Test>]
 let ``Idle spout does not leak resources`` () =
     let emitAttempts = ref 0L

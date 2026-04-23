@@ -17,6 +17,12 @@
     <Compile Include="Topology.fs" />
     <Compile Include="DSL.fs" />
     <Compile Include="Hosting.fs" />
+    <Compile Include="Cluster/Types.fs" />
+    <Compile Include="Cluster/PeerStore.fs" />
+    <Compile Include="Cluster/Membership.fs" />
+    <Compile Include="Cluster/Election.fs" />
+    <Compile Include="Cluster/Transport.fs" />
+    <Compile Include="Cluster/Supervisor.fs" />
     <Compile Include="DotGraph.fs" />
   </ItemGroup>
   <Import Project="../../.paket/Paket.Restore.targets" />
