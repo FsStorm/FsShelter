@@ -147,3 +147,85 @@ let t6 = topology "test6" {
     yield b1 --> b2 |> Group.by (function Inner(Odd (n,_)) -> n)
 }
 
+open System.Threading.Tasks
+
+/// async terminating bolt - consumes messages
+let resultBoltAsync (info,input) =
+    task {
+        match input with
+        | Even ({x = x}, {str=str})
+        | Odd ({x = x},str) -> info (sprintf "Got %A" input)
+        | _ -> failwithf "unexpected input: %A" input
+    }
+
+let t1Async = topology "test-async" {
+    let s1 = numbers
+             |> Spout.runReliable (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
+    let b1 = split
+             |> Bolt.run (fun _ _ t emit -> (t,emit))
+             |> withParallelism 2
+    let b2 = resultBoltAsync
+             |> Bolt.runAsync (fun _ _ t _ -> ignore,t)
+    yield s1 ==> b1 |> Shuffle.on Original
+    yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x))
+    yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+}
+
+/// async terminating bolt that nacks - consumes messages
+let resultBoltAsyncNack (info,input) =
+    task {
+        match input with
+        | Even ({x = x}, {str=str})
+        | Odd ({x = x},str) -> info (sprintf "Got %A" input)
+        | _ -> failwithf "unexpected input: %A" input
+    }
+
+let t1AsyncTerminator = topology "test-async-terminator" {
+    let s1 = numbers
+             |> Spout.runReliable (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
+    let b1 = split
+             |> Bolt.run (fun _ _ t emit -> (t,emit))
+    let b2 = resultBoltAsyncNack
+             |> Bolt.runTerminatorAsync (fun _ _ t -> ignore,t)
+    yield s1 ==> b1 |> Shuffle.on Original
+    yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x))
+    yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+}
+
+/// async numbers spout - produces messages
+let numbersAsync (world : World) =
+    task {
+        return Some(TupleId.ofString(string(Threading.Interlocked.Increment &world.count.contents)), Original { x = world.rnd.Next(0, 100) })
+    }
+
+let t1AsyncSpout = topology "test-async-spout" {
+    let s1 = numbersAsync
+             |> Spout.runReliableAsync (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
+    let b1 = split
+             |> Bolt.run (fun _ _ t emit -> (t,emit))
+             |> withParallelism 2
+    let b2 = resultBolt
+             |> Bolt.run (fun _ _ t _ -> ignore,t)
+    yield s1 ==> b1 |> Shuffle.on Original
+    yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x))
+    yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+}
+
+/// async unreliable numbers spout
+let numbersUnreliableAsync (world : World) =
+    task {
+        return Some(Original { x = world.rnd.Next(0, 100) })
+    }
+
+let t1AsyncUnreliableSpout = topology "test-async-unreliable-spout" {
+    let s1 = numbersUnreliableAsync
+             |> Spout.runUnreliableAsync (fun _ _ -> {rnd = Random(); count = ref 0L}) ignore
+    let b1 = split
+             |> Bolt.run (fun _ _ t emit -> (t,emit))
+    let b2 = resultBolt
+             |> Bolt.run (fun _ _ t _ -> ignore,t)
+    yield s1 --> b1 |> Shuffle.on Original
+    yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x))
+    yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str))
+}
+

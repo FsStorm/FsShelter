@@ -65,6 +65,17 @@ let ``Hot path component benchmarks`` () =
     execHalt()
     Thread.Sleep 50
 
+    // Async executor with 4 tasks on one Disruptor — measures async handler overhead
+    let mutable asyncExecReceived = 0
+    let asyncExecTasks = [| for tid in 0..3 -> (tid, fun (_:int) -> asyncExecReceived <- asyncExecReceived + 1; System.Threading.Tasks.ValueTask()) |]
+    let (asyncExecSend, asyncExecHalt) = Channel.startAsyncExecutor 1024 ignore asyncExecTasks
+    Thread.Sleep 50
+    let asyncExecSend2 = asyncExecSend 2
+    measure "Async executor publish (4 tasks)" iterations (fun () ->
+        asyncExecSend2 42)
+    asyncExecHalt()
+    Thread.Sleep 50
+
     printfn "\n=== TupleTree operations ==="
 
     // Set up a mock acker channel to absorb Track/Anchor/Ok messages

@@ -62,3 +62,7 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 
 Directory.Build.props
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json

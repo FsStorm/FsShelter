@@ -1,11 +1,11 @@
 module FsShelter.Hosting
 
-open FsShelter.Topology
-open FsShelter.Multilang
-open Disruptor.Dsl
 open System.Threading
 open System.Diagnostics
 open System.Diagnostics.Metrics
+open Disruptor.Dsl
+open FsShelter.Topology
+open FsShelter.Multilang
 
 module Telemetry =
     let internal activitySource = new ActivitySource("FsShelter.Hosting")
@@ -48,7 +48,6 @@ module internal Types =
     type TreeState =
         | Pending of TupleId * TaskId * int64 * int64
         | Complete of srcId:TupleId * src:TaskId
-        | Done
 
     type Envelope<'msg>() =
         member val Msg:'msg voption = ValueOption.ValueNone with get, set
@@ -119,9 +118,6 @@ module internal Routing =
         fun cmd -> 
             for i = 0 to sinks.Length - 1 do sinks.[i] cmd
 
-    let toTask taskId tasks =
-        let (_, (send, _)) = tasks |> Map.find taskId in send
-
     let inline direct (_, (send, _)) = send
 
 module internal TupleTree = 
@@ -178,12 +174,10 @@ module internal TupleTree =
             | _ -> ()
 
 module internal Channel =
-    
-    open Disruptor
-    open Disruptor.Dsl
     open System.Threading.Tasks
+    open Disruptor
 
-    type MsgHandler<'msg> = Disruptor.IEventHandler<Envelope<'msg>>
+    type MsgHandler<'msg> = IEventHandler<Envelope<'msg>>
 
     let private publish (ringBuffer: RingBuffer<Envelope<'msg>>) (msg: 'msg) =
         let seqno = ringBuffer.Next()
@@ -214,17 +208,6 @@ module internal Channel =
             member __.OnTimeout(_) = onMsg ValueNone true }
         |> disruptor.HandleEventsWith
         |> ignore
-
-    let startWithTimeout ringSize waitTimeoutMs onException onData =
-        let disruptor = Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>> Envelope,
-                                                  ringSize,
-                                                  TaskScheduler.Default,
-                                                  ProducerType.Multi,
-                                                  TimeoutBlockingWaitStrategy(System.TimeSpan.FromMilliseconds(float waitTimeoutMs)))
-        disruptor
-        |> withHandlers onData onException
-        let ringBuffer = disruptor.Start()
-        publish ringBuffer, disruptor.Halt
 
     let start ringSize onException onData =
         let disruptor = Disruptor<Envelope<'msg>>(System.Func<Envelope<'msg>> Envelope,
@@ -278,6 +261,84 @@ module internal Channel =
                 | ValueNone -> ())
             ignore
             onException
+        let ringBuffer = disruptor.Start()
+        let send (taskId: TaskId) : Send<'msg> =
+            fun msg -> publishWithTaskId ringBuffer taskId msg
+        send, disruptor.Halt
+
+    let startAsyncExecutor ringSize onException (tasks: (TaskId * ('msg -> System.Threading.Tasks.ValueTask)) array) =
+        let handlers = tasks |> Array.map (fun (_, h) -> h)
+        let taskIndex = System.Collections.Generic.Dictionary<TaskId, int>(tasks.Length)
+        for i = 0 to tasks.Length - 1 do
+            let (tid, _) = tasks.[i]
+            taskIndex.[tid] <- i
+        let disruptor = Disruptor<Envelope<'msg>>(
+            System.Func<Envelope<'msg>> Envelope, ringSize, TaskScheduler.Default,
+            ProducerType.Multi, AsyncWaitStrategy())
+        { new IExceptionHandler<Envelope<'msg>> with
+            member __.HandleEventException(exn:exn, _seqno:int64, _ev:Envelope<'msg>) = onException exn
+            member __.HandleEventException(exn:exn, _seqno:int64, _batch:EventBatch<Envelope<'msg>>) = onException exn
+            member __.HandleOnTimeoutException(exn:exn, _seqno:int64) = onException exn
+            member __.HandleOnStartException(exn:exn) = onException exn
+            member __.HandleOnShutdownException(exn:exn) = onException exn }
+        |> disruptor.SetDefaultExceptionHandler
+        { new IAsyncBatchEventHandler<Envelope<'msg>> with
+            member _.OnBatch(batch, _) =
+                ValueTask(task {
+                    for i = 0 to batch.Length - 1 do
+                        let ev = batch.[i]
+                        match ev.Msg with
+                        | ValueSome m ->
+                            let activity = restoreActivity ev.ParentContext "channel.process"
+                            try do! handlers.[taskIndex.[ev.TaskId]] m
+                            finally if not (isNull activity) then activity.Dispose()
+                        | ValueNone -> ()
+                } :> System.Threading.Tasks.Task)
+            member _.OnTimeout(_) = ()
+            member _.OnStart() = ()
+            member _.OnShutdown() = ()
+            member _.MaxBatchSize = System.Nullable() }
+        |> fun h -> disruptor.HandleEventsWith([| h |])
+        |> ignore
+        let ringBuffer = disruptor.Start()
+        let send (taskId: TaskId) : Send<'msg> =
+            fun msg -> publishWithTaskId ringBuffer taskId msg
+        send, disruptor.Halt
+
+    let startAsyncExecutorWithTimeout ringSize waitTimeoutMs onException (tasks: (TaskId * ('msg -> System.Threading.Tasks.ValueTask)) array) onTimeout =
+        let handlers = tasks |> Array.map (fun (_, h) -> h)
+        let taskIndex = System.Collections.Generic.Dictionary<TaskId, int>(tasks.Length)
+        for i = 0 to tasks.Length - 1 do
+            let (tid, _) = tasks.[i]
+            taskIndex.[tid] <- i
+        let disruptor = Disruptor<Envelope<'msg>>(
+            System.Func<Envelope<'msg>> Envelope, ringSize, TaskScheduler.Default,
+            ProducerType.Multi, AsyncWaitStrategy(System.TimeSpan.FromMilliseconds(float waitTimeoutMs)))
+        { new IExceptionHandler<Envelope<'msg>> with
+            member __.HandleEventException(exn:exn, _seqno:int64, _ev:Envelope<'msg>) = onException exn
+            member __.HandleEventException(exn:exn, _seqno:int64, _batch:EventBatch<Envelope<'msg>>) = onException exn
+            member __.HandleOnTimeoutException(exn:exn, _seqno:int64) = onException exn
+            member __.HandleOnStartException(exn:exn) = onException exn
+            member __.HandleOnShutdownException(exn:exn) = onException exn }
+        |> disruptor.SetDefaultExceptionHandler
+        { new IAsyncBatchEventHandler<Envelope<'msg>> with
+            member _.OnBatch(batch, _) =
+                ValueTask(task {
+                    for i = 0 to batch.Length - 1 do
+                        let ev = batch.[i]
+                        match ev.Msg with
+                        | ValueSome m ->
+                            let activity = restoreActivity ev.ParentContext "channel.process"
+                            try do! handlers.[taskIndex.[ev.TaskId]] m
+                            finally if not (isNull activity) then activity.Dispose()
+                        | ValueNone -> ()
+                } :> System.Threading.Tasks.Task)
+            member _.OnTimeout(_) = onTimeout()
+            member _.OnStart() = ()
+            member _.OnShutdown() = ()
+            member _.MaxBatchSize = System.Nullable() }
+        |> fun h -> disruptor.HandleEventsWith([| h |])
+        |> ignore
         let ringBuffer = disruptor.Start()
         let send (taskId: TaskId) : Send<'msg> =
             fun msg -> publishWithTaskId ringBuffer taskId msg
@@ -592,6 +653,175 @@ module internal RuntimeTopology =
         let combinedTimeout () = for ot in onTimeouts do ot()
         tasks, combinedTimeout
 
+    let private mkAsyncBolt log compId (comp:Bolt<'t>) (topology:Topology<'t>) taskId (asyncRunnable:AsyncRunnable<'t>) =
+        let conf = comp.Conf |> Map.join topology.Conf
+        let debug = conf |> Conf.optionOrDefault TOPOLOGY_DEBUG
+        let trace = if debug then log LogLevel.Trace else ignore
+
+        let mkOutput (rtt:RuntimeTopology<'t>) =
+            let ackers = rtt.ackerTasks |> Map.toArray
+            let mkIds = TupleTree.anchor (TupleTree.mkIdGenerator()) ackers
+            let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
+            let ack = TupleTree.mkAck Ok ackers
+            let nack = TupleTree.mkAck Fail ackers
+            function
+            | Emit (t, tupleId, anchors, stream, dstId, needIds) ->
+                let tuple = (anchors, tupleId, t, compId, stream, dstId)
+                trace (fun _ -> sprintf "> %+A" tuple)
+                emit tuple
+            | Error (text, ex) -> log LogLevel.Error (fun _ -> sprintf "%s%+A" text ex)
+            | Log (text, level) -> log level (fun _ -> sprintf "%s" text)
+            | OutCommand.Ok tid -> ack tid
+            | OutCommand.Fail tid -> nack tid
+            | cmd -> failwithf "Unexpected command: %+A" cmd
+
+        let mutable asyncDispatcher : InCommand<'t> -> System.Threading.Tasks.Task<unit> = fun _ -> System.Threading.Tasks.Task.FromResult(())
+        let mutable tagList = TagList()
+        tagList.Add("component.id", compId)
+        tagList.Add("task.id", taskId)
+
+        let handler (msg: TaskMsg<'t, InCommand<'t>>) : System.Threading.Tasks.ValueTask =
+            match msg with
+            | Start rtt ->
+                log LogLevel.Info (fun _ -> sprintf "Starting %s..." compId)
+                let output = mkOutput rtt
+                asyncDispatcher <- asyncRunnable conf output
+                System.Threading.Tasks.ValueTask(task {
+                    do! asyncDispatcher InCommand.Activate
+                } :> System.Threading.Tasks.Task)
+            | Stop ->
+                log LogLevel.Info (fun _ -> sprintf "Stopping %s..." compId)
+                let t = asyncDispatcher InCommand.Deactivate
+                asyncDispatcher <- fun _ -> System.Threading.Tasks.Task.FromResult(())
+                System.Threading.Tasks.ValueTask(t :> System.Threading.Tasks.Task)
+            | Other msg ->
+                trace (fun _ -> sprintf "< %+A" msg)
+                let start = Stopwatch.GetTimestamp()
+                let activity = Telemetry.activitySource.StartActivity("bolt.process", ActivityKind.Consumer)
+                if not (isNull activity) then
+                    activity.SetTag("component.id", compId) |> ignore
+                    activity.SetTag("task.id", taskId) |> ignore
+                let t = asyncDispatcher msg
+                if t.IsCompletedSuccessfully then
+                    if not (isNull activity) then activity.Dispose()
+                    Telemetry.processingTime.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds, &tagList)
+                    System.Threading.Tasks.ValueTask()
+                else
+                    System.Threading.Tasks.ValueTask(task {
+                        try do! t
+                        finally
+                            if not (isNull activity) then activity.Dispose()
+                            Telemetry.processingTime.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds, &tagList)
+                    } :> System.Threading.Tasks.Task)
+            | Tick | _ -> System.Threading.Tasks.ValueTask()
+        handler
+
+    let private mkAsyncBoltExecutor startLog compId (comp:Bolt<'t>) (topology:Topology<'t>) (taskIds:TaskId array) (asyncRunnable:AsyncRunnable<'t>) =
+        taskIds |> Array.map (fun taskId ->
+            let handler = asyncRunnable |> mkAsyncBolt (startLog taskId) compId comp topology taskId
+            (taskId, handler))
+
+    let private mkAsyncSpout log compId (comp:Spout<'t>) (topology:Topology<'t>) taskId (asyncRunnable:AsyncRunnable<'t>) =
+        let conf = comp.Conf |> Map.join topology.Conf
+        let maxPending : int = conf |> Conf.optionOrDefault TOPOLOGY_MAX_SPOUT_PENDING
+        let debug = conf |> Conf.optionOrDefault TOPOLOGY_DEBUG
+        let trace = if debug then log LogLevel.Trace else ignore
+        let mutable pending = 0
+
+        let mkOutput rtt =
+            let ackers = rtt.ackerTasks |> Map.toArray
+            let mkIds = TupleTree.track (TupleTree.mkIdGenerator()) ackers taskId
+            let emit = Routing.mkTupleRouter mkIds topology.Streams rtt.boltTasks taskId
+            function
+            | Emit (t, tupleId, _, stream, dstId, needIds) ->
+                let tuple = (List.empty, tupleId, t, compId, stream, dstId)
+                trace (fun _ -> sprintf "> %+A" tuple)
+                emit tuple
+                Interlocked.Increment &pending |> ignore
+                Telemetry.tuplesEmitted.Add(1L)
+                Telemetry.pendingCounter.Add(1)
+            | Error (text, ex) -> log LogLevel.Error (fun _ -> sprintf "%s%+A" text ex)
+            | Log (text, level) -> log level (fun _ -> text)
+            | Sync -> ()
+            | cmd -> failwithf "Unexpected command from a spout: %+A" cmd
+
+        let mutable asyncDispatcher : InCommand<'t> -> System.Threading.Tasks.Task<unit> = fun _ -> System.Threading.Tasks.Task.FromResult(())
+        let mutable tagList = TagList()
+        tagList.Add("component.id", compId)
+        tagList.Add("task.id", taskId)
+
+        let handler (msg: TaskMsg<'t, InCommand<'t>>) : System.Threading.Tasks.ValueTask =
+            match msg with
+            | Tick -> System.Threading.Tasks.ValueTask()
+            | Start rtt ->
+                let output = mkOutput rtt
+                log LogLevel.Info (fun _ -> sprintf "Starting %s..." compId)
+                asyncDispatcher <- asyncRunnable conf output
+                System.Threading.Tasks.ValueTask(task {
+                    do! asyncDispatcher InCommand.Activate
+                    for _ in 1..maxPending do
+                        if pending < maxPending then
+                            do! asyncDispatcher InCommand.Next
+                } :> System.Threading.Tasks.Task)
+            | Stop ->
+                log LogLevel.Info (fun _ -> sprintf "Stopping %s..." compId)
+                let t = asyncDispatcher InCommand.Deactivate
+                asyncDispatcher <- fun _ -> System.Threading.Tasks.Task.FromResult(())
+                System.Threading.Tasks.ValueTask(t :> System.Threading.Tasks.Task)
+            | Other msg ->
+                match msg with
+                | Ack _ | Nack _ ->
+                    Interlocked.Decrement &pending |> ignore
+                    Telemetry.pendingCounter.Add(-1)
+                    let start = Stopwatch.GetTimestamp()
+                    let activity = Telemetry.activitySource.StartActivity("spout.emit", ActivityKind.Producer)
+                    if not (isNull activity) then
+                        activity.SetTag("component.id", compId) |> ignore
+                        activity.SetTag("task.id", taskId) |> ignore
+                    System.Threading.Tasks.ValueTask(task {
+                        try
+                            do! asyncDispatcher msg
+                            if pending < maxPending then
+                                do! asyncDispatcher InCommand.Next
+                        finally
+                            if not (isNull activity) then activity.Dispose()
+                            Telemetry.processingTime.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds, &tagList)
+                    } :> System.Threading.Tasks.Task)
+                | _ ->
+                    trace (fun _ -> sprintf "< %+A" msg)
+                    let start = Stopwatch.GetTimestamp()
+                    let activity = Telemetry.activitySource.StartActivity("spout.emit", ActivityKind.Producer)
+                    if not (isNull activity) then
+                        activity.SetTag("component.id", compId) |> ignore
+                        activity.SetTag("task.id", taskId) |> ignore
+                    let t = asyncDispatcher msg
+                    if t.IsCompletedSuccessfully then
+                        if not (isNull activity) then activity.Dispose()
+                        Telemetry.processingTime.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds, &tagList)
+                        System.Threading.Tasks.ValueTask()
+                    else
+                        System.Threading.Tasks.ValueTask(task {
+                            try do! t
+                            finally
+                                if not (isNull activity) then activity.Dispose()
+                                Telemetry.processingTime.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds, &tagList)
+                        } :> System.Threading.Tasks.Task)
+
+        // OnTimeout returns void — no async overload available; blocking on thread-pool thread is bounded
+        let onTimeout () =
+            if pending < maxPending then
+                asyncDispatcher(InCommand.Next).GetAwaiter().GetResult()
+        handler, onTimeout
+
+    let private mkAsyncSpoutExecutor startLog compId (comp:Spout<'t>) (topology:Topology<'t>) (taskIds:TaskId array) (asyncRunnable:AsyncRunnable<'t>) =
+        let taskEntries = taskIds |> Array.map (fun taskId ->
+            let (handler, onTimeout) = asyncRunnable |> mkAsyncSpout (startLog taskId) compId comp topology taskId
+            (taskId, handler, onTimeout))
+        let tasks = taskEntries |> Array.map (fun (tid, h, _) -> (tid, h))
+        let onTimeouts = taskEntries |> Array.map (fun (_, _, ot) -> ot)
+        let combinedTimeout () = for ot in onTimeouts do ot()
+        tasks, combinedTimeout
+
     let private groupIntoExecutors (executorCount: int) (items: 'a array) : 'a array array =
         let groups = Array.init executorCount (fun _ -> ResizeArray())
         for i = 0 to items.Length - 1 do
@@ -627,32 +857,48 @@ module internal RuntimeTopology =
         let boltTasks =
             topology.Bolts
             |> Seq.collect (fun (KeyValue(compId, b)) ->
-                let runnable = match b.MkComp (anchorOfStream, b.Activate, b.Deactivate) with FuncRef r -> r | _ -> raiseNotRunnable compId
                 let taskCount = int b.Parallelism
                 let executorCount = b.Executors |> Option.map int |> Option.defaultValue taskCount |> min taskCount
                 let boltTaskIds = [| for _ in 1..taskCount -> nextTaskId() |]
                 let boltGroups = groupIntoExecutors executorCount boltTaskIds
-                boltGroups |> Array.collect (fun groupTaskIds ->
-                    let tasks = mkBoltExecutor startLog compId b topology groupTaskIds runnable
-                    let executorRingSize = ringSize * groupTaskIds.Length
-                    let (send, halt) = Channel.startExecutor executorRingSize onException tasks
-                    groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt)))))
+                match b.MkComp (anchorOfStream, b.Activate, b.Deactivate) with
+                | FuncRef r ->
+                    boltGroups |> Array.collect (fun groupTaskIds ->
+                        let tasks = mkBoltExecutor startLog compId b topology groupTaskIds r
+                        let executorRingSize = ringSize * groupTaskIds.Length
+                        let (send, halt) = Channel.startExecutor executorRingSize onException tasks
+                        groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt))))
+                | AsyncFuncRef ar ->
+                    boltGroups |> Array.collect (fun groupTaskIds ->
+                        let tasks = mkAsyncBoltExecutor startLog compId b topology groupTaskIds ar
+                        let executorRingSize = ringSize * groupTaskIds.Length
+                        let (send, halt) = Channel.startAsyncExecutor executorRingSize onException tasks
+                        groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt))))
+                | _ -> raiseNotRunnable compId)
             |> Map.ofSeq
 
         // Spouts: Parallelism tasks, grouped into Executors executors (default: 1:1)
         let spoutTasks =
             topology.Spouts
             |> Seq.collect (fun (KeyValue(compId, s)) ->
-                let runnable = match s.MkComp() with FuncRef r -> r | _ -> raiseNotRunnable compId
                 let taskCount = int s.Parallelism
                 let executorCount = s.Executors |> Option.map int |> Option.defaultValue taskCount |> min taskCount
                 let spoutTaskIds = [| for _ in 1..taskCount -> nextTaskId() |]
                 let spoutGroups = groupIntoExecutors executorCount spoutTaskIds
-                spoutGroups |> Array.collect (fun groupTaskIds ->
-                    let (tasks, combinedTimeout) = mkSpoutExecutor startLog compId s topology groupTaskIds runnable
-                    let executorRingSize = ringSize * groupTaskIds.Length
-                    let (send, halt) = Channel.startExecutorWithTimeout executorRingSize spoutWaitMs onException tasks combinedTimeout
-                    groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt)))))
+                match s.MkComp() with
+                | FuncRef r ->
+                    spoutGroups |> Array.collect (fun groupTaskIds ->
+                        let (tasks, combinedTimeout) = mkSpoutExecutor startLog compId s topology groupTaskIds r
+                        let executorRingSize = ringSize * groupTaskIds.Length
+                        let (send, halt) = Channel.startExecutorWithTimeout executorRingSize spoutWaitMs onException tasks combinedTimeout
+                        groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt))))
+                | AsyncFuncRef ar ->
+                    spoutGroups |> Array.collect (fun groupTaskIds ->
+                        let (tasks, combinedTimeout) = mkAsyncSpoutExecutor startLog compId s topology groupTaskIds ar
+                        let executorRingSize = ringSize * groupTaskIds.Length
+                        let (send, halt) = Channel.startAsyncExecutorWithTimeout executorRingSize spoutWaitMs onException tasks combinedTimeout
+                        groupTaskIds |> Array.map (fun tid -> tid, (compId, (send tid, halt))))
+                | _ -> raiseNotRunnable compId)
             |> Map.ofSeq
         
         { systemTask = nextTaskId() |> system

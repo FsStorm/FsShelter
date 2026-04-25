@@ -16,10 +16,15 @@ module Topology =
     type Dispatcher<'t> = InCommand<'t> -> unit
     /// Signature for a final runnable component
     type Runnable<'t> = Conf -> (OutCommand<'t> -> unit) -> Dispatcher<'t>
+    /// Commands dispatcher returning a Task
+    type AsyncDispatcher<'t> = InCommand<'t> -> System.Threading.Tasks.Task<unit>
+    /// Signature for a final runnable component (async)
+    type AsyncRunnable<'t> = Conf -> (OutCommand<'t> -> unit) -> AsyncDispatcher<'t>
 
     /// Storm Componend abstraction
     type Component<'t> = 
         | FuncRef of Runnable<'t>
+        | AsyncFuncRef of AsyncRunnable<'t>
         | Shell of command : string * args : string
         | Java of className : string * args : string list
 

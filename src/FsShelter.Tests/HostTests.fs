@@ -9,6 +9,7 @@ module Topologies =
     open FsShelter.DSL
     open FsShelter.Multilang
     open System.Threading
+    open System.Threading.Tasks
 
     type World = 
         { rnd : Random
@@ -53,36 +54,94 @@ module Topologies =
         yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
     }
 
+    let asyncPrintBolt (log,t) =
+        task {
+            match t with 
+            | Original _ -> log (sprintf "Init: %A" DateTime.Now)
+            | MaybeString _ -> log (sprintf "Shutdown: %A" DateTime.Now)
+            | Tick 
+            | _ -> ()
+        }
+
+    let asyncWorld = {rnd = Random(); count = ref 0L; acked = ref 0L}
+
+    let asyncSpoutWorld = {rnd = Random(); count = ref 0L; acked = ref 0L}
+
+    let asyncNumbers (world : World) =
+        task {
+            return Some(TupleId.ofString(string(Interlocked.Increment &world.count.contents)), Original { x = world.rnd.Next(0, 100) })
+        }
+
+    let t1AsyncSpout = topology "test-async-spout-host" {
+        let s1 = asyncNumbers
+                 |> Spout.runReliableAsync (fun log _ -> asyncSpoutWorld)
+                                           (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                                           ignore
+        let b1 = split
+                 |> Bolt.run (fun log _ t emit -> (t,emit))
+                 |> withParallelism 2
+        let b2 = printBolt
+                 |> Bolt.run (fun log _ t _ -> (log LogLevel.Info),t)
+        yield s1 ==> b1 |> Shuffle.on Original
+        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected")
+        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
+    }
+
+    let t1Async = topology "test-async-host" {
+        let s1 = numbers
+                 |> Spout.runReliable (fun log _ -> asyncWorld)
+                                      (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                                      ignore
+        let b1 = split
+                 |> Bolt.run (fun log _ t emit -> (t,emit))
+                 |> withParallelism 2
+        let b2 = asyncPrintBolt
+                 |> Bolt.runAsync (fun log _ t _ -> (log LogLevel.Info),t)
+                 |> withActivation (Original {x=1})
+                 |> withDeactivation (MaybeString None)
+        yield s1 ==> b1 |> Shuffle.on Original
+        yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected")
+        yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
+    }
+
 
 [<Test>]
-[<Category("interactive")>]
-let ``Hosts``() = 
+let ``Async spout hosts and processes``() = 
     let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
-//    let log taskId lvl = ignore
+    
+    Topologies.asyncSpoutWorld.count.Value <- 0L
+    Topologies.asyncSpoutWorld.acked.Value <- 0L
     
     let stop = 
-        Topologies.t1 
-        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 1
-                      TOPOLOGY_ACKER_EXECUTORS 2
-                      TOPOLOGY_DEBUG true]
+        Topologies.t1AsyncSpout 
+        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 10
+                      TOPOLOGY_ACKER_EXECUTORS 2 ]
         |> Hosting.runWith log 
-    let startedAt = DateTime.Now
-    let proc = System.Diagnostics.Process.GetCurrentProcess()
-    let mutable procTime = proc.TotalProcessorTime.TotalMilliseconds
-    let trace () =
-        let s = sprintf "-- Emited: %d, Acked: %d, In-flight: %d, rate: %4.2f" Topologies.world.count.Value Topologies.world.acked.Value (Topologies.world.count.Value - Topologies.world.acked.Value) ((float Topologies.world.acked.Value)/(DateTime.Now - startedAt).TotalSeconds) 
-        TraceLog.asyncLog (fun _ -> s)
-        let s = sprintf "-- GC: %dKB, %d/%d/%d" (GC.GetTotalMemory(false)/1024L) (GC.CollectionCount 0) (GC.CollectionCount 1) (GC.CollectionCount 2)
-        TraceLog.asyncLog (fun _ -> s)
-        let s = sprintf "-- CPU: %4.2f" (proc.TotalProcessorTime.TotalMilliseconds - procTime)
-        TraceLog.asyncLog (fun _ -> s)
-        procTime <- proc.TotalProcessorTime.TotalMilliseconds
-//    for i in 1..50 do 
-    Threading.Thread.Sleep 10000
-    trace()
+    
+    Threading.Thread.Sleep 2000
     stop()
-     
-    trace()
+    
+    test <@ Topologies.asyncSpoutWorld.count.Value > 0L @>
+    test <@ Topologies.asyncSpoutWorld.acked.Value > 0L @>
+
+[<Test>]
+let ``Async bolt hosts and processes``() = 
+    let log taskId lvl f = TraceLog.asyncLog (fun _ -> sprintf "%+A\t%d: %s" lvl taskId (f()))
+    
+    Topologies.asyncWorld.count.Value <- 0L
+    Topologies.asyncWorld.acked.Value <- 0L
+    
+    let stop = 
+        Topologies.t1Async 
+        |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 10
+                      TOPOLOGY_ACKER_EXECUTORS 2 ]
+        |> Hosting.runWith log 
+    
+    Threading.Thread.Sleep 2000
+    stop()
+    
+    test <@ Topologies.asyncWorld.count.Value > 0L @>
+    test <@ Topologies.asyncWorld.acked.Value > 0L @>
 
 [<Test>]
 [<Category("interactive")>]

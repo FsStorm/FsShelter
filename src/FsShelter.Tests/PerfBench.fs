@@ -146,6 +146,229 @@ module Bench =
         printfn "  GC 0/1/2:   %d/%d/%d" r.GC0 r.GC1 r.GC2
         printfn ""
 
+module AsyncBench =
+    open System.Threading.Tasks
+
+    let benchNumbersAsync (world : Bench.BenchWorld) =
+        task {
+            Interlocked.Increment &world.count.contents |> ignore
+            return Some(TupleId.ofString(string world.count.Value), Original { x = world.rnd.Next(0, 100) })
+        }
+
+    let splitAsync (input, emit) =
+        task {
+            match input with
+            | Original { x = x } ->
+                match x % 2 with
+                | 0 -> Even ({x=x}, {str="even"})
+                | _ -> Odd ({x=x}, "odd")
+            | _ -> failwithf "unexpected input: %A" input
+            |> emit
+        }
+
+    let resultBoltAsync (info, input) =
+        task {
+            match input with
+            | Even ({x = x}, {str=str})
+            | Odd ({x = x}, str) -> info (sprintf "Got %A" input)
+            | _ -> failwithf "unexpected input: %A" input
+        }
+
+    /// Async bolt only (sync spout)
+    let runAsyncBolt durationMs maxPending spoutWaitMs boltParallelism boltExecutors =
+        let world : Bench.BenchWorld = { rnd = Random(42); count = ref 0L; acked = ref 0L }
+
+        let t = topology "perf-async-bolt" {
+            let s1 = Bench.benchNumbers
+                     |> Spout.runReliable
+                         (fun _ _ -> world)
+                         (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                         ignore
+            let b1 = splitAsync
+                     |> Bolt.runAsync (fun _ _ t emit -> (t,emit))
+                     |> withParallelism boltParallelism
+                     |> withExecutors boltExecutors
+            let b2 = resultBoltAsync
+                     |> Bolt.runAsync (fun _ _ t _ -> ignore, t)
+            yield s1 ==> b1 |> Shuffle.on Original
+            yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected")
+            yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
+        }
+
+        TelemetryCollector.start()
+
+        let proc = Process.GetCurrentProcess()
+        let gcBefore = GC.CollectionCount 0, GC.CollectionCount 1, GC.CollectionCount 2
+        let memBefore = GC.GetTotalMemory(true)
+        let cpuBefore = proc.TotalProcessorTime.TotalMilliseconds
+
+        let nextPow2 n = let mutable v = n - 1 in v <- v ||| (v >>> 1); v <- v ||| (v >>> 2); v <- v ||| (v >>> 4); v <- v ||| (v >>> 8); v <- v ||| (v >>> 16); v + 1
+        let ringSize = nextPow2 (max 256 (maxPending * 2))
+        let stop =
+            t
+            |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING maxPending
+                          TOPOLOGY_ACKER_EXECUTORS 2
+                          TOPOLOGY_MESSAGE_TIMEOUT_SECS 10
+                          TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE ringSize
+                          TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS spoutWaitMs ]
+            |> Hosting.runWith (fun _ _ -> ignore)
+
+        let sw = Stopwatch.StartNew()
+        Thread.Sleep(durationMs: int)
+        sw.Stop()
+
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
+        let memAfter = GC.GetTotalMemory(false)
+        let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
+                            GC.CollectionCount 1 - (let (_,a,_) = gcBefore in a),
+                            GC.CollectionCount 2 - (let (_,_,a) = gcBefore in a)
+
+        stop()
+        Thread.Sleep(500)
+        TelemetryCollector.stop()
+
+        let elapsed = sw.Elapsed.TotalSeconds
+        {| Emitted = emitted
+           Acked = acked
+           InFlight = emitted - acked
+           ElapsedSec = elapsed
+           Rate = float acked / elapsed
+           CpuMs = cpuAfter - cpuBefore
+           MemDeltaKB = (memAfter - memBefore) / 1024L
+           GC0 = gc0; GC1 = gc1; GC2 = gc2 |}
+
+    /// Async spout only (sync bolts)
+    let runAsyncSpout durationMs maxPending spoutWaitMs boltParallelism boltExecutors =
+        let world : Bench.BenchWorld = { rnd = Random(42); count = ref 0L; acked = ref 0L }
+
+        let t = topology "perf-async-spout" {
+            let s1 = benchNumbersAsync
+                     |> Spout.runReliableAsync
+                         (fun _ _ -> world)
+                         (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                         ignore
+            let b1 = split
+                     |> Bolt.run (fun _ _ t emit -> (t,emit))
+                     |> withParallelism boltParallelism
+                     |> withExecutors boltExecutors
+            let b2 = resultBolt
+                     |> Bolt.run (fun _ _ t _ -> ignore, t)
+            yield s1 ==> b1 |> Shuffle.on Original
+            yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected")
+            yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
+        }
+
+        TelemetryCollector.start()
+
+        let proc = Process.GetCurrentProcess()
+        let gcBefore = GC.CollectionCount 0, GC.CollectionCount 1, GC.CollectionCount 2
+        let memBefore = GC.GetTotalMemory(true)
+        let cpuBefore = proc.TotalProcessorTime.TotalMilliseconds
+
+        let nextPow2 n = let mutable v = n - 1 in v <- v ||| (v >>> 1); v <- v ||| (v >>> 2); v <- v ||| (v >>> 4); v <- v ||| (v >>> 8); v <- v ||| (v >>> 16); v + 1
+        let ringSize = nextPow2 (max 256 (maxPending * 2))
+        let stop =
+            t
+            |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING maxPending
+                          TOPOLOGY_ACKER_EXECUTORS 2
+                          TOPOLOGY_MESSAGE_TIMEOUT_SECS 10
+                          TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE ringSize
+                          TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS spoutWaitMs ]
+            |> Hosting.runWith (fun _ _ -> ignore)
+
+        let sw = Stopwatch.StartNew()
+        Thread.Sleep(durationMs: int)
+        sw.Stop()
+
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
+        let memAfter = GC.GetTotalMemory(false)
+        let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
+                            GC.CollectionCount 1 - (let (_,a,_) = gcBefore in a),
+                            GC.CollectionCount 2 - (let (_,_,a) = gcBefore in a)
+
+        stop()
+        Thread.Sleep(500)
+        TelemetryCollector.stop()
+
+        let elapsed = sw.Elapsed.TotalSeconds
+        {| Emitted = emitted
+           Acked = acked
+           InFlight = emitted - acked
+           ElapsedSec = elapsed
+           Rate = float acked / elapsed
+           CpuMs = cpuAfter - cpuBefore
+           MemDeltaKB = (memAfter - memBefore) / 1024L
+           GC0 = gc0; GC1 = gc1; GC2 = gc2 |}
+
+    /// Full async (async spout + async bolts)
+    let runFullAsync durationMs maxPending spoutWaitMs boltParallelism boltExecutors =
+        let world : Bench.BenchWorld = { rnd = Random(42); count = ref 0L; acked = ref 0L }
+
+        let t = topology "perf-full-async" {
+            let s1 = benchNumbersAsync
+                     |> Spout.runReliableAsync
+                         (fun _ _ -> world)
+                         (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                         ignore
+            let b1 = splitAsync
+                     |> Bolt.runAsync (fun _ _ t emit -> (t,emit))
+                     |> withParallelism boltParallelism
+                     |> withExecutors boltExecutors
+            let b2 = resultBoltAsync
+                     |> Bolt.runAsync (fun _ _ t _ -> ignore, t)
+            yield s1 ==> b1 |> Shuffle.on Original
+            yield b1 --> b2 |> Group.by (function Odd(n,_) -> (n.x) | _ -> failwith "unexpected")
+            yield b1 --> b2 |> Group.by (function Even(x,str) -> (x.x,str.str) | _ -> failwith "unexpected")
+        }
+
+        TelemetryCollector.start()
+
+        let proc = Process.GetCurrentProcess()
+        let gcBefore = GC.CollectionCount 0, GC.CollectionCount 1, GC.CollectionCount 2
+        let memBefore = GC.GetTotalMemory(true)
+        let cpuBefore = proc.TotalProcessorTime.TotalMilliseconds
+
+        let nextPow2 n = let mutable v = n - 1 in v <- v ||| (v >>> 1); v <- v ||| (v >>> 2); v <- v ||| (v >>> 4); v <- v ||| (v >>> 8); v <- v ||| (v >>> 16); v + 1
+        let ringSize = nextPow2 (max 256 (maxPending * 2))
+        let stop =
+            t
+            |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING maxPending
+                          TOPOLOGY_ACKER_EXECUTORS 2
+                          TOPOLOGY_MESSAGE_TIMEOUT_SECS 10
+                          TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE ringSize
+                          TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS spoutWaitMs ]
+            |> Hosting.runWith (fun _ _ -> ignore)
+
+        let sw = Stopwatch.StartNew()
+        Thread.Sleep(durationMs: int)
+        sw.Stop()
+
+        let emitted = world.count.Value
+        let acked = world.acked.Value
+        let cpuAfter = proc.TotalProcessorTime.TotalMilliseconds
+        let memAfter = GC.GetTotalMemory(false)
+        let gc0, gc1, gc2 = GC.CollectionCount 0 - (let (a,_,_) = gcBefore in a),
+                            GC.CollectionCount 1 - (let (_,a,_) = gcBefore in a),
+                            GC.CollectionCount 2 - (let (_,_,a) = gcBefore in a)
+
+        stop()
+        Thread.Sleep(500)
+        TelemetryCollector.stop()
+
+        let elapsed = sw.Elapsed.TotalSeconds
+        {| Emitted = emitted
+           Acked = acked
+           InFlight = emitted - acked
+           ElapsedSec = elapsed
+           Rate = float acked / elapsed
+           CpuMs = cpuAfter - cpuBefore
+           MemDeltaKB = (memAfter - memBefore) / 1024L
+           GC0 = gc0; GC1 = gc1; GC2 = gc2 |}
+
 module BackpressureBench =
     type BPWorld = 
         { rnd : Random
@@ -259,16 +482,72 @@ module BackpressureBench =
 
 [<NUnit.Framework.Test>]
 [<NUnit.Framework.Category("perf")>]
-[<NUnit.Framework.TestCase(100, 128, 2, 2)>]  // default config (baseline)
-[<NUnit.Framework.TestCase(10, 16, 2, 2)>]    // tight backpressure
-[<NUnit.Framework.TestCase(10, 1280, 2, 2)>]  // deep buffer — acker/GC stress
-[<NUnit.Framework.TestCase(10, 128, 4, 4)>]   // high fan-out contention
-[<NUnit.Framework.TestCase(10, 128, 4, 1)>]   // 4 tasks on 1 executor (shared thread)
+[<NUnit.Framework.TestCase(100, 128, 2, 2)>]
+[<NUnit.Framework.TestCase(10, 128, 4, 1)>]
 let ``Throughput benchmark`` (spoutWaitMs: int) (maxPending: int) (boltParallelism: int) (boltExecutors: int) =
     printfn "Running benchmark (5s, wait=%d, pending=%d, par=%d, exec=%d)..." spoutWaitMs maxPending boltParallelism boltExecutors
     let result = Bench.run 5000 maxPending spoutWaitMs boltParallelism boltExecutors
     Bench.printResult (sprintf "Throughput (wait=%d, pending=%d, par=%d, exec=%d)" spoutWaitMs maxPending boltParallelism boltExecutors) result
     TelemetryCollector.print()
+
+[<NUnit.Framework.Test>]
+[<NUnit.Framework.Category("perf")>]
+[<NUnit.Framework.TestCase(100, 128, 2, 2)>]
+[<NUnit.Framework.TestCase(10, 128, 4, 1)>]
+let ``Throughput benchmark (async bolt)`` (spoutWaitMs: int) (maxPending: int) (boltParallelism: int) (boltExecutors: int) =
+    printfn "Running async bolt benchmark (5s, wait=%d, pending=%d, par=%d, exec=%d)..." spoutWaitMs maxPending boltParallelism boltExecutors
+    let result = AsyncBench.runAsyncBolt 5000 maxPending spoutWaitMs boltParallelism boltExecutors
+    Bench.printResult (sprintf "Async bolt (wait=%d, pending=%d, par=%d, exec=%d)" spoutWaitMs maxPending boltParallelism boltExecutors) result
+    TelemetryCollector.print()
+
+[<NUnit.Framework.Test>]
+[<NUnit.Framework.Category("perf")>]
+[<NUnit.Framework.TestCase(100, 128, 2, 2)>]
+[<NUnit.Framework.TestCase(10, 128, 4, 1)>]
+let ``Throughput benchmark (async spout)`` (spoutWaitMs: int) (maxPending: int) (boltParallelism: int) (boltExecutors: int) =
+    printfn "Running async spout benchmark (5s, wait=%d, pending=%d, par=%d, exec=%d)..." spoutWaitMs maxPending boltParallelism boltExecutors
+    let result = AsyncBench.runAsyncSpout 5000 maxPending spoutWaitMs boltParallelism boltExecutors
+    Bench.printResult (sprintf "Async spout (wait=%d, pending=%d, par=%d, exec=%d)" spoutWaitMs maxPending boltParallelism boltExecutors) result
+    TelemetryCollector.print()
+
+[<NUnit.Framework.Test>]
+[<NUnit.Framework.Category("perf")>]
+[<NUnit.Framework.TestCase(100, 128, 2, 2)>]
+[<NUnit.Framework.TestCase(10, 128, 4, 1)>]
+let ``Throughput benchmark (full async)`` (spoutWaitMs: int) (maxPending: int) (boltParallelism: int) (boltExecutors: int) =
+    printfn "Running full async benchmark (5s, wait=%d, pending=%d, par=%d, exec=%d)..." spoutWaitMs maxPending boltParallelism boltExecutors
+    let result = AsyncBench.runFullAsync 5000 maxPending spoutWaitMs boltParallelism boltExecutors
+    Bench.printResult (sprintf "Full async (wait=%d, pending=%d, par=%d, exec=%d)" spoutWaitMs maxPending boltParallelism boltExecutors) result
+    TelemetryCollector.print()
+
+[<NUnit.Framework.Test>]
+[<NUnit.Framework.Category("perf")>]
+let ``Sync vs async throughput comparison`` () =
+    printfn "Running sync vs async comparison (5s each)..."
+    printfn ""
+
+    let sync = Bench.run 5000 128 100 2 2
+    Bench.printResult "Sync (baseline)" sync
+
+    let asyncBolt = AsyncBench.runAsyncBolt 5000 128 100 2 2
+    Bench.printResult "Async bolt" asyncBolt
+
+    let asyncSpout = AsyncBench.runAsyncSpout 5000 128 100 2 2
+    Bench.printResult "Async spout" asyncSpout
+
+    let fullAsync = AsyncBench.runFullAsync 5000 128 100 2 2
+    Bench.printResult "Full async" fullAsync
+
+    printfn "--- Sync vs Async comparison ---"
+    printfn "  Sync throughput:        %.0f msg/s" sync.Rate
+    printfn "  Async bolt throughput:  %.0f msg/s (%.0f%%)" asyncBolt.Rate (asyncBolt.Rate / sync.Rate * 100.0)
+    printfn "  Async spout throughput: %.0f msg/s (%.0f%%)" asyncSpout.Rate (asyncSpout.Rate / sync.Rate * 100.0)
+    printfn "  Full async throughput:  %.0f msg/s (%.0f%%)" fullAsync.Rate (fullAsync.Rate / sync.Rate * 100.0)
+    printfn "  Sync  GC 0/1/2:        %d/%d/%d" sync.GC0 sync.GC1 sync.GC2
+    printfn "  Async bolt GC 0/1/2:   %d/%d/%d" asyncBolt.GC0 asyncBolt.GC1 asyncBolt.GC2
+    printfn "  Async spout GC 0/1/2:  %d/%d/%d" asyncSpout.GC0 asyncSpout.GC1 asyncSpout.GC2
+    printfn "  Full async GC 0/1/2:   %d/%d/%d" fullAsync.GC0 fullAsync.GC1 fullAsync.GC2
+    printfn ""
 
 [<NUnit.Framework.Test>]
 [<NUnit.Framework.Category("perf")>]

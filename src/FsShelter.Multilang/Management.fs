@@ -122,7 +122,7 @@ module ThriftModel =
         | Shell (prog,script) -> 
             ComponentObject(Shell = ShellComponent(Execution_command = prog,
                                                    Script = script))
-        | FuncRef _ ->
+        | FuncRef _ | AsyncFuncRef _ ->
             ComponentObject(Shell = ShellComponent(Execution_command = exeName,
                                                    Script = match optionalArgs with [] -> "" | xs -> String.Join(" ", xs)))
     
