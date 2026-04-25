@@ -1,15 +1,14 @@
-/// Phase 2: Spout liveness & backpressure tests
+/// Spout liveness & backpressure tests
 /// Modeled on Apache Storm's SpoutOutputCollectorTest
 module FsShelter.SpoutTests
 
+open System
+open System.Threading
+open System.Threading.Tasks
 open NUnit.Framework
 open Swensen.Unquote
 open FsShelter.TestTopology
 open FsShelter.DSL
-open FsShelter.Multilang
-open FsShelter.Hosting
-open System
-open System.Threading
 
 #nowarn "25"
 
@@ -191,5 +190,171 @@ let ``Idle spout does not leak resources`` () =
     // spout should have been called many times but produced nothing
     test <@ emitAttempts.Value > 0L @>
     // memory should not grow significantly (< 10MB for 5 seconds of idle)
+    let growth = (memAfter - memBefore) / 1024L / 1024L
+    test <@ growth < 10L @>
+
+// --- Async counterparts ---
+
+[<Test>]
+let ``Async spout respects maxPending backpressure`` () =
+    let tracker = SpoutTracker.Create()
+    let maxPending = 2
+
+    let numbersAsync (t: SpoutTracker) =
+        task {
+            Interlocked.Increment &t.emitted.contents |> ignore
+            return Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
+        }
+
+    let slowBolt (input: Schema, emit: Schema -> unit) =
+        Thread.Sleep 100
+        emit input
+
+    let sinkBolt (input: Schema, _: Schema -> unit) = ()
+
+    let t = topology "async-spout-pending-test" {
+        let s1 = numbersAsync
+                 |> Spout.runReliableAsync
+                     (fun _ _ -> tracker)
+                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore),
+                               (fun _ -> Interlocked.Increment &t.nacked.contents |> ignore))
+                     ignore
+        let b1 = slowBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        let b2 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        yield s1 ==> b1 |> Shuffle.on Original
+        yield b1 ==> b2 |> Shuffle.on Original
+    }
+    let topo = t |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING maxPending
+                               TOPOLOGY_ACKER_EXECUTORS 1
+                               TOPOLOGY_MESSAGE_TIMEOUT_SECS 1
+                               TOPOLOGY_DEBUG false ]
+    let stop = Hosting.runWith (fun _ _ -> ignore) topo
+
+    Thread.Sleep 3000
+
+    let inFlight = tracker.emitted.Value - tracker.acked.Value
+    stop()
+    Thread.Sleep 500
+
+    test <@ tracker.acked.Value > 0L @>
+    test <@ inFlight <= int64 (maxPending + 5) @>
+
+[<Test>]
+let ``Async spout nack callback fires on failure`` () =
+    let tracker = SpoutTracker.Create()
+
+    let numbersAsync (t: SpoutTracker) =
+        task {
+            Interlocked.Increment &t.emitted.contents |> ignore
+            return Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
+        }
+
+    let failingBolt (input: Schema, _: Schema -> unit) =
+        failwith "bolt failure for nack test"
+
+    let t = topology "async-spout-nack-test" {
+        let s1 = numbersAsync
+                 |> Spout.runReliableAsync
+                     (fun _ _ -> tracker)
+                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore),
+                               (fun tid -> Interlocked.Increment &t.nacked.contents |> ignore
+                                           lock t.nackIds (fun () -> t.nackIds.Add tid)))
+                     ignore
+        let b1 = failingBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        yield s1 ==> b1 |> Shuffle.on Original
+    }
+    let topo = t |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 2
+                               TOPOLOGY_ACKER_EXECUTORS 1
+                               TOPOLOGY_MESSAGE_TIMEOUT_SECS 2
+                               TOPOLOGY_DEBUG false ]
+    let stop = Hosting.runWith (fun _ _ -> ignore) topo
+
+    let deadline = DateTime.UtcNow.AddSeconds 10.
+    while tracker.nacked.Value < 1L && DateTime.UtcNow < deadline do
+        Thread.Sleep 100
+
+    stop()
+    Thread.Sleep 500
+
+    test <@ tracker.nacked.Value >= 1L @>
+    test <@ tracker.nackIds.Count >= 1 @>
+
+[<Test>]
+let ``Async spout handles activate-deactivate cycle via topology restart`` () =
+    let tracker = SpoutTracker.Create()
+
+    let numbersAsync (t: SpoutTracker) =
+        task {
+            Interlocked.Increment &t.emitted.contents |> ignore
+            return Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
+        }
+
+    let sinkBolt (input: Schema, _: Schema -> unit) = ()
+
+    let t = topology "async-spout-activate-test" {
+        let s1 = numbersAsync
+                 |> Spout.runReliableAsync
+                     (fun _ _ -> tracker)
+                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore), ignore)
+                     ignore
+        let b1 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        yield s1 ==> b1 |> Shuffle.on Original
+    }
+    let topo = t |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 10
+                               TOPOLOGY_ACKER_EXECUTORS 1
+                               TOPOLOGY_MESSAGE_TIMEOUT_SECS 1
+                               TOPOLOGY_DEBUG false ]
+
+    let stop1 = Hosting.runWith (fun _ _ -> ignore) topo
+    Thread.Sleep 2000
+    let countAfterFirst = tracker.emitted.Value
+    stop1()
+    Thread.Sleep 500
+
+    test <@ countAfterFirst > 0L @>
+
+    let stop2 = Hosting.runWith (fun _ _ -> ignore) topo
+    Thread.Sleep 2000
+    let countAfterSecond = tracker.emitted.Value
+    stop2()
+    Thread.Sleep 500
+
+    test <@ countAfterSecond > countAfterFirst @>
+
+[<Test>]
+let ``Async idle spout does not leak resources`` () =
+    let emitAttempts = ref 0L
+
+    let noneSpoutAsync (_: unit) =
+        task {
+            Interlocked.Increment emitAttempts |> ignore
+            return None : (TupleId * Schema) option
+        }
+
+    let sinkBolt (input: Schema, _: Schema -> unit) = ()
+
+    let t = topology "async-spout-idle-test" {
+        let s1 = noneSpoutAsync
+                 |> Spout.runReliableAsync (fun _ _ -> ()) (fun _ -> ignore, ignore) ignore
+        let b1 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        yield s1 ==> b1 |> Shuffle.on Original
+    }
+    let topo = t |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 10
+                               TOPOLOGY_ACKER_EXECUTORS 1
+                               TOPOLOGY_MESSAGE_TIMEOUT_SECS 1
+                               TOPOLOGY_DEBUG false ]
+
+    GC.Collect()
+    let memBefore = GC.GetTotalMemory(true)
+
+    let stop = Hosting.runWith (fun _ _ -> ignore) topo
+    Thread.Sleep 5000
+    stop()
+    Thread.Sleep 500
+
+    GC.Collect()
+    let memAfter = GC.GetTotalMemory(true)
+
+    test <@ emitAttempts.Value > 0L @>
     let growth = (memAfter - memBefore) / 1024L / 1024L
     test <@ growth < 10L @>

@@ -1,15 +1,13 @@
-/// Phase 1: Acker correctness tests
+/// Acker correctness tests
 /// Modeled on Apache Storm's AckerTest / TupleTreeTest
 module FsShelter.AckerTests
 
+open System
+open System.Threading
 open NUnit.Framework
 open Swensen.Unquote
 open FsShelter.TestTopology
 open FsShelter.DSL
-open FsShelter.Multilang
-open FsShelter.Hosting
-open System
-open System.Threading
 
 #nowarn "25"
 

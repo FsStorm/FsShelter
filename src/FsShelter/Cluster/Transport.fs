@@ -274,7 +274,7 @@ module internal Framing =
             (stream: Stream)
             (payload: byte[])
             (ct: CancellationToken) =
-        backgroundTask {
+        task {
             if payload.Length > maxFrame then
                 return Error (FrameTooLarge payload.Length)
             else
@@ -292,7 +292,7 @@ module internal Framing =
         }
 
     let private readExactlyAsync (stream: Stream) (count: int) (ct: CancellationToken) =
-        backgroundTask {
+        task {
             let buf = Array.zeroCreate count
             let mutable off = 0
             let mutable eof = false
@@ -307,7 +307,7 @@ module internal Framing =
             (maxFrame: int)
             (stream: Stream)
             (ct: CancellationToken) =
-        backgroundTask {
+        task {
             try
                 let! prefix = readExactlyAsync stream 4 ct
                 match prefix with

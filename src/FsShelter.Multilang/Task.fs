@@ -38,6 +38,11 @@ let ofTopology (t : Topology<'t>) compId =
     |> Seq.head
     |> function 
     | FuncRef r -> r
+    | AsyncFuncRef ar ->
+        fun conf out ->
+            let asyncDispatch = ar conf out
+            // Safe: backgroundTask ignores SynchronizationContext
+            fun msg -> asyncDispatch(msg).GetAwaiter().GetResult()
     | _ -> failwithf "Not a runnable component: %s" compId
 
 /// Reads the handshake and runs the specified task with a logger

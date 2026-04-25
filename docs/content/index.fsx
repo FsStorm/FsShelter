@@ -61,6 +61,7 @@ Documentation
 
  * [Schema](schema.html) — Grouping expressions, record flattening, serializer details, special streams
  * [Running Topologies](self-hosting.html) — Entry points, configuration, tuning, diagnostics
+ * [Clustering](clustering.html) — Master/standby failover with SWIM membership and deterministic leader election
  * [Routing](routing.html) — How tuples are distributed: Shuffle, Fields, All, Direct
 
 ### Deep dives

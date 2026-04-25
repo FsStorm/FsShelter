@@ -14,6 +14,7 @@
     <Compile Include="Conf.fs" />
     <Compile Include="Multilang.fs" />
     <Compile Include="Dispatch.fs" />
+    <Compile Include="DispatchAsync.fs" />
     <Compile Include="Topology.fs" />
     <Compile Include="DSL.fs" />
     <Compile Include="Hosting.fs" />

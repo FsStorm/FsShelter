@@ -251,6 +251,10 @@ module DSL =
     type Nack = TupleId -> unit
     /// ack/nack tuple
     type Acker = Ack*Nack
+    /// async spout function signature
+    type AsyncNext<'a, 't> = 'a -> System.Threading.Tasks.Task<'t option>
+    /// async bolt function signature
+    type AsyncConsume<'a> = 'a -> System.Threading.Tasks.Task<unit>
 
     /// wrap (external) shell component definition
     let shell (command : string) (args : string) = Shell(command, args)
@@ -277,6 +281,25 @@ module DSL =
               Executors = None
               Conf = Conf.empty }
 
+        /// define an async reliable spout
+        /// mkArgs: one-time construction of arguments that will be passed into each next() call.
+        /// mkAcker: one time construction of `Ack*Nack` handlers (using the args).
+        /// next: async spout function that returns a Task<(id*tuple) option>.
+        let runReliableAsync mkArgs (mkAcker: 'args -> Acker) (deactivate: 'args -> unit) (next: AsyncNext<_, _*'t>) : Spout<'t> =
+            { MkComp = fun () -> AsyncFuncRef (DispatchAsync.reliableSpout mkArgs mkAcker deactivate next TupleSchema.toStreamName<'t>)
+              Parallelism = 1u
+              Executors = None
+              Conf = Conf.empty }
+
+        /// define an async spout with no processing guarantees
+        /// mkArgs: one-time construction of arguments that will be passed into each next() call.
+        /// next: async spout function that returns a Task<tuple option>.
+        let runUnreliableAsync mkArgs (deactivate: 'args -> unit) (next: AsyncNext<_, 't>): Spout<'t> =
+            { MkComp = fun () -> AsyncFuncRef (DispatchAsync.unreliableSpout mkArgs deactivate next TupleSchema.toStreamName<'t>)
+              Parallelism = 1u
+              Executors = None
+              Conf = Conf.empty }
+
         /// define a spout for a (external) shell or java component
         let ofExternal<'t> comp: Spout<'t> =
             { Spout.MkComp = (fun _ -> comp); Parallelism=1u; Executors = None; Conf = Conf.empty }
@@ -293,6 +316,28 @@ module DSL =
               Activate = None
               Deactivate = None }
         
+        /// define an async bolt that auto-acks
+        /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each consume() call.
+        /// consume: async bolt function that will receive incoming tuples.
+        let runAsync mkArgs (consume: AsyncConsume<_>): Bolt<'t> =
+            { MkComp = fun (toAnchors, act, deact) -> AsyncFuncRef (DispatchAsync.autoAckBolt mkArgs consume (toAnchors, act, deact) TupleSchema.toStreamName<'t>)
+              Parallelism = 1u
+              Executors = None
+              Conf = Conf.empty
+              Activate = None
+              Deactivate = None }
+
+        /// define an async bolt that always nacks
+        /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each consume() call.
+        /// consume: async bolt function that will receive incoming tuples.
+        let runTerminatorAsync mkArgs (consume: AsyncConsume<_>): Bolt<'t> =
+            { MkComp = fun _ -> AsyncFuncRef (DispatchAsync.autoNackBolt mkArgs consume)
+              Parallelism = 1u
+              Executors = None
+              Conf = Conf.empty
+              Activate = None
+              Deactivate = None }
+
         /// define a bolt that always nacks
         /// mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
         /// consume: bolt function that will receive incoming tuples.
