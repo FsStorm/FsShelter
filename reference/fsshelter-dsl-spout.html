@@ -53,6 +53,11 @@
   </a>
 </li>             
 <li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
+  </a>
+</li>             
+<li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
     guaranteed
   </a>
@@ -131,6 +136,11 @@
 <li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
     concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
   </a>
 </li>             
 <li class="nav-item ">
@@ -235,7 +245,7 @@
         <tr>
           <td class="fsdocs-member-usage">
             <div>
-              <code data-fsdocs-tip="22" data-fsdocs-tip-unique="22">
+              <code data-fsdocs-tip="24" data-fsdocs-tip-unique="24">
                 <p>
                   <a id="ofExternal">
                     <a href="#ofExternal">
@@ -244,7 +254,7 @@
                   </a>
                 </p>
               </code>
-              <div popover="" class="fsdocs-tip" id="22">
+              <div popover="" class="fsdocs-tip" id="24">
                 <div class="member-tooltip">
                   Full Usage: 
                   <code><span>ofExternal&#32;<span>comp</span></span></code>
@@ -284,7 +294,7 @@
                     </p>
                   </div>
                   <div class="icon-button-row">
-                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L281-281" class="fsdocs-source-link" title="Source on GitHub">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L304-304" class="fsdocs-source-link" title="Source on GitHub">
                       <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
                     </a>
                     <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.ofExternal``1\'/>')">
@@ -321,7 +331,7 @@
         <tr>
           <td class="fsdocs-member-usage">
             <div>
-              <code data-fsdocs-tip="23" data-fsdocs-tip-unique="23">
+              <code data-fsdocs-tip="25" data-fsdocs-tip-unique="25">
                 <p>
                   <a id="runReliable">
                     <a href="#runReliable">
@@ -330,7 +340,7 @@
                   </a>
                 </p>
               </code>
-              <div popover="" class="fsdocs-tip" id="23">
+              <div popover="" class="fsdocs-tip" id="25">
                 <div class="member-tooltip">
                   Full Usage: 
                   <code><span>runReliable&#32;<span>mkArgs&#32;mkAcker&#32;deactivate&#32;next</span></span></code>
@@ -397,7 +407,7 @@
                     </p>
                   </div>
                   <div class="icon-button-row">
-                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L265-265" class="fsdocs-source-link" title="Source on GitHub">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L269-269" class="fsdocs-source-link" title="Source on GitHub">
                       <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
                     </a>
                     <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runReliable``2\'/>')">
@@ -458,7 +468,144 @@
         <tr>
           <td class="fsdocs-member-usage">
             <div>
-              <code data-fsdocs-tip="24" data-fsdocs-tip-unique="24">
+              <code data-fsdocs-tip="26" data-fsdocs-tip-unique="26">
+                <p>
+                  <a id="runReliableAsync">
+                    <a href="#runReliableAsync">
+                      <code><span>runReliableAsync&#32;<span>mkArgs&#32;mkAcker&#32;deactivate&#32;next</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div popover="" class="fsdocs-tip" id="26">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>runReliableAsync&#32;<span>mkArgs&#32;mkAcker&#32;deactivate&#32;next</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        mkArgs
+                      </b>
+                      :
+                      <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        mkAcker
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-acker.html">Acker</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        deactivate
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        next
+                      </b>
+                      :
+                      <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncnext-2.html">AsyncNext</a>&lt;<span>'args,&#32;<span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html">TupleId</a>&#32;*&#32;'t</span>)</span></span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                  </span>
+                  <br/>
+                  Type parameters: 
+                  &#39;args, &#39;t
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       define an async reliable spout
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ mkAcker: one time construction of `Ack*Nack` handlers (using the args).
+ next: async spout function that returns a Task<(id*tuple) option>.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L288-288" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runReliableAsync``2\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:FsShelter.DSL.Spout.runReliableAsync``2```')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-params">
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkArgs
+                  </span>
+                  :
+                  <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkAcker
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-acker.html">Acker</a></span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    deactivate
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;unit</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    next
+                  </span>
+                  :
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncnext-2.html">AsyncNext</a>&lt;<span>'args,&#32;<span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-tupleid.html">TupleId</a>&#32;*&#32;'t</span>)</span></span>&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+              </dl>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code data-fsdocs-tip="27" data-fsdocs-tip-unique="27">
                 <p>
                   <a id="runUnreliable">
                     <a href="#runUnreliable">
@@ -467,7 +614,7 @@
                   </a>
                 </p>
               </code>
-              <div popover="" class="fsdocs-tip" id="24">
+              <div popover="" class="fsdocs-tip" id="27">
                 <div class="member-tooltip">
                   Full Usage: 
                   <code><span>runUnreliable&#32;<span>mkArgs&#32;deactivate&#32;next</span></span></code>
@@ -525,7 +672,7 @@
                     </p>
                   </div>
                   <div class="icon-button-row">
-                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L274-274" class="fsdocs-source-link" title="Source on GitHub">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L278-278" class="fsdocs-source-link" title="Source on GitHub">
                       <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
                     </a>
                     <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runUnreliable``2\'/>')">
@@ -560,6 +707,126 @@
                   </span>
                   :
                   <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-next-2.html">Next</a>&lt;<span>'args,&#32;'t</span>&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+              </dl>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </details>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code data-fsdocs-tip="28" data-fsdocs-tip-unique="28">
+                <p>
+                  <a id="runUnreliableAsync">
+                    <a href="#runUnreliableAsync">
+                      <code><span>runUnreliableAsync&#32;<span>mkArgs&#32;deactivate&#32;next</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div popover="" class="fsdocs-tip" id="28">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>runUnreliableAsync&#32;<span>mkArgs&#32;deactivate&#32;next</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        mkArgs
+                      </b>
+                      :
+                      <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        deactivate
+                      </b>
+                      :
+                      <code><span>'args&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        next
+                      </b>
+                      :
+                      <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncnext-2.html">AsyncNext</a>&lt;<span>'args,&#32;'t</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-spout-1.html">Spout</a>&lt;'t&gt;</span></code>
+                  </span>
+                  <br/>
+                  Type parameters: 
+                  &#39;args, &#39;t
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <details>
+              <summary>
+                <div class="fsdocs-summary">
+                  <div class="fsdocs-summary-contents">
+                    <p class="fsdocs-summary">
+                       define an async spout with no processing guarantees
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ next: async spout function that returns a Task<tuple option>.
+                    </p>
+                  </div>
+                  <div class="icon-button-row">
+                    <a href="https://github.com/FsStorm/FsShelter.git/src/FsShelter/DSL.fs#L297-297" class="fsdocs-source-link" title="Source on GitHub">
+                      <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                    </a>
+                    <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:FsShelter.DSL.Spout.runUnreliableAsync``2\'/>')">
+                      <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+                    </div>
+                    <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:FsShelter.DSL.Spout.runUnreliableAsync``2```')">
+                      <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </summary>
+              <dl class="fsdocs-params">
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    mkArgs
+                  </span>
+                  :
+                  <code><span><span>(<span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-loglevel.html">LogLevel</a>&#32;->&#32;string&#32;->&#32;unit</span>)</span>&#32;->&#32;<a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html">Conf</a>&#32;->&#32;'args</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    deactivate
+                  </span>
+                  :
+                  <code><span>'args&#32;->&#32;unit</span></code>
+                </dt>
+                <dd class="fsdocs-param-docs"></dd>
+                <dt class="fsdocs-param">
+                  <span class="fsdocs-param-name">
+                    next
+                  </span>
+                  :
+                  <code><span><a href="https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncnext-2.html">AsyncNext</a>&lt;<span>'args,&#32;'t</span>&gt;</span></code>
                 </dt>
                 <dd class="fsdocs-param-docs"></dd>
               </dl>

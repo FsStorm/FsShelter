@@ -53,6 +53,11 @@
   </a>
 </li>             
 <li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
+  </a>
+</li>             
+<li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
     guaranteed
   </a>
@@ -131,6 +136,11 @@
 <li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
     concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
   </a>
 </li>             
 <li class="nav-item ">
@@ -275,6 +285,8 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 <li>After <code>maxRestarts</code> (5) consecutive failures, the topology stays down</li>
 <li><code>runNoRestart</code> uses <code>Environment.Exit(1)</code> instead, delegating restart to the process supervisor</li>
 </ul>
+<p>All entry points handle both sync and async components transparently — the runtime detects <code>AsyncFuncRef</code> components and routes them to async executors. No separate entry point is needed for topologies that use <code>Spout.runReliableAsync</code>, <code>Bolt.runAsync</code>, etc.</p>
+<p>For multi-node failover, see <a href="clustering.html">Clustering</a> — same topology code, add configuration options and use <code>Supervisor.runCluster</code>.</p>
 <h2><a name="Diagnostics" class="anchor" href="#Diagnostics">Diagnostics</a></h2>
 <p>Self-hosted topologies emit diagnostics via standard .NET APIs:</p>
 <h3><a name="OpenTelemetry-integration" class="anchor" href="#OpenTelemetry-integration">OpenTelemetry integration</a></h3>
@@ -423,6 +435,11 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 <td><p>(none)</p></td>
 <td><p>Per-bolt tick tuple interval in seconds</p></td>
 </tr>
+<tr class="even">
+<td><p><code>CLUSTER_*</code></p></td>
+<td><p>(various)</p></td>
+<td><p>Cluster supervision options — see <a href="clustering.html">Clustering</a> for the full configuration reference</p></td>
+</tr>
 </tbody>
 </table>
 
@@ -470,6 +487,7 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 </tbody>
 </table>
 
+<p>Async variants (<code>Spout.runReliableAsync</code>, <code>Spout.runUnreliableAsync</code>, <code>Bolt.runAsync</code>, <code>Bolt.runTerminatorAsync</code>) accept <code>Task</code>-returning functions and use async executors. All other DSL functions (<code>withParallelism</code>, <code>withExecutors</code>, etc.) work identically.</p>
 <p>Example:</p>
 <pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 4 bolt tasks served by 2 executor threads (2 tasks per thread)</span>
 <span class="k">let</span> <span class="id">counter</span> <span class="o">=</span> <span class="id">countWords</span>

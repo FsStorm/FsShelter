@@ -52,6 +52,11 @@
     concepts
   </a>
 </li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
+  </a>
+</li>             
 <li class="nav-item active">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
     guaranteed
@@ -131,6 +136,11 @@
 <li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
     concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
   </a>
 </li>             
 <li class="nav-item active">
@@ -339,7 +349,8 @@ from FsShelter<br /><br />--------------------<br />
 type TupleId =
   private | Anchored of anchor: int64 * local: int64
           | Unanchored of id: int64
-          | External of name: string<br /><em>&lt;summary&gt;
+          | External of name: string
+  override ToString: unit -&gt; string<br /><em>&lt;summary&gt;
  Tuple id - opaque identifier for tuple tracking.
 &lt;/summary&gt;</em></div>
 <div popover class="fsdocs-tip" id="fs27">type Ack = TupleId -&gt; unit<br /><em>&lt;summary&gt;
