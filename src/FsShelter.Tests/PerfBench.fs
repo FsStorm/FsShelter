@@ -247,7 +247,8 @@ module AsyncBench =
             let s1 = benchNumbersAsync
                      |> Spout.runReliableAsync
                          (fun _ _ -> world)
-                         (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                         (fun w -> (fun _ -> task { Interlocked.Increment &w.acked.contents |> ignore }),
+                                   (fun _ -> Task.FromResult ()))
                          ignore
             let b1 = split
                      |> Bolt.run (fun _ _ t emit -> (t,emit))
@@ -312,7 +313,8 @@ module AsyncBench =
             let s1 = benchNumbersAsync
                      |> Spout.runReliableAsync
                          (fun _ _ -> world)
-                         (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                         (fun w -> (fun _ -> task { Interlocked.Increment &w.acked.contents |> ignore }),
+                                   (fun _ -> Task.FromResult ()))
                          ignore
             let b1 = splitAsync
                      |> Bolt.runAsync (fun _ _ t emit -> (t,emit))

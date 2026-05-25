@@ -119,7 +119,7 @@ Async variants mirror their sync counterparts — same topology DSL, just differ
 
 | Sync | Async | Signature change |
 |------|-------|-----------------|
-| `Spout.runReliable` | `Spout.runReliableAsync` | `next: 'a -> ('id * 't) option` → `next: 'a -> Task<('id * 't) option>` |
+| `Spout.runReliable` | `Spout.runReliableAsync` | `next: 'a -> ('id * 't) option` → `next: 'a -> Task<('id * 't) option>`; `mkAcker: 'a -> Ack*Nack` → `mkAcker: 'a -> AsyncAck*AsyncNack` (Task-returning, awaited by dispatcher) |
 | `Spout.runUnreliable` | `Spout.runUnreliableAsync` | `next: 'a -> 't option` → `next: 'a -> Task<'t option>` |
 | `Bolt.run` | `Bolt.runAsync` | `consume: 'a -> unit` → `consume: 'a -> Task<unit>` |
 | `Bolt.runTerminator` | `Bolt.runTerminatorAsync` | `consume: 'a -> unit` → `consume: 'a -> Task<unit>` |

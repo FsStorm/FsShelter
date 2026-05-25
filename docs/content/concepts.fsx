@@ -190,11 +190,11 @@ The lambda arguments for the `run` methods construct the arguments passed to you
 
 `log` and `cfg` are curried once at startup. The `tuple` and `emit` arguments arrive per-message.
 
-The async variants have the same structure — just swap `Spout.run*` for `Spout.run*Async` and `Bolt.run` for `Bolt.runAsync`:
+The async variants have the same structure — just swap `Spout.run*` for `Spout.run*Async` and `Bolt.run` for `Bolt.runAsync`. Note that for `Spout.runReliableAsync` the ack/nack handlers return `Task<unit>` so they can be awaited by the dispatcher:
 
     // Async spout (reliable)
     let s1 = asyncNumbers
-             |> Spout.runReliableAsync (fun log cfg -> source) (fun s -> ack, nack) ignore
+             |> Spout.runReliableAsync (fun log cfg -> source) (fun s -> ackAsync, nackAsync) ignore
 
     // Async spout (unreliable)
     let s1 = asyncNumbers
