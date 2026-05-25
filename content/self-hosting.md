@@ -113,10 +113,6 @@ Key details:
 
 * `runNoRestart` uses `Environment.Exit(1)` instead, delegating restart to the process supervisor
 
-All entry points handle both sync and async components transparently — the runtime detects `AsyncFuncRef` components and routes them to async executors. No separate entry point is needed for topologies that use `Spout.runReliableAsync`, `Bolt.runAsync`, etc.
-
-For multi-node failover, see [Clustering](clustering.html) — same topology code, add configuration options and use `Supervisor.runCluster`.
-
 ## Diagnostics
 
 Self-hosted topologies emit diagnostics via standard .NET APIs:
@@ -169,7 +165,6 @@ Option | Default | Effect
 `TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS` | 100 | Spout executor timeout: how often the spout wakes to poll for new tuples when idle
 `TOPOLOGY_DEBUG` | false | Enable trace-level logging with timing
 `TOPOLOGY_TICK_TUPLE_FREQ_SECS` | (none) | Per-bolt tick tuple interval in seconds
-`CLUSTER_*` | (various) | Cluster supervision options — see [Clustering](clustering.html) for the full configuration reference
 
 
 ### Component-level DSL
@@ -182,8 +177,6 @@ Function | Applies to | Default | Effect
 `withActivation tuple` | Bolt | None | Send this tuple to the bolt on activation
 `withDeactivation tuple` | Bolt | None | Send this tuple to the bolt on deactivation
 
-
-Async variants (`Spout.runReliableAsync`, `Spout.runUnreliableAsync`, `Bolt.runAsync`, `Bolt.runTerminatorAsync`) accept `Task`-returning functions and use async executors. All other DSL functions (`withParallelism`, `withExecutors`, etc.) work identically.
 
 Example:
 

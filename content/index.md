@@ -56,8 +56,6 @@ Use `FsShelter` alone for [self-hosted](self-hosting.html) topologies. Add `FsSh
 
 * [Running Topologies](self-hosting.html) — Entry points, configuration, tuning, diagnostics
 
-* [Clustering](clustering.html) — Master/standby failover with SWIM membership and deterministic leader election
-
 * [Routing](routing.html) — How tuples are distributed: Shuffle, Fields, All, Direct
 
 ### Deep dives

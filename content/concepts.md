@@ -98,37 +98,6 @@ let logResult (info, input) =
 
 The arguments to your component functions are wired up when you define the topology — you choose exactly what each function receives. There's no global state or magic injection.
 
-## Async components
-
-When your spout or bolt needs to perform I/O (database queries, HTTP calls, file access), you can use the async variants. Instead of returning a value directly, async components return a `Task`:
-
-```fsharp
-open System.Threading.Tasks
-
-// async spout - produces a message via async I/O
-let asyncNumbers source : Task<BasicSchema option> =
-    task {
-        let value = source()
-        return Some(BasicSchema.Original value)
-    }
-
-// async bolt - transforms via async I/O
-let asyncAddOne (input, emit) : Task<unit> =
-    task {
-        match input with
-        | BasicSchema.Original(x) -> BasicSchema.Incremented(x + 1) |> emit
-        | _ -> failwithf "unexpected input: %A" input
-    }
-```
-
-The type signatures are:
-
-* `AsyncNext<'a, 't>` — an async spout function: `'a -> Task<'t option>`
-
-* `AsyncConsume<'a>` — an async bolt function: `'a -> Task<unit>`
-
-Async components run on async executors — the Disruptor thread awaits each `Task`, allowing non-blocking I/O without dedicating extra threads. All configuration (`withParallelism`, `withExecutors`, etc.) and delivery guarantees (reliable/unreliable) work identically.
-
 ## Topology DSL
 
 FsShelter provides a computation expression for defining topologies. You declare components and connect them with arrows:
@@ -183,29 +152,6 @@ The lambda arguments for the `run` methods construct the arguments passed to you
 * `emit` is a function to emit a new tuple downstream
 
 `log` and `cfg` are curried once at startup. The `tuple` and `emit` arguments arrive per-message.
-
-The async variants have the same structure — just swap `Spout.run*` for `Spout.run*Async` and `Bolt.run` for `Bolt.runAsync`:
-
-```fsharp
-// Async spout (reliable)
-let s1 = asyncNumbers
-         |> Spout.runReliableAsync (fun log cfg -> source) (fun s -> ack, nack) ignore
-
-// Async spout (unreliable)
-let s1 = asyncNumbers
-         |> Spout.runUnreliableAsync (fun log cfg -> source) ignore
-
-// Async bolt (auto-ack on success)
-let b1 = asyncAddOne
-         |> Bolt.runAsync (fun log cfg tuple emit -> (tuple, emit))
-
-// Async bolt (always nack — terminator)
-let b2 = asyncLog
-         |> Bolt.runTerminatorAsync (fun log cfg tuple _ -> (log, tuple))
-
-```
-
-Sync and async components can be mixed freely in the same topology. The hosting runtime detects the component type and uses the appropriate executor.
 
 ## Reliable vs unreliable delivery
 
