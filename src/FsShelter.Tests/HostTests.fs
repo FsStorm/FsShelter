@@ -75,7 +75,8 @@ module Topologies =
     let t1AsyncSpout = topology "test-async-spout-host" {
         let s1 = asyncNumbers
                  |> Spout.runReliableAsync (fun log _ -> asyncSpoutWorld)
-                                           (fun w -> (fun _ -> Interlocked.Increment &w.acked.contents |> ignore), ignore)
+                                           (fun w -> (fun _ -> task { Interlocked.Increment &w.acked.contents |> ignore }),
+                                                     (fun _ -> Task.FromResult ()))
                                            ignore
         let b1 = split
                  |> Bolt.run (fun log _ t emit -> (t,emit))

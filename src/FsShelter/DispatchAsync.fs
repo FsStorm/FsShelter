@@ -24,9 +24,9 @@ let reliableSpout mkArgs mkAcker deactivate next getStream conf out =
                                 result
                                 |> Option.iter (fun (tid, tuple) -> Emit(tuple, Some tid, [], getStream tuple, None, None) |> out)
                             | Ack tid -> 
-                                ack tid
+                                do! ack tid
                             | Nack tid ->
-                                nack tid
+                                do! nack tid
                             | Activate ->
                                 log out LogLevel.Error ("The spout is already active")
                             | Deactivate ->

@@ -200,7 +200,9 @@ let numbersAsync (world : World) =
 
 let t1AsyncSpout = topology "test-async-spout" {
     let s1 = numbersAsync
-             |> Spout.runReliableAsync (fun _ _ -> {rnd = Random(); count = ref 0L}) (fun _ -> ignore, ignore) ignore
+             |> Spout.runReliableAsync (fun _ _ -> {rnd = Random(); count = ref 0L})
+                                       (fun _ -> (fun _ -> Task.FromResult ()), (fun _ -> Task.FromResult ()))
+                                       ignore
     let b1 = split
              |> Bolt.run (fun _ _ t emit -> (t,emit))
              |> withParallelism 2

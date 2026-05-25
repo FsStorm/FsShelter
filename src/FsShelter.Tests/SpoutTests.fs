@@ -216,8 +216,8 @@ let ``Async spout respects maxPending backpressure`` () =
         let s1 = numbersAsync
                  |> Spout.runReliableAsync
                      (fun _ _ -> tracker)
-                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore),
-                               (fun _ -> Interlocked.Increment &t.nacked.contents |> ignore))
+                     (fun t -> (fun _ -> task { Interlocked.Increment &t.acked.contents |> ignore }),
+                               (fun _ -> task { Interlocked.Increment &t.nacked.contents |> ignore }))
                      ignore
         let b1 = slowBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
         let b2 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
@@ -256,9 +256,9 @@ let ``Async spout nack callback fires on failure`` () =
         let s1 = numbersAsync
                  |> Spout.runReliableAsync
                      (fun _ _ -> tracker)
-                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore),
-                               (fun tid -> Interlocked.Increment &t.nacked.contents |> ignore
-                                           lock t.nackIds (fun () -> t.nackIds.Add tid)))
+                     (fun t -> (fun _ -> task { Interlocked.Increment &t.acked.contents |> ignore }),
+                               (fun tid -> task { Interlocked.Increment &t.nacked.contents |> ignore
+                                                  lock t.nackIds (fun () -> t.nackIds.Add tid) }))
                      ignore
         let b1 = failingBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
         yield s1 ==> b1 |> Shuffle.on Original
@@ -280,6 +280,56 @@ let ``Async spout nack callback fires on failure`` () =
     test <@ tracker.nackIds.Count >= 1 @>
 
 [<Test>]
+let ``Async spout awaits Task-returning ack handlers`` () =
+    let tracker = SpoutTracker.Create()
+    let concurrentAcks = ref 0
+    let maxConcurrentAcks = ref 0
+
+    let numbersAsync (t: SpoutTracker) =
+        task {
+            Interlocked.Increment &t.emitted.contents |> ignore
+            return Some(TupleId.ofString(string t.emitted.Value), Original { x = 1 })
+        }
+
+    let sinkBolt (input: Schema, _: Schema -> unit) = ()
+
+    let t = topology "async-spout-await-ack-test" {
+        let s1 = numbersAsync
+                 |> Spout.runReliableAsync
+                     (fun _ _ -> tracker)
+                     (fun t -> (fun _ -> task {
+                                   let current = Interlocked.Increment concurrentAcks
+                                   let mutable prev = maxConcurrentAcks.Value
+                                   while current > prev
+                                         && Interlocked.CompareExchange(maxConcurrentAcks, current, prev) <> prev do
+                                       prev <- maxConcurrentAcks.Value
+                                   do! Task.Delay 50
+                                   Interlocked.Decrement concurrentAcks |> ignore
+                                   Interlocked.Increment &t.acked.contents |> ignore }),
+                               (fun _ -> Task.FromResult ()))
+                     ignore
+        let b1 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
+        yield s1 ==> b1 |> Shuffle.on Original
+    }
+    let topo = t |> withConf [ TOPOLOGY_MAX_SPOUT_PENDING 10
+                               TOPOLOGY_ACKER_EXECUTORS 1
+                               TOPOLOGY_MESSAGE_TIMEOUT_SECS 10
+                               TOPOLOGY_DEBUG false ]
+    let stop = Hosting.runWith (fun _ _ -> ignore) topo
+
+    Thread.Sleep 2000
+
+    stop()
+    Thread.Sleep 500
+
+    // With the await fix: each spout task processes Ack messages serially, so the
+    // 50ms Task.Delay inside one ack blocks the next ack from starting -> max == 1.
+    // Without await (fire-and-forget): the dispatcher returns immediately and many
+    // delayed acks overlap concurrently -> max > 1.
+    test <@ tracker.acked.Value > 0L @>
+    test <@ maxConcurrentAcks.Value = 1 @>
+
+[<Test>]
 let ``Async spout handles activate-deactivate cycle via topology restart`` () =
     let tracker = SpoutTracker.Create()
 
@@ -295,7 +345,8 @@ let ``Async spout handles activate-deactivate cycle via topology restart`` () =
         let s1 = numbersAsync
                  |> Spout.runReliableAsync
                      (fun _ _ -> tracker)
-                     (fun t -> (fun _ -> Interlocked.Increment &t.acked.contents |> ignore), ignore)
+                     (fun t -> (fun _ -> task { Interlocked.Increment &t.acked.contents |> ignore }),
+                               (fun _ -> Task.FromResult ()))
                      ignore
         let b1 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
         yield s1 ==> b1 |> Shuffle.on Original
@@ -335,7 +386,9 @@ let ``Async idle spout does not leak resources`` () =
 
     let t = topology "async-spout-idle-test" {
         let s1 = noneSpoutAsync
-                 |> Spout.runReliableAsync (fun _ _ -> ()) (fun _ -> ignore, ignore) ignore
+                 |> Spout.runReliableAsync (fun _ _ -> ())
+                                           (fun _ -> (fun _ -> Task.FromResult ()), (fun _ -> Task.FromResult ()))
+                                           ignore
         let b1 = sinkBolt |> Bolt.run (fun _ _ t emit -> (t, emit))
         yield s1 ==> b1 |> Shuffle.on Original
     }

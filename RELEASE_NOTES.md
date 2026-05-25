@@ -1,4 +1,4 @@
-#### 5.2.0 - May 2026
+#### 5.2.1 - May 2026
 * Async (`Task`) support: `Spout.runReliableAsync`, `Spout.runUnreliableAsync`, `Bolt.runAsync`, `Bolt.runTerminatorAsync`
 * Self-hosting Supervisor for Master/Standby deployments
 

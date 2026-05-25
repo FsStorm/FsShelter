@@ -255,6 +255,12 @@ module DSL =
     type AsyncNext<'a, 't> = 'a -> System.Threading.Tasks.Task<'t option>
     /// async bolt function signature
     type AsyncConsume<'a> = 'a -> System.Threading.Tasks.Task<unit>
+    /// async ack signature
+    type AsyncAck = TupleId -> System.Threading.Tasks.Task<unit>
+    /// async nack signature
+    type AsyncNack = TupleId -> System.Threading.Tasks.Task<unit>
+    /// async ack/nack tuple
+    type AsyncAcker = AsyncAck*AsyncNack
 
     /// wrap (external) shell component definition
     let shell (command : string) (args : string) = Shell(command, args)
@@ -283,9 +289,9 @@ module DSL =
 
         /// define an async reliable spout
         /// mkArgs: one-time construction of arguments that will be passed into each next() call.
-        /// mkAcker: one time construction of `Ack*Nack` handlers (using the args).
+        /// mkAcker: one time construction of `AsyncAck*AsyncNack` handlers (using the args). Ack/Nack run as Task<unit> and are awaited by the dispatcher.
         /// next: async spout function that returns a Task<(id*tuple) option>.
-        let runReliableAsync mkArgs (mkAcker: 'args -> Acker) (deactivate: 'args -> unit) (next: AsyncNext<_, _*'t>) : Spout<'t> =
+        let runReliableAsync mkArgs (mkAcker: 'args -> AsyncAcker) (deactivate: 'args -> unit) (next: AsyncNext<_, _*'t>) : Spout<'t> =
             { MkComp = fun () -> AsyncFuncRef (DispatchAsync.reliableSpout mkArgs mkAcker deactivate next TupleSchema.toStreamName<'t>)
               Parallelism = 1u
               Executors = None
