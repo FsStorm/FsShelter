@@ -113,6 +113,46 @@ Key details:
 
 * `runNoRestart` uses `Environment.Exit(1)` instead, delegating restart to the process supervisor
 
+All entry points handle both sync and async components transparently — the runtime detects `AsyncFuncRef` components and routes them to async executors. No separate entry point is needed for topologies that use `Spout.runReliableAsync`, `Bolt.runAsync`, etc.
+
+For multi-node failover, see [Clustering](clustering.html) — same topology code, add configuration options and use `Supervisor.runCluster`.
+
+## Async components
+
+FsShelter supports async spouts and bolts via Disruptor's `IAsyncBatchEventHandler` with `AsyncWaitStrategy`. This lets components perform native async I/O (database calls, HTTP requests, message queue reads) without blocking executor threads.
+
+### Defining async components
+
+Async variants mirror their sync counterparts — same topology DSL, just different function signatures:
+
+Sync | Async | Signature change
+--- | --- | ---
+`Spout.runReliable` | `Spout.runReliableAsync` | `next: 'a -> ('id * 't) option` → `next: 'a -> Task<('id * 't) option>`
+`Spout.runUnreliable` | `Spout.runUnreliableAsync` | `next: 'a -> 't option` → `next: 'a -> Task<'t option>`
+`Bolt.run` | `Bolt.runAsync` | `consume: 'a -> unit` → `consume: 'a -> Task<unit>`
+`Bolt.runTerminator` | `Bolt.runTerminatorAsync` | `consume: 'a -> unit` → `consume: 'a -> Task<unit>`
+
+
+### How it works
+
+The runtime detects `AsyncFuncRef` components during topology construction:
+
+* **Async bolts** get a Disruptor channel with `AsyncWaitStrategy()` — the handler's `OnBatch` method is `async`, allowing `Task`-returning bolt functions to `await` without blocking.
+
+* **Async spouts** get `AsyncWaitStrategy(TimeSpan)` — combines async event handling with a timeout for polling (issuing `Next` when under `maxPending`).
+
+* **Sync components** (`FuncRef`) continue to use blocking wait strategies on their own executor threads — no change in behavior.
+
+Mixed topologies (some sync bolts, some async bolts, sync spout) work seamlessly — each component type gets the appropriate channel strategy.
+
+### Performance characteristics
+
+* Sync path: zero regression — same throughput as pre-async baseline (~5,350 msg/s on standard bench config)
+
+* Async path: comparable throughput with higher CPU utilization (trades thread blocking for task scheduling)
+
+* GC profile: unchanged for sync; async adds minor Task allocations
+
 ## Diagnostics
 
 Self-hosted topologies emit diagnostics via standard .NET APIs:
@@ -165,6 +205,7 @@ Option | Default | Effect
 `TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS` | 100 | Spout executor timeout: how often the spout wakes to poll for new tuples when idle
 `TOPOLOGY_DEBUG` | false | Enable trace-level logging with timing
 `TOPOLOGY_TICK_TUPLE_FREQ_SECS` | (none) | Per-bolt tick tuple interval in seconds
+`CLUSTER_*` | (various) | Cluster supervision options — see [Clustering](clustering.html) for the full configuration reference
 
 
 ### Component-level DSL
@@ -177,6 +218,8 @@ Function | Applies to | Default | Effect
 `withActivation tuple` | Bolt | None | Send this tuple to the bolt on activation
 `withDeactivation tuple` | Bolt | None | Send this tuple to the bolt on deactivation
 
+
+Async variants (`Spout.runReliableAsync`, `Spout.runUnreliableAsync`, `Bolt.runAsync`, `Bolt.runTerminatorAsync`) accept `Task`-returning functions and use async executors. All other DSL functions (`withParallelism`, `withExecutors`, etc.) work identically.
 
 Example:
 

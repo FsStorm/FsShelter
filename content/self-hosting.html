@@ -53,6 +53,11 @@
   </a>
 </li>             
 <li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
+  </a>
+</li>             
+<li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/guaranteed.html">
     guaranteed
   </a>
@@ -131,6 +136,11 @@
 <li class="nav-item ">
   <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/concepts.html">
     concepts
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://FsStorm.github.io/FsShelter/content/clustering.html">
+    clustering
   </a>
 </li>             
 <li class="nav-item ">
@@ -274,6 +284,58 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 <li><code>restartCount</code> resets to 0 after each successful start</li>
 <li>After <code>maxRestarts</code> (5) consecutive failures, the topology stays down</li>
 <li><code>runNoRestart</code> uses <code>Environment.Exit(1)</code> instead, delegating restart to the process supervisor</li>
+</ul>
+<p>All entry points handle both sync and async components transparently — the runtime detects <code>AsyncFuncRef</code> components and routes them to async executors. No separate entry point is needed for topologies that use <code>Spout.runReliableAsync</code>, <code>Bolt.runAsync</code>, etc.</p>
+<p>For multi-node failover, see <a href="clustering.html">Clustering</a> — same topology code, add configuration options and use <code>Supervisor.runCluster</code>.</p>
+<h2><a name="Async-components" class="anchor" href="#Async-components">Async components</a></h2>
+<p>FsShelter supports async spouts and bolts via Disruptor's <code>IAsyncBatchEventHandler</code> with <code>AsyncWaitStrategy</code>. This lets components perform native async I/O (database calls, HTTP requests, message queue reads) without blocking executor threads.</p>
+<h3><a name="Defining-async-components" class="anchor" href="#Defining-async-components">Defining async components</a></h3>
+<p>Async variants mirror their sync counterparts — same topology DSL, just different function signatures:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Sync</p></th>
+<th><p>Async</p></th>
+<th><p>Signature change</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>Spout.runReliable</code></p></td>
+<td><p><code>Spout.runReliableAsync</code></p></td>
+<td><p><code>next: 'a -&gt; ('id * 't) option</code> → <code>next: 'a -&gt; Task&lt;('id * 't) option&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>Spout.runUnreliable</code></p></td>
+<td><p><code>Spout.runUnreliableAsync</code></p></td>
+<td><p><code>next: 'a -&gt; 't option</code> → <code>next: 'a -&gt; Task&lt;'t option&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td><p><code>Bolt.run</code></p></td>
+<td><p><code>Bolt.runAsync</code></p></td>
+<td><p><code>consume: 'a -&gt; unit</code> → <code>consume: 'a -&gt; Task&lt;unit&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>Bolt.runTerminator</code></p></td>
+<td><p><code>Bolt.runTerminatorAsync</code></p></td>
+<td><p><code>consume: 'a -&gt; unit</code> → <code>consume: 'a -&gt; Task&lt;unit&gt;</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<h3><a name="How-it-works" class="anchor" href="#How-it-works">How it works</a></h3>
+<p>The runtime detects <code>AsyncFuncRef</code> components during topology construction:</p>
+<ul>
+<li><strong>Async bolts</strong> get a Disruptor channel with <code>AsyncWaitStrategy()</code> — the handler's <code>OnBatch</code> method is <code>async</code>, allowing <code>Task</code>-returning bolt functions to <code>await</code> without blocking.</li>
+<li><strong>Async spouts</strong> get <code>AsyncWaitStrategy(TimeSpan)</code> — combines async event handling with a timeout for polling (issuing <code>Next</code> when under <code>maxPending</code>).</li>
+<li><strong>Sync components</strong> (<code>FuncRef</code>) continue to use blocking wait strategies on their own executor threads — no change in behavior.</li>
+</ul>
+<p>Mixed topologies (some sync bolts, some async bolts, sync spout) work seamlessly — each component type gets the appropriate channel strategy.</p>
+<h3><a name="Performance-characteristics" class="anchor" href="#Performance-characteristics">Performance characteristics</a></h3>
+<ul>
+<li>Sync path: zero regression — same throughput as pre-async baseline (~5,350 msg/s on standard bench config)</li>
+<li>Async path: comparable throughput with higher CPU utilization (trades thread blocking for task scheduling)</li>
+<li>GC profile: unchanged for sync; async adds minor Task allocations</li>
 </ul>
 <h2><a name="Diagnostics" class="anchor" href="#Diagnostics">Diagnostics</a></h2>
 <p>Self-hosted topologies emit diagnostics via standard .NET APIs:</p>
@@ -423,6 +485,11 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 <td><p>(none)</p></td>
 <td><p>Per-bolt tick tuple interval in seconds</p></td>
 </tr>
+<tr class="even">
+<td><p><code>CLUSTER_*</code></p></td>
+<td><p>(various)</p></td>
+<td><p>Cluster supervision options — see <a href="clustering.html">Clustering</a> for the full configuration reference</p></td>
+</tr>
 </tbody>
 </table>
 
@@ -470,6 +537,7 @@ The 2.0 release of FsShelter reimplements this feature using the same technology
 </tbody>
 </table>
 
+<p>Async variants (<code>Spout.runReliableAsync</code>, <code>Spout.runUnreliableAsync</code>, <code>Bolt.runAsync</code>, <code>Bolt.runTerminatorAsync</code>) accept <code>Task</code>-returning functions and use async executors. All other DSL functions (<code>withParallelism</code>, <code>withExecutors</code>, etc.) work identically.</p>
 <p>Example:</p>
 <pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 4 bolt tasks served by 2 executor threads (2 tasks per thread)</span>
 <span class="k">let</span> <span class="id">counter</span> <span class="o">=</span> <span class="id">countWords</span>
@@ -577,6 +645,26 @@ Acker tasks are stateless relative to each other (each tracks a disjoint set of 
   <li class="level-2">
     <a href="#Entry-points">
       Entry points
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Async-components">
+      Async components
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Defining-async-components">
+      Defining async components
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#How-it-works">
+      How it works
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Performance-characteristics">
+      Performance characteristics
     </a>
   </li>
   <li class="level-2">

@@ -85,6 +85,31 @@ let logResult (info, input) =
     | _ -> failwithf "unexpected input: %A" input
 
 The arguments to your component functions are wired up when you define the topology — you choose exactly what each function receives. There's no global state or magic injection.
+Async components
+When your spout or bolt needs to perform I/O (database queries, HTTP calls, file access), you can use the async variants. Instead of returning a value directly, async components return a Task:
+open System.Threading.Tasks
+
+// async spout - produces a message via async I/O
+let asyncNumbers source : Task<BasicSchema option> =
+    task {
+        let value = source()
+        return Some(BasicSchema.Original value)
+    }
+
+// async bolt - transforms via async I/O
+let asyncAddOne (input, emit) : Task<unit> =
+    task {
+        match input with
+        | BasicSchema.Original(x) -> BasicSchema.Incremented(x + 1) |> emit
+        | _ -> failwithf "unexpected input: %A" input
+    }
+
+The type signatures are:
+
+AsyncNext<'a, 't> — an async spout function: 'a -> Task<'t option>
+AsyncConsume<'a> — an async bolt function: 'a -> Task<unit>
+
+Async components run on async executors — the Disruptor thread awaits each Task, allowing non-blocking I/O without dedicating extra threads. All configuration (withParallelism, withExecutors, etc.) and delivery guarantees (reliable/unreliable) work identically.
 Topology DSL
 FsShelter provides a computation expression for defining topologies. You declare components and connect them with arrows:
 
@@ -128,6 +153,24 @@ tuple is the incoming message (schema DU instance)
 emit is a function to emit a new tuple downstream
 
 log and cfg are curried once at startup. The tuple and emit arguments arrive per-message.
+The async variants have the same structure — just swap Spout.run* for Spout.run*Async and Bolt.run for Bolt.runAsync:
+// Async spout (reliable)
+let s1 = asyncNumbers
+         |> Spout.runReliableAsync (fun log cfg -> source) (fun s -> ack, nack) ignore
+
+// Async spout (unreliable)
+let s1 = asyncNumbers
+         |> Spout.runUnreliableAsync (fun log cfg -> source) ignore
+
+// Async bolt (auto-ack on success)
+let b1 = asyncAddOne
+         |> Bolt.runAsync (fun log cfg tuple emit -> (tuple, emit))
+
+// Async bolt (always nack — terminator)
+let b2 = asyncLog
+         |> Bolt.runTerminatorAsync (fun log cfg tuple _ -> (log, tuple))
+
+Sync and async components can be mixed freely in the same topology. The hosting runtime detects the component type and uses the appropriate executor.
 Reliable vs unreliable delivery
 FsShelter supports two delivery modes:
 Unreliable (fire and forget): Tuples are emitted and processed but not tracked. If a bolt fails, the message is lost. This is the simplest mode and has the lowest overhead. Use it when losing an occasional message is acceptable (metrics, logging, non-critical analytics).
@@ -205,6 +248,7 @@ Reference
 
 Schema — Grouping expressions, record flattening, serializer details, special streams
 Running Topologies — Entry points, configuration, tuning, diagnostics
+Clustering — Master/standby failover with SWIM membership and deterministic leader election
 Routing — How tuples are distributed: Shuffle, Fields, All, Direct
 
 Deep dives
@@ -232,6 +276,192 @@ also want to read the library design notes to understand how it works.
 The library is available under Apache 2.0 license, which allows modification and
 redistribution for both commercial and non-commercial purposes. For more information see the
 License file in the GitHub repository.
+
+### [clustering](https://FsStorm.github.io/FsShelter/content/clustering.md)
+
+Clustering
+FsShelter topologies can run under cluster supervision for automatic master/standby failover — no external coordinator (ZooKeeper, etcd, etc.) required. Add a few configuration options to your existing topology and swap Hosting.run for Supervisor.runCluster.
+Only one peer in the cluster — the master — runs the topology at any time. Standby peers gossip among themselves and monitor liveness. If the master goes down, the remaining peers elect a new master and activate the topology there.
+Key properties:
+
+No external dependencies — peers communicate directly over TCP; no coordinator service needed.
+Deterministic election — Rendezvous (HRW) hashing; every peer computes the same result independently.
+Transparent fallthrough — when CLUSTER_SEEDS is empty, Supervisor.runCluster delegates to Hosting.runWith for single-process parity. Same topology code, zero cluster overhead.
+Same topology code — sync, async, reliable, unreliable — all component types work under cluster supervision without changes.
+
+Quick start
+Configure your topology with cluster options and use Supervisor.runCluster instead of Hosting.run:
+open FsShelter.Cluster
+
+let shutdown =
+    myTopology
+    |> withConf [ CLUSTER_LISTEN "0.0.0.0:6700"
+                  CLUSTER_SEEDS "node1:6700,node2:6700,node3:6700"
+                  CLUSTER_QUORUM 2 ]
+    |> Supervisor.runCluster (fun _ _ -> ignore)
+
+match shutdown with
+| Ok stop -> stop()  // graceful shutdown
+| Error msg -> eprintfn "Cluster startup failed: %s" msg
+
+runCluster returns Result<unit -> unit, string> — startup failures (bad config, transport bind, peer-id I/O) are returned as Error rather than thrown.
+How it works
+The supervisor is a pure state machine (Supervisor.step) driven by external events. The impure orchestration (runClusterWith) wires together the TCP transport, periodic heartbeats, membership tracking, and election recompute.
+Supervisor states
+stateDiagram-v2
+    [*] --> Standby
+    Standby --> Activating : ElectionUpdate(self=master)
+    Activating --> Master : StabilizeElapsed (window passed)
+    Activating --> Standby : ElectionUpdate(self≠master)
+    Master --> Standby : ElectionUpdate(self≠master)
+    Master --> Stopping : Shutdown
+    Standby --> Stopping : Shutdown
+    Activating --> Stopping : Shutdown
+    Stopping --> [*]
+
+State
+What's happening
+
+Standby
+Not the elected master. Only gossip and transport machinery are running.
+
+Activating
+Just won the election. Debouncing for CLUSTER_STABILIZE_MS before starting the topology — this prevents rapid start/stop if membership is still settling.
+
+Master
+Elected master and the topology is running.
+
+Stopping
+Shutdown was requested. Terminal state — no further transitions.
+
+The transition from Activating → Standby (lost mastership before stabilize window expires) is key: the topology was never started, so no StopTopology effect is emitted.
+Failure detection (SWIM)
+Peers detect failures using a lightweight gossip protocol inspired by SWIM:
+
+Each peer sends heartbeat pings at CLUSTER_HEARTBEAT_MS intervals to all known peers, piggy-backing membership digests (peer state + incarnation numbers).
+If a peer stops responding, it transitions from Alive → Suspect after CLUSTER_SUSPECT_TIMEOUT_MS with no heartbeat received.
+A suspected peer can refute by responding with a newer incarnation — transitioning back to Alive.
+If no refutation arrives, the peer transitions from Suspect → Dead and is evicted.
+
+Member states
+stateDiagram-v2
+    [*] --> Alive
+    Alive --> Suspect : No heartbeat for SuspectTimeoutMs
+    Suspect --> Alive : Newer incarnation received (refute)
+    Suspect --> Dead : SuspectTimeoutMs elapsed without refutation
+    Dead --> [*] : Evicted
+
+Quorum: Only Alive and Suspect peers count toward quorum. The topology activates only when the cluster has at least CLUSTER_QUORUM live members AND the local peer is the elected master.
+Epochs: Membership changes (joins, deaths) bump the cluster epoch. Only epoch changes trigger election recompute — suspect flaps do not.
+Leader election (HRW)
+FsShelter uses Rendezvous Hashing (Highest Random Weight) for deterministic, decentralized leader election.
+How it works
+Each peer independently computes a score for every live peer:
+score(peer) = SHA-256(topologyName | epoch_BE8 | peer_GUID) 
+
+The peer with the highest score wins. Ties are broken by PeerId ordinal comparison.
+Key properties
+
+Deterministic — all peers compute the same result independently; no voting or coordination messages needed.
+Epoch stickiness — folding the epoch into the hash input makes mastership stable: a higher-scored peer rejoining without a membership change cannot steal the role until the live set shifts (which bumps the epoch).
+Minimal disruption — when a peer joins or leaves, on average only 1/N of the election results change.
+
+Quorum requirement
+The topology only activates when MemberView.hasQuorum is satisfied. A cluster of 3 peers with CLUSTER_QUORUM 2 can tolerate 1 failure. A cluster of 5 with CLUSTER_QUORUM 3 can tolerate 2.
+Stabilization window
+After winning an election, the master waits CLUSTER_STABILIZE_MS (default: 2000ms) before activating the topology. This debounce window prevents rapid start/stop when membership is still settling (e.g., peers starting up in quick succession).
+If mastership is lost during the stabilization window, the peer returns to Standby without ever starting the topology — avoiding unnecessary initialization and teardown.
+Configuration reference
+
+Option
+Default
+Effect
+
+CLUSTER_SEEDS
+(none)
+Comma-separated host:port list of initial peers. Required for clustering. Empty = single-process fallthrough.
+
+CLUSTER_LISTEN
+(none)
+host:port endpoint to bind for peer communication. Required for clustering.
+
+CLUSTER_QUORUM
+(none)
+Minimum live peers required before topology activation. Typically ⌊N/2⌋ + 1.
+
+CLUSTER_HEARTBEAT_MS
+1000
+Heartbeat ping interval in milliseconds.
+
+CLUSTER_SUSPECT_TIMEOUT_MS
+5000
+Time without heartbeat before marking a peer as Suspect, then Dead.
+
+CLUSTER_STABILIZE_MS
+2000
+Post-election debounce window in milliseconds.
+
+CLUSTER_STATE_DIR
+"."
+Directory for persistent state (peer-id.dat, peers.dat).
+
+CLUSTER_SEND_QUEUE_BOUND
+1024
+Per-peer outbound message queue limit.
+
+CLUSTER_MAX_FRAME_BYTES
+262144 (256KB)
+Maximum single frame size on the wire.
+
+Example with all options:
+myTopology
+|> withConf [ CLUSTER_LISTEN "0.0.0.0:6700"
+              CLUSTER_SEEDS "node1:6700,node2:6700,node3:6700"
+              CLUSTER_QUORUM 2
+              CLUSTER_HEARTBEAT_MS 1500
+              CLUSTER_SUSPECT_TIMEOUT_MS 7500
+              CLUSTER_STABILIZE_MS 3000
+              CLUSTER_STATE_DIR "/var/lib/myapp/cluster"
+              CLUSTER_SEND_QUEUE_BOUND 2048
+              CLUSTER_MAX_FRAME_BYTES (512 * 1024) ]
+
+Graceful shutdown
+When the shutdown function is called:
+
+A Leaving message is sent to all known peers — they can immediately mark this peer as Dead and re-elect without waiting for the suspect timeout.
+The heartbeat timer is disposed.
+A Shutdown input is posted to the supervisor mailbox.
+If the peer is the current master, the topology is stopped (using the standard shutdown sequence: stop spouts → drain window → stop bolts → stop ackers).
+The TCP transport is stopped.
+
+Single-process fallthrough
+If CLUSTER_SEEDS is empty (and CLUSTER_LISTEN is not set), Supervisor.runCluster delegates to Hosting.runWith — your topology runs in single-process mode with zero cluster overhead. This means you can use Supervisor.runCluster as your only entry point and control the mode via configuration:
+// Development: no cluster config → single-process
+myTopology |> Supervisor.runCluster log
+
+// Production: add cluster config → supervised failover
+myTopology
+|> withConf [ CLUSTER_LISTEN "0.0.0.0:6700"
+              CLUSTER_SEEDS "node1:6700,node2:6700,node3:6700"
+              CLUSTER_QUORUM 2 ]
+|> Supervisor.runCluster log
+
+Advanced: custom dependencies
+For testing or alternate hosting scenarios, Supervisor.runClusterWith accepts a ClusterDeps<'t> record that provides all external capabilities:
+type ClusterDeps<'t> =
+    { NowMs: unit -> int64                                          // clock
+      LoadOrCreatePeerId: string -> Result<PeerId, StoreError>      // persistent identity
+      LoadPeersCache: string -> Result<PeerEndpoint list, StoreError>
+      SavePeersCache: string -> PeerEndpoint list -> Result<unit, StoreError>
+      CreateTransport: ... -> PeerTransport                         // TCP transport
+      RunTopology: (int -> Log) -> Topology<'t> -> (unit -> unit) } // topology host
+
+Production defaults are provided by Supervisor.defaultDeps, which uses the system clock, on-disk stores, real TCP transport, and Hosting.runWith for topology hosting. Override individual fields for integration testing or custom environments.
+See also
+
+Running Topologies — Entry points, configuration, diagnostics for single-process hosting
+Architecture — Internal runtime structure: tasks, executors, channels, lifecycle
+Message Flow — End-to-end processing scenarios with sequence diagrams
 
 ### [guaranteed](https://FsStorm.github.io/FsShelter/content/guaranteed.md)
 
@@ -438,6 +668,47 @@ restartCount resets to 0 after each successful start
 After maxRestarts (5) consecutive failures, the topology stays down
 runNoRestart uses Environment.Exit(1) instead, delegating restart to the process supervisor
 
+All entry points handle both sync and async components transparently — the runtime detects AsyncFuncRef components and routes them to async executors. No separate entry point is needed for topologies that use Spout.runReliableAsync, Bolt.runAsync, etc.
+For multi-node failover, see Clustering — same topology code, add configuration options and use Supervisor.runCluster.
+Async components
+FsShelter supports async spouts and bolts via Disruptor's IAsyncBatchEventHandler with AsyncWaitStrategy. This lets components perform native async I/O (database calls, HTTP requests, message queue reads) without blocking executor threads.
+Defining async components
+Async variants mirror their sync counterparts — same topology DSL, just different function signatures:
+
+Sync
+Async
+Signature change
+
+Spout.runReliable
+Spout.runReliableAsync
+next: 'a -> ('id * 't) option → next: 'a -> Task<('id * 't) option>
+
+Spout.runUnreliable
+Spout.runUnreliableAsync
+next: 'a -> 't option → next: 'a -> Task<'t option>
+
+Bolt.run
+Bolt.runAsync
+consume: 'a -> unit → consume: 'a -> Task<unit>
+
+Bolt.runTerminator
+Bolt.runTerminatorAsync
+consume: 'a -> unit → consume: 'a -> Task<unit>
+
+How it works
+The runtime detects AsyncFuncRef components during topology construction:
+
+Async bolts get a Disruptor channel with AsyncWaitStrategy() — the handler's OnBatch method is async, allowing Task-returning bolt functions to await without blocking.
+Async spouts get AsyncWaitStrategy(TimeSpan) — combines async event handling with a timeout for polling (issuing Next when under maxPending).
+Sync components (FuncRef) continue to use blocking wait strategies on their own executor threads — no change in behavior.
+
+Mixed topologies (some sync bolts, some async bolts, sync spout) work seamlessly — each component type gets the appropriate channel strategy.
+Performance characteristics
+
+Sync path: zero regression — same throughput as pre-async baseline (~5,350 msg/s on standard bench config)
+Async path: comparable throughput with higher CPU utilization (trades thread blocking for task scheduling)
+GC profile: unchanged for sync; async adds minor Task allocations
+
 Diagnostics
 Self-hosted topologies emit diagnostics via standard .NET APIs:
 OpenTelemetry integration
@@ -550,6 +821,10 @@ TOPOLOGY_TICK_TUPLE_FREQ_SECS
 (none)
 Per-bolt tick tuple interval in seconds
 
+CLUSTER_*
+(various)
+Cluster supervision options — see Clustering for the full configuration reference
+
 Component-level DSL
 
 Function
@@ -582,6 +857,7 @@ Bolt
 None
 Send this tuple to the bolt on deactivation
 
+Async variants (Spout.runReliableAsync, Spout.runUnreliableAsync, Bolt.runAsync, Bolt.runTerminatorAsync) accept Task-returning functions and use async executors. All other DSL functions (withParallelism, withExecutors, etc.) work identically.
 Example:
 // 4 bolt tasks served by 2 executor threads (2 tasks per thread)
 let counter = countWords
@@ -1800,6 +2076,7 @@ Conf
 ConfOption 
 DSL 
 Dispatch 
+DispatchAsync 
 DotGraph 
 Hosting 
 Multilang 
@@ -1820,6 +2097,42 @@ ProtoIO
 Startup 
 Task 
 ThriftModel
+
+### [FsShelter.Cluster](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster.html)
+
+ClusterConfig 
+Election 
+Epoch 
+Incarnation 
+MemberView 
+PeerEndpoint 
+PeerId 
+PeerIdStore 
+PeerTransport 
+PeersCache 
+Supervisor 
+ClusterConfig 
+ClusterDeps<'t> 
+ElectionResult 
+Epoch 
+InboundEvent 
+Incarnation 
+LogLevel 
+Member 
+MemberDigest 
+MemberState 
+MemberView 
+MembershipError 
+MembershipEvent 
+PeerEndpoint 
+PeerId 
+PeerTransport 
+StoreError 
+SupervisorEffect 
+SupervisorInput 
+SupervisorState 
+TransportError 
+WireEnvelope
 
 ### [Conf](https://FsStorm.github.io/FsShelter/reference/fsshelter-confmodule.html)
 
@@ -1894,6 +2207,10 @@ DSL.Acker
 Acker 
 DSL.All 
 All 
+DSL.AsyncConsume<'a> 
+AsyncConsume<'a> 
+DSL.AsyncNext<'a, 't> 
+AsyncNext<'a, 't> 
 DSL.Consume<'a> 
 Consume<'a> 
 DSL.Direct 
@@ -2047,6 +2364,10 @@ Bolt
  
 Bolt.run 
 run 
+Bolt.runAsync 
+runAsync 
+Bolt.runTerminatorAsync 
+runTerminatorAsync 
 Bolt.runTerminator 
 runTerminator 
 Bolt.ofExternal 
@@ -2059,6 +2380,22 @@ run
  define a bolt that auto-acks
  mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each next() call.
  consume: bolt function that will receive incoming tuples.
+
+### [Bolt.runAsync](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-bolt.html#runAsync)
+
+Bolt.runAsync 
+runAsync 
+ define an async bolt that auto-acks
+ mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each consume() call.
+ consume: async bolt function that will receive incoming tuples.
+
+### [Bolt.runTerminatorAsync](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-bolt.html#runTerminatorAsync)
+
+Bolt.runTerminatorAsync 
+runTerminatorAsync 
+ define an async bolt that always nacks
+ mkArgs: curried construction of arguments (log and conf applied only once) that will be passed into each consume() call.
+ consume: async bolt function that will receive incoming tuples.
 
 ### [Bolt.runTerminator](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-bolt.html#runTerminator)
 
@@ -2082,6 +2419,10 @@ Spout.runReliable
 runReliable 
 Spout.runUnreliable 
 runUnreliable 
+Spout.runReliableAsync 
+runReliableAsync 
+Spout.runUnreliableAsync 
+runUnreliableAsync 
 Spout.ofExternal 
 ofExternal
 
@@ -2101,6 +2442,23 @@ runUnreliable
  define spout with no processing guarantees
  mkArgs: one-time construction of arguments that will be passed into each next() call.
  next: spout function that returns a tuple option.
+
+### [Spout.runReliableAsync](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-spout.html#runReliableAsync)
+
+Spout.runReliableAsync 
+runReliableAsync 
+ define an async reliable spout
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ mkAcker: one time construction of `Ack*Nack` handlers (using the args).
+ next: async spout function that returns a Task<(id*tuple) option>.
+
+### [Spout.runUnreliableAsync](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-spout.html#runUnreliableAsync)
+
+Spout.runUnreliableAsync 
+runUnreliableAsync 
+ define an async spout with no processing guarantees
+ mkArgs: one-time construction of arguments that will be passed into each next() call.
+ next: async spout function that returns a Task<tuple option>.
 
 ### [Spout.ofExternal](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-spout.html#ofExternal)
 
@@ -2143,6 +2501,16 @@ on
 
 All.on 
 on
+
+### [AsyncConsume<'a>](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncconsume-1.html)
+
+AsyncConsume<'a> 
+ async bolt function signature
+
+### [AsyncNext<'a, 't>](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-asyncnext-2.html)
+
+AsyncNext<'a, 't> 
+ async spout function signature
 
 ### [Consume<'a>](https://FsStorm.github.io/FsShelter/reference/fsshelter-dsl-consume-1.html)
 
@@ -2276,6 +2644,43 @@ autoAckBolt
 Dispatch.autoNackBolt 
 autoNackBolt 
  Dispatch bolt commands and auto-nack all incoming messages
+
+### [DispatchAsync](https://FsStorm.github.io/FsShelter/reference/fsshelter-dispatchasync.html)
+
+DispatchAsync 
+ Async dispatch functions for spouts and bolts 
+DispatchAsync.reliableSpout 
+reliableSpout 
+DispatchAsync.unreliableSpout 
+unreliableSpout 
+DispatchAsync.autoAckBolt 
+autoAckBolt 
+DispatchAsync.autoNackBolt 
+autoNackBolt
+
+### [DispatchAsync.reliableSpout](https://FsStorm.github.io/FsShelter/reference/fsshelter-dispatchasync.html#reliableSpout)
+
+DispatchAsync.reliableSpout 
+reliableSpout 
+ Dispatch spout commands and handle acknowledgements (async next)
+
+### [DispatchAsync.unreliableSpout](https://FsStorm.github.io/FsShelter/reference/fsshelter-dispatchasync.html#unreliableSpout)
+
+DispatchAsync.unreliableSpout 
+unreliableSpout 
+ Dispatch commands for spouts that don't provide unique ids (async next)
+
+### [DispatchAsync.autoAckBolt](https://FsStorm.github.io/FsShelter/reference/fsshelter-dispatchasync.html#autoAckBolt)
+
+DispatchAsync.autoAckBolt 
+autoAckBolt 
+ Dispatch bolt commands and auto ack/nack handled messages (async consume)
+
+### [DispatchAsync.autoNackBolt](https://FsStorm.github.io/FsShelter/reference/fsshelter-dispatchasync.html#autoNackBolt)
+
+DispatchAsync.autoNackBolt 
+autoNackBolt 
+ Dispatch bolt commands and auto-nack all incoming messages (async consume)
 
 ### [DotGraph](https://FsStorm.github.io/FsShelter/reference/fsshelter-dotgraph.html)
 
@@ -2444,24 +2849,24 @@ Components
 
 InCommand<'t> 
  Storm messages 
-InCommand<'t>.IsHandshake 
-IsHandshake 
-InCommand<'t>.IsTaskIds 
-IsTaskIds 
-InCommand<'t>.IsAck 
-IsAck 
-InCommand<'t>.IsHeartbeat 
-IsHeartbeat 
-InCommand<'t>.IsDeactivate 
-IsDeactivate 
-InCommand<'t>.IsActivate 
-IsActivate 
-InCommand<'t>.IsNack 
-IsNack 
 InCommand<'t>.IsNext 
 IsNext 
+InCommand<'t>.IsNack 
+IsNack 
+InCommand<'t>.IsHeartbeat 
+IsHeartbeat 
 InCommand<'t>.IsTuple 
 IsTuple 
+InCommand<'t>.IsActivate 
+IsActivate 
+InCommand<'t>.IsAck 
+IsAck 
+InCommand<'t>.IsTaskIds 
+IsTaskIds 
+InCommand<'t>.IsHandshake 
+IsHandshake 
+InCommand<'t>.IsDeactivate 
+IsDeactivate 
 InCommand<'t>.Handshake 
 Handshake 
 InCommand<'t>.Ack 
@@ -2481,50 +2886,50 @@ Activate
 InCommand<'t>.Deactivate 
 Deactivate
 
-### [InCommand<'t>.IsHandshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHandshake)
+### [InCommand<'t>.IsNext](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNext)
 
-InCommand<'t>.IsHandshake 
-IsHandshake
-
-### [InCommand<'t>.IsTaskIds](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTaskIds)
-
-InCommand<'t>.IsTaskIds 
-IsTaskIds
-
-### [InCommand<'t>.IsAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsAck)
-
-InCommand<'t>.IsAck 
-IsAck
-
-### [InCommand<'t>.IsHeartbeat](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHeartbeat)
-
-InCommand<'t>.IsHeartbeat 
-IsHeartbeat
-
-### [InCommand<'t>.IsDeactivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsDeactivate)
-
-InCommand<'t>.IsDeactivate 
-IsDeactivate
-
-### [InCommand<'t>.IsActivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsActivate)
-
-InCommand<'t>.IsActivate 
-IsActivate
+InCommand<'t>.IsNext 
+IsNext
 
 ### [InCommand<'t>.IsNack](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNack)
 
 InCommand<'t>.IsNack 
 IsNack
 
-### [InCommand<'t>.IsNext](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsNext)
+### [InCommand<'t>.IsHeartbeat](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHeartbeat)
 
-InCommand<'t>.IsNext 
-IsNext
+InCommand<'t>.IsHeartbeat 
+IsHeartbeat
 
 ### [InCommand<'t>.IsTuple](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTuple)
 
 InCommand<'t>.IsTuple 
 IsTuple
+
+### [InCommand<'t>.IsActivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsActivate)
+
+InCommand<'t>.IsActivate 
+IsActivate
+
+### [InCommand<'t>.IsAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsAck)
+
+InCommand<'t>.IsAck 
+IsAck
+
+### [InCommand<'t>.IsTaskIds](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsTaskIds)
+
+InCommand<'t>.IsTaskIds 
+IsTaskIds
+
+### [InCommand<'t>.IsHandshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsHandshake)
+
+InCommand<'t>.IsHandshake 
+IsHandshake
+
+### [InCommand<'t>.IsDeactivate](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#IsDeactivate)
+
+InCommand<'t>.IsDeactivate 
+IsDeactivate
 
 ### [InCommand<'t>.Handshake](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-incommand-1.html#Handshake)
 
@@ -2575,20 +2980,20 @@ Deactivate
 
 OutCommand<'t> 
  Shell messages 
-OutCommand<'t>.IsPid 
-IsPid 
-OutCommand<'t>.IsOk 
-IsOk 
-OutCommand<'t>.IsLog 
-IsLog 
 OutCommand<'t>.IsSync 
 IsSync 
+OutCommand<'t>.IsOk 
+IsOk 
 OutCommand<'t>.IsError 
 IsError 
 OutCommand<'t>.IsEmit 
 IsEmit 
+OutCommand<'t>.IsPid 
+IsPid 
 OutCommand<'t>.IsFail 
 IsFail 
+OutCommand<'t>.IsLog 
+IsLog 
 OutCommand<'t>.Pid 
 Pid 
 OutCommand<'t>.Ok 
@@ -2604,25 +3009,15 @@ Error
 OutCommand<'t>.Sync 
 Sync
 
-### [OutCommand<'t>.IsPid](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsPid)
+### [OutCommand<'t>.IsSync](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsSync)
 
-OutCommand<'t>.IsPid 
-IsPid
+OutCommand<'t>.IsSync 
+IsSync
 
 ### [OutCommand<'t>.IsOk](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsOk)
 
 OutCommand<'t>.IsOk 
 IsOk
-
-### [OutCommand<'t>.IsLog](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsLog)
-
-OutCommand<'t>.IsLog 
-IsLog
-
-### [OutCommand<'t>.IsSync](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsSync)
-
-OutCommand<'t>.IsSync 
-IsSync
 
 ### [OutCommand<'t>.IsError](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsError)
 
@@ -2634,10 +3029,20 @@ IsError
 OutCommand<'t>.IsEmit 
 IsEmit
 
+### [OutCommand<'t>.IsPid](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsPid)
+
+OutCommand<'t>.IsPid 
+IsPid
+
 ### [OutCommand<'t>.IsFail](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsFail)
 
 OutCommand<'t>.IsFail 
 IsFail
+
+### [OutCommand<'t>.IsLog](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#IsLog)
+
+OutCommand<'t>.IsLog 
+IsLog
 
 ### [OutCommand<'t>.Pid](https://FsStorm.github.io/FsShelter/reference/fsshelter-multilang-outcommand-1.html#Pid)
 
@@ -2678,6 +3083,10 @@ Sync
 
 Topology 
  Topology data model 
+Topology.AsyncDispatcher<'t> 
+AsyncDispatcher<'t> 
+Topology.AsyncRunnable<'t> 
+AsyncRunnable<'t> 
 Topology.Bolt<'t> 
 Bolt<'t> 
 Topology.Component<'t> 
@@ -2702,6 +3111,16 @@ Topology.ToAnchors
 ToAnchors 
 Topology.Topology<'t> 
 Topology<'t>
+
+### [AsyncDispatcher<'t>](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-asyncdispatcher-1.html)
+
+AsyncDispatcher<'t> 
+ Commands dispatcher returning a Task
+
+### [AsyncRunnable<'t>](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-asyncrunnable-1.html)
+
+AsyncRunnable<'t> 
+ Signature for a final runnable component (async)
 
 ### [Bolt<'t>](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-bolt-1.html)
 
@@ -2789,23 +3208,22 @@ Conf
 
 Component<'t> 
  Storm Componend abstraction 
-Component<'t>.IsShell 
-IsShell 
 Component<'t>.IsFuncRef 
 IsFuncRef 
 Component<'t>.IsJava 
 IsJava 
+Component<'t>.IsAsyncFuncRef 
+IsAsyncFuncRef 
+Component<'t>.IsShell 
+IsShell 
 Component<'t>.FuncRef 
 FuncRef 
+Component<'t>.AsyncFuncRef 
+AsyncFuncRef 
 Component<'t>.Shell 
 Shell 
 Component<'t>.Java 
 Java
-
-### [Component<'t>.IsShell](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsShell)
-
-Component<'t>.IsShell 
-IsShell
 
 ### [Component<'t>.IsFuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsFuncRef)
 
@@ -2817,10 +3235,25 @@ IsFuncRef
 Component<'t>.IsJava 
 IsJava
 
+### [Component<'t>.IsAsyncFuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsAsyncFuncRef)
+
+Component<'t>.IsAsyncFuncRef 
+IsAsyncFuncRef
+
+### [Component<'t>.IsShell](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#IsShell)
+
+Component<'t>.IsShell 
+IsShell
+
 ### [Component<'t>.FuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#FuncRef)
 
 Component<'t>.FuncRef 
 FuncRef
+
+### [Component<'t>.AsyncFuncRef](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#AsyncFuncRef)
+
+Component<'t>.AsyncFuncRef 
+AsyncFuncRef
 
 ### [Component<'t>.Shell](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-component-1.html#Shell)
 
@@ -2860,14 +3293,14 @@ Dispatcher<'t>
 
 Grouping<'t> 
  Storm stream grouping abstraction 
-Grouping<'t>.IsDirect 
-IsDirect 
-Grouping<'t>.IsAll 
-IsAll 
 Grouping<'t>.IsShuffle 
 IsShuffle 
 Grouping<'t>.IsFields 
 IsFields 
+Grouping<'t>.IsAll 
+IsAll 
+Grouping<'t>.IsDirect 
+IsDirect 
 Grouping<'t>.Shuffle 
 Shuffle 
 Grouping<'t>.Fields 
@@ -2876,16 +3309,6 @@ Grouping<'t>.All
 All 
 Grouping<'t>.Direct 
 Direct
-
-### [Grouping<'t>.IsDirect](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsDirect)
-
-Grouping<'t>.IsDirect 
-IsDirect
-
-### [Grouping<'t>.IsAll](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsAll)
-
-Grouping<'t>.IsAll 
-IsAll
 
 ### [Grouping<'t>.IsShuffle](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsShuffle)
 
@@ -2896,6 +3319,16 @@ IsShuffle
 
 Grouping<'t>.IsFields 
 IsFields
+
+### [Grouping<'t>.IsAll](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsAll)
+
+Grouping<'t>.IsAll 
+IsAll
+
+### [Grouping<'t>.IsDirect](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#IsDirect)
+
+Grouping<'t>.IsDirect 
+IsDirect
 
 ### [Grouping<'t>.Shuffle](https://FsStorm.github.io/FsShelter/reference/fsshelter-topology-grouping-1.html#Shuffle)
 
@@ -3218,16 +3651,21 @@ FieldWriter
 
 Conf 
  
+Conf.IsEmpty 
+IsEmpty 
 Conf.Count 
 Count 
 Conf.Item 
 Item 
 Conf.Keys 
 Keys 
-Conf.IsEmpty 
-IsEmpty 
 Conf.Values 
 Values
+
+### [Conf.IsEmpty](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#IsEmpty)
+
+Conf.IsEmpty 
+IsEmpty
 
 ### [Conf.Count](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Count)
 
@@ -3244,11 +3682,6 @@ Item
 Conf.Keys 
 Keys
 
-### [Conf.IsEmpty](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#IsEmpty)
-
-Conf.IsEmpty 
-IsEmpty
-
 ### [Conf.Values](https://FsStorm.github.io/FsShelter/reference/fsshelter-conf.html#Values)
 
 Conf.Values 
@@ -3258,34 +3691,52 @@ Values
 
 ConfOption 
  Storm configuration options 
-ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
-IsTOPOLOGY_MAX_TASK_PARALLELISM 
-ConfOption.IsOther 
-IsOther 
-ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
-IsTOPOLOGY_MAX_SPOUT_PENDING 
-ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
-IsTOPOLOGY_MULTILANG_SERIALIZER 
-ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
-IsTOPOLOGY_BACKPRESSURE_ENABLE 
-ConfOption.IsTOPOLOGY_ACKER_TASKS 
-IsTOPOLOGY_ACKER_TASKS 
-ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
-IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
-ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
-IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
-ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
-IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
 ConfOption.IsTOPOLOGY_DEBUG 
 IsTOPOLOGY_DEBUG 
+ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
+IsTOPOLOGY_BACKPRESSURE_ENABLE 
+ConfOption.IsCLUSTER_SEEDS 
+IsCLUSTER_SEEDS 
+ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
 ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
 IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
+ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
+IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
+ConfOption.IsCLUSTER_SUSPECT_TIMEOUT_MS 
+IsCLUSTER_SUSPECT_TIMEOUT_MS 
+ConfOption.IsTOPOLOGY_ACKER_TASKS 
+IsTOPOLOGY_ACKER_TASKS 
+ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
+IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
+ConfOption.IsCLUSTER_MAX_FRAME_BYTES 
+IsCLUSTER_MAX_FRAME_BYTES 
+ConfOption.IsCLUSTER_HEARTBEAT_MS 
+IsCLUSTER_HEARTBEAT_MS 
+ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
+IsTOPOLOGY_MAX_TASK_PARALLELISM 
+ConfOption.IsCLUSTER_STATE_DIR 
+IsCLUSTER_STATE_DIR 
+ConfOption.IsCLUSTER_SEND_QUEUE_BOUND 
+IsCLUSTER_SEND_QUEUE_BOUND 
+ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
+IsTOPOLOGY_MAX_SPOUT_PENDING 
+ConfOption.IsCLUSTER_QUORUM 
+IsCLUSTER_QUORUM 
+ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
+IsTOPOLOGY_MULTILANG_SERIALIZER 
+ConfOption.IsCLUSTER_LISTEN 
+IsCLUSTER_LISTEN 
+ConfOption.IsCLUSTER_STABILIZE_MS 
+IsCLUSTER_STABILIZE_MS 
+ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
+IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
+ConfOption.IsOther 
+IsOther 
 ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
 IsTOPOLOGY_ACKER_EXECUTORS 
+ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
+IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
 ConfOption.TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
 TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
 ConfOption.TOPOLOGY_MESSAGE_TIMEOUT_SECS 
@@ -3312,78 +3763,141 @@ ConfOption.TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS
 TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
 ConfOption.SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
 SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
+ConfOption.CLUSTER_SEEDS 
+CLUSTER_SEEDS 
+ConfOption.CLUSTER_LISTEN 
+CLUSTER_LISTEN 
+ConfOption.CLUSTER_HEARTBEAT_MS 
+CLUSTER_HEARTBEAT_MS 
+ConfOption.CLUSTER_SUSPECT_TIMEOUT_MS 
+CLUSTER_SUSPECT_TIMEOUT_MS 
+ConfOption.CLUSTER_QUORUM 
+CLUSTER_QUORUM 
+ConfOption.CLUSTER_STABILIZE_MS 
+CLUSTER_STABILIZE_MS 
+ConfOption.CLUSTER_STATE_DIR 
+CLUSTER_STATE_DIR 
+ConfOption.CLUSTER_SEND_QUEUE_BOUND 
+CLUSTER_SEND_QUEUE_BOUND 
+ConfOption.CLUSTER_MAX_FRAME_BYTES 
+CLUSTER_MAX_FRAME_BYTES 
 ConfOption.Other 
 Other
-
-### [ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MESSAGE_TIMEOUT_SECS)
-
-ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
-IsTOPOLOGY_MESSAGE_TIMEOUT_SECS
-
-### [ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_TASK_PARALLELISM)
-
-ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
-IsTOPOLOGY_MAX_TASK_PARALLELISM
-
-### [ConfOption.IsOther](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsOther)
-
-ConfOption.IsOther 
-IsOther
-
-### [ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_SPOUT_PENDING)
-
-ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
-IsTOPOLOGY_MAX_SPOUT_PENDING
-
-### [ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE)
-
-ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
-IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
-
-### [ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MULTILANG_SERIALIZER)
-
-ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
-IsTOPOLOGY_MULTILANG_SERIALIZER
-
-### [ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_BACKPRESSURE_ENABLE)
-
-ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
-IsTOPOLOGY_BACKPRESSURE_ENABLE
-
-### [ConfOption.IsTOPOLOGY_ACKER_TASKS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_TASKS)
-
-ConfOption.IsTOPOLOGY_ACKER_TASKS 
-IsTOPOLOGY_ACKER_TASKS
-
-### [ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS)
-
-ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
-IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS
-
-### [ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
-
-ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
-IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS
-
-### [ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_TICK_TUPLE_FREQ_SECS)
-
-ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
-IsTOPOLOGY_TICK_TUPLE_FREQ_SECS
 
 ### [ConfOption.IsTOPOLOGY_DEBUG](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_DEBUG)
 
 ConfOption.IsTOPOLOGY_DEBUG 
 IsTOPOLOGY_DEBUG
 
+### [ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_BACKPRESSURE_ENABLE)
+
+ConfOption.IsTOPOLOGY_BACKPRESSURE_ENABLE 
+IsTOPOLOGY_BACKPRESSURE_ENABLE
+
+### [ConfOption.IsCLUSTER_SEEDS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_SEEDS)
+
+ConfOption.IsCLUSTER_SEEDS 
+IsCLUSTER_SEEDS
+
+### [ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
+
+ConfOption.IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS 
+IsTOPOLOGY_ENABLE_MESSAGE_TIMEOUTS
+
 ### [ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS)
 
 ConfOption.IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS 
 IsTOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS
 
+### [ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MESSAGE_TIMEOUT_SECS)
+
+ConfOption.IsTOPOLOGY_MESSAGE_TIMEOUT_SECS 
+IsTOPOLOGY_MESSAGE_TIMEOUT_SECS
+
+### [ConfOption.IsCLUSTER_SUSPECT_TIMEOUT_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_SUSPECT_TIMEOUT_MS)
+
+ConfOption.IsCLUSTER_SUSPECT_TIMEOUT_MS 
+IsCLUSTER_SUSPECT_TIMEOUT_MS
+
+### [ConfOption.IsTOPOLOGY_ACKER_TASKS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_TASKS)
+
+ConfOption.IsTOPOLOGY_ACKER_TASKS 
+IsTOPOLOGY_ACKER_TASKS
+
+### [ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE)
+
+ConfOption.IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE 
+IsTOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE
+
+### [ConfOption.IsCLUSTER_MAX_FRAME_BYTES](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_MAX_FRAME_BYTES)
+
+ConfOption.IsCLUSTER_MAX_FRAME_BYTES 
+IsCLUSTER_MAX_FRAME_BYTES
+
+### [ConfOption.IsCLUSTER_HEARTBEAT_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_HEARTBEAT_MS)
+
+ConfOption.IsCLUSTER_HEARTBEAT_MS 
+IsCLUSTER_HEARTBEAT_MS
+
+### [ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_TASK_PARALLELISM)
+
+ConfOption.IsTOPOLOGY_MAX_TASK_PARALLELISM 
+IsTOPOLOGY_MAX_TASK_PARALLELISM
+
+### [ConfOption.IsCLUSTER_STATE_DIR](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_STATE_DIR)
+
+ConfOption.IsCLUSTER_STATE_DIR 
+IsCLUSTER_STATE_DIR
+
+### [ConfOption.IsCLUSTER_SEND_QUEUE_BOUND](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_SEND_QUEUE_BOUND)
+
+ConfOption.IsCLUSTER_SEND_QUEUE_BOUND 
+IsCLUSTER_SEND_QUEUE_BOUND
+
+### [ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MAX_SPOUT_PENDING)
+
+ConfOption.IsTOPOLOGY_MAX_SPOUT_PENDING 
+IsTOPOLOGY_MAX_SPOUT_PENDING
+
+### [ConfOption.IsCLUSTER_QUORUM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_QUORUM)
+
+ConfOption.IsCLUSTER_QUORUM 
+IsCLUSTER_QUORUM
+
+### [ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_MULTILANG_SERIALIZER)
+
+ConfOption.IsTOPOLOGY_MULTILANG_SERIALIZER 
+IsTOPOLOGY_MULTILANG_SERIALIZER
+
+### [ConfOption.IsCLUSTER_LISTEN](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_LISTEN)
+
+ConfOption.IsCLUSTER_LISTEN 
+IsCLUSTER_LISTEN
+
+### [ConfOption.IsCLUSTER_STABILIZE_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsCLUSTER_STABILIZE_MS)
+
+ConfOption.IsCLUSTER_STABILIZE_MS 
+IsCLUSTER_STABILIZE_MS
+
+### [ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS)
+
+ConfOption.IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
+IsSUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS
+
+### [ConfOption.IsOther](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsOther)
+
+ConfOption.IsOther 
+IsOther
+
 ### [ConfOption.IsTOPOLOGY_ACKER_EXECUTORS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_ACKER_EXECUTORS)
 
 ConfOption.IsTOPOLOGY_ACKER_EXECUTORS 
 IsTOPOLOGY_ACKER_EXECUTORS
+
+### [ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#IsTOPOLOGY_TICK_TUPLE_FREQ_SECS)
+
+ConfOption.IsTOPOLOGY_TICK_TUPLE_FREQ_SECS 
+IsTOPOLOGY_TICK_TUPLE_FREQ_SECS
 
 ### [ConfOption.TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#TOPOLOGY_ENABLE_MESSAGE_TIMEOUTS)
 
@@ -3449,6 +3963,51 @@ TOPOLOGY_SLEEP_SPOUT_WAIT_STRATEGY_TIME_MS
 
 ConfOption.SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS 
 SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS
+
+### [ConfOption.CLUSTER_SEEDS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_SEEDS)
+
+ConfOption.CLUSTER_SEEDS 
+CLUSTER_SEEDS
+
+### [ConfOption.CLUSTER_LISTEN](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_LISTEN)
+
+ConfOption.CLUSTER_LISTEN 
+CLUSTER_LISTEN
+
+### [ConfOption.CLUSTER_HEARTBEAT_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_HEARTBEAT_MS)
+
+ConfOption.CLUSTER_HEARTBEAT_MS 
+CLUSTER_HEARTBEAT_MS
+
+### [ConfOption.CLUSTER_SUSPECT_TIMEOUT_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_SUSPECT_TIMEOUT_MS)
+
+ConfOption.CLUSTER_SUSPECT_TIMEOUT_MS 
+CLUSTER_SUSPECT_TIMEOUT_MS
+
+### [ConfOption.CLUSTER_QUORUM](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_QUORUM)
+
+ConfOption.CLUSTER_QUORUM 
+CLUSTER_QUORUM
+
+### [ConfOption.CLUSTER_STABILIZE_MS](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_STABILIZE_MS)
+
+ConfOption.CLUSTER_STABILIZE_MS 
+CLUSTER_STABILIZE_MS
+
+### [ConfOption.CLUSTER_STATE_DIR](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_STATE_DIR)
+
+ConfOption.CLUSTER_STATE_DIR 
+CLUSTER_STATE_DIR
+
+### [ConfOption.CLUSTER_SEND_QUEUE_BOUND](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_SEND_QUEUE_BOUND)
+
+ConfOption.CLUSTER_SEND_QUEUE_BOUND 
+CLUSTER_SEND_QUEUE_BOUND
+
+### [ConfOption.CLUSTER_MAX_FRAME_BYTES](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#CLUSTER_MAX_FRAME_BYTES)
+
+ConfOption.CLUSTER_MAX_FRAME_BYTES 
+CLUSTER_MAX_FRAME_BYTES
 
 ### [ConfOption.Other](https://FsStorm.github.io/FsShelter/reference/fsshelter-confoption.html#Other)
 
@@ -3718,4 +4277,1379 @@ ofTopology
 ThriftModel.ofTopology 
 ofTopology 
  Convert topology to Nimbus/thrift representation
+
+### [ClusterConfig](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfigmodule.html)
+
+ClusterConfig 
+ 
+ClusterConfig.tryFromConf 
+tryFromConf
+
+### [ClusterConfig.tryFromConf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfigmodule.html#tryFromConf)
+
+ClusterConfig.tryFromConf 
+tryFromConf 
+ Parse cluster settings from the topology's `Conf`. Returns `None`
+ when `CLUSTER_SEEDS` is absent/empty — the signal for `runCluster`
+ to fall through to single-process `runWith`.
+
+### [Election](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-election.html)
+
+Election 
+ 
+Election.elect 
+elect 
+Election.selfIsMaster 
+selfIsMaster
+
+### [Election.elect](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-election.html#elect)
+
+Election.elect 
+elect 
+ Compute the master peer for `topologyName` over the live set in `view`,
+ using `view.Epoch` to make selection epoch-sticky.
+
+### [Election.selfIsMaster](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-election.html#selfIsMaster)
+
+Election.selfIsMaster 
+selfIsMaster 
+ True when the local peer is the elected master for `topologyName`.
+
+### [Epoch](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epochmodule.html)
+
+Epoch 
+ 
+Epoch.zero 
+zero 
+Epoch.next 
+next 
+Epoch.value 
+value
+
+### [Epoch.zero](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epochmodule.html#zero)
+
+Epoch.zero 
+zero
+
+### [Epoch.next](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epochmodule.html#next)
+
+Epoch.next 
+next
+
+### [Epoch.value](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epochmodule.html#value)
+
+Epoch.value 
+value
+
+### [Incarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnationmodule.html)
+
+Incarnation 
+ 
+Incarnation.zero 
+zero 
+Incarnation.next 
+next 
+Incarnation.value 
+value
+
+### [Incarnation.zero](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnationmodule.html#zero)
+
+Incarnation.zero 
+zero
+
+### [Incarnation.next](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnationmodule.html#next)
+
+Incarnation.next 
+next
+
+### [Incarnation.value](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnationmodule.html#value)
+
+Incarnation.value 
+value
+
+### [MemberView](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html)
+
+MemberView 
+ 
+MemberView.init 
+init 
+MemberView.join 
+join 
+MemberView.leave 
+leave 
+MemberView.suspect 
+suspect 
+MemberView.confirmDead 
+confirmDead 
+MemberView.refresh 
+refresh 
+MemberView.refuteSelf 
+refuteSelf 
+MemberView.merge 
+merge 
+MemberView.digest 
+digest 
+MemberView.live 
+live 
+MemberView.hasQuorum 
+hasQuorum 
+MemberView.sweep 
+sweep
+
+### [MemberView.init](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#init)
+
+MemberView.init 
+init 
+ Fresh view containing only Self as Alive at Incarnation 0, Epoch 0.
+
+### [MemberView.join](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#join)
+
+MemberView.join 
+join 
+ Add or refresh a peer from an inbound digest / seed list. If the peer
+ is new, emits PeerJoined and bumps epoch; if it is known, applies SWIM
+ merge semantics on that single entry.
+
+### [MemberView.leave](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#leave)
+
+MemberView.leave 
+leave 
+ Mark a peer as having left cleanly (received a Leaving envelope). Removes
+ from the view and bumps epoch. Errors if peer unknown or is Self.
+
+### [MemberView.suspect](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#suspect)
+
+MemberView.suspect 
+suspect 
+ Promote Alive → Suspect when local pings time out. No epoch bump.
+ Errors if peer unknown or is Self.
+
+### [MemberView.confirmDead](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#confirmDead)
+
+MemberView.confirmDead 
+confirmDead 
+ Confirm Suspect → Dead after indirect probes fail past suspectTimeoutMs.
+ Bumps epoch because the live set shrinks. Errors if peer unknown or is Self.
+
+### [MemberView.refresh](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#refresh)
+
+MemberView.refresh 
+refresh 
+ Heard from a peer directly — bounces Suspect back to Alive if we had
+ suspected it, and updates LastHeardMs in any case. No-op if unknown.
+
+### [MemberView.refuteSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#refuteSelf)
+
+MemberView.refuteSelf 
+refuteSelf 
+ We received a digest claiming *we* are Suspect or Dead. Bump our own
+ incarnation so our next gossip refutes it. Emits PeerRefuted.
+
+### [MemberView.merge](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#merge)
+
+MemberView.merge 
+merge 
+ Fold a set of remote digests into our view — SWIM merge with
+ incarnation precedence (higher wins); on equal incarnations, state
+ precedence is Dead > Suspect > Alive, except Self is always Alive in
+ its own view. Bumps epoch once if the live set actually changes.
+
+### [MemberView.digest](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#digest)
+
+MemberView.digest 
+digest 
+ Project the current view to a wire-ready digest list (strips local
+ bookkeeping fields).
+
+### [MemberView.live](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#live)
+
+MemberView.live 
+live 
+ Live members (Alive only; input for HRW and quorum counting).
+
+### [MemberView.hasQuorum](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#hasQuorum)
+
+MemberView.hasQuorum 
+hasQuorum 
+ True when live count ≥ requiredQuorum.
+
+### [MemberView.sweep](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberviewmodule.html#sweep)
+
+MemberView.sweep 
+sweep 
+ Time-based sweep: promote Alive peers whose LastHeardMs is older than
+ heartbeatMs * K to Suspect; confirm Dead those Suspect for more than
+ suspectTimeoutMs. Returns all resulting state transitions as events
+ and bumps epoch at most once if the live set changed.
+
+### [PeerEndpoint](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpointmodule.html)
+
+PeerEndpoint 
+ 
+PeerEndpoint.make 
+make 
+PeerEndpoint.toString 
+toString 
+PeerEndpoint.ofString 
+ofString 
+PeerEndpoint.ofStringList 
+ofStringList
+
+### [PeerEndpoint.make](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpointmodule.html#make)
+
+PeerEndpoint.make 
+make
+
+### [PeerEndpoint.toString](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpointmodule.html#toString)
+
+PeerEndpoint.toString 
+toString
+
+### [PeerEndpoint.ofString](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpointmodule.html#ofString)
+
+PeerEndpoint.ofString 
+ofString
+
+### [PeerEndpoint.ofStringList](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpointmodule.html#ofStringList)
+
+PeerEndpoint.ofStringList 
+ofStringList
+
+### [PeerId](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridmodule.html)
+
+PeerId 
+ 
+PeerId.create 
+create 
+PeerId.value 
+value 
+PeerId.toString 
+toString 
+PeerId.ofString 
+ofString
+
+### [PeerId.create](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridmodule.html#create)
+
+PeerId.create 
+create
+
+### [PeerId.value](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridmodule.html#value)
+
+PeerId.value 
+value
+
+### [PeerId.toString](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridmodule.html#toString)
+
+PeerId.toString 
+toString
+
+### [PeerId.ofString](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridmodule.html#ofString)
+
+PeerId.ofString 
+ofString
+
+### [PeerIdStore](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridstore.html)
+
+PeerIdStore 
+ 
+PeerIdStore.loadOrCreate 
+loadOrCreate
+
+### [PeerIdStore.loadOrCreate](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peeridstore.html#loadOrCreate)
+
+PeerIdStore.loadOrCreate 
+loadOrCreate 
+ Read the persisted `peer-id.dat`, or generate + persist a fresh GUID.
+
+### [PeerTransport](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransportmodule.html)
+
+PeerTransport 
+ 
+PeerTransport.create 
+create
+
+### [PeerTransport.create](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransportmodule.html#create)
+
+PeerTransport.create 
+create
+
+### [PeersCache](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerscache.html)
+
+PeersCache 
+ 
+PeersCache.load 
+load 
+PeersCache.save 
+save
+
+### [PeersCache.load](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerscache.html#load)
+
+PeersCache.load 
+load 
+ Load `peers.dat`; empty on first boot.
+
+### [PeersCache.save](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerscache.html#save)
+
+PeersCache.save 
+save 
+ Overwrite `peers.dat`. Caller batches writes on membership change.
+
+### [Supervisor](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisor.html)
+
+Supervisor 
+ 
+Supervisor.step 
+step 
+Supervisor.runClusterWith 
+runClusterWith 
+Supervisor.defaultDeps 
+defaultDeps 
+Supervisor.runCluster 
+runCluster
+
+### [Supervisor.step](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisor.html#step)
+
+Supervisor.step 
+step 
+ Pure transition: `(stabilizeMs, state) -> input -> (state, effects)`.
+ All time arithmetic uses `nowMs` from the input; the function does not
+ read any clock itself.
+
+### [Supervisor.runClusterWith](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisor.html#runClusterWith)
+
+Supervisor.runClusterWith 
+runClusterWith 
+ Run a topology under cluster supervision using the provided external
+ capabilities. If `CLUSTER_SEEDS` is empty (and `CLUSTER_LISTEN`
+ likewise), this falls through to `deps.RunTopology` for single-process
+ parity. Startup failures (bad cluster config, peer-id store I/O,
+ transport bind) are returned as `Error`.
+
+### [Supervisor.defaultDeps](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisor.html#defaultDeps)
+
+Supervisor.defaultDeps 
+defaultDeps 
+ Production defaults for `ClusterDeps`: system clock, on-disk peer-id
+ store, on-disk peers cache, real TCP transport, real topology host.
+
+### [Supervisor.runCluster](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisor.html#runCluster)
+
+Supervisor.runCluster 
+runCluster 
+ Run a topology under cluster supervision with production defaults.
+ Equivalent to `runClusterWith defaultDeps`.
+
+### [ClusterConfig](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html)
+
+ClusterConfig 
+ Parsed cluster config, derived from `FsShelter.Conf` at startup so the
+ Cluster modules never reach back into the Conf map at runtime. 
+ClusterConfig.Listen 
+Listen 
+ClusterConfig.Seeds 
+Seeds 
+ClusterConfig.HeartbeatMs 
+HeartbeatMs 
+ClusterConfig.SuspectTimeoutMs 
+SuspectTimeoutMs 
+ClusterConfig.Quorum 
+Quorum 
+ClusterConfig.StabilizeMs 
+StabilizeMs 
+ClusterConfig.StateDir 
+StateDir 
+ClusterConfig.SendQueueBound 
+SendQueueBound 
+ClusterConfig.MaxFrameBytes 
+MaxFrameBytes
+
+### [ClusterConfig.Listen](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#Listen)
+
+ClusterConfig.Listen 
+Listen
+
+### [ClusterConfig.Seeds](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#Seeds)
+
+ClusterConfig.Seeds 
+Seeds
+
+### [ClusterConfig.HeartbeatMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#HeartbeatMs)
+
+ClusterConfig.HeartbeatMs 
+HeartbeatMs
+
+### [ClusterConfig.SuspectTimeoutMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#SuspectTimeoutMs)
+
+ClusterConfig.SuspectTimeoutMs 
+SuspectTimeoutMs
+
+### [ClusterConfig.Quorum](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#Quorum)
+
+ClusterConfig.Quorum 
+Quorum 
+ Majority threshold; default ⌊|Seeds|/2⌋+1.
+
+### [ClusterConfig.StabilizeMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#StabilizeMs)
+
+ClusterConfig.StabilizeMs 
+StabilizeMs 
+ Post-election debounce before a would-be master activates.
+
+### [ClusterConfig.StateDir](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#StateDir)
+
+ClusterConfig.StateDir 
+StateDir 
+ Directory for `peer-id.dat` and `peers.dat`.
+
+### [ClusterConfig.SendQueueBound](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#SendQueueBound)
+
+ClusterConfig.SendQueueBound 
+SendQueueBound 
+ Per-peer outbound queue bound (drops oldest on overflow).
+
+### [ClusterConfig.MaxFrameBytes](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterconfig.html#MaxFrameBytes)
+
+ClusterConfig.MaxFrameBytes 
+MaxFrameBytes 
+ Maximum single-frame size on the wire.
+
+### [ClusterDeps<'t>](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html)
+
+ClusterDeps<'t> 
+ External capabilities the cluster supervisor depends on. `Supervisor.runCluster`
+ wires these to their production defaults; tests (and alternate hosts) can
+ supply `runClusterWith` directly. 
+ClusterDeps<'t>.NowMs 
+NowMs 
+ClusterDeps<'t>.LoadOrCreatePeerId 
+LoadOrCreatePeerId 
+ClusterDeps<'t>.LoadPeersCache 
+LoadPeersCache 
+ClusterDeps<'t>.SavePeersCache 
+SavePeersCache 
+ClusterDeps<'t>.CreateTransport 
+CreateTransport 
+ClusterDeps<'t>.RunTopology 
+RunTopology
+
+### [ClusterDeps<'t>.NowMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#NowMs)
+
+ClusterDeps<'t>.NowMs 
+NowMs
+
+### [ClusterDeps<'t>.LoadOrCreatePeerId](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#LoadOrCreatePeerId)
+
+ClusterDeps<'t>.LoadOrCreatePeerId 
+LoadOrCreatePeerId
+
+### [ClusterDeps<'t>.LoadPeersCache](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#LoadPeersCache)
+
+ClusterDeps<'t>.LoadPeersCache 
+LoadPeersCache
+
+### [ClusterDeps<'t>.SavePeersCache](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#SavePeersCache)
+
+ClusterDeps<'t>.SavePeersCache 
+SavePeersCache
+
+### [ClusterDeps<'t>.CreateTransport](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#CreateTransport)
+
+ClusterDeps<'t>.CreateTransport 
+CreateTransport
+
+### [ClusterDeps<'t>.RunTopology](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-clusterdeps-1.html#RunTopology)
+
+ClusterDeps<'t>.RunTopology 
+RunTopology
+
+### [ElectionResult](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-electionresult.html)
+
+ElectionResult 
+ Result of an election round. `None` master means insufficient information
+ (empty live set); the Supervisor stays in Standby. 
+ElectionResult.Master 
+Master 
+ElectionResult.Epoch 
+Epoch 
+ElectionResult.LiveCount 
+LiveCount
+
+### [ElectionResult.Master](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-electionresult.html#Master)
+
+ElectionResult.Master 
+Master
+
+### [ElectionResult.Epoch](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-electionresult.html#Epoch)
+
+ElectionResult.Epoch 
+Epoch
+
+### [ElectionResult.LiveCount](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-electionresult.html#LiveCount)
+
+ElectionResult.LiveCount 
+LiveCount
+
+### [Epoch](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epoch.html)
+
+Epoch 
+ Monotonic epoch attached to every `MemberView`. Incremented on any
+ add/remove; used in HRW hash to make mastership sticky across non-fatal
+ membership changes. 
+Epoch.Epoch 
+Epoch
+
+### [Epoch.Epoch](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-epoch.html#Epoch)
+
+Epoch.Epoch 
+Epoch
+
+### [InboundEvent](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-inboundevent.html)
+
+InboundEvent 
+ 
+InboundEvent.IsReceived 
+IsReceived 
+InboundEvent.IsPeerDropped 
+IsPeerDropped 
+InboundEvent.Received 
+Received 
+InboundEvent.PeerDropped 
+PeerDropped
+
+### [InboundEvent.IsReceived](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-inboundevent.html#IsReceived)
+
+InboundEvent.IsReceived 
+IsReceived
+
+### [InboundEvent.IsPeerDropped](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-inboundevent.html#IsPeerDropped)
+
+InboundEvent.IsPeerDropped 
+IsPeerDropped
+
+### [InboundEvent.Received](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-inboundevent.html#Received)
+
+InboundEvent.Received 
+Received
+
+### [InboundEvent.PeerDropped](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-inboundevent.html#PeerDropped)
+
+InboundEvent.PeerDropped 
+PeerDropped
+
+### [Incarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnation.html)
+
+Incarnation 
+ SWIM per-member "incarnation": a peer bumps its own incarnation when it
+ sees itself as Suspect elsewhere, overriding stale gossip. 
+Incarnation.Incarnation 
+Incarnation
+
+### [Incarnation.Incarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-incarnation.html#Incarnation)
+
+Incarnation.Incarnation 
+Incarnation
+
+### [LogLevel](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-loglevel.html)
+
+LogLevel
+
+### [Member](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html)
+
+Member 
+ A single member row in the local view. Extends MemberDigest with local
+ bookkeeping (last-heard timestamps) that never crosses the wire. 
+Member.Id 
+Id 
+Member.Endpoint 
+Endpoint 
+Member.Incarnation 
+Incarnation 
+Member.State 
+State 
+Member.LastHeardMs 
+LastHeardMs 
+Member.SuspectSinceMs 
+SuspectSinceMs
+
+### [Member.Id](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#Id)
+
+Member.Id 
+Id
+
+### [Member.Endpoint](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#Endpoint)
+
+Member.Endpoint 
+Endpoint
+
+### [Member.Incarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#Incarnation)
+
+Member.Incarnation 
+Incarnation
+
+### [Member.State](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#State)
+
+Member.State 
+State
+
+### [Member.LastHeardMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#LastHeardMs)
+
+Member.LastHeardMs 
+LastHeardMs 
+ Monotonic millis from the caller's clock; when this row was last refreshed.
+
+### [Member.SuspectSinceMs](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-member.html#SuspectSinceMs)
+
+Member.SuspectSinceMs 
+SuspectSinceMs 
+ Monotonic millis; set when State transitions to Suspect, VNone otherwise.
+
+### [MemberDigest](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberdigest.html)
+
+MemberDigest 
+ Gossip payload: one row per member the sender knows about. Wire-format
+ data contract shared between the Membership domain and the Transport. 
+MemberDigest.Id 
+Id 
+MemberDigest.Endpoint 
+Endpoint 
+MemberDigest.Incarnation 
+Incarnation 
+MemberDigest.State 
+State
+
+### [MemberDigest.Id](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberdigest.html#Id)
+
+MemberDigest.Id 
+Id
+
+### [MemberDigest.Endpoint](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberdigest.html#Endpoint)
+
+MemberDigest.Endpoint 
+Endpoint
+
+### [MemberDigest.Incarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberdigest.html#Incarnation)
+
+MemberDigest.Incarnation 
+Incarnation
+
+### [MemberDigest.State](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberdigest.html#State)
+
+MemberDigest.State 
+State
+
+### [MemberState](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html)
+
+MemberState 
+ Per-member SWIM state. 
+MemberState.IsAlive 
+IsAlive 
+MemberState.IsSuspect 
+IsSuspect 
+MemberState.IsDead 
+IsDead 
+MemberState.Alive 
+Alive 
+MemberState.Suspect 
+Suspect 
+MemberState.Dead 
+Dead
+
+### [MemberState.IsAlive](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#IsAlive)
+
+MemberState.IsAlive 
+IsAlive
+
+### [MemberState.IsSuspect](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#IsSuspect)
+
+MemberState.IsSuspect 
+IsSuspect
+
+### [MemberState.IsDead](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#IsDead)
+
+MemberState.IsDead 
+IsDead
+
+### [MemberState.Alive](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#Alive)
+
+MemberState.Alive 
+Alive
+
+### [MemberState.Suspect](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#Suspect)
+
+MemberState.Suspect 
+Suspect
+
+### [MemberState.Dead](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberstate.html#Dead)
+
+MemberState.Dead 
+Dead
+
+### [MemberView](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html)
+
+MemberView 
+ The local view of the cluster at one peer. Pure value; all mutations are
+ functional updates. Self is never Dead in our own view. 
+MemberView.Self 
+Self 
+MemberView.SelfEndpoint 
+SelfEndpoint 
+MemberView.SelfIncarnation 
+SelfIncarnation 
+MemberView.Epoch 
+Epoch 
+MemberView.Members 
+Members
+
+### [MemberView.Self](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html#Self)
+
+MemberView.Self 
+Self
+
+### [MemberView.SelfEndpoint](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html#SelfEndpoint)
+
+MemberView.SelfEndpoint 
+SelfEndpoint
+
+### [MemberView.SelfIncarnation](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html#SelfIncarnation)
+
+MemberView.SelfIncarnation 
+SelfIncarnation
+
+### [MemberView.Epoch](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html#Epoch)
+
+MemberView.Epoch 
+Epoch
+
+### [MemberView.Members](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-memberview.html#Members)
+
+MemberView.Members 
+Members
+
+### [MembershipError](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html)
+
+MembershipError 
+ Errors returned by MemberView operations that take a caller-supplied PeerId. 
+MembershipError.IsCannotConfirmDeadSelf 
+IsCannotConfirmDeadSelf 
+MembershipError.IsCannotSuspectSelf 
+IsCannotSuspectSelf 
+MembershipError.IsUnknownPeer 
+IsUnknownPeer 
+MembershipError.IsCannotRemoveSelf 
+IsCannotRemoveSelf 
+MembershipError.UnknownPeer 
+UnknownPeer 
+MembershipError.CannotRemoveSelf 
+CannotRemoveSelf 
+MembershipError.CannotSuspectSelf 
+CannotSuspectSelf 
+MembershipError.CannotConfirmDeadSelf 
+CannotConfirmDeadSelf
+
+### [MembershipError.IsCannotConfirmDeadSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#IsCannotConfirmDeadSelf)
+
+MembershipError.IsCannotConfirmDeadSelf 
+IsCannotConfirmDeadSelf
+
+### [MembershipError.IsCannotSuspectSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#IsCannotSuspectSelf)
+
+MembershipError.IsCannotSuspectSelf 
+IsCannotSuspectSelf
+
+### [MembershipError.IsUnknownPeer](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#IsUnknownPeer)
+
+MembershipError.IsUnknownPeer 
+IsUnknownPeer
+
+### [MembershipError.IsCannotRemoveSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#IsCannotRemoveSelf)
+
+MembershipError.IsCannotRemoveSelf 
+IsCannotRemoveSelf
+
+### [MembershipError.UnknownPeer](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#UnknownPeer)
+
+MembershipError.UnknownPeer 
+UnknownPeer
+
+### [MembershipError.CannotRemoveSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#CannotRemoveSelf)
+
+MembershipError.CannotRemoveSelf 
+CannotRemoveSelf
+
+### [MembershipError.CannotSuspectSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#CannotSuspectSelf)
+
+MembershipError.CannotSuspectSelf 
+CannotSuspectSelf
+
+### [MembershipError.CannotConfirmDeadSelf](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershiperror.html#CannotConfirmDeadSelf)
+
+MembershipError.CannotConfirmDeadSelf 
+CannotConfirmDeadSelf
+
+### [MembershipEvent](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html)
+
+MembershipEvent 
+ Events emitted by state transitions. Consumed by the Supervisor to drive
+ election recompute and topology activation. Only EpochBumped fires when
+ the live set actually changes; Suspect flaps never bump epoch. 
+MembershipEvent.IsPeerJoined 
+IsPeerJoined 
+MembershipEvent.IsPeerSuspected 
+IsPeerSuspected 
+MembershipEvent.IsPeerRefuted 
+IsPeerRefuted 
+MembershipEvent.IsEpochBumped 
+IsEpochBumped 
+MembershipEvent.IsPeerLeft 
+IsPeerLeft 
+MembershipEvent.IsPeerConfirmedDead 
+IsPeerConfirmedDead 
+MembershipEvent.PeerJoined 
+PeerJoined 
+MembershipEvent.PeerLeft 
+PeerLeft 
+MembershipEvent.PeerSuspected 
+PeerSuspected 
+MembershipEvent.PeerConfirmedDead 
+PeerConfirmedDead 
+MembershipEvent.PeerRefuted 
+PeerRefuted 
+MembershipEvent.EpochBumped 
+EpochBumped
+
+### [MembershipEvent.IsPeerJoined](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsPeerJoined)
+
+MembershipEvent.IsPeerJoined 
+IsPeerJoined
+
+### [MembershipEvent.IsPeerSuspected](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsPeerSuspected)
+
+MembershipEvent.IsPeerSuspected 
+IsPeerSuspected
+
+### [MembershipEvent.IsPeerRefuted](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsPeerRefuted)
+
+MembershipEvent.IsPeerRefuted 
+IsPeerRefuted
+
+### [MembershipEvent.IsEpochBumped](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsEpochBumped)
+
+MembershipEvent.IsEpochBumped 
+IsEpochBumped
+
+### [MembershipEvent.IsPeerLeft](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsPeerLeft)
+
+MembershipEvent.IsPeerLeft 
+IsPeerLeft
+
+### [MembershipEvent.IsPeerConfirmedDead](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#IsPeerConfirmedDead)
+
+MembershipEvent.IsPeerConfirmedDead 
+IsPeerConfirmedDead
+
+### [MembershipEvent.PeerJoined](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#PeerJoined)
+
+MembershipEvent.PeerJoined 
+PeerJoined
+
+### [MembershipEvent.PeerLeft](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#PeerLeft)
+
+MembershipEvent.PeerLeft 
+PeerLeft
+
+### [MembershipEvent.PeerSuspected](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#PeerSuspected)
+
+MembershipEvent.PeerSuspected 
+PeerSuspected
+
+### [MembershipEvent.PeerConfirmedDead](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#PeerConfirmedDead)
+
+MembershipEvent.PeerConfirmedDead 
+PeerConfirmedDead
+
+### [MembershipEvent.PeerRefuted](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#PeerRefuted)
+
+MembershipEvent.PeerRefuted 
+PeerRefuted 
+ We saw ourselves reported Suspect/Dead and bumped our incarnation to refute.
+
+### [MembershipEvent.EpochBumped](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-membershipevent.html#EpochBumped)
+
+MembershipEvent.EpochBumped 
+EpochBumped
+
+### [PeerEndpoint](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpoint.html)
+
+PeerEndpoint 
+ Network address a peer listens on. 
+PeerEndpoint.Host 
+Host 
+PeerEndpoint.Port 
+Port
+
+### [PeerEndpoint.Host](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpoint.html#Host)
+
+PeerEndpoint.Host 
+Host
+
+### [PeerEndpoint.Port](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerendpoint.html#Port)
+
+PeerEndpoint.Port 
+Port
+
+### [PeerId](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerid.html)
+
+PeerId 
+ Stable per-process identity. Persisted to `peer-id.dat` on first boot and
+ reused across restarts so HRW rank survives IP/host changes. 
+PeerId.PeerId 
+PeerId
+
+### [PeerId.PeerId](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peerid.html#PeerId)
+
+PeerId.PeerId 
+PeerId
+
+### [PeerTransport](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html)
+
+PeerTransport 
+ Effectful transport surface. One instance per process. 
+PeerTransport.Broadcast 
+Broadcast 
+PeerTransport.Send 
+Send 
+PeerTransport.Start 
+Start 
+PeerTransport.Stop 
+Stop 
+PeerTransport.Subscribe 
+Subscribe
+
+### [PeerTransport.Broadcast](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html#Broadcast)
+
+PeerTransport.Broadcast 
+Broadcast 
+ Broadcast to a set of endpoints.
+
+### [PeerTransport.Send](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html#Send)
+
+PeerTransport.Send 
+Send 
+ Fire-and-forget. Queues onto that peer's bounded sender buffer.
+ Never blocks on TCP. Drops oldest if the sender queue is full
+ (control plane is idempotent — gossip will re-converge).
+
+### [PeerTransport.Start](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html#Start)
+
+PeerTransport.Start 
+Start 
+ Bind the listener and kick off receive coordination. Per-peer sender
+ runtimes connect lazily. Fails fast only on bind errors; per-peer
+ connect errors
+ surface via `InboundEvent.PeerDropped`.
+
+### [PeerTransport.Stop](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html#Stop)
+
+PeerTransport.Stop 
+Stop 
+ Cleanly stop listener + all per-peer sender runtimes.
+
+### [PeerTransport.Subscribe](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-peertransport.html#Subscribe)
+
+PeerTransport.Subscribe 
+Subscribe 
+ Subscribe to inbound frames and connection events. Returns an
+ unsubscribe thunk. Multiple subscribers allowed.
+
+### [StoreError](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-storeerror.html)
+
+StoreError 
+ 
+StoreError.IsIoFailed 
+IsIoFailed 
+StoreError.IsCorruptedFile 
+IsCorruptedFile 
+StoreError.IoFailed 
+IoFailed 
+StoreError.CorruptedFile 
+CorruptedFile
+
+### [StoreError.IsIoFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-storeerror.html#IsIoFailed)
+
+StoreError.IsIoFailed 
+IsIoFailed
+
+### [StoreError.IsCorruptedFile](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-storeerror.html#IsCorruptedFile)
+
+StoreError.IsCorruptedFile 
+IsCorruptedFile
+
+### [StoreError.IoFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-storeerror.html#IoFailed)
+
+StoreError.IoFailed 
+IoFailed
+
+### [StoreError.CorruptedFile](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-storeerror.html#CorruptedFile)
+
+StoreError.CorruptedFile 
+CorruptedFile
+
+### [SupervisorEffect](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html)
+
+SupervisorEffect 
+ Effects the orchestrator must apply after `step` returns. 
+SupervisorEffect.IsStartTopology 
+IsStartTopology 
+SupervisorEffect.IsScheduleStabilizeIn 
+IsScheduleStabilizeIn 
+SupervisorEffect.IsLog 
+IsLog 
+SupervisorEffect.IsStopTopology 
+IsStopTopology 
+SupervisorEffect.StartTopology 
+StartTopology 
+SupervisorEffect.StopTopology 
+StopTopology 
+SupervisorEffect.ScheduleStabilizeIn 
+ScheduleStabilizeIn 
+SupervisorEffect.Log 
+Log
+
+### [SupervisorEffect.IsStartTopology](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#IsStartTopology)
+
+SupervisorEffect.IsStartTopology 
+IsStartTopology
+
+### [SupervisorEffect.IsScheduleStabilizeIn](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#IsScheduleStabilizeIn)
+
+SupervisorEffect.IsScheduleStabilizeIn 
+IsScheduleStabilizeIn
+
+### [SupervisorEffect.IsLog](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#IsLog)
+
+SupervisorEffect.IsLog 
+IsLog
+
+### [SupervisorEffect.IsStopTopology](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#IsStopTopology)
+
+SupervisorEffect.IsStopTopology 
+IsStopTopology
+
+### [SupervisorEffect.StartTopology](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#StartTopology)
+
+SupervisorEffect.StartTopology 
+StartTopology 
+ Activate the topology via `Hosting.runWith` (master path).
+
+### [SupervisorEffect.StopTopology](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#StopTopology)
+
+SupervisorEffect.StopTopology 
+StopTopology 
+ Stop and shutdown the running topology (lost mastership or shutting down).
+
+### [SupervisorEffect.ScheduleStabilizeIn](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#ScheduleStabilizeIn)
+
+SupervisorEffect.ScheduleStabilizeIn 
+ScheduleStabilizeIn 
+ Schedule a `StabilizeElapsed` input to fire after the given delay.
+
+### [SupervisorEffect.Log](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisoreffect.html#Log)
+
+SupervisorEffect.Log 
+Log 
+ Emit a log line.
+
+### [SupervisorInput](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html)
+
+SupervisorInput 
+ External inputs the orchestrator feeds into the pure step function. 
+SupervisorInput.IsStabilizeElapsed 
+IsStabilizeElapsed 
+SupervisorInput.IsShutdown 
+IsShutdown 
+SupervisorInput.IsElectionUpdate 
+IsElectionUpdate 
+SupervisorInput.ElectionUpdate 
+ElectionUpdate 
+SupervisorInput.StabilizeElapsed 
+StabilizeElapsed 
+SupervisorInput.Shutdown 
+Shutdown
+
+### [SupervisorInput.IsStabilizeElapsed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#IsStabilizeElapsed)
+
+SupervisorInput.IsStabilizeElapsed 
+IsStabilizeElapsed
+
+### [SupervisorInput.IsShutdown](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#IsShutdown)
+
+SupervisorInput.IsShutdown 
+IsShutdown
+
+### [SupervisorInput.IsElectionUpdate](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#IsElectionUpdate)
+
+SupervisorInput.IsElectionUpdate 
+IsElectionUpdate
+
+### [SupervisorInput.ElectionUpdate](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#ElectionUpdate)
+
+SupervisorInput.ElectionUpdate 
+ElectionUpdate 
+ Latest election decision after a membership change or tick.
+
+### [SupervisorInput.StabilizeElapsed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#StabilizeElapsed)
+
+SupervisorInput.StabilizeElapsed 
+StabilizeElapsed 
+ Stabilize timer fired at `nowMs`.
+
+### [SupervisorInput.Shutdown](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorinput.html#Shutdown)
+
+SupervisorInput.Shutdown 
+Shutdown 
+ Caller invoked the Shutdown returned by `runCluster`.
+
+### [SupervisorState](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html)
+
+SupervisorState 
+ Lifecycle phase of the local peer with respect to the topology. 
+SupervisorState.IsStandby 
+IsStandby 
+SupervisorState.IsStopping 
+IsStopping 
+SupervisorState.IsActivating 
+IsActivating 
+SupervisorState.IsMaster 
+IsMaster 
+SupervisorState.Standby 
+Standby 
+SupervisorState.Activating 
+Activating 
+SupervisorState.Master 
+Master 
+SupervisorState.Stopping 
+Stopping
+
+### [SupervisorState.IsStandby](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#IsStandby)
+
+SupervisorState.IsStandby 
+IsStandby
+
+### [SupervisorState.IsStopping](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#IsStopping)
+
+SupervisorState.IsStopping 
+IsStopping
+
+### [SupervisorState.IsActivating](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#IsActivating)
+
+SupervisorState.IsActivating 
+IsActivating
+
+### [SupervisorState.IsMaster](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#IsMaster)
+
+SupervisorState.IsMaster 
+IsMaster
+
+### [SupervisorState.Standby](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#Standby)
+
+SupervisorState.Standby 
+Standby 
+ Not the elected master — only gossip/transport machinery is running.
+
+### [SupervisorState.Activating](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#Activating)
+
+SupervisorState.Activating 
+Activating 
+ Just won the election; debouncing for `StabilizeMs` before activating
+ the topology. `since` is the monotonic-ms timestamp of the election win.
+
+### [SupervisorState.Master](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#Master)
+
+SupervisorState.Master 
+Master 
+ Master and topology is running.
+
+### [SupervisorState.Stopping](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-supervisorstate.html#Stopping)
+
+SupervisorState.Stopping 
+Stopping 
+ Shutdown requested; no further transitions.
+
+### [TransportError](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html)
+
+TransportError 
+ 
+TransportError.IsBindFailed 
+IsBindFailed 
+TransportError.IsFrameTooLarge 
+IsFrameTooLarge 
+TransportError.IsConnectFailed 
+IsConnectFailed 
+TransportError.IsDisconnected 
+IsDisconnected 
+TransportError.IsMalformedFrame 
+IsMalformedFrame 
+TransportError.BindFailed 
+BindFailed 
+TransportError.ConnectFailed 
+ConnectFailed 
+TransportError.FrameTooLarge 
+FrameTooLarge 
+TransportError.MalformedFrame 
+MalformedFrame 
+TransportError.Disconnected 
+Disconnected
+
+### [TransportError.IsBindFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#IsBindFailed)
+
+TransportError.IsBindFailed 
+IsBindFailed
+
+### [TransportError.IsFrameTooLarge](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#IsFrameTooLarge)
+
+TransportError.IsFrameTooLarge 
+IsFrameTooLarge
+
+### [TransportError.IsConnectFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#IsConnectFailed)
+
+TransportError.IsConnectFailed 
+IsConnectFailed
+
+### [TransportError.IsDisconnected](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#IsDisconnected)
+
+TransportError.IsDisconnected 
+IsDisconnected
+
+### [TransportError.IsMalformedFrame](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#IsMalformedFrame)
+
+TransportError.IsMalformedFrame 
+IsMalformedFrame
+
+### [TransportError.BindFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#BindFailed)
+
+TransportError.BindFailed 
+BindFailed
+
+### [TransportError.ConnectFailed](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#ConnectFailed)
+
+TransportError.ConnectFailed 
+ConnectFailed
+
+### [TransportError.FrameTooLarge](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#FrameTooLarge)
+
+TransportError.FrameTooLarge 
+FrameTooLarge
+
+### [TransportError.MalformedFrame](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#MalformedFrame)
+
+TransportError.MalformedFrame 
+MalformedFrame
+
+### [TransportError.Disconnected](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-transporterror.html#Disconnected)
+
+TransportError.Disconnected 
+Disconnected
+
+### [WireEnvelope](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html)
+
+WireEnvelope 
+ Wire-level control-plane envelope. Closed DU, custom binary codec. 
+WireEnvelope.IsHello 
+IsHello 
+WireEnvelope.IsWelcome 
+IsWelcome 
+WireEnvelope.IsPing 
+IsPing 
+WireEnvelope.IsPingReqAck 
+IsPingReqAck 
+WireEnvelope.IsAck 
+IsAck 
+WireEnvelope.IsLeaving 
+IsLeaving 
+WireEnvelope.IsPingReq 
+IsPingReq 
+WireEnvelope.Hello 
+Hello 
+WireEnvelope.Welcome 
+Welcome 
+WireEnvelope.Ping 
+Ping 
+WireEnvelope.Ack 
+Ack 
+WireEnvelope.PingReq 
+PingReq 
+WireEnvelope.PingReqAck 
+PingReqAck 
+WireEnvelope.Leaving 
+Leaving
+
+### [WireEnvelope.IsHello](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsHello)
+
+WireEnvelope.IsHello 
+IsHello
+
+### [WireEnvelope.IsWelcome](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsWelcome)
+
+WireEnvelope.IsWelcome 
+IsWelcome
+
+### [WireEnvelope.IsPing](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsPing)
+
+WireEnvelope.IsPing 
+IsPing
+
+### [WireEnvelope.IsPingReqAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsPingReqAck)
+
+WireEnvelope.IsPingReqAck 
+IsPingReqAck
+
+### [WireEnvelope.IsAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsAck)
+
+WireEnvelope.IsAck 
+IsAck
+
+### [WireEnvelope.IsLeaving](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsLeaving)
+
+WireEnvelope.IsLeaving 
+IsLeaving
+
+### [WireEnvelope.IsPingReq](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#IsPingReq)
+
+WireEnvelope.IsPingReq 
+IsPingReq
+
+### [WireEnvelope.Hello](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#Hello)
+
+WireEnvelope.Hello 
+Hello
+
+### [WireEnvelope.Welcome](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#Welcome)
+
+WireEnvelope.Welcome 
+Welcome
+
+### [WireEnvelope.Ping](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#Ping)
+
+WireEnvelope.Ping 
+Ping
+
+### [WireEnvelope.Ack](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#Ack)
+
+WireEnvelope.Ack 
+Ack
+
+### [WireEnvelope.PingReq](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#PingReq)
+
+WireEnvelope.PingReq 
+PingReq
+
+### [WireEnvelope.PingReqAck](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#PingReqAck)
+
+WireEnvelope.PingReqAck 
+PingReqAck
+
+### [WireEnvelope.Leaving](https://FsStorm.github.io/FsShelter/reference/fsshelter-cluster-wireenvelope.html#Leaving)
+
+WireEnvelope.Leaving 
+Leaving
 
